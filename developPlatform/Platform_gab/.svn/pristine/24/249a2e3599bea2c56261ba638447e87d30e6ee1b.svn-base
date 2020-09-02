@@ -1,0 +1,173 @@
+$(function () {
+
+    _init();
+    // 认证状态
+    $('.notice-success').hide();
+    $('.notice-fail').hide();
+    $('.notice-loading').hide();
+
+    var status = $('.status').text();
+    var pass = $('.pass').text();
+    
+    if (status == '确认') {
+        $('.container').css('display', 'none');
+        $('.notice-loading').show();
+        _init();
+    }
+    if (status == '登记' && pass == '驳回') {
+        $('.container').css('display', 'none');
+        $('.notice-fail').show();
+        _init();
+        $('.tip').html('重新提交<b onclick="aginSubmit()">实名认证</b>');
+        $('.submit').click(function () {
+            aginSubmit();
+            _init();
+        })
+    }
+    if (status == '核准' && TZ_SETTING.userType == '需求用户') {
+        $('.container').css('display', 'none');
+        $('.notice-success').show();
+        $('.tip').html('如果您需要变更企业认证信息，可以重新<b onclick="aginSubmit()">实名认证</b>');
+        _init();
+        $.ajax({
+            url: '/platform/personal/personById/' + TZ_SETTING.gabUserId,
+            dataType: 'json',
+            type: 'get',
+            success: function (res) {
+                var data = res.data.personal;
+                $('.notice-success ul').find('li:eq(1)>b').text(data.supplyName);
+                var cardNum = data.idCard;
+                cardNum = cardNum.substring(0,5)+cardNum.substring(5,10).replace(cardNum.substring(5,10),'****')+cardNum.substring(10,cardNum.length);
+                $('.notice-success ul').find('li:eq(2)>b').text(cardNum);
+            }
+        })
+    }
+    if (status == '核准' && TZ_SETTING.userType == '供应厂商') {
+        $('.container').css('display', 'none');
+        $('.notice-success').show();
+        _init();
+        $.ajax({
+            url: '/platform/enroll/SupplyInfo/' + TZ_SETTING.gabUserId,
+            dataType: 'json',
+            type: 'get',
+            success: function (res) {
+                var data = res.data.supply;
+                $('.notice-success ul').find('li:eq(1)>b').text(data.supplyName);
+                var cardNum = data.businessLicenseCode;
+                cardNum = cardNum.substring(0,5)+cardNum.substring(5,10).replace(cardNum.substring(5,10),'****')+cardNum.substring(10,cardNum.length);
+                $('.notice-success ul').find('li:eq(2)>b').text(cardNum);
+            }
+        })
+    }
+
+
+    layui.use(['form', 'laydate', 'layer'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var layer = layui.layer;
+        var flag = true;
+
+        //日期控件初始化
+        laydate.render({
+            // elem: '#operationPeriod' //指定元素
+        });
+
+        //监听提交
+        form.on('submit()', function (data) {
+            var jsonData = {};
+            var getData = data.field;
+
+            var effectiveDateValue = getData.effectiveDate;//选择日期的值
+            var long = getData.isLongTerm;
+            // 判断经营期限是否必填且是否二选一
+            // if ((!long && !effectiveDateValue) || (long && effectiveDateValue)) {
+            //     layer.msg('经营期限请选择日期或勾选长期', { icon: 5 });
+            //     flag = false;
+            // }
+
+            jsonData.gUserInfo = {};
+            jsonData.selectType = 'complete';
+
+            // if (flag) {
+            if (TZ_SETTING.userType == '供应厂商') {
+                var index = layer.load(); //加载load提示
+                jsonData.supply = getData;
+                jsonData.supply.supplyType = '夹具厂商';
+                $.ajax({
+                    url: '/platform/enroll/gab/authsupplysave',
+                    dataType: 'json',
+                    type: 'post',
+                    data: JSON.stringify(jsonData),
+                    contentType: "application/json",
+                    success: function (res) {
+                        if (res.code == '200') {
+                            layer.msg(res.msg, {icon: 1});
+                                window.setTimeout(function () {
+                                    $('.notice-loading').show();
+                                    $('.container').css('display', 'none');
+                                }, 3000);
+                            } else {
+                                layer.msg(res.msg || '操作失败', {time: 5000, icon: 6});
+                            }
+                        },
+                        error: function () {
+                            layer.msg('请求有错误', { icon: 5 })
+                        },
+                        complete: function () {
+                            layer.close(index);
+                        }
+                    })
+                }
+
+                if (TZ_SETTING.userType == '需求用户') {
+                    jsonData.personal = getData;
+                    jsonData.personal.idCard = getData.businessLicenseCode;
+                    jsonData.personal.personImg = getData.supplyImg;
+                    delete jsonData.personal.businessLicenseCode;
+                    delete jsonData.personal.supplyImg;
+
+                    var index1 = layer.load(); //加载load提示
+                    $.ajax({
+                        url: '/platform/personal/gab/authPersonSave',
+                        dataType: 'json',
+                        type: 'post',
+                        data: JSON.stringify(jsonData),
+                        contentType: "application/json",
+                        success: function (res) {
+                            if (res.code == '200') {
+                                layer.msg(res.msg, {icon: 1});
+                                window.setTimeout(function () {
+                                    $('.notice-loading').show();
+                                    $('.container').css('display', 'none');
+                                }, 3000);
+                            }
+                        },
+                        error: function () {
+                            layer.msg('请求有错误', { icon: 5 })
+                        },
+                        complete: function () {
+                            layer.close(index1);
+                        }
+                    })
+                }
+
+            // }
+            return false;
+        });
+    });
+})
+
+function aginSubmit() {
+    $('.container').css('display', 'block');
+    $('.notice-fail').hide();
+    $('.tip').html('请完善一下信息，方便我们更好的为您服务');
+    _init();
+}
+
+function _init() {
+    // 上传文件的控件初始化
+    _init_upload(['#License', '#BusinessLicense']);
+    // 省市区联动
+    new PCAS("province", "city", "area");
+    $('.sidebar').css('height', $('.right').height() + 'px');
+}

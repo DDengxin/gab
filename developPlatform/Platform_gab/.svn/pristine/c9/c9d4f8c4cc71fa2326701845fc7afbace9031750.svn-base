@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+		<title>工艺知识详情</title>
+	</th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/share.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/knowledge.css}"/>
+    <script type="text/javascript" th:src="@{/static/gab/js/knowledge.js}"></script>
+</head>
+<body>
+<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+<div class="knowledge_content">
+    <div class="knowledge_content_list">
+        <div class="tabContainer">
+            <ul id="tablist">
+                <p class="changeTitle"></p>
+                <li>学术论文</li>
+                <li class="tabin">工艺知识</li>
+                <li>经验分享</li>
+                <li>行业动态</li>
+                <li>商会活动</li>
+            </ul>
+        </div>
+        <div class="content-box">
+            <!-- 学术论文主页 -->
+            <div class="content">
+                <p class="showContent">学术论文</p>
+                <ul>
+                    <li>
+                        <a href="/gab/academic.html">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">变压器为什么被广泛应用到各个行业？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">随着电能产业的发展，人们及各种工厂对电流的需求也是不一样的，他们的需求不再仅仅是220伏特的电压了， 人们为了生产的方便就发明了变压器，可以很好的满足对各种电压的需求。那么我们生活中常用的变压器有哪些特点呢？
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <div id="page1"></div>
+            </div>
+
+            <!-- 工艺知识详情 -->
+            <div class="content contentin">
+                <div class="fl">
+                    <p class="showContent">工艺知识</p>
+                    <div class="title">
+                        <h2>变压器为什么被广泛应用到各个行业？变压器为什么被广泛应用到各个行业？</h2>
+                        <p>发布时间：2020-06-25</p>
+                    </div>
+                    <div class="fl_details">
+                        <div>
+                            <p>
+                                <span> 随着电能产业的发展，人们及各种工厂对电流的需求也是不一样的，他们的需求不再仅仅是220伏特的电压了， 人们为了生产的方便就发明了变压器，可以很好的满足对各种电压的需求。那么我们生活中常用的变压器有哪些特点呢？ </span>
+                                <span> 第一，这种变压器的设计充分考虑了物理电磁学的特点，充分利用了法拉第定律来进行电压的转化，避免了在使用的过程中受到不同因素的影响。 </span>
+                            </p>
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+
+                        </div>
+                        <div>
+                            <p>随着电能产业的发展，人们及各种工厂对电流的需求也是不一样的，他们的需求不再仅仅是220伏特的电压了，人们为了生产的方便就发明了变压器， 可以很好的满足对各种电压的需求。那么我们生活中常用的变压器有哪些特点呢？</p>
+                            <p>第一，这种变压器的设计充分考虑了物理电磁学的特点，充分利用了法拉第定律来进行电压的转化， 避免了在使用的过程中受到不同因素的影响。</p>
+                            <p>第二，变压器的内部装置线圈采用的都是导电性能非常好的铜线，因此在变压方面可以随意的变换。</p>
+                            <p>第三，变压器内部的电极材料都要选择合适的，如果选择不好，严重影响变压器的寿命，因此使用的最主要的材料就是要绝对绝缘的。</p>
+                            <p>第四，变压器对转换器的要求，对于转换器要采用一种新颖的方式，这种方式所消耗的功率较低，精确度也很高。</p>
+                        </div>
+                        <div>
+                            <p>随着电能产业的发展，人们及各种工厂对电流的需求也是不一样的，他们的需求不再仅仅是220伏特的电压了，人们为了生产的方便就发明了变压器， 可以很好的满足对各种电压的需求。那么我们生活中常用的变压器有哪些特点呢？</p>
+                            <p>第一，这种变压器的设计充分考虑了物理电磁学的特点，充分利用了法拉第定律来进行电压的转化， 避免了在使用的过程中受到不同因素的影响。</p>
+                            <p>第二，变压器的内部装置线圈采用的都是导电性能非常好的铜线，因此在变压方面可以随意的变换。</p>
+                            <p>第三，变压器内部的电极材料都要选择合适的，如果选择不好，严重影响变压器的寿命，因此使用的最主要的材料就是要绝对绝缘的。</p>
+                            <p>第四，变压器对转换器的要求，对于转换器要采用一种新颖的方式，这种方式所消耗的功率较低，精确度也很高。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fr">
+                    <dl>
+                        <dt>商会活动</dt>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>经验分享</dt>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>行业动态</dt>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                        <dd>
+                            <a href="#">标准夹治具按图纸订制，加急！</a>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- 经验分享 -->
+            <div class="content">
+                <p class="showContent">经验分享</p>
+                <ul>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/sy_76.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <div id="page3"></div>
+            </div>
+
+            <!-- 行业动态 -->
+            <div class="content">
+                <p class="showContent">行业动态</p>
+                <ul>
+                    <li>
+                        <a href="/gab/knowledge.html">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/dt_03.jpg" alt="">
+                            <div>
+                                <p class="title">新能源消纳困局：风电、光伏“死路一条”？</p>
+                                <p class="time">
+                                    发布时间：
+                                    <i>2020-06-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <div id="page4"></div>
+            </div>
+
+            <!-- 商业活动 -->
+            <div class="content">
+                <p class="showContent">商会活动</p>
+                <ul>
+                    <li>
+                        <a href="/gab/knowledge.html">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="/static/gab/images/hd_03.jpg" alt="">
+                            <div>
+                                <p class="title">信誓旦旦的500亿目标只完成20%, 为什么物联网发展没想象中快?</p>
+                                <p class="time">
+                                    活动时间：
+                                    <i>2020-06-25</i>
+                                    至
+                                    <i>2020-07-25</i>
+                                </p>
+                                <p class="zy">国家发改委和国家能源局联合发布《关于做好风电、光伏发电全额保障性收购管理工作的通知》（下称《通知》），要求此前出现较严重限电
+                                    问题的十多个省份，在制定各地年度发早在10年前，爱立信、IBM、思科、Gartner等公司纷纷立下flag，他们普遍......</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <div id="page5"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+</th:block>
+
+</body>
+
+</html>

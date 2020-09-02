@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>报表参数【计算公式】</title>
+    </th:block>
+    <style type="text/css">
+        /*grid操作图标样式调整*/
+        .mini-grid-cell-inner{
+            padding-top:0px;
+        }
+        .mini-grid-cell-inner .iconfont{
+            line-height: 1;
+            padding-top: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input class="mini-hidden" name="freportid"/>
+        <input class="mini-hidden" name="freportitem"/>
+       <table class="hmq-modify-table">
+            <tr>
+                <td title>类型</td>
+                <td content>
+                    <select class="mini-combobox" id="type" name="type" onvaluechanged="onvaluechanged">
+                        <option value="1">现金科目</option>
+                        <option value="2">报表列</option>
+                    </select>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+        </table>
+    </form>
+    <div id="button-grid"
+         style="width:100%;height:250px;"
+         showEmptyText="true" alwaysShowEmptyText="true"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+         editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true" onCellbeginedit="onCellbeginedit"
+         showPager="false" allowSortColumn="flase" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="50" headerAlign="center" type="indexcolumn">序号</div>faccountid
+            <div name="faccountid" field="faccountid" displayField="fnumberfullname" align="left" width="190" headerAlign="center" allowSort="true" vtype="required">科目
+                <div property="editor" allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue"
+                     id="fnumber" name="fnumber" textField="fnumberfullname" valueField="fnumber" class="mini-combobox" showClose="true"  width="500"
+                     buttons="[{iconCls: 'icon-search', handler: onButtonEdit}]">
+                    <div property="columns">
+                        <div header="编码" field="fnumber" width="100"></div>
+                        <div header="名称" field="fnumberfullname" width="400"></div>
+                    </div>
+                </div>
+            </div>
+            <div field="operation" align="center" width="40" headerAlign="center" vtype="required">运算符号
+                <select property="editor" class="mini-combobox" allowInput="false" >
+                    <option value="+">+</option>
+                    <option value="-">-</option>
+                </select>
+            </div>
+<!--            <div field="qsgz" align="center" width="50" headerAlign="center" vtype="required">取数规则-->
+<!--                <select property="editor" class="mini-combobox" allowInput="false" >-->
+<!--                    <option value="余额">余额</option>-->
+<!--                    <option value="借方余额">借方余额</option>-->
+<!--                    <option value="贷方余额">贷方余额</option>-->
+<!--                </select>-->
+<!--            </div>-->
+            <div field="action" width="160" align="center" renderer="onActionRenderer" sortField="action" displayField="action" headerAlign="center" allowSort="true"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    button_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:modifyRow(\'add\', null)">增加一条</a>');
+
+
+    function onvaluechanged(e){
+        button_grid.clearRows();
+        var type = form.getField("type").getValue();
+        var headStr = "科目",fnumber="科目代码",fnumberfullname="凭证科目";
+        if(type && type=='2') {
+            headStr = '名称',fnumber="编码",fnumberfullname="名称";
+        }
+        button_grid.updateColumn("faccountid", {header: headStr});
+    }
+
+    function onButtonEdit(e){
+        var type = form.getField("type").getValue();
+        if(type && type=='2'){
+
+        }else{
+            mini.open({
+                targetWindow: window.parent,
+                url: "/finance/voucher/vouch/accountselect.html",
+                title: "科目选择列表",
+                width: 650,
+                height: 380,
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        data = mini.clone(data); //必须
+                        if (data) {
+                            btnEdit.setValue(data.faccountid);
+                            btnEdit.setText(data.fname);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
+    function onCellbeginedit(e){
+        var type = form.getField("type").getValue();
+        if(e.field == 'faccountid'){
+            var fnumber="科目代码",fnumberfullname="凭证科目",url="/finance/voucher/vouch/getLeafSubjectList";
+            if(type && type=='2') {
+                fnumber="编码",fnumberfullname="名称",url="/finance/reportItem/getSelectList.html";
+            }
+            e.column.editor.columns[0].header = fnumber;
+            e.column.editor.columns[1].header = fnumberfullname;
+            mini.get("fnumber").setUrl(url);
+        }
+    }
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            form.getField("freportitem").setValue(options.data.rowData.freportitem);
+            form.getField("freportid").setValue(options.data.formData.report);
+            $.get("getById/{0}/{1}".format(options.data.rowData.freportitem,options.data.formData.report), function (res) {
+                if (200 === res.code) {
+                    if(res.data && res.data.data.length > 0){
+                        form.getField("type").setValue(res.data.type);
+                        button_grid.addRows(res.data.data,0);
+                    }
+                }
+           });
+        }
+    }
+
+
+    function SaveData() {
+        button_grid.validate();
+        if (button_grid.isValid() == false) {
+            var error = button_grid.getCellErrors()[0];
+            hmq.tipDanger("系统提示", error.errorText, "danger");
+            button_grid.beginEditCell(error.record, error.column);
+            return;
+        }
+        var entryData = button_grid.getData();
+        $['post']("add.html", JSON.stringify({
+                headData : form.getData(true),
+                entryData : entryData
+        }),
+        function (res) {
+            if (200 === res.code) {
+                hmq.tipSuccess(res.msg || '保存成功', {
+                    exec: function () {
+                        CloseWindow('refresh');
+                    }
+                });
+            } else {
+                hmq.tipDanger(res.msg || '保存失败');
+            }
+        }, null, {
+                contentType: 'application/json'
+        });
+    }
+
+
+
+
+    /**
+     * 渲染行
+     **/
+    function onActionRenderer(e) {
+        if ('action' == e.field) {
+            return '<span class="fa fa-fw fa-2x iconfont icon-tianjia3 hmq-success" title="新增" onclick="modifyRow(\'add\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-shanchu2 hmq-danger"  title="删除" onclick="modifyRow(\'remove\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-xiangshang1 hmq-success" title="上移" onclick="modifyRow(\'up\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-xiangxia1 hmq-success" title="下移" onclick="modifyRow(\'down\',\'{_uid}\')"></span>'.format(e.record);
+        }
+    }
+
+    function modifyRow(action, row_uid) {
+        var grid = button_grid;
+        if (form.validate() && form.isValid()) {
+            switch (action) {
+                case 'add':
+                    var index = grid.getSelected() ? grid.indexOf(grid.getSelected()) + 1 : 0
+                    grid.addRow({operation: "+",qsgz:'余额'}, index);
+                    grid.cancelEdit();
+                    grid.beginEditRow(row);
+                    break;
+                case 'remove':
+                    var row = grid.getRowByUID(row_uid);
+                    grid.removeRow(row, true);
+                    break;
+                case 'up':
+                    grid.moveUp(grid.getSelecteds());
+                    break;
+                case 'down':
+                    grid.moveDown(grid.getSelecteds());
+                    break;
+            }
+        }
+    }
+
+
+
+</script>
+</html>

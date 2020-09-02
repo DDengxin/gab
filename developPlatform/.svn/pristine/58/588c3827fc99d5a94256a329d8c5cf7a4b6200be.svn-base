@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>维修工单</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <input class="mini-hidden" name="orient"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>维修单号:</td>
+                <td content>
+                    <input class="mini-textbox" readonly id="sbwbNote" name="sbwbNote" emptyText="自动生成"/>
+                </td>
+                <td title>申请日期:</td>
+                <td content>
+                    <input id="sbwbRq" name="sbwbRq" property="editor" class="mini-datepicker" format="yyyy-MM-dd" value="new Date()"/>
+                </td>
+                <td title>维修类型:</td>
+                <td content>
+                    <input class="mini-combobox" required name="sbwbType" id="sbwbType"
+                           url="/mSbJt/by/getSbwbType"/>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>申请部门:</td>
+                <td content>
+                    <!-- <input class="mini-combobox" required name="sbwbDept" id="sbwbDept"
+                     url="/mSbJt/by/getSbwbDept" /> -->
+                    <input emptyText="请选择..." value="ROOT" text="" id="sbwbDept"
+                           allowInput="false" class="mini-buttonedit"
+                           onbuttonclick="onDeptClickHander"  name="sbwbDept"/>
+                </td>
+                <td title>申请人员:</td>
+                <td content>
+                    <input class="mini-textbox" name="sbwbSman" id="sbwbSman"/>
+
+                </td>
+                <td title>维修状态:</td>
+                <td content>
+                    <input class="mini-textbox" readonly name="sbwbFlag" id="sbwbFlag" emptyText="默认为登记"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>设备编号:</td>
+                <td content>
+                    <!-- <input class="mini-combobox" required name="sbwbSbid" id="sbwbSbid"
+                    url="/mSbJt/by/getSbwbSbid" />  -->
+                    <input required id="sbwbSbid" name="sbwbSbid" emptyText="请选择..."
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onCh"/>
+
+                </td>
+                <td title>设备名称:</td>
+                <td content>
+                    <input class="mini-textbox" readonly name="machineName" id="machineName"/>
+                </td>
+                <td title>紧急程度:</td>
+                <td content>
+                    <input class="mini-combobox" name="jjcd" id="jjcd"
+                           url="/mSbJt/by/getJjcd"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>故障说明:</td>
+                <td content colspan="5">
+                    <textarea class="mini-textarea" style="width:615px; height:200px;" name="sbwbSm" id="sbwbSm"></textarea>
+                </td>
+            </tr>
+            <tr class="completed-target">
+                <td title>安排时间:</td>
+                <td content>
+                    <input id="sbwbJtime" name="sbwbJtime" property="editor" class="mini-datepicker" format="yyyy-MM-dd" value="new Date()"/><!-- value="new Date()" -->
+                </td>
+                <td title>计划完成:</td>
+                <td content>
+                    <input id="sbwbPtime" name="sbwbPtime" property="editor" class="mini-datepicker" format="yyyy-MM-dd" value="new Date()"/><!--value="new Date()"  -->
+                </td>
+                <td title>计划人员:</td>
+                <td content>
+                 <input id="sbwbPman" name="sbwbPman" class="mini-treeselect" 
+            		ajaxType="post" multiSelect="true"  textField="combtext" valueField="combid" 
+            		parentField="pid" checkRecursive="false" 
+                  showFolderCheckBox="false"  expandOnLoad="true" showClose="true" oncloseclick="onCloseClickClearValue"
+                  popupWidth="200" />           
+                                   
+                </td>
+            </tr>
+            <tr class="completed-target">
+                <td title>完成时间:</td>
+                <td content>
+                    <input id="sbwbDtime" name="sbwbDtime" property="editor" class="mini-datepicker" format="yyyy-MM-dd" value="new Date()"/><!-- //value="new Date()" -->
+                </td>
+                <td title>完成人员:</td>
+                <td content>
+                 <input required name="sbwbDman" id="sbwbDman" class="mini-treeselect" url="encodeURI('/system/parameter/getParamsTreeList/设备/WBRY')" 
+            		ajaxType="post"
+            		multiSelect="true"  
+            		textField="combtext" valueField="combid" parentField="pid" checkRecursive="false" 
+                  showFolderCheckBox="false"  expandOnLoad="true" showClose="true" oncloseclick="onCloseClickClearValue"
+                  popupWidth="200" method="post"/> 
+                                   
+                                   	
+                </td>
+                <td title>归档:</td>
+                <td content>
+                    <input class="mini-combobox" required name="sbwbKtype" id="sbwbKtype"
+                           url="/mSbJt/by/getSbwbKtype"/>
+                </td>
+            </tr>
+            <tr class="completed-target">
+                <td title>完成说明:</td>
+                <td content colspan="5">
+                    <textarea class="mini-textarea" style="width:615px; height:70px;" name="sbwbDsm" id="sbwbDsm"></textarea>
+                </td>
+            </tr>
+            <tr>
+
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    mini.get("sbwbPman").setUrl(encodeURI("/system/parameter/getParamsTreeList/设备/WBRY"));
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var action = $('[name=action]').val();
+            if (action == "add" || action == "edit") {
+                let method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+                $[method]("add.html", JSON.stringify(form.getData(true)),
+                    function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '保存成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '保存失败');
+                        }
+                    }, null, {
+                        contentType: 'application/json'
+                    });
+            } else if (action == "ook") {
+                $['put']("ook", JSON.stringify(form.getData(true)),
+                    function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '保存成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '保存失败');
+                        }
+                    }, null, {
+                        contentType: 'application/json'
+                    });
+
+            } else if (action == "conf") {
+                $['put']("conf", JSON.stringify(form.getData(true)),
+                    function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '保存成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '保存失败');
+                        }
+                    }, null, {
+                        contentType: 'application/json'
+                    });
+            }
+        }
+    }
+
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            //隐藏非新增可显示区域
+            $('.completed-target').css('display', 'none');
+            setFormEnabled(form, "sbwbJtime,sbwbPtime,dataMan,sbwbDtime,sbwbDman,sbwbKtype,sbwbDsm", false);
+            AutoResizePopupWindow(window.self,true,true);
+        } else if ('edit' == options.action) {
+            $.get("mSbSbwbList.html/{0}".format(options.data.sbwbNote), function (res) {
+                $('[name=action]').val(options.action);
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    //隐藏非新增可显示区域
+                    $('.completed-target').css('display', 'none');
+                    setFormEnabled(form, "sbwbJtime,sbwbPtime,dataMan,sbwbDtime,sbwbDman,sbwbKtype,sbwbDsm", false);
+                    //弹出框回显
+                    mini.get("sbwbSbid").setText(res.data.sbwbSbid);
+                    mini.get("sbwbSbid").setValue(res.data.sbwbSbid);
+                    mini.get("sbwbDept").setText(res.data.deptname);
+                    mini.get("sbwbDept").setValue(res.data.sbwbDept);
+                    mini.get("machineName").setText(res.data.machineName);
+                    mini.get("machineName").setValue(res.data.machineName);
+                    AutoResizePopupWindow(window.self,true,true);
+
+                }
+            });
+        } else if ('ook' == options.action) {
+            $.get("mSbSbwbList.html/{0}".format(options.data.sbwbNote), function (res) {
+                $('[name=action]').val(options.action);
+                if (200 === res.code) {
+                    form.setData(res.data);
+
+
+                    setIdDisable("sbwbDtime");
+                    setIdDisable("sbwbDman");
+                    setIdDisable("sbwbKtype");
+                    setIdDisable("sbwbDsm");
+                    setIdDisable("sbwbFlag");
+                    setIdDisable("sbwbSman");
+                    setIdDisable("sbwbDept");
+                    setIdDisable("sbwbSm");
+                    setIdDisable("jjcd");
+                    setIdDisable("machineName");
+                    setIdDisable("sbwbSbid");
+                    setIdDisable("sbwbType");
+                    setIdDisable("sbwbRq");
+                    setIdDisable("sbwbNote");
+
+                    //弹出框回显
+                    mini.get("sbwbSbid").setText(res.data.sbwbSbid);
+                    mini.get("sbwbSbid").setValue(res.data.sbwbSbid);
+                    mini.get("sbwbDept").setText(res.data.sbwbDept);
+                    mini.get("sbwbDept").setValue(res.data.sbwbDept);
+                    mini.get("sbwbPman").setValue("");
+                    mini.get("sbwbPman").setText("");
+                }
+            });
+        } else if ('view' == options.action) {
+            $.get("mSbSbwbList.html/{0}".format(options.data.sbwbNote), function (res) {
+                $('[name=action]').val(options.action);
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    setIdDisable("sbwbDtime");
+                    setIdDisable("sbwbDman");
+                    setIdDisable("sbwbKtype");
+                    setIdDisable("sbwbDsm");
+                    setIdDisable("sbwbFlag");
+                    setIdDisable("sbwbSman");
+                    setIdDisable("sbwbDept");
+                    setIdDisable("sbwbSm");
+                    setIdDisable("jjcd");
+                    setIdDisable("machineName");
+                    setIdDisable("sbwbSbid");
+                    setIdDisable("sbwbType");
+                    setIdDisable("sbwbRq");
+                    setIdDisable("sbwbNote");
+                    setIdDisable("sbwbJtime");
+                    setIdDisable("sbwbPtime");
+                    setIdDisable("dataMan");
+                    setIdDisable("sbwbPman");
+
+                    //弹出框回显
+                    mini.get("sbwbSbid").setText(res.data.sbwbSbid);
+                    mini.get("sbwbSbid").setValue(res.data.sbwbSbid);
+                    mini.get("sbwbDept").setText(res.data.deptname);
+                    mini.get("sbwbDept").setValue(res.data.sbwbDept);
+                    mini.get("sbwbDman").setText(res.data.sbwbDman);
+                    mini.get("sbwbDman").setValue(res.data.sbwbDman);
+                    mini.get("sbwbPman").setText(res.data.sbwbPman);
+                    mini.get("sbwbPman").setValue(res.data.sbwbPman);
+                    mini.get("saveBtn").setVisible(false);
+                }
+            });
+        } else if ('conf' == options.action) {
+            $.get("mSbSbwbList.html/{0}".format(options.data.sbwbNote), function (res) {
+                $('[name=action]').val(options.action);
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    setIdDisable("sbwbFlag");
+                    setIdDisable("sbwbSman");
+                    setIdDisable("sbwbDept");
+                    setIdDisable("sbwbSm");
+                    setIdDisable("jjcd");
+                    setIdDisable("machineName");
+                    setIdDisable("sbwbSbid");
+                    setIdDisable("sbwbType");
+                    setIdDisable("sbwbRq");
+                    setIdDisable("sbwbNote");
+                    setIdDisable("sbwbJtime");
+                    setIdDisable("sbwbPtime");
+                    setIdDisable("dataMan");
+                    setIdDisable("sbwbPman");
+
+                    //弹出框回显
+                    mini.get("sbwbSbid").setText(res.data.sbwbSbid);
+                    mini.get("sbwbSbid").setValue(res.data.sbwbSbid);
+                    mini.get("sbwbDept").setText(res.data.sbwbDept);
+                    mini.get("sbwbDept").setValue(res.data.sbwbDept);
+                    
+                }
+            });
+        }
+    }
+
+    /**
+     * @Author:
+     * @description: 维修人员选择页面
+     */
+    function onChange(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/mSbJt/by/supplierselectlist1.html",
+            title: "【维修人员】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);//workerId
+                    btnEdit.setText(data.workerName);//workerName
+                }
+            }
+        });
+    }
+
+    /**
+     * @Author: gxl
+     * @description: 设备编号选择页面
+     */
+    function onCh(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/mSbJt/by/supplierselect.html",
+            title: "【设备编号】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.machineId);
+                    btnEdit.setText(data.machineNo);
+                    mini.get("machineName").setValue(data.machineName);
+                }
+            }
+        });
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            data: "root",
+            width: 500,
+            height: 420,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                }
+            }
+        });
+    }
+
+    ///system/parameter
+
+    function onMenuClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/parameter/hierarchyParmsTree.html",
+            title: "【人员】选择",
+            width: 500,
+            height: 620,
+            action: mini.getByName("action"),
+            data: {
+                rightModule: form.getData().rightModule,
+                paramMod: '设备',
+                paramType: '维保人员',
+                showTopNode: 'false',
+                showNullNode: 'false',
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.paramId);
+                    btnEdit.setText(data.paramName);
+                }
+            }
+        });
+    }
+    
+
+
+
+</script>
+</html>

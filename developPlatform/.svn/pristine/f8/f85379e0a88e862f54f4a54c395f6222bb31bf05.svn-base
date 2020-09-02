@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产登记【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="fcardid" name="fcardid" class="mini-hidden"/>
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>资产编码</td>
+                <td content >
+                    <input class="mini-textbox" name="fnumber" required="true"/>
+                </td>
+                <td title>资产名称</td>
+                <td content >
+                    <input class="mini-textbox" name="fname" required="true"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>资产类别</td>
+                <td content >
+                    <input class="mini-combobox" name="ftypeid" required="true" url="/finance/capitalManager/capitalType/getCapitalSelectList.html"
+                    valueField="fid" textField="fullname" onvaluechanged="ftpyeChanged"/>
+                </td>
+                <td title>录入期间</td>
+                <td content >
+                    <input class="mini-textbox" name="ffaacctitemid"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>使用部门</td>
+                <td content >
+                    <input id="fdeptid" name="fdeptid" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                            popupWidth="240" popupHeight="180" url="/system/dept/combobox/getDeptTreeList" required="true"
+                           showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>开始使用日期</td>
+                <td content >
+                    <input class="mini-datepicker" name="fbegindate" dateFormat="yyyy-MM-dd" showClearButton="false" required="true" allowInput="false"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>折旧方式</td>
+                <td content >
+                    <select class="mini-combobox" name="fdeprmethod" onvaluechanged="zjChanged" required="true">
+                        <option value="100">平均年限法</option>
+                        <option value="101">不提折旧</option>
+                    </select>
+                </td>
+                <td title>预计使用期限</td>
+                <td content >
+                    <input class="mini-textbox" name="flifeperiods" required="true" vtype="int"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>固定资产科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="false"
+                          name="ffaacctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>累计折旧科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="false"
+                          name="fdepracctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>折旧费用科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="false"
+                          name="ffeeacctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>税金科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="false"
+                          name="ftaxaccountid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>资产购入对方科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="false"
+                          name="ffacreditaccountid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>资产清理科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="false"
+                          name="ffacleanaccountid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>减值准备科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue"
+                          name="fimpairacctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>减值准备对方科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue"
+                          name="fimpairacctid2" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  url="/finance/voucher/vouch/getLeafSubjectList"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>原值</td>
+                <td content >
+                    <input class="mini-textbox" name="forgval" required="true" vtype="float" value="0.00"/>
+                </td>
+                <td title>税额</td>
+                <td content >
+                    <input class="mini-textbox" name="ftaxamount" vtype="float" value="0.00"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>残值率</td>
+                <td content >
+                    <input class="mini-textbox" name="fsalvagerate"  vtype="float" value="0.00"/>
+                </td>
+                <td title>预计残值</td>
+                <td content >
+                    <input class="mini-textbox" name="yjcz" value="0.00" />
+                </td>
+            </tr>
+            <tr>
+                <td title>减值准备</td>
+                <td content >
+                    <input class="mini-textbox" name="forgcredit"  vtype="float" value="0.00"/>
+                </td>
+                <td title>已折旧期间</td>
+                <td content >
+                    <input class="mini-textbox" name="fusageperiods" vtype="int" value="0"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>期初累计折旧</td>
+                <td content >
+                    <input class="mini-textbox" name="fdeprservice"  vtype="float" value="0.00"/>
+                </td>
+                <td title>期初净值</td>
+                <td content >
+                    <input class="mini-textbox" name="qcjz"  value="0.00"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>月折旧</td>
+                <td content >
+                    <input class="mini-textbox" name="fperdepreciation"  vtype="float" value="0.00"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>备注</td>
+                <td content colspan="3">
+                    <input class="mini-textarea" name="fremark" height="50"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    form.getField("qcjz").setEnabled(false);
+    form.getField("yjcz").setEnabled(false);
+    form.getField("ffaacctitemid").setEnabled(false);
+
+
+    /**折旧方式选择*/
+    function zjChanged(e){
+        var zjfs = form.getField("zjfs").getValue();
+        if(zjfs && zjfs=='100'){   //平均年限法
+            form.getField("fperdepreciation").setEnabled(true);
+        }else{
+            form.getField("fperdepreciation").setEnabled(false);
+            form.getField("fperdepreciation").setValue(0.00);
+        }
+    }
+
+    /**资产类别值改变事件*/
+    function ftpyeChanged(e){
+        form.getField("fdeprmethod").setValue(e.selected.fdeprmethod2);
+        form.getField("flifeperiods").setValue(e.selected.flifeperiods);
+        form.getField("ffaacctid").setValue(e.selected.ffaacctid);
+        form.getField("fdepracctid").setValue(e.selected.fdepracctid);
+        form.getField("fsalvagerate").setValue(e.selected.fsalvagerate);
+    }
+
+
+    /**
+     * 科目选择框
+     * @param e
+     */
+    function chooseKM(e){
+        var btnEdit = e.sender;
+        mini.open({
+            targetWindow: window.parent,
+            url: "/finance/voucher/vouch/accountselect.html",
+            title: "科目选择列表",
+            width: 650,
+            height: 380,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data); //必须
+                    if (data) {
+                        btnEdit.setValue(data.fnumber);
+                        btnEdit.setText(data.fnumbername);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            // form.getField("forgval").setValue(0.00);
+            // form.getField("ftaxamount").setValue(0.00);
+            // form.getField("fsalvagerate").setValue(0.00);
+            // form.getField("yjcz").setValue(0.00);
+            // form.getField("forgcredit").setValue(0.00);
+            // form.getField("fusageperiods").setValue(0.00);
+            // form.getField("fdeprservice").setValue(0.00);
+            // form.getField("qcjz").setValue(0.00);
+            // form.getField("fperdepreciation").setValue(0.00);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.sid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+
+
+
+
+
+
+</script>
+</html>

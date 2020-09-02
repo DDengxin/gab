@@ -1,0 +1,241 @@
+package com.tengzhi.business.finance.currency.service.impl;
+
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.publicinterfac.ProductType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.business.finance.currency.dao.currencyDao;
+import com.tengzhi.business.finance.currency.service.currencyService;
+import com.tengzhi.business.system.params.model.SysParams;
+
+import cn.hutool.core.util.ObjectUtil;
+
+
+@Service
+@Transactional
+public class currencyServiceImpl implements currencyService{
+	
+	@Autowired
+	private currencyDao currencyDao;
+	
+	AtomicInteger i = new AtomicInteger(0);
+	
+	@Override
+	public BasePage<SysParams> findAll(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+        return currencyDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.eq("paramMod", map.get("paramMod"));
+            c.eq("paramType", map.get("paramType"));
+            c.startingWith("paramId", map.get("paramId"));
+            c.startingWith("paramName", map.get("paramName"));
+        }));
+	}
+	
+	@Override
+    public SysParams save(SysParams SysParams) throws Exception {
+        if (judgeUnique(SysParams)) {
+            SysParams.setParamId(SysParams.getParamId().toUpperCase());
+            SysParams.setParamId(SysParams.getParamId().trim());
+            SessionUser securityUser=SessionUser.SessionUser();
+            SysParams.setCreatorId(securityUser.getUserId());
+            SysParams.setModifierId(securityUser.getUserId());
+            SysParams.setCreator(securityUser.getNickName());
+            SysParams.setModifier(securityUser.getNickName());
+            SysParams.setCreationTime(new Timestamp(System.currentTimeMillis()));
+            SysParams.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            SysParams.setOrgId(securityUser.getCorpId());
+            if ("root".equalsIgnoreCase(SysParams.getParentId())) {
+                SysParams.setParentName("无");
+			}
+            SysParams.Validate();
+            return currencyDao.save(SysParams);
+        } else {
+            throw new Exception("类型名称已存在");
+        }
+    }
+	
+	@Transactional
+	@Override
+	public Result deleteByParameterId(Map<String, Object> map) throws Exception {
+		String oId = ObjectUtil.isEmpty(map.get("paramId")) ? "-1" : map.get("paramId").toString();
+		String paramStatus = ObjectUtil.isEmpty(map.get("paramStatus")) ? "-1" : map.get("paramStatus").toString();
+		int count = Recursive1001((List<Map<String, Object>>) map.get("list"));
+		if ("false".equals(paramStatus) && count == 0) {
+			currencyDao.delLogByOrgId(oId);
+			Recursive((List<Map<String, Object>>) map.get("list"));
+			return Result.resultOkMsg("删除成功");
+		} else {
+			i.set(0);
+			return Result.error("类型已经启动不能删除");
+		}
+	}
+	 
+	//递归删除
+	private int Recursive1001(List<Map<String, Object>> list) {
+		if (list != null) {
+			list.forEach(item -> {
+				String paramStatus = ObjectUtil.isEmpty(item.get("paramStatus")) ? "-1" : item.get("paramStatus").toString();
+				if ("-1".equals(paramStatus)) {
+					i.set(1);
+				}
+				if ("true".equalsIgnoreCase(paramStatus)) {
+					i.set(1);
+				}
+				Recursive1001((List<Map<String, Object>>) item.get("children"));
+			});
+		}
+		return i.get();
+	}
+	    
+	//递归删除
+	private void Recursive(List<Map<String, Object>> list) {
+		if (list != null) {
+			list.forEach(item -> {
+				currencyDao.delLogByOrgId(ObjectUtil.isEmpty(item.get("paramId")) ? "-1" : item.get("paramId").toString());
+				Recursive((List<Map<String, Object>>) item.get("children"));
+			});
+		}
+	}
+
+	
+	@Override
+	public boolean judgeUnique(SysParams sysParams) {
+		return currencyDao.findAll(Specifications.where((c) -> {
+			c.eq("paramId", sysParams.getParamId());
+			//c.eq("parentId", sysParams.getParentId());
+		})).size() <= 0;
+	}
+
+	 
+	@Override
+	public void update(SysParams sysParams) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		sysParams.setModifierId(securityUser.getUserId());
+		sysParams.setModifier(securityUser.getNickName());
+		sysParams.setModifyTime(new Timestamp(System.currentTimeMillis()));
+		if ("ROOT".equalsIgnoreCase(sysParams.getParentId())) {
+			sysParams.setParentName("无");
+		} 
+		currencyDao.dynamicSave(sysParams, currencyDao.findByParamId(sysParams.getParamId()));
+	}
+
+
+	@Override
+	public SysParams findByParamId(String paramId) {
+		return currencyDao.findByParamId(paramId);
+	}
+
+	@Override
+	public ModelAndView table(ModelAndView mv, String note) {
+//		List<Map> cp = currencyDao.QueryListMap(sql);
+//		mv = cp(mv,pch);
+//		mv = cf(mv,pch);
+//		mv = jc(mv,pch);
+		mv = prove(mv,note);
+		return mv;
+	}
+
+	private ModelAndView cp(ModelAndView mv,String pch){
+		String sql = "select cp.cpcode_fl cpcodefl,cp.cpcode_name cpcodename,pz.tph ph,COALESCE(cp.cpcode_size, '')||COALESCE(cp.cpcode_size_en, '') cpsize,pz.pch pch,pz.sc_no scno,rq rq,code_type codetype from e_js_cpcode cp,e_pz_jylist pz where cp.cpcode_id = pz.code and pz.pch = '"+pch+"'";
+		List<Map> cp = currencyDao.QueryListMap(sql);
+
+		ProductType productType = ProductType.valueOfParamId(cp.get(0).get("codetype"));
+		if(null != productType){
+			sql = "select f_get_param_name('GETBCPCODENAME', '"+cp.get(0).get("cpcodename")+"', '技术', false) cpname";
+		}
+
+		List<Map> cpname = currencyDao.QueryListMap(sql);
+		sql = "select  ht_standard criterion from e_xs_contract_detailed where ht_no = '"+cp.get(0).get("scno")+"'";
+		List<Map> criterion = currencyDao.QueryListMap(sql);
+		mv.addObject("cpcodefl", cp.get(0).get("cpcodefl"));//产品分类
+		mv.addObject("cpname", cpname.get(0).get("cpname"));//产品名称
+		mv.addObject("ph", cp.get(0).get("ph"));//牌号
+		mv.addObject("cpsize", cp.get(0).get("cpsize"));//规格
+		mv.addObject("pch", cp.get(0).get("pch"));//批次号
+		mv.addObject("criterion", criterion);//执行标准
+		mv.addObject("rq", cp.get(0).get("rq"));//日期
+		return mv;
+	}
+	
+//	private ModelAndView cf(ModelAndView mv,String pch){
+//		String sql = "select xm_code xmcode,xm_tvalue xmtvalue,xm_value xmvalue from e_pz_jylist_lh where pch = '"+pch+"' order by xm_ord asc";
+//		List<Map> cf = currencyDao.QueryListMap(sql);
+//		mv.addObject("cf", cf);//成份列表
+//		mv.addObject("cfsize", cf.size());//成份size
+//		return mv;
+//	}
+	
+//	private ModelAndView jc(ModelAndView mv,String pch) {
+//		String sql = "select xm_code xmcode,xm_tvalue xmtvlalue,xm_value xmvalue from e_pz_jylist_jc where pch = '"+pch+"' order by xm_ord asc";
+//		List<Map> jc = currencyDao.QueryListMap(sql);
+//		for(int i =0;i<jc.size();i++) {
+//			mv.addObject(jc.get(i).get("xmcode").toString(), jc.get(i).get("xmcode"));
+//			mv.addObject(jc.get(i).get("xmcode").toString()+"BZ", jc.get(i).get("xmtvlalue"));
+//			mv.addObject(jc.get(i).get("xmcode").toString()+"SCZ", jc.get(i).get("xmvalue"));
+//		}
+//		return mv;
+//	}
+	
+	/**
+	 * 质检打印信息
+	 * @param mv
+	 * @param note
+	 * @return
+	 */
+	private ModelAndView prove(ModelAndView mv,String note){
+		//抬头信息
+		String sql = "select f_getname('GETDWEXP',ht_customer,'',b.data_corp) ht_customer,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'')||tph tph,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'') cpcodefl ,cpcode_size,pch,ht_standard,current_date,note from e_pz_jylist a,e_xs_contract b,e_xs_contract_detailed c,e_js_cpcode d where a.sc_no=c.ht_mo and b.ht_no=c.ht_no  and code=d.cpcode_id and note ='"+note+"'";
+		List<Map> tt = currencyDao.QueryListMap(sql);
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		for(int i = 0; i<tt.size() ; i++) {
+			Map<String,Object> rmap = new HashMap<String, Object>();
+			rmap.put("tt", tt.get(i));
+			//成份信息
+			List <Map> cf = cf(tt.get(i).get("pch").toString());
+			rmap.put("cf", cf);
+			rmap.put("cfSize", cf.size());
+			//检查信息
+			List <Map> jc = jc(tt.get(i).get("pch").toString());
+			Map<String,Object> jcMap = new HashMap<String, Object>();
+			for(int j = 0; j<jc.size() ; j++) {
+				jcMap.put(jc.get(j).get("xm_code").toString(), jc.get(j).get("xm_tvalue"));
+			}
+			rmap.put("jc", jcMap);
+			rmap.put("jcSize", jc.size());
+			list.add(rmap);
+		}
+		mv.addObject("proves", list);
+		return mv;
+	}
+	
+	private List<Map> cf(String pch){
+		String sql = "select f_get_param_name('成品牌号',xm_code,'') xmcodename,xm_code,xm_tvalue,xm_value,xm_ord from e_pz_jylist_lh where pch = '"+pch+"'";
+		List<Map> cf = currencyDao.QueryListMap(sql);
+		return cf;
+	}
+	
+	private List<Map> jc(String pch){
+		String sql = "select f_get_param_name('成品检测',xm_code,'') xmcodename,xm_code,xm_tvalue,xm_value,xm_ord from e_pz_jylist_jc where pch = '"+pch+"'";
+		List<Map> cf = currencyDao.QueryListMap(sql);
+		return cf;
+	}
+	
+}

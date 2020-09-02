@@ -1,0 +1,47 @@
+package com.tengzhi.business.system.main.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.system.main.model.SysUserTodo;
+import com.tengzhi.business.system.right.model.SysRight;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author 王翔
+ * @create 2020-04-29
+ */
+public interface SysMainService {
+
+    BasePage<SysRight> AuthRight(BaseDto baseDto)throws Exception ;
+
+    BasePage<SysRight> sysSerash(String y,String e) throws IOException;
+
+    BasePage<SysRight> ShowMenu(BaseDto baseDto)throws Exception ;
+
+    List<SysRight> ShowMenu();
+
+    void sava(List<Map<String,Object>> list);
+
+    void update(String id);
+
+	ModelAndView getSetting(ModelAndView mv);
+
+	void up(String id);
+
+    void ap(String id);
+
+    void update(SysUserTodo sysUserTodo);
+
+    void add(SysUserTodo sysUserTodo);
+
+    /**
+     * 获取首页用户自定义图表
+     * @return
+     */
+    List<Map> getDatachart();
+
+}

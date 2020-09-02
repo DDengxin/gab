@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>科目余额表</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient"/>
+        <label>会计期间: </label>
+        <input id="srch_period1" name="srch_period1" class="mini-combobox" style="width:140px;" textField="combtext" valueField="combid"
+               url="" emptyText="请选择.." showNullItem="true" nullItemText="全部" />
+        <label>科目:</label>
+        <input id="Level" name="Level" class="mini-treeselect" style="width:200px;" multiSelect="false" valueFromSelect="false" textField="fnumbername" valueField="faccountid" parentField="fparentid"
+               allowInput="true" showRadioButton="false" showFolderCheckBox="false" nullitemtext="请选择..." shownullitem="true" emptytext="请选择..." />
+        <input id="fnumbertemp" name="fnumbertemp" class="mini-hidden" readonly="readonly" />
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <!--virtualScroll参数请不要轻易设置，只因为该页参数过多，为提高流畅度才使用-->
+    <div id="srch_grid" sortField="paramOrd" treeColumn="paramName"
+         idField="paramId" parentField="parentId" resultAsTree="true"
+         expandOnLoad="0" showTreeLines="true" ShowTreeicon="false" pageSize="10000"
+         showPageInfo="false" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" style="width:100%;height:100%;" allowSort="true" align="center" class="mini-treegrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div type="indexcolumn" width="30px" headerAlign="center"></div>
+            <div field="faccountid" name="faccountid" width="120" sortField="faccountid" displayField="fnumbername" headerAlign="center" allowSort="true" align="left">科目</div>
+            <div field="period" name="period" width="120" sortField="period" displayField="period" headerAlign="center" allowSort="true" align="left">期间</div>
+            <div header="期初余额" align="center" headerAlign="center">
+                <div property="columns">
+                    <div field="debtor1" width="120" sortField="debtor1" displayField="debtor1" headerAlign="center" allowSort="true" align="left">借方</div>
+                    <div field="credit1" width="120" sortField="credit1" displayField="credit1" headerAlign="center" allowSort="true" align="left">贷方</div>
+                </div>
+            </div>
+            <div header="本期发生额" align="center" headerAlign="center">
+                <div property="columns">
+                    <div field="debtor2" width="120" sortField="debtor2" displayField="debtor2" headerAlign="center" allowSort="true" align="left">借方</div>
+                    <div field="credit2" width="120" sortField="credit2" displayField="credit2" headerAlign="center" allowSort="true" align="left">贷方</div>
+                </div>
+            </div>
+            <div header="期末余额" align="center" headerAlign="center">
+                <div property="columns">
+                    <div field="debtor3" width="80" sortField="debtor3" displayField="debtor3" headerAlign="center" allowSort="true" align="left">借方</div>
+                    <div field="credit3" width="120" sortField="credit3" displayField="credit3" headerAlign="center" allowSort="true" align="left">贷方</div>
+                </div>
+            </div>
+            <div></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    mini.get("Level").setUrl(encodeURI(encodeURI("/finance/voucher/vouch/getSubjectTreeList")));
+
+    // 页面初始化模块和类型 START
+    var paramMod = hmq.getQueryString("paramMod");
+    var paramType = hmq.getQueryString("paramType");
+    var paramXtype = hmq.getQueryString("paramType");
+
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(paramMod)) {
+        form.getField("paramMod").setValue(paramMod);
+        form.getField("paramType").setValue(paramType);
+        form.getField("paramXtype").setValue(paramXtype);
+        form.getField('paramMod').doValueChanged();
+        setIdReadOnly("paramMod");
+    }
+
+    // 页面初始化模块和类型 END
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+        <title>我的订单</title>
+    </th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/allOrders.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/allOrders.js}"></script>
+</head>
+
+<body>
+
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+    <div class="main w">
+        <div class="main-title">我的订单</div>
+        <div class="main-x">
+            <div class="sp-tab">
+                <table class="js-tab" cellspacing="0" cellpadding="0" id="tab" border="0">
+                    <thead>
+                        <tr>
+                            <td width="150">
+                                <div class="com-sel">
+                                    <select class="com-opt">
+                                        <option value="全部订单">全部订单</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td width="450">数量</td>
+
+                            <td width="150">联系人</td>
+                            <td width="150">总金额</td>
+                            <td width="150">
+                                <div class="com-sel">
+                                    <select class="com-opt">
+                                        <option value="全部状态">全部</option>
+                                        <option value="待发货">待发货</option>
+                                        <option value="已发货">已发货</option>
+                                        <option value="已完成">已完成</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td width="150">操作</td>
+                        </tr>
+                    </thead>
+                    <tbody th:each="cp:${myOrders}">
+                    <tr>
+                        <td colspan="5" class="l">
+                            <span>订单编号：</span><span th:text="${cp.cpId}"></span>
+                            <!--                                <b>浙江高吴五金材料有限公司</b>-->
+                            <span th:text="${cp.cpTime}">2020-07-23 14:36:43</span>
+                        </td>
+                        <td align="center" class="fontColor hover" onclick="deleteOrder(this);">删除</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="l">
+                            <img th:src="@{'/system/setting/image?line_primary='+${cp.coverPicture}}" alt=""
+                                 default-img="/static/gab/images/wt.png">
+                            <span class="name" th:text="${cp.cpcodeName}">商品名称商品名称商品名称商品名称商品名称</span>
+                            <b><em>x</em><em th:text="${cp.cpCount}">100</em></b>
+                        </td>
+                        <td th:text="${cp.owner}">郑大成</td>
+                        <td class="fontColor"><em>￥</em><em th:text="${cp.total}">35600.00</em></td>
+                        <td>已完成</td>
+                        <td>
+                            <a href="#">售后</a><a th:href="@{'/gab/comment.html?productId='+${cp.cpNum}}">评价</a>
+                            <!--                                <a href="/gab/comment.html">评价</a>-->
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div id="page"></div>
+            </div>
+            <div class="no">还没有订单哦~快去购买你心仪的产品吧</div>
+        </div>
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+    </th:block>
+</body>
+
+</html>

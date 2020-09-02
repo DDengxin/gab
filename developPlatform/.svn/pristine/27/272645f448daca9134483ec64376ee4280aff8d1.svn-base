@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+     <title>凭证摘要</title>
+    </th:block>
+</head>
+
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="fid"/>
+        </label>
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="fid" url="/finance/voucher/summary/getSrchList" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="fid" width="100%">摘要id</div>
+            <div tz:datagrid="column" field="fdesc" width="100%">摘要内容</div>
+			<div tz:datagrid="column" field="finternalind" width="100%">内含</div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+	    function search_option() {
+	        grid.load();
+	    }
+	    function add_option(e) {
+	        var row = grid.getSelected();
+	        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: '380px', height: '150px'});
+	    }
+
+	    function edit_option(e) {
+	        var row = grid.getSelected();
+	        if (row) {
+	        	console.log(row);
+	            e.sender.miniopen({url: "add.html", action: 'edit', data: row, width: '380px', height: '150px'});
+	        } else {
+	            hmq.tipDanger("请选择一条记录");
+	        }
+	    }
+
+		
+	</script>
+</body>
+
+</html>

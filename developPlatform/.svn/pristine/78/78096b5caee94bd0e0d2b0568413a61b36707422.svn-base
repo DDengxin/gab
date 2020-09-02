@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>出库统计</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <table>
+            <tr>
+                <td>
+                    <input class="mini-hidden" name="orient" id="orient"/>
+                    <input class="mini-hidden" name="outType" id="outType" width="100"/>
+                    <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+                    <input class="mini-combobox" name="srchRqFlag" id="srchRqFlag" textField="text" valueField="id" popupHeight="200" width="100px"
+                           data="[{id:'登记时间',text:'登记时间'},{id:'库审时间',text:'库审时间'}]" value="登记时间"/>
+                    <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+                    <label class="hmq-label" text="至">
+                        <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="单号">
+                        <input class="mini-textbox" name="outNote" width="120"/>
+                    </label>
+                    <label class="hmq-label" text="单位">
+                        <input name="outCustomer" emptyText="全部"
+                               allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue" width="140"/>
+                    </label>
+                    <label class="hmq-label" text="库房">
+                        <div id="outLib" name="outLib" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:150px;" emptyText="全部">
+                            <div property="columns">
+                                <div header="全部" field="text"></div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="hmq-label" text="口径">
+                        <div id="outAct" name="outAct" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" popupMaxHeight="400"
+                             emptyText="全部">
+                            <div property="columns">
+                                <div header="全部" field="text"></div>
+                            </div>
+                        </div>
+                    </label>
+
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="hmq-label" text="包装号">
+                        <input class="mini-textbox" name="outPack" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="编码">
+                        <input class="mini-textbox" name="outCode" width="110"/>
+                    </label>
+                    <label class="hmq-label" for="cpcodeName" text="名称">
+                        <input id="cpcodeName" name="cpcodeName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid" parentField="pid" value="无" onbeforenodeselect="disableParentSelection"
+                               popupWidth="240" popupHeight="180" emptyText="全部" showNullItem="true" nullItemText="全部" allowInput="true"/>
+                    </label>
+                    <label class="hmq-label" for="cpcodeSize" text="规格">
+                        <input class="mini-textbox" id="cpcodeSize" name="cpcodeSize" width="110"/>
+                    </label>
+                    <label class="hmq-label" for="cpcodeFl" text="分类">
+                        <div id="cpcodeFl" name="cpcodeFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" popupMaxHeight="400"
+                             emptyText="全部">
+                            <div property="columns">
+                                <div header="全部" field="text"></div>
+                            </div>
+                        </div>
+                    </label>
+                </td>
+            </tr>
+        </table>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_top_grid" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell"
+         sortField="out_rq" sortOrder="desc"  sizeList="[100,500,1000,2000]" pageSize="100">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="outRq" width="100" align="center">登记日期</div>
+            <div tz:datagrid="column" field="outNote" widhtDateth="120" align="center">单号</div>
+            <div tz:datagrid="column" field="outLib" displayField="outLibName" width="120" align="center">库房</div>
+            <div tz:datagrid="column" field="outKw" displayField="outKwName" width="90" align="center">库位</div>
+            <div tz:datagrid="column" field="outAct" displayField="outActName" width="90" align="center">口径</div>
+            <div tz:datagrid="column" field="outCustomer" displayField="outCustomerName" width="120" align="left">客户</div>
+            <div tz:datagrid="column" field="outCode" width="100" align="center">编码</div>
+            <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" displayField="cpcodeNameName" align="left" width="120">名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize"   displayField="cpcodeSizeName"  align="left" width="100">规格</div>
+            <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" displayField="cpcodeXpName" align="left" width="100">标重</div>
+            <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" displayField="cpcodeSizeEnName"  align="left" width="100">品牌</div>
+            <div tz:datagrid="column" field=cpcodeFl name="cpcodeFl" displayField=cpcodeFlName align="left" width="80">大类</div>
+            <div tz:datagrid="column" field="outSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">数量</div>
+            <div tz:datagrid="column" field="outPh" name="outPh" width="200" align="right" visible="false">批号</div>
+            <div tz:datagrid="column" field="outLuono" name="outLuono" width="200" align="right" visible="false">炉号</div>
+            <div tz:datagrid="column" field="outPack" width="120" align="center">包装号</div>
+            <div tz:datagrid="column" field="outBpack" width="120" align="center">大包装号</div>
+            <div tz:datagrid="column" field="outMan" displayField="outManName" width="100" align="center">库审人</div>
+            <div tz:datagrid="column" field="outDate" width="140" align="center">库审时间</div>
+            <div tz:datagrid="column" field="htCustomerAssociatedRemarks" width="150">客户关联合同备注</div>
+            <div tz:datagrid="column" field="outContract" width="120" align="center">合同</div>
+<!--             <div tz:datagrid="column" field="out_remarks" width="250" align="left">说明</div>
+ -->            <div tz:datagrid="column" field=outFlag width="80" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_top_grid");
+    var surl = "/ck/yw/warehouseInfo";
+    grid.setUrl(surl + "/getSrchOutList");
+    grid.bindSearchForm(form);
+    grid.frozenColumns(0, 5);
+    //start
+    var outType = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(outType)) {
+        form.getField("outType").setValue(outType);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("outType,paramMod");
+        mini.get("outAct").setUrl("/ck/yw/warehouseInfo/getActSelectList/仓库收发/02/{0}".format(outType));
+        mini.get("outLib").setUrl("/system/parameter/getParamsSelectListByParentId/仓库/{0}".format(outType));
+        if (outType == "CP") {
+            grid.showColumn("outPh");
+        } else if (outType == "YL") {
+            grid.showColumn("outLuono");
+        }
+
+        //动态列转换
+        hmq.business.dynamicProductParams(outType, {
+            miniDataGrid: grid,
+            miniForm: form,
+            success: function (map, res) {
+                
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+
+    //end
+
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     汇总
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "out_rq") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        } else if (e.field == "out_sl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+
+    /*function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }*/
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/ck/yw/warehouseKc/treeUnit.html",
+            title: "【单位】选择页面",
+            width: 750,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data= {
+                    customerType : "C",
+                    customerTypeFlag : "true"//单位类型启用
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "out_rq" && record.out_rq != null) {
+            return mini.formatDate(new Date(record.out_rq), "yyyy-MM-dd");
+        }
+    }
+
+    function export_option(e) {
+        assembling({
+            grid: grid,
+            form: form,
+            url: surl + "/exportExcelOut",
+            json:["out_ph","out_luono"]
+            
+        });
+    }
+
+</script>
+</html>

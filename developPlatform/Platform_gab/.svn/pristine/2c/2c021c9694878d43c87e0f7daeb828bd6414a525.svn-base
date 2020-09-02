@@ -1,0 +1,396 @@
+.supply_content {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 103px;
+    padding-bottom: 50px;
+}
+
+.supply_content .supply_content_list {
+    width: 100%;
+    overflow: hidden;
+}
+
+.tabContainer {
+    width: 100%;
+    height: 90px;
+    background: #00c292;
+    position: fixed;
+    z-index: 9;
+}
+
+#tablist {
+    width: 1200px;
+    height: 100%;
+    line-height: 90px;
+    margin: 0 auto;
+}
+
+.company {
+    height: 100%;
+    overflow: hidden;
+    /* margin-right: 165px; */
+    float: left;
+}
+.list{
+    float: right;
+}
+
+.company p {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.company p:first-child {
+    margin-right: 40px;
+}
+
+.company .name {
+    color: #fff;
+    font-size: 30px;
+    font-weight: bold;
+    max-width: 450px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.company .collect {
+    padding: 0 10px;
+    height: 38px;
+    border: 1px solid #fff;
+    color: #fff;
+    font-size: 16px;
+    line-height: 36px;
+    text-align: center;
+    border-radius: 5px;
+    vertical-align: middle;
+    cursor: pointer;
+    background: #00c292;
+}
+
+.company .collect i {
+    font-size: 19px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+#tablist a {
+    display: inline-block;
+    width: 105px;
+    height: 42px;
+    text-align: center;
+    line-height: 42px;
+    font-size: 17px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.tabin {
+    background: rgb(236, 10, 1);
+}
+
+.content-box {
+    width: 1200px;
+    margin: 90px auto 0;
+    overflow: hidden;
+}
+
+.fl {
+    width: 857px;
+    overflow: hidden;
+    padding-bottom: 64px;
+    float: left;
+}
+
+.fl .showContent {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 24px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.fl .showContent:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 30px;
+    vertical-align: middle;
+    margin-right: 10px;
+    margin-top: 2px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.fl .content {
+    width: 100%;
+    margin-top: 35px;
+}
+
+.fl .content .details {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.fl .content .details p {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+    line-height: 2;
+}
+.fl .content .details p span{
+    font-size: 14px !important;
+    color: #666 !important;
+    font-family: "PingFang SC",Arial,"Microsoft YaHei",sans-serif !important;
+}
+
+.fl .content .details p:first-child {
+    margin-top: 0;
+}
+
+#product ul {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 20px;
+}
+
+#product ul li {
+    width: 156px;
+    overflow: hidden;
+    float: left;
+    margin: 0 19px 20px 0;
+}
+
+#product ul li a {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    color: rgb(112, 112, 112);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+#product ul li a:hover {
+    color: rgb(236, 10, 1);
+}
+
+#product ul li a img {
+    width: 156px;
+    height: 156px;
+    margin-bottom: 10px;
+    border: 1px solid #dcdcdc;
+}
+
+#file {
+    margin-top: 20px !important;
+}
+
+#file ul {
+    margin-top: 20px;
+    width: 100%;
+    overflow: hidden;
+}
+
+#file ul li {
+    width: 100%;
+    overflow: hidden;
+    font-size: 15px;
+    color: rgb(112, 112, 112);
+}
+
+#file ul li a {
+    width: 838px;
+    display: inline-block;
+    color: rgb(112, 112, 112);
+    line-height: 2.5;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+#file ul li b {
+    margin-right: 10px;
+}
+
+#file ul li:hover a {
+    color: #409fff;
+    text-decoration: underline;
+}
+
+.fr {
+    width: 305px;
+    overflow: hidden;
+    border: 1px solid #d7d7d7;
+    padding: 25px 17px 0;
+    margin-top: 35px;
+    float: right;
+}
+
+.re-company, .concat, .case {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.topic {
+    font-size: 19px !important;
+    color: #409fff !important;
+    width: 100%;
+    position: relative;
+    padding-left: 15px;
+}
+
+.topic:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 10px;
+    margin-top: 2px;
+    position: absolute;
+    left: 0;
+    background: #409fff;
+    border-radius: 5px;
+}
+
+.topic a {
+    display: block;
+    color: #409fff;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.topic a:hover {
+    color: #e80000;
+}
+
+.re-company img {
+    width: 268px;
+    height: 123px;
+    margin: 15px 0;
+    border: 1px solid #dcdcdc;
+}
+
+.re-company p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.re-company .keyword {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.re-company p b {
+    font-size: 14px;
+    color: #e80000;
+    text-decoration: underline;
+    margin-left: 8px;
+}
+
+/* .re-company p b:hover{} */
+
+.business {
+    height: 66px;
+    margin-bottom: 6px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.concat p {
+    font-size: 15px;
+    color: #707070;
+    margin: 20px 0 15px;
+}
+
+.concat a {
+    display: block;
+    width: 100%;
+    height: 46px;
+    background: #409fff;
+    text-align: center;
+    line-height: 46px;
+    border-radius: 5px;
+    font-size: 19px;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.concat a:hover {
+    background: #e80000;
+}
+
+.concat a i {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.case ul {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.case ul li {
+    width: 100%;
+    overflow: hidden;
+    font-size: 15px;
+    overflow: hidden;
+}
+
+.case ul li a {
+    line-height: 2.5;
+    color: #707070;
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+    overflow: hidden;
+}
+
+.case ul li a:hover {
+    color: #409fff;
+    text-decoration: underline;
+}
+
+body .msg-tips {
+    background: red;
+    color: #fff;
+    width: 80px;
+    /* padding: 0 10px; */
+    text-align: center;
+    font-size: 17px !important;
+}
+
+.layui-layer-setwin .layui-layer-close1 {
+    background-position: -187px -38px !important;
+    cursor: pointer;
+}
+
+.business {
+    width:300px;
+    line-height: 20px;
+    font-size: 14px;
+    padding:20px;
+}

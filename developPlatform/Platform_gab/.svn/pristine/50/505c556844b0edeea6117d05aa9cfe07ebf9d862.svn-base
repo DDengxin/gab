@@ -1,0 +1,16 @@
+$(function () {
+    // 上传文件的控件初始化
+    _init_upload(['#License', '#BusinessLicense']); 
+    $('.sidebar').css('height', '1573px'); 
+
+
+    // 省市联动
+    new PCAS("province", "city", "area");
+
+    layui.use(['form', 'layer', 'layedit'], function () {
+        var form = layui.form;
+        var layedit = layui.layedit;
+
+        // layedit.build('users'); //建立编辑器
+    })
+})

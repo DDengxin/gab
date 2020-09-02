@@ -1,0 +1,23 @@
+package com.tengzhi.business.dynamicrow.cache;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.dynamicrow.model.dynamicrow;
+
+import java.util.Map;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-08-01
+ * 缓存层
+ */
+public interface rowCache {
+
+    Result AllRowObj(String menu);
+
+    Result SavaAndUpdate(dynamicrow dynamicrow);
+
+    Result Delete(String menuId);
+
+    Result Delete(Map<String,Object> map);
+
+}

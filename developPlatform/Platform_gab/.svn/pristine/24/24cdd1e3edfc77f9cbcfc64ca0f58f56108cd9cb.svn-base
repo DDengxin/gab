@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>供应商</title>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/supply.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+	<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/supply.js}"></script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+	<div class="supply_content">
+		<div class="supply_content_list">
+			<div class="tabContainer">
+				<div id="tablist">
+					<div class="company">
+						<p class="name" th:text="${Supply.supplyName}">重庆市万州区岭鑫机械厂</p>
+						<p class="collect">
+							<i class="iconfont icon-xingxing"></i>
+							<b>我要收藏</b>
+						</p>
+					</div>
+					<div class="list">
+						<a href="javascript:void(0);" class="tabin">企业介绍</a>
+						<a href="javascript:void(0);">服务产品</a>
+						<a href="javascript:void(0);">客户档案</a>
+						<a href="javascript:void(0);">在线咨询</a>
+					</div>
+				</div>
+			</div>
+			<div class="content-box">
+				<div class="fl">
+					<!-- 企业介绍 -->
+					<div class="content" id="introduce">
+						<p class="showContent">企业介绍</p>
+						<div class="details">
+							<p th:text="${Supply.supplyInfo}">
+								深圳市冠泰精密科技有限公司，是一家大型专业从事手板模型设计制作及塑胶五金精密零件加工一站式
+								的综合型企业，现有工业3D打印机(SLA)、真空复模机、大型精密CNC加工中心、铣床、车床、喷漆机、
+								UV机、三次元、二次元等机器设备60多台，配有50多名技术精湛经验丰富的设计工程师、编程工程师、
+								项目工程师、手板技师、涂装技师和品质工程师等，主要服务于智能机器人、汽车零配件、医疗器械、
+								家用电器、运动器械、电子产品机壳等领域的新产品开发打样及小批量生产，一站式为客户提供优质、
+								高效、超值的服务。
+							</p>
+						</div>
+					</div>
+
+					<!-- 服务产品 -->
+					<div class="content" id="product">
+						<p class="showContent">服务产品</p>
+						<ul>
+							<li th:each="item,index:${Product}" th:if="${not #strings.isEmpty(Product)}" >
+								<a th:href="@{'/gab/supplyProDetails.html?productNote='+${item.cpcodeId}}"  th:if="${not #strings.isEmpty(Product)}">
+									<img th:src="'/system/setting/image?line_primary='+${item.coverPicture}" alt=""
+										default-img="/static/gab/images/wt.png"  th:if="${not #strings.isEmpty(Product)}">
+									<p th:text="${item.cpcodeName}"  th:if="${not #strings.isEmpty(Product)}">精密手板模型定制生产精密手板模型定制生产</p>
+								</a>
+							</li>
+							<li th:if="${ #strings.isEmpty(Product)}" >
+								<a href="#">
+									<img src="/static/gab/images/wt.png">
+<!--									<p th:text="${item.cpcodeName}"  th:if="${ #strings.isEmpty(Product)}">精密手板模型定制生产精密手板模型定制生产</p>-->
+								</a>
+							</li>
+
+
+						</ul>
+					</div>
+
+					<!-- 客户档案 -->
+					<div class="content" id="file">
+						<p class="showContent">客户档案</p>
+						<ul>
+							<li><b>></b><a href="#">方案名称方案名称方案名称方案名称方案名称方案名称</a></li>
+							<li><b>></b><a href="#">方案名称方案名称方案名称方案名称方案名称方案名称</a></li>
+							<li><b>></b><a href="#">方案名称方案名称方案名称方案名称方案名称方案名称</a></li>
+							<li><b>></b><a href="#">方案名称方案名称方案名称方案名称方案名称方案名称</a></li>
+							<li><b>></b><a href="#">方案名称方案名称方案名称方案名称方案名称方案名称</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="fr">
+					<div class="re-company">
+						<p class="topic"><a href="#" th:text="${Supply.supplyName}">深圳市冠泰精密科技有限公司</a></p>
+						<img th:src="'/system/setting/image?line_primary='+${Supply.headImg}" alt=""
+							default-img="/static/gab/images/wt.png">
+						<p class="business" th:text="${Supply.supplyInfo}">主营业务:专注精密手板模型定制生产-CNC加工/3D打印专注于精密手板模型定制
+							专注精密手板模型定制生产-CNC加工加工
+						</p>
+						<p class="keyword">关键词:<b th:text="${Supply.keyWord}"></b></p>
+					</div>
+
+					<div class="concat">
+						<p class="topic">联系我们</p>
+						<p th:text="地址：+${Supply.customerExp}">地址：广东省深圳大道199号</p>
+						<a href="#"><i class="iconfont icon-zhangdan"></i>我的需求</a>
+						<a href="#"><i class="iconfont icon-xinxi"></i>我想咨询</a>
+						<a href="#"><i class="iconfont icon-dian_hua"></i>电话咨询</a>
+					</div>
+
+					<div class="case">
+						<p class="topic">客户案例</p>
+						<ul>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制标准夹治具按图纸定制标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+							<li><a href="#">标准夹治具按图纸定制，加急！</a></li>
+						</ul>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+
+</body>
+
+</html>

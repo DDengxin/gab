@@ -1,0 +1,58 @@
+package com.tengzhi.business.system.workflow.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.business.system.workflow.dao.DescribDao;
+import com.tengzhi.business.system.workflow.dao.MatterDao;
+import com.tengzhi.business.system.workflow.model.Matter;
+import com.tengzhi.business.system.workflow.service.MatterService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Map;
+
+@Service()
+public class MatterServiceImpl implements MatterService {
+	@Autowired
+	private MatterDao dao;
+	
+	@Autowired
+	private DescribDao describDao;
+
+	@Override
+	public BasePage<Matter> getMatters(BaseDto baseDto) {
+		return describDao.getMatter(baseDto);
+	}
+
+	@Override
+	public Matter findByMatterId(String Id) {
+		return dao.findById(Id).orElse(null);
+	}
+
+	@Override
+	public Matter save(Matter matter) {
+		SessionUser user=SessionUser.SessionUser();
+		matter.setId(UUIDUtil.uuid());
+		matter.setFounder(user.getUsername());
+		matter.setFounderId(user.getUserId());
+		matter.setTime(new Timestamp(System.currentTimeMillis()));
+		return dao.save(matter);
+	}
+
+	@Override
+	public void update(Matter matter) {
+		dao.dynamicSave(matter, dao.findById(matter.getId()).orElse(null));
+	}
+
+	@Override
+	public void deleteById(String Id) {
+		dao.deleteById(Id);
+	}
+}

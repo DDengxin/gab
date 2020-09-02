@@ -1,0 +1,39 @@
+package com.tengzhi.business.sc.task.sctack.vo;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.BaseStream;
+import java.util.stream.StreamSupport;
+
+
+import com.tengzhi.business.mSbJt.model.MSbJt;
+import com.tengzhi.business.mSbJt.model.MSbJtbj;
+import com.tengzhi.business.sc.task.sctack.model.MScScrw;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwGx;
+
+public class MScScrwGxVo implements Serializable {
+	
+	MScScrw  mScScrw;
+    List<MScScrwGx> mScScrwGxList;
+
+    
+	public MScScrw getmScScrw() {
+		return mScScrw;
+	}
+
+	public void setmScScrw(MScScrw mScScrw) {
+		this.mScScrw = mScScrw;
+	}
+
+	public List<MScScrwGx> getmScScrwGxList() {
+		return mScScrwGxList;
+	}
+
+	public void setmScScrwGxList(List<MScScrwGx> mScScrwGxList) {
+		this.mScScrwGxList = mScScrwGxList;
+	}
+   
+
+}

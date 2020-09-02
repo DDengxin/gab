@@ -1,0 +1,142 @@
+h4{
+    margin: 5px 0 0 !important;
+}
+
+.layui-input {
+    width: 63.6% !important;
+}
+
+#contactsOl {
+    width: 100%;
+    overflow: hidden;
+    margin-top:10px;
+}
+
+#contactsOl li {
+    width: 100%;
+    overflow: hidden;
+    padding: 0 10px;
+    margin: 5px 0;
+}
+
+#contactsOl li div:first-child {
+    float: left;
+}
+
+#contactsOl li div {
+    float: right;
+    line-height: 34px;
+}
+
+#contactsOl li div span {
+    display: inline-block;
+    padding: 0 20px;
+    color: #666;
+    height: 28px;
+    border: 1px solid #c2c2c2;
+    background: rgb(255, 255, 255);
+    line-height: 26px;
+    margin-right: 20px;
+    vertical-align: middle;
+    border-radius: 5px;
+}
+
+.setDefault{
+    color: #666 !important;
+    border-color: #e80000 !important;
+    background: rgb(255, 244, 244) !important;
+}
+
+.alDefault{
+    color: #409fff !important;
+}
+
+#contactsOl li div strong {
+    color: #666;
+    font-size: 16px;
+    max-width: 800px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+    vertical-align: middle;
+}
+
+#contactsOl li div b {
+    color: #e80000;
+    margin-left: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#contactsOl li div b:hover {
+    color: #409fff;
+}
+
+.addAddress {
+    width: 100px;
+    height: 36px;
+    color: #fff;
+    background: #409fff;
+    font-size: 16px;
+    line-height: 36px;
+    margin: 26px 0 20px;
+    cursor: pointer;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.addAddress:hover {
+    background: #e80000;
+}
+
+.addressBtn {
+    width: 100%;
+    overflow: hidden;
+    margin-left: 90px;
+}
+
+.addressBtn button {
+    outline: none;
+    width: 120px;
+    height: 34px;
+    text-align: center;
+    line-height: 32px;
+    color: #666;
+    background: rgb(242, 242, 242);
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.addressBtn button:hover {
+    color: #fff;
+    background: #e80000;
+    border-color: #e80000;
+}
+select{
+    width: 20% !important;
+    height: 38px;
+    float: left;
+    margin-right: 15px;
+    border: 1px solid #e6e6e6;
+    padding-left: 10px;
+    color: rgb(103,103,103);
+}
+
+form{
+    padding-left: 0 !important;
+}
+.title{
+    width: 100%;
+    height: 40px;
+    background: rgb(249, 249, 249);
+    border: 1px solid rgb(220, 220, 220);
+    line-height: 40px;
+    padding-left: 13px;
+    font-size: 14px;
+    color: #333;
+}
+.layui-btn{
+    margin-left: 145px !important;
+}

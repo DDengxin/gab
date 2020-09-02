@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>邮件配置</title>
+</th:block>
+</head>
+<body>
+	<form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<label class="hmq-label" text="流程表单名称">
+					<input class="mini-textbox" id="workflowTableDescribe" name="workflowTableDescribe" />
+				</label>
+				<label class="hmq-label" text="流程表单数据表">
+					<input class="mini-combobox" id="workflowTableName" name="workflowTableName" onvaluechanged="tableName" allowInput="true" ajaxType="post" valueField="tabname" textField="tabname" 
+                           url="/codeGeneration/findAllTables" clearOnLoad="true" valueFromSelect="true"
+                    />
+				</label>
+			</th:block>
+		</th:block>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="" url="/system/workflow/linkTable/list">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn"></div>
+				<div tz:datagrid="column" field="workflowTableDescribe" width="200">流程表单名称</div>
+				<div tz:datagrid="column" field="workflowTableName" width="200">流程表单数据表</div>
+				<div tz:datagrid="column" field="workflowNoteFieldName" width="200">单号字段</div>
+				<div tz:datagrid="column" field="workflowFlagFieldName" width="200">状态字段</div>
+				<div tz:datagrid="column" field="workflowWorkerIdFieldName" width="200">提交人字段</div>
+				<div tz:datagrid="column" field="workflowUnitFieldName" width="200">单位字段</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    function search_option() {
+        grid.load();
+    }
+    grid.on("DrawCell", function (e) {
+        if (e.field == "containsAttachment") {
+			e.cellHtml = e.value ? '是' : '否';
+        }
+    });
+    
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row,width:'680px',height:'300px'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "add.html", action: 'edit', data: row,width:'680px',height:'300px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/system/workflow/linkTable/{0}".format(row.workflowTableId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                        	
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+package com.tengzhi.business.sale.saleStatistics.orderStatistics.service.impl;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+
+import com.tengzhi.business.base.publicinterfac.ProductType;
+import com.tengzhi.business.cg.da.sysCustomer.service.SysCustomerService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.excel.ExcelUtil;
+import com.tengzhi.business.js.product.dao.JscpcodeDao;
+import com.tengzhi.business.sale.saleProduct.saleContract.dao.EXsContractDao;
+import com.tengzhi.business.sale.saleStatistics.orderStatistics.dao.ExportDdDao;
+import com.tengzhi.business.sale.saleStatistics.orderStatistics.dao.ExportXsDao;
+import com.tengzhi.business.sale.saleStatistics.orderStatistics.service.OrderStatisticsService;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class OrderStatisticsServiceImpl implements OrderStatisticsService {
+
+	@Autowired
+	private EXsContractDao eXsContractDao;
+	
+	@Autowired
+	private JscpcodeDao jscpcodeDao;
+
+	@Autowired
+	private ExportDdDao exportDdDao;
+	
+	@Autowired
+	private ExportXsDao exportXsDao;
+	
+	@Override
+	public void DdExportExcel(HttpServletResponse response, HttpServletRequest request) throws IOException {
+		//获取ExcelUitl实例
+		ExcelUtil util = ExcelUtil.getInstance();
+		//初始化dto对象
+		BaseDto dto = BaseDto.ValueOfRequest(request);
+		//将导出的页面定义为0
+		dto.setPageIndex(0);
+		//查询数据并且生成Excel
+		Map<String, String> map = dto.getParamsMap();
+		String paramName = "";
+		ProductType productType = ProductType.valueOfParamId(map.get("htStype"));
+		if(null != productType){
+			paramName = productType.getParamName();
+		}
+		util.ExcelToWeb(request, paramName +"订单统计", response, exportDdDao.findList(dto));
+	}
+	
+	@Override
+	public void XsExportExcel(HttpServletResponse response, HttpServletRequest request) throws IOException {
+		//获取ExcelUitl实例
+		ExcelUtil util = ExcelUtil.getInstance();
+		//初始化dto对象
+		BaseDto dto = BaseDto.ValueOfRequest(request);
+		//将导出的页面定义为0
+		dto.setPageIndex(0);
+		//查询数据并且生成Excel
+		Map<String, String> map = dto.getParamsMap();
+
+
+		String paramName = "";
+		ProductType productType = ProductType.valueOfParamId(map.get("stype"));
+		if(null != productType ){
+			paramName = productType.getParamName();
+		}
+		util.ExcelToWeb(request, paramName+"销售统计-"+map.get("reqType")+"统计", response, exportXsDao.findList(dto));
+	}
+	
+	@Override
+	public BasePage<Map<String, Object>> getSrchTopList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+		String sqlWhere = " a.data_corp='"+securityUser.getCorpId()+"' ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			sqlWhere+=" and ht_date >='"+map.get("srchRq1")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			sqlWhere+=" and ht_date <='"+map.get("srchRq2")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+			sqlWhere+=" and ht_no like '%"+map.get("srchNo")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCustromer"))) {
+			sqlWhere+=" and ht_customer = '"+map.get("srchCustromer")+"'";
+		}
+		//业务员权限过滤
+		sqlWhere += " and ht_customer = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(null);
+
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			sqlWhere+=" and ht_code like '%"+map.get("srchCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchHtType"))) {
+			sqlWhere+=" and ht_type like '%"+map.get("srchHtType")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchHtItemType"))) {
+			sqlWhere+=" and ht_item_type like '%"+map.get("srchHtItemType")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+			sqlWhere+=" and cpcode_name = '"+map.get("srchName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			sqlWhere+=" and cpcode_size like '%"+map.get("srchSize")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchFl"))) {
+			sqlWhere+=" and cpcode_fl = '"+map.get("srchFl")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("htStype"))) {
+			sqlWhere+=" and ht_stype = '"+map.get("htStype")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchHtFlag"))) {
+			sqlWhere+=" and htmxflag = '"+map.get("srchHtFlag")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("htCustomerAssociatedRemarks"))) {
+			sqlWhere+=" and ht_customer_associated_remarks like '%"+map.get("htCustomerAssociatedRemarks")+"%' ";
+		}
+
+		baseDto.setSortField("ht_date");
+		baseDto.setSortOrder("DESC");
+		String  sql=" select to_char(a.ht_date,'yyyy-MM-dd') \"htDate\",a.ht_no \"htNo\",a.ht_type \"htType\",a.ht_customer \"htCustomer\",a.ht_currency \"htCurrency\",a.ht_item_type \"htItemType\",a.ht_tax \"htTax\",a.data_corp \"dataCorp\",a.ht_flag \"htFlag\",a.ht_stype \"htStype\",a.ht_mo \"htMo\",a.ht_code \"htCode\",a.cpcode_name \"cpcodeName\",a.cpcode_size \"cpcodeSize\",a.cpcode_size_en \"cpcodeSizeEn\",a.ht_standard \"htStandard\",a.ht_sl \"htSl\",a.ht_price \"htPrice\",a.ht_je \"htJe\",to_char(a.ht_jq,'yyyy-MM-dd') \"htJq\",a.ht_requirements \"htRequirements\",a.ht_sm \"htSm\",a.ht_customer_associated_remarks \"htCustomerAssociatedRemarks\",f_get_param_name('订单类型',ht_type,'cn') httypename,f_get_param_name('订单类型',ht_item_type,'cn') htitemtypename,f_getname('GETDWEXP',ht_customer,'',a.data_corp) htcustomerexp,f_get_param_name('交易币种',ht_currency) htcurrencyname,htmxflag"
+                + ",f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',ht_stype,'')  cpcodename,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',ht_stype,'') cpcodefl,cpcode_xp \"cpcodeXp\",COALESCE(b.outjs,0) outjs,COALESCE(b.outsl,0) outsl,COALESCE(b.outzl,0) outzl,COALESCE(ht_sl-COALESCE(b.outsl,0),0) cl   "
+                + "  from v_xs_ht a left join (select out_contract,out_code,data_corp,sum(out_js) outjs,sum(out_sl) outsl,sum(out_zl) outzl from  e_ck_out  GROUP BY out_contract,out_code,data_corp) b on (a.ht_no=b.out_contract and a.ht_code=b.out_code and a.data_corp=b.data_corp ) where "+sqlWhere ;
+		String countsql="select count(*) from ("+sql+")t";
+		return eXsContractDao.QueryPageList(sql,countsql,baseDto);
+	}
+	
+	@Override
+	public BasePage<Map<String, Object>> getSrchXstjList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+		String sqlWhere = " and  cw_type = '"+map.get("stype")+"' and a.data_corp='"+securityUser.getCorpId()+"' and cw_stype='XS' ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			sqlWhere+=" and cw_rq >='"+map.get("srchRq1")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			sqlWhere+=" and cw_rq <='"+map.get("srchRq2")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+			sqlWhere+=" and cw_note like '%"+map.get("srchNo")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCustromer"))) {
+			sqlWhere+=" and cw_dw = '"+map.get("srchCustromer")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+			sqlWhere+=" and cpcode_name = '"+map.get("srchName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			sqlWhere+=" and cw_code like '%"+map.get("srchCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			sqlWhere+=" and cpcode_size like '%"+map.get("srchSize")+"%'";
+		}
+		String srchFl = map.get("srchFl").replace(",", "','");
+		if(ObjectUtil.isNotEmpty(map.get("srchFl"))) {
+			sqlWhere+=" and cpcode_fl in ('"+srchFl+"')";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("htStype"))) {
+			sqlWhere+=" and cw_type = '"+map.get("htStype")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchYwy"))) {
+			//业务员权限过滤(当前登录用户所有业务权限 & 查询业务员)
+			sqlWhere+=" and cw_dw = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(map.get("srchYwy"));
+		}else{
+			//业务员权限过滤(全部)
+			sqlWhere+=" and cw_dw = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(null);
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchLib"))) {
+			sqlWhere+=" and cw_lib = '"+map.get("srchLib")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchFpFlag"))) {
+			if("已开票".equals(map.get("srchFpFlag"))) {
+				sqlWhere+=" and cw_fph <> 'N'";
+			}else {
+				sqlWhere+=" and cw_fph = 'N'";
+			}
+			
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchLib"))) {
+			sqlWhere+=" and cw_lib = '"+map.get("srchLib")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchItem"))) {
+			sqlWhere+=" and cw_item = '"+map.get("srchItem")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("htCustomerAssociatedRemarks"))) {
+			sqlWhere+=" and ht_customer_associated_remarks like '%"+map.get("htCustomerAssociatedRemarks")+"%'";
+		}
+		baseDto.setSortField("cw_rq");
+		baseDto.setSortOrder("DESC");
+		String sql=" select to_char(cw_rq,'yyyy-MM-dd') \"cwRq\",cw_act \"cwAct\",cw_dw \"cwDw\",cw_item \"cwItem\",cw_code \"cwCode\",cpcode_name \"cpcodeName\",cpcode_size \"cpcodeSize\",cpcode_size_en \"cpcodeSizeEn\",cpcode_xp \"cpcodeXp\",cw_sl \"cwSl\",cw_price \"cwPrice\",cw_sje \"cwSje\",cw_lib \"cwLib\",cw_bz \"cwBz\",cw_fph \"cwFph\",cw_note \"cwNote\",cw_shl \"cwShl\",cw_flag \"cwFlag\",COALESCE(cw_wje,0) \"cwWje\",COALESCE(cw_se,0) \"cwSe\",f_getparamname('GETBYCPCODEFL', cpcode_fl,'', '技术', cw_type,'') \"flName\",f_get_param_name('仓库收发',cw_act) actname,f_get_param_name('交易币种',cw_bz) bzname,f_getname('GETDWEXP',cw_dw,'',a.data_corp) dwexp,f_getname('GETCUSTOMERBUYER',cw_dw,'',a.data_corp) ywy,f_getname('GETCUSTOMERBUYERID',cw_dw,'',a.data_corp) \"ywyId\",f_get_param_name('库房档案',cw_lib) libname,ht_customer_associated_remarks \"htCustomerAssociatedRemarks\"  from v_cw_ysyf a ,e_xs_contract_detailed b where a.cw_item=ht_no and cw_code=ht_code "+sqlWhere;
+		String countsql="select count(*) from ("+sql+")t";
+		return eXsContractDao.QueryPageList(sql +"order by cw_rq ,cw_note ",countsql,baseDto);
+	}
+	
+	@Override
+	public BasePage<Map<String, Object>> getXsList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser sessionUser=SessionUser.SessionUser();
+		//通过枚举获取产品类型(默认为物料)
+		ProductType productType = ProductType.valueOfParamId(map.get("stype"),ProductType.WL);
+
+		String sqlWhere = " where cw_type = '"+map.get("stype")+"' and data_corp='"+sessionUser.getCorpId()+"' and cw_stype='XS' ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			sqlWhere+=" and cw_rq >='"+map.get("srchRq1")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			sqlWhere+=" and cw_rq <='"+map.get("srchRq2")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+			sqlWhere+=" and cw_note like '%"+map.get("srchNo")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCustromer"))) {
+			sqlWhere+=" and cw_dw = '"+map.get("srchCustromer")+"'";
+		}
+		String srchName = map.get("srchName").replace(",", "','");
+		if(!"无".equals(srchName)) {
+			if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+				sqlWhere+=" and cw_code in ('"+srchName+"')";
+			}
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			sqlWhere+=" and cw_code like '%"+map.get("srchCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			sqlWhere+=" and cpcode_size like '%"+map.get("srchSize")+"%'";
+		}
+		String srchFl = map.get("srchFl").replace(",", "','");
+		if(ObjectUtil.isNotEmpty(map.get("srchFl"))) {
+			sqlWhere+=" and cpcode_fl in ('"+srchFl+"')";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("htStype"))) {
+			sqlWhere+=" and cw_type = '"+map.get("htStype")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchYwy"))) {
+			//业务员权限过滤(当前登录用户所有业务权限 & 查询业务员)
+			sqlWhere+=" and cw_dw = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(map.get("srchYwy"));
+		}else{
+			//业务员权限过滤(全部)
+			sqlWhere+=" and cw_dw = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(null);
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchLib"))) {
+			sqlWhere+=" and cw_lib = '"+map.get("srchLib")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchFpFlag"))) {
+			if("已开票".equals(map.get("srchFpFlag"))) {
+				sqlWhere+=" and cw_fph <> 'N'";
+			}else {
+				sqlWhere+=" and cw_fph = 'N'";
+			}
+		}
+		String sql = "select to_char(cw_rq,'yyyy-MM-dd') \"cwRq\",cw_note \"cwNote\",cw_dw \"cwDw\",f_getname('GETDWEXP', cw_dw, '', '"+sessionUser.getCorpId()+"') \"deptName\",cw_lib \"cwLib\",f_get_param_name('库房档案', cw_lib, '仓库', false) \"libName\",cw_code \"cwCode\",cpcode_name \"cpcodeName\",cpcode_size \"cpcodeSize\",cpcode_size_en \"cpcodeSizeEn\",cpcode_fl \"cpcodeFl\",f_get_param_name('"+productType.getProductCategoryParamType()+"', cpcode_fl, '技术', false) \"flName\",COALESCE(cw_sl,0) cw_sl,COALESCE(cw_sje,0) cw_sje,cw_bz \"cwBz\",f_get_param_name('交易币种', cw_bz, '财务', false) \"bzName\",cw_act \"cwAct\",f_get_param_name('仓库收发',cw_act) \"actName\",cw_flag \"cwFlag\",cw_type \"cwType\",cw_stype \"cwStype\" from v_cw_ysyf "+sqlWhere;
+		if("单号".equals(map.get("reqType"))) {
+			baseDto.setSortField("cwRq");
+			baseDto.setSortOrder("DESC");
+			sql = "select \"cwRq\",\"cwNote\",\"cwDw\",\"deptName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\",\"cwAct\",\"actName\",\"cwType\",\"cwStype\",\"cwFlag\" from ("+sql+") t group by \"cwRq\",\"cwNote\",\"cwDw\",\"cwBz\",\"cwAct\",\"cwType\",\"cwStype\",\"cwFlag\",\"actName\",\"bzName\",\"deptName\"";
+		}else if("产品".equals(map.get("reqType"))) {
+			baseDto.setSortField("cpcodeFl");
+			baseDto.setSortOrder("ASC");
+			sql = "select \"cpcodeFl\",\"flName\",\"cwCode\",\"cpcodeName\",\"cpcodeSize\",\"cpcodeSizeEn\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from ("+sql+") t group by \"cpcodeFl\",\"flName\",\"cwCode\",\"cpcodeName\",\"cpcodeSize\",\"cpcodeSizeEn\",\"cwBz\",\"bzName\" order by \"cpcodeFl\",\"cpcodeName\",\"cpcodeSize\",\"cpcodeSizeEn\"";
+		}else if("客户".equals(map.get("reqType"))) {
+			baseDto.setSortField("je");
+			baseDto.setSortOrder("DESC");
+			sql = "select \"cwDw\",\"deptName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from ("+sql+") t group by \"cwDw\",\"cwBz\",\"deptName\",\"bzName\"";
+		}else if("业务员".equals(map.get("reqType"))) {
+			baseDto.setSortField("je");
+			baseDto.setSortOrder("DESC");
+			sql = "select \"cwDw\",\"deptName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from ("+sql+") t group by \"cwDw\",\"cwBz\",\"deptName\",\"bzName\"";
+		}else if("分类".equals(map.get("reqType"))) {
+			baseDto.setSortField("je");
+			baseDto.setSortOrder("DESC");
+			sql = "select \"cpcodeFl\",\"flName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from ("+sql+") t group by \"cpcodeFl\",\"cwBz\",\"flName\",\"bzName\"";
+		}else if("币种".equals(map.get("reqType"))) {
+			baseDto.setSortField("je");
+			baseDto.setSortOrder("DESC");
+			sql = "select \"cwBz\",\"bzName\",sum(cw_sl) sl,sum(cw_sje) je from ("+sql+") t group by \"cwBz\",\"bzName\"";
+		}else if("库房".equals(map.get("reqType"))) {
+			baseDto.setSortField("je");
+			baseDto.setSortOrder("DESC");
+			sql = "select \"cwLib\",\"libName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from ("+sql+") t group by \"cwLib\",\"libName\",\"cwBz\",\"bzName\"";
+		}else if("业务方式".equals(map.get("reqType"))) {
+			baseDto.setSortField("je");
+			baseDto.setSortOrder("DESC");
+			sql = "select \"cwAct\",\"actName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from ("+sql+") t group by \"cwAct\",\"cwBz\",\"actName\",\"bzName\"";
+		}
+		String countsql="select count(*) from ("+sql+")t";
+		return eXsContractDao.QueryPageList(sql,countsql,baseDto);
+	}
+	
+	@Override
+    public BasePage<Map<String, Object>> search_option(String keyText,String cpcodeType,String fl,BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String where = " where 1=1";
+		if(ObjectUtil.isNotEmpty(keyText)) {
+			where+=" and cpcode_name like '%"+keyText+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(cpcodeType)) {
+			where+=" and cpcode_type = '"+cpcodeType+"'";
+		}
+		if(ObjectUtil.isNotEmpty(fl)) {
+			where+=" and cpcode_fl = '"+fl+"'";
+		}
+		String sql = "select  * from e_js_cpcode"+where;
+		baseDto.setSortField("cpcode_id");
+		baseDto.setSortOrder("DESC");
+		String countsql="select count(*) from ("+sql+")t";
+		return jscpcodeDao.QueryPageList(sql,countsql,baseDto);
+    }
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor'})}">
+	<title>模板维护【新增】</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden" />
+		<form id="form1">
+			<input name="id" class="mini-hidden" />
+			<input id="context" name="context" class="mini-hidden" />
+			<input id="htmlContext" name="htmlContext" class="mini-hidden" />
+			<input id="creationTime" name="creationTime" class="mini-hidden" />
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>模板名称:</td>
+					<td content>
+						<input class="mini-textbox" required name="name" />
+					</td>
+					<td title>模板类型:</td>
+					<td content>
+						<select id="type" name="type" class="mini-combobox" style="width: 60px;">
+							<option value="1">文档模板</option>
+							<option value="2">dao模板</option>
+							<option value="3">model模板</option>
+							<option value="4">service模板</option>
+							<option value="5">serviceImpl模板</option>
+							<option value="6">controller模板</option>
+							<option value="7">list模板</option>
+							<option value="8">add模板</option>
+						</select>
+					</td>
+					<td title></td>
+					<td content></td>
+				</tr>
+				<tr>
+					<td title>描述:</td>
+					<td content colspan="5">
+						<input class="mini-textbox" name="remark" />
+					</td>
+				</tr>
+				<tr>
+					<td content colspan="6">
+						<!--style给定宽度可以影响编辑器的最终宽度-->
+						<script type="text/plain" id="myEditor" style="width: 100%; height: 400px;">
+				        </script>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form('form1');
+	var um = UE.getEditor('myEditor', {
+		toolbars : [ [ 'fullscreen', 'undo', 'redo' ] ],
+		maximumWords : 99999999999,
+		wordCount : false,
+		elementPathEnabled : false
+	});
+	function getPlainTxt() {
+		var Txt = UE.getEditor('myEditor').getPlainTxt();
+		return Txt;
+	}
+
+	function SetData(options) {
+		if ('add' == options.action) {
+			$('[name=action]').val(options.action);
+		} else if ('edit' == options.action) {
+			$.get("/codeGeneration/template/{0}".format(options.data.id), function(res) {
+				if (200 === res.code) {
+					form.setData(res.data);
+					um.execCommand('insertHtml', res.data.htmlContext)
+				}
+			});
+		}
+	}
+
+	/**
+	 *
+	 **/
+	function SaveData() {
+
+		if (form.validate() && form.isValid()) {
+			mini.get("#context").setValue(getPlainTxt());
+			mini.get("#htmlContext").setValue(UE.getEditor('myEditor').getContent());
+			var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+			$[method]("/codeGeneration/template/saveOrUpate", JSON.stringify(form.getData()), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+</script>
+</html>

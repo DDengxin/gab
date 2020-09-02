@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+		<title th:text="${Product.cpcodeName}">产品</title>
+	</th:block>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/supply.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/supplyProDetails.css}" />
+	<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/supplyProDetails.js}"></script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+	<div class="supply_content">
+		<div class="supply_content_list">
+			<!-- <div class="tabContainer">
+				<div id="tablist">
+					<div class="company">
+						<p class="name" th:text="${Supply.supplyName}"></p>
+						<p class="collect">
+							<i class="iconfont icon-xingxing"></i>
+							我要收藏
+						</p>
+					</div>
+					<div class="list">
+						<a href="javascript:void(0);" class="tabin">企业介绍</a>
+						<a href="javascript:void(0);">服务产品</a>
+						<a href="javascript:void(0);">客户档案</a>
+						<a href="#">在线报价</a>
+					</div>
+				</div>
+			</div> -->
+			<div class="content-box">
+				<h2>产品名称</h2>
+				<div class="fl">
+					<div class="product_content">
+						<div class="proName">
+							<h3 th:text="${Product.cpcodeName}"></h3>
+							<div class="collect">
+								<i class="iconfont icon-xingxing"></i>
+								<b>我要收藏</b>
+							</div>
+						</div>
+						<div class="left">
+							<div Id="productInformation">
+								<input type="hidden" id="productId" th:value="${Product.cpcodeId}">
+								<input type="hidden" id="dataMan" th:value="${Product.dataMan}">
+								<!--cpcodeFl: "夹具分类"
+								cpcodeSize: "夹具工位"
+								cpcodeSizeEn: "夹具动力"
+								cpcodeName: "夹具名称"-->
+								<p th:text="${product.cpcodeFl}+：+${Product.cpcodeFname}"></p>
+								<p th:text="${product.cpcodeXp}+：+${Product.cpcodeXpName}"></p>
+								<p th:text="|${product.cpcodeSizeEn}：${Product.cpcodeSizeEn}|"></p>
+								<p th:text="|产品单价：${Product.cpcodePrice}|"></p>
+								<p th:text="|销售量：${Product.productSales}|"></p>
+								<p th:text="|特殊要求：${Product.cpcodeSm}|"></p>
+								<p th:text="|其他参数：${Product.cpcode03}|"></p>
+							</div>
+							<p>公司名称：<a href="#" th:text="${Supply.supplyName}" id="productCompany"
+									th:if="${not #strings.isEmpty(Supply.supplyName)}"></a></p>
+							<ul>
+								<li><a href="javascript:void(0);" onclick="addToCart();">加入购物车</a></li>
+								<!-- <li><a th:href="'/gab/order.html?productId='+${Product.cpcodeId}">我要购买</a></li> -->
+							</ul>
+						</div>
+						<div class="right">
+							<img th:src="|/system/upload/getImage?line_primary=${Product.coverPicture}|" alt=""
+								default-img="/static/gab/images/wt.png">
+						</div>
+					</div>
+					<!-- 业务介绍 -->
+					<div class="content" id="introduce">
+						<p class="showContent">产品介绍</p>
+						<div class="details" th:utext="${Product.productDescription}"></div>
+					</div>
+					<div class="content">
+						<p class="showContent">服务介绍</p>
+						<div class="details" th:utext="${Product.serviceDescription}"></div>
+					</div>
+					<!-- 综合评价 -->
+					<div class="content" id="comment">
+						<p class="showContent">综合评价</p>
+						<dl>
+							<dt>
+								<p>
+									综合好评率：<b>82.5</b>
+								</p>
+							</dt>
+							<dd>
+								<p>任务质量：4.00分</p>
+								<div id="quantity"></div>
+							</dd>
+							<dd>
+								<p>响应速度：4.00分</p>
+								<div id="speed"></div>
+							</dd>
+							<dd>
+								<p>服务态度：4.00分</p>
+								<div id="attitude"></div>
+							</dd>
+						</dl>
+						<div class="comment_list">
+							<div class="comment_peo">
+								<div class="comment_peo_list">
+									<div class="rate">
+										<p id="rate1"></p>
+										<b>5.00分</b>
+									</div>
+									<p>2018-06-13 13:59:00</p>
+									<p>合作愉快</p>
+								</div>
+								<div class="comment_peo_name">用户名</div>
+							</div>
+
+							<div class="comment_peo">
+								<div class="comment_peo_list">
+									<div class="rate">
+										<p id="rate2"></p>
+										<b>5.00分</b>
+									</div>
+									<p>2018-06-13 13:59:00</p>
+									<p>合作愉快</p>
+								</div>
+								<div class="comment_peo_name">用户名</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class="fr">
+					<div class="re-company">
+						<p class="topic"><a href="#" th:text="${Supply.supplyName}"
+								th:if="${not #strings.isEmpty(Supply.supplyName)}"></a></p>
+						<img th:src="${Supply.headImg}" alt="" default-img="/static/gab/images/wt.png">
+						<p class="business" th:text="${Supply.supplyInfo}"></p>
+						<p class="key">关键词：<b th:text="${Supply.keyWord!=null?Supply.keyWord:'暂无'}"></b></p>
+					</div>
+					<div class="concat">
+						<p class="topic">联系我们</p>
+						<p th:text="地址：+${Supply.supplyAddress}">地址：广东省深圳大道199号</p>
+						<a href="#"><i class="iconfont icon-zhangdan"></i>我的需求</a>
+						<a href="#"><i class="iconfont icon-xinxi"></i>我想咨询</a>
+						<a href="#"><i class="iconfont icon-dian_hua"></i>电话咨询</a>
+					</div>
+
+					<div class="case">
+						<p class="topic">客户案例</p>
+						<ul>
+							<li th:each="item:${Advisory}">
+								<a th:href="@{'/gab/academic.html?reqId='+${item.articleId}+'&classify=技术案例'}">
+									<span th:text="${item.title}"></span>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+<script th:inline="javascript">
+	(function () {
+		$.get("/platform/form/getdynamicFormValue/" + [[${ Product.cpcodeXp }]] + "/" + [[${ Product.cpcodeId }]] + "/e_js_cpcode", function (res) {
+			if (200 === res.code) {
+				for (var key in res.data) {
+					if (res.data.hasOwnProperty(key)) {
+						$("#productInformation").append("<p>" + key + ":" + res.data[key] + "</p>")
+					}
+				}
+			}
+		});
+	})()
+</script>
+
+
+</html>

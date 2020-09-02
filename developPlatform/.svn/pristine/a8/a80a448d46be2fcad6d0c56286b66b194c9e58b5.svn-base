@@ -1,0 +1,24 @@
+package com.tengzhi.business.finance.capitalManager.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.UUID;
+
+@Entity
+@Table(name = "e_f_voucher_reportitem")
+public class EFVoucherCapitaltype {
+
+  @Id
+  private String cid = UUID.randomUUID().toString();
+
+
+  public String getCid() {
+    return cid;
+  }
+
+  public void setCid(String cid) {
+    this.cid = cid;
+  }
+
+}

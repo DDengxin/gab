@@ -1,0 +1,135 @@
+package com.tengzhi.business.js.product.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.publicinterfac.ProductType;
+import com.tengzhi.business.js.product.dao.JscpcodeDao;
+import com.tengzhi.business.js.product.model.Jscpcode;
+import com.tengzhi.business.js.product.service.JscpcodeService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class JscpcodeServiceImpl implements JscpcodeService {
+    @Autowired
+    private JscpcodeDao jscpcodeDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto baseDto) throws IOException {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        Map<String, String> map = baseDto.getParamsMap();
+        String cpcodeType = map.get("cpcodeType");
+        String where = " where cpcode_type = '" + map.get("cpcodeType") + "' ";
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeId"))) {
+            where += " and a.cpcode_id ='" + map.get("cpcodeId") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+            where += " and a.cpcode_name  = '" + map.get("cpcodeName") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeSize"))) {
+            where += " and a.cpcode_size  = '" + map.get("cpcodeSize") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeNameEn"))) {
+            where += " and a.cpcode_name_en like '%" + map.get("cpcodeNameEn") + "%'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+            where += " and a.cpcode_fl = '" + map.get("cpcodeFl") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeCheck"))) {
+            where += " and a.cpcode_check = '" + map.get("cpcodeCheck") + "'";
+        }
+
+        String func = "";
+        /*if (ProductType.WL.equals(cpcodeType)) {
+            func = " cpcode_size_en";
+        } else if (ProductType.CP.equals(cpcodeType)) {
+                func = " cpcode_size_en";
+        } else {
+            func = " f_get_param_name('原料产地',cpcode_size_en,'cn') cpcode_size_en";
+        }*/
+        String sqlString = "  select f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'')cpcode_fl, "
+                +" f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'')cpcode_name,"
+                +" f_get_param_name('检验档案',cpcode_check,'cn') cpcode_check , "
+                +" cpcode_id,cpcode_name_en,cpcode_size, f_get_param_name('计量单位',cpcode_bz,'cn') cpcode_bz,cpcode_xp, "
+                +" f_get_param_name('大包单位',cpcode_dunit,'cn') cpcode_dunit, cpcode01,cpcode02,cpcode03,cpcode_flag,cpcode_pb,cpcode_sm,cpcode_type,"
+                +" cpcode_lower,cpcode_upper,cpcode_stock_warn,cpcode_size_en"
+                + ",f_getparamname('GETCPCODESIZE',cpcode_size,'','技术',cpcode_type,'') cpcode_size_name, "
+                + " f_getparamname('GETCPCODESIZEEN',cpcode_size_en,'','技术',cpcode_type,'') cpcode_size_en_name ,"
+                + "f_getparamname('GETCPCODEXP',cpcode_xp,'','技术',cpcode_type,'')  cpcode_xp_name"
+                //+ func
+                + " from "
+                + "e_js_cpcode a " + where;
+     //   return jscpcodeDao.QueryPageLists(baseDto, sqlString);
+        return jscpcodeDao.QueryMapPageList(baseDto, sqlString, true);
+        
+    }
+
+    @Override
+    public Jscpcode findById(String Id) {
+        return jscpcodeDao.findById(Id).orElse(null);
+    }
+
+    @Override
+    public Jscpcode save(Jscpcode jscpcode) throws Exception {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        //自动/手动编码规则判断
+        ProductType productType = ProductType.valueOfParamId(jscpcode.getCpcodeType());
+        if(productType.isAutomaticCoding()){
+            jscpcode.setCpcodeId(sysGenNoteService.getNote(Jscpcode.class, jscpcode.getCpcodeType(), "", 6));
+        }else if(StringUtils.isEmpty(jscpcode.getCpcodeId())){
+            throw new Exception("编码不得为空");
+        }else{
+            jscpcode.setCpcodeId(jscpcode.getCpcodeId().trim());
+        }
+
+        if (judgeUnique(jscpcode)) {
+            jscpcode.setDataRq(new Date());
+            jscpcode.setDataMan(sessionUser.getUserId());
+            jscpcode.setDataCorp(sessionUser.getCorpId());
+            return jscpcodeDao.save(jscpcode);
+        } else {
+            throw new Exception("编码已存在");
+        }
+    }
+
+    @Override
+    public void update(Jscpcode jscpcode) {
+        jscpcodeDao.dynamicSave(jscpcode, jscpcodeDao.findById(jscpcode.getCpcodeId()).orElse(null));
+
+    }
+
+    @Override
+    public boolean judgeUnique(Jscpcode jscpcode) {
+        return jscpcodeDao.findAll(Specifications.where((c) -> {
+            c.eq("cpcodeId", jscpcode.getCpcodeId());
+        })).size() <= 0;
+    }
+
+    @Override
+    public void deleteById(String Id) {
+        jscpcodeDao.deleteById(Id);
+
+    }
+
+    @Override
+    public List<Map<Object, String>> parameType() {
+
+        return jscpcodeDao.parameType();
+    }
+
+}

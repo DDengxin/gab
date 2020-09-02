@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>报表参数</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="报表名称">
+<!--            <input class="mini-combobox" id="report" name="report" url="/finance/reportItem/getReportList.html"/>-->
+<!--            <select class="mini-combobox" name="report" onvaluechanged="search_option">-->
+<!--                <option value="100004">利润表</option>-->
+<!--                <option value="100008">资产负债表</option>-->
+<!--                <option value="100020">现金流量表</option>-->
+<!--            </select>-->
+            <input class="mini-combobox" name="report" id="report" valueField="fid" textField="fname" url="/finance/reportItem/getReportList.html" allowInput="false" style="width:180px;"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" style="width: 100%; height: 100%;"
+         idField="freportitem" url="/finance/reportItem/getList.html"
+         sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" showPageInfo="false" sortField="freportitem" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div field="freportitem" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div field="fdesc" width="300" align="left" headerAlign="center" allowSort="true">名称</div>
+            <div field="fdc" displayField="fdcName" width="80" align="center" headerAlign="center" allowSort="true">余额方向</div>
+            <div field="fdatasource" width="80" align="center" headerAlign="center" allowSort="true">计算层级</div>
+            <div field="fformula" width="600" align="left" headerAlign="center" allowSort="true">计算公式</div>
+            <div field="frownum" width="60" align="center" headerAlign="center" allowSort="true">行号</div>
+            <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_grid = mini.get("srch_grid");
+    form.getField("report").select(0);
+    srch_grid.bindSearchForm(form);
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        srch_grid.load();
+    }
+
+    /**设置公式*/
+    function edit_option(e){
+        var row = srch_grid.getSelected();
+        if(row){
+            e.sender.miniopen({url: "add.html", action: 'edit', data:{rowData : row,formData : form.getData(true)} });
+        }else{
+            hmq.tipDanger("请选择一条记录！");
+        }
+    }
+
+
+
+</script>
+
+
+</body>
+</html>

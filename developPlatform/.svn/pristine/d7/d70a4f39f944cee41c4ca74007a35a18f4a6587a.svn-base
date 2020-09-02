@@ -1,0 +1,72 @@
+package com.tengzhi.business.finance.capitalManager.capitalRegister.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.finance.capitalManager.capitalRegister.model.EFVoucherCapitalRegister;
+import com.tengzhi.business.finance.capitalManager.capitalRegister.service.CapitalRegisterService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+
+@RestController
+@RequestMapping("/finance/capitalManager/capitalRegister/")
+public class CapitalRegisterController {
+
+
+    @Autowired
+    private CapitalRegisterService service;
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    /**
+     * 新增保存
+     */
+    @PostMapping("add.html")
+    public Result saveData(@RequestBody EFVoucherCapitalRegister model) throws Exception {
+        return Result.resultOk(service.save(model));
+    }
+
+
+    @GetMapping("getById/{sid}")
+    public Result getById(@PathVariable String sid){
+        return Result.resultOk(service.findById(sid));
+    }
+
+    /**
+     * 删除对象数据
+     * @param cId
+     * **/
+    @DeleteMapping(value = "deleteById/{cId}")
+    public Result delete(@PathVariable(value = "cId") String cId) {
+        service.deleteByNote(cId);
+        return Result.resultOk();
+    }
+
+
+    /**
+     *
+     *修改数据
+     * @param model
+     * */
+    @PutMapping("add.html")
+    public Result modify(@RequestBody EFVoucherCapitalRegister model) {
+        service.update(model);
+        return Result.resultOk();
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @return
+     */
+    @PostMapping(value = "list.html")
+    public Result getList(BaseDto baseDto) throws IOException {
+        return service.getList(baseDto).getResult();
+    }
+
+}

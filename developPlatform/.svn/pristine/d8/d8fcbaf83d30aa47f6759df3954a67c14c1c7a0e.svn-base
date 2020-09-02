@@ -1,0 +1,378 @@
+package com.tengzhi.base.jpa.dao;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.NoRepositoryBean;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 用于扩展JpaRepository
+ *
+ * @param <T>
+ * @param <ID>
+ * @author lqy
+ */
+@NoRepositoryBean
+public interface BasedaoRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
+
+    /**
+     * 查询对象列表 原生sql
+     *
+     * @param sql      查询数据sql
+     * @param countSql 统计sql
+     * @param dto
+     * @return
+     */
+    BasePage<T> QueryPageLists(String sql, String countSql, BaseDto dto);
+
+    /**
+     * 查询对象列表 原生sql 建议使用QueryPageLists(BaseDto dto,String sql)函数，而非该函数
+     *
+     * @param sql      查询数据sql
+     * @param countSql 统计sql
+     * @param pageable 分页对象<T>
+     * @return
+     */
+    @Deprecated
+    BasePage<T> QueryPageLists(String sql, String countSql, Pageable pageable);
+
+    /**
+     * 查询对象列表 HQL
+     *
+     * @param sql 查询数据sql 不需要统计Sql 内部处理
+     * @param dto
+     * @return Object... params
+     */
+    BasePage<T> QueryPageLists(BaseDto dto, String sql);
+
+    List<Map<String, Object>> QueryhumpMap(String sql, Object... params);
+
+    /**
+     * 根据sqL语句查询填充到VO对象分页排序
+     *
+     * @param vo
+     * @param sql
+     * @return
+     */
+    BasePage<?> QueryPageList(Class<?> vo, BaseDto dto, String sql);
+
+    /**
+     * 查询对象列表 HQL 不需要统计Sql 内部处理
+     *
+     * @param sql      查询数据sql
+     * @param pageable 分页对象<T>
+     * @return
+     */
+    BasePage<T> QueryPageLists(Pageable pageable, String sql);
+
+    /**
+     * 查询对象列表 原生sql
+     *
+     * @param sql      查询数据sql
+     * @param countSql 统计sql
+     * @return
+     */
+    BasePage<Map<String, Object>> QueryPageList(String sql, String countSql, BaseDto dto);
+
+    /**
+     * 查询对象列表 原生sql
+     *
+     * @param sql      查询数据sql
+     * @param countSql 统计sql
+     * @param pageable 分页对象<Map>
+     * @return
+     */
+    BasePage<Map<String, Object>> QueryPageList(String sql, String countSql, Pageable pageable);
+
+
+    /**
+     * 查询对象列表 分页适合单表 该函数主要用于底层实现调用，不建议在Service层调用
+     *
+     * @param pageNum  多少页
+     * @param pageSize 每页多少条
+     * @param sort     排序字段
+     * @param sorting  排序方式
+     * @param spec     条件
+     * @return
+     */
+    BasePage<T> QueryPageList(int pageNum, int pageSize, String sort, String sorting, Specification<T> spec);
+
+    /**
+     * 查询对象列表 分页适合单表
+     *
+     * @param dto  { pageNum 多少页 pageSize 每页多少条 sort 排序字段 sorting 排序方式 }
+     * @param spec 条件
+     * @return
+     */
+    BasePage<T> QueryPageList(BaseDto dto, Specification<T> spec);
+
+    /**
+     * 查询对象列表 适合单表 没有分页
+     *
+     * @param dto  { sort 排序字段 sorting 排序方式 }
+     * @param spec 条件
+     * @return
+     */
+    @Deprecated
+    BasePage<T> QueryNOPageList(BaseDto dto, Specification<T> spec);
+
+    /**
+     * 查询对象列表 原生sql 没有分页
+     *
+     * @param sql 查询数据sql
+     * @return
+     */
+    @Deprecated
+    BasePage<Map<String, Object>> QueryNOPageList(String sql);
+
+    /**
+     * 查询对象列表
+     *
+     * @param sql    原生Sql
+     * @param params 参数
+     * @return List<Map>
+     */
+    List<Map> QueryListMap(String sql, Object... params);
+
+    /**
+     * 查询对象列表
+     *
+     * @param sql 原生Sql
+     * @return List<Map>
+     */
+    List<Map> QueryListMap(String sql);
+
+    /**
+     * 查询对象列表
+     *
+     * @param Sql    原生Sql
+     * @param params 指定泛型类型 上面那个没指定泛型默认obj对象 避免没必要做的转换 (因为项目中大部分用的是String,obj)
+     *               上面那个无法向上兼容 自己就是最大Map
+     * @return List<Map>
+     */
+    List<Map<String, Object>> SelectListMap(String Sql, Object... params);
+
+    /**
+     * 查询对象列表
+     *
+     * @param resultClass
+     * @param Sql         原生Sql
+     * @param params
+     * @return List<T> List<组合对象>
+     */
+    List<T> QueryListModel(Class<T> resultClass, String Sql, Object... params);
+
+    BasePage<Map<String, Object>> QueryMapPageList(BaseDto dto, String sql, boolean humpConversion);
+
+    /**
+     * 查询对象列表
+     *
+     * @param Sql    原生Sql
+     * @param params
+     */
+    String getSingleResult(String Sql, Object... params);
+
+    BasePage<T> QueryNoPageLists(String sql);
+
+
+    /**
+     * 保存对象 不需传入主键，自动生成主键 JpaRepository中save方法会根据id判断，有id修改没有新增
+     *
+     * @param obj 持久对象或者对象集合
+     * @throws Exception
+     */
+    void store(Object... obj);
+
+    /**
+     * 更新对象数据
+     *
+     * @param obj 持久对象，或者对象集合
+     * @throws Exception
+     */
+    void update(Object... obj);
+
+    /**
+     * 更新对象数据
+     *
+     * @param obj 持久对象，或者对象集合
+     * @throws Exception
+     */
+    void updateAll(Iterable<T> obj);
+
+    /**
+     * 执行ql语句
+     *
+     * @param qlsql  ql语句
+     * @param values 参数
+     * @return 返回执行后受影响的数据个数
+     */
+    int executeUpdate(String qlsql, Object... values);
+
+    int executeUpdateSql(String qlsql, Object... values);
+
+    /**
+     * 执行ql语句
+     *
+     * @param qlsql  ql语句
+     * @param params 参数
+     * @return 返回执行后受影响的数据个数
+     */
+    int executeUpdate(String qlsql, Map<String, Object> params);
+
+    /**
+     * 执行ql语句
+     *
+     * @param qlsql  ql语句
+     * @param values List参数
+     * @return 返回执行后受影响的数据个数
+     */
+    int executeUpdate(String qlsql, List<Object> values);
+
+
+    /************************************************ 常用*************************************************** **/
+
+    /**
+     * 实体类合并保存 insert or dynamic update entity (will findOne first)
+     *
+     * @param oldEntity Form传过来的实体类
+     * @param newEntity 数据库查出来的实体类
+     * @return entity
+     */
+    T dynamicSave(T newEntity, T oldEntity);
+
+    /**
+     * sql 查询 map 转驼峰
+     *
+     * @param sql 原生sql
+     * @return entity
+     */
+    List<Map<String, Object>> QueryToMap(String sql);
+
+    List<Map<String, Object>> QueryToMap(String sql, Object... params);
+
+    List<Map<String, Object>> QueryToMap(String sql, Map<String, Object> map);
+
+    /**
+     * sql 查询第bean
+     *
+     * @param sql 原生sql
+     * @return entity
+     */
+    List<T> QueryToBean(String sql);
+
+    List<T> QueryToBean(String sql, Object... params);
+
+    List<T> QueryToBean(String sql, Map<String, Object> map);
+
+    /**
+     * 查询VO对象
+     *
+     * @param sql 原生sql
+     * @return entity
+     */
+    <U> List<U> QueryToVo(Class<U> vo, String sql);
+
+    <U> List<U> QueryToVo(Class<U> vo, String sql, Object... params);
+
+    <U> List<U> QueryToVo(Class<U> vo,String sql, Map<String, Object> map);
+
+    /**
+     * sql 查询第一条  map 转驼峰
+     * 注意该方法返回的Map对象会将数据表字段中的下划线转驼峰
+     *
+     * @param sql 原生sql
+     * @return entity
+     */
+    Map<String, Object> QueryToFirstMap( String sql);
+
+    Map<String, Object> QueryToFirstMap(String sql, Object... params);
+
+    Map<String, Object> QueryToFirstMap(String sql, Map<String, Object> map);
+
+    /**
+     * sql 查询第一条 转bean
+     *
+     * @param sql 原生sql
+     * @return entity
+     */
+    T QueryToFirstBean(String sql);
+
+    T QueryToFirstBean(String sql, Object... params);
+
+    T QueryToFirstBean(String sql, Map<String, Object> map);
+
+    /**
+     * sql 查询第一条 转Vo
+     *
+     * @param sql 原生sql
+     * @return entity
+     */
+    Class<?> QueryToFirstVo(String sql, Class<?> VO);
+
+    Class<?> QueryToFirstVo(String sql, Class<?> VO, Object... params);
+
+    Class<?> QueryToFirstVo(String sql, Class<?> VO, Map<String, Object> map);
+
+
+    /**
+     * sql 查询第一行第一列String
+     * @param sql 原生sql
+     * @return String
+     */
+    String QueryFirstString(String sql);
+
+    String QueryFirstString(String sql, Object... params);
+
+    String QueryFirstString(String sql, Map<String, Object> map);
+
+    /**
+     * 根据sqL语句查询填充到Map对象分页排序
+     * 注意该方法返回的Map对象会将数据表字段中的下划线转驼峰
+     *
+     * @param dto
+     * @param sql
+     * @return BasePage<Map < String, Object>>
+     */
+    BasePage<Map<String, Object>> QueryToMapPage(BaseDto dto, String sql);
+
+    BasePage<Map<String, Object>> QueryToMapPage(BaseDto dto, String sql, Object... params);
+
+    BasePage<Map<String, Object>> QueryToMapPage(BaseDto dto, String sql, Map<String, Object> map);
+
+    /**
+     * 根据sqL语句查询填充到VO对象分页排序
+     *
+     * @param vo
+     * @param sql
+     * @return BasePage<?>
+     */
+    BasePage<?> QueryToVoPage(Class<?> vo, BaseDto dto, String sql);
+
+    BasePage<?> QueryToVoPage(Class<?> vo, BaseDto dto, String sql, Object... params);
+
+    BasePage<?> QueryToVoPage(Class<?> vo, BaseDto dto, String sql, Map<String, Object> map);
+
+    /**
+     * 根据sqL语句查询填充到VO对象分页排序
+     *
+     * @param dto
+     * @param sql
+     * @return BasePage<T>
+     */
+    BasePage<T> QueryToBeanPage(BaseDto dto, String sql);
+
+    BasePage<T> QueryToBeanPage(BaseDto dto, String sql, Object... params);
+
+    BasePage<T> QueryToBeanPage(BaseDto dto, String sql, Map<String, Object> map);
+
+    /************************************************ 常用结束*************************************************** **/
+
+
+}

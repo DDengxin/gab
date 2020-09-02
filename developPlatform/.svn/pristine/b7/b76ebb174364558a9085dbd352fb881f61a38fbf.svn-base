@@ -1,0 +1,12 @@
+package com.tengzhi.business.sc.da.cardAbnormal.service.impl;
+
+import com.tengzhi.business.sc.da.cardAbnormal.service.EHrAttendanceAbnormalService;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/5 0005 11:33
+ * @Description:
+ */
+
+public class EHrAttendanceAbnormalServiceImpl implements EHrAttendanceAbnormalService {
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'page_main'})}">
+        <title th:text="${SYS_SETTING_XTMC}!=null?${SYS_SETTING_XTMC}:'辽宁金帝企业管理系统'"></title>
+    </th:block>
+    <script th:src="@{/static/script/im/IMjs/IMjsCommunication.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        var userId = [[${ userId }]];
+        IMinit(userId);
+    </script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .layui-layim {
+            display: block !important;
+            height: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+            background-size: cover;
+        }
+
+        .layui-layer {
+            box-shadow: none !important
+        }
+
+        .layui-layim-info,
+        .layui-layer-setwin {
+            display: none !important;
+        }
+
+        .layui-layim-main {
+            height: 100%;
+            top: -110px !important;
+        }
+
+        .layim-tab-content {
+            height: 100% !important;
+        }
+
+        .layui-layim-search {
+            bottom: -98px !important;
+        }
+
+        .layui-layim-chat {
+            width: 100% !important;
+            top: 0 !important;
+            left: 260px !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
+            height: 100% !important;
+        }
+
+        .layim-chat,
+        .layim-chat-box {
+            height: 100% !important;
+        }
+
+        .layim-chat-main {
+            height: 63% !important;
+        }
+
+        .layui-layim-chat .layui-layer-content {
+            padding-right: 260px;
+        }
+
+        .layim-chat-footer {
+            height: 37% !important;
+        }
+
+        .layim-chat-textarea {
+            height: 60%;
+        }
+
+        .layim-chat-textarea textarea {
+            height: 100% !important;
+        }
+
+        .layui-layer-iframe .layui-layer-setwin {
+            display: block !important;
+        }
+
+        .layui-layim-chat .layui-layer-setwin {
+            position: absolute !important;
+            top: 30px !important;
+            right: 293px !important;
+            display: block !important;
+        }
+
+        .layui-layim-chat .layui-layer-setwin .layui-layer-max,
+        .layui-layim-chat .layui-layer-setwin .layui-layer-min {
+            display: none !important;
+        }
+
+        .layui-layer-border .layui-layer-setwin {
+            display: block !important;
+        }
+
+        .layui-anim-upbit {
+            top: -80px !important;
+        }
+
+        .layim-send-set .layui-edge {
+            position: absolute;
+            top: 13px !important;
+            left: 9px !important;
+            border-width: 6px;
+            border-bottom-style: solid;
+            border-bottom-color: #fff;
+            border-top-style: none !important;
+            border-top-color: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+</body>
+</html>

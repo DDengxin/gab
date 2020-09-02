@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>培训执行【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号</td>
+                <td >
+                    <input id="jlNote" name="jlNote" class="mini-textBox" emptyText="单号自动生成" readOnly="readOnly"/>
+                <td title>培训记录类别</td>
+                <td >
+                    <select id="jlType" name="jlType" class="mini-combobox" style="width:100%;" >
+                        <option value="">请选择...</option>
+                        <option value="计划内">计划内</option>
+                        <option value="计划外">计划外</option>
+                    </select>
+                </td>
+                <td title>培训计划单号</td>
+                <td >
+                    <input id="jlPlanNote" name="jlPlanNote" class="mini-buttonedit"  onbuttonclick="onButtonEditNote"/>
+
+                <td title>培训日期</td>
+                <td >
+                    <input class="mini-datepicker" name="jlDate"  id="jlDate"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>培训时长</td>
+                <td >
+                    <input id="jlTrainingDuration" name="jlTrainingDuration"  class="mini-textBox"/>
+                </td>
+                <td title>培训类别</td>
+                <td >
+                    <input id="jlStype" name="jlStype" class="mini-combobox" url="/system/parameter/getParamsSelectListByParentId/人事/培训类型/PXLX"/>
+
+                <td title>培训方式</td>
+                <td >
+                    <input class="mini-combobox"  name="jlTrainingMode" id="jlTrainingMode"  url="/system/parameter/getParamsSelectListByParentId/人事/培训方式/PXFS">
+                <td title>培训讲师</td>
+                <td >
+                    <input class="mini-combobox"  name="jlTrainingLecturer" id="jlTrainingLecturer"  url="/system/parameter/getParamsSelectListByParentId/人事/培训讲师/PXJS">
+                </td>
+            </tr>
+            <tr>
+                <td title>培训人数</td>
+                <td >
+                    <input id="jlPlan" name="jlPlan" class="mini-textBox"/>
+                <td title>实际人数</td>
+                <td >
+                    <input id="jlActual" name="jlActual" class="mini-textBox"/>
+                <td title>实际费用</td>
+                <td >
+                    <input id="jlTrainingCost" name="jlTrainingCost" class="mini-textBox"/>
+                <td title>附件</td>
+                <td >
+                    <input id="jlAttachment" name="jlAttachment"  class="mini-textBox"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>是否考核</td>
+                <td >
+                    <select id="jlTrainingCheck" name="jlTrainingCheck" class="mini-combobox" style="width:100%;">
+                        <option value="">请选择...</option>
+                        <option value="是">是</option>
+                        <option value="否">否</option>
+                    </select>
+                <td title>培训效果</td>
+                <td >
+                    <input class="mini-combobox"  name="jlTrainingEffect" id="jlTrainingEffect"  url="/system/parameter/getParamsSelectListByParentId/人事/培训效果/PXXG">
+                <td title>培训内容</td>
+                <td colspan="3">
+                    <input id="jlTrainingContent" name="jlTrainingContent" class="mini-textBox"/>
+            </tr>
+            <tr>
+                <td title>培训地点</td>
+                <td colspan="3">
+                    <input id="jlTrainingAddress" name="jlTrainingAddress" class="mini-textBox"/>
+
+                <td title>培训主题</td>
+                <td colspan="3">
+                    <input id="jlTitle" name="jlTitle" class="mini-textBox"/>
+            </tr>
+        </table>
+    </form>
+    <div id="code_grid" class="mini-datagrid" style="width:100%;height:240px;" showPager="false" allowCellEdit="true" allowCellSelect="true"
+         oncellcommotedit="oncellcommitedit">
+            <div property="columns">
+                <div type="indexcolumn"></div>
+                <div name="Sid" field="Sid"  width="40" align="center" headerAlign="center"　allowSort="true"  visible="false" >Sid</div>
+                <div name="ryWorkerId" field="ryWorkerId" width="80" align="center" headerAlign="center"　allowSort="false" >工号
+                    <input property="editor"  class="mini-textBox"  onbuttonclick="onButtonEditc" style="width:100%;" allowInput="true" />
+                </div>
+                <div name="rySignIn" field="rySignIn" width="80" align="center" headerAlign="center"　allowSort="false" >签到
+                    <input property="editor"  class="mini-textBox"   style="width:100%;" allowInput="true" />
+                </div>
+                <div name="rySignFlag" field="rySignFlag" width="80" align="center" headerAlign="center"　allowSort="false" >签到状态
+                    <input property="editor"  class="mini-textBox"   style="width:100%;" allowInput="true" />
+                </div>
+                <div name="rySignRemarks" field="rySignRemarks" width="80" align="center" headerAlign="center"　allowSort="false" >签到说明
+                    <input property="editor"  class="mini-textBox"   style="width:100%;" allowInput="true" />
+                </div>
+                <div name="ryCheck" field="ryCheck" width="80" align="center" headerAlign="center"　allowSort="false" >考核
+                     <input property="editor"  class="mini-textBox"   style="width:100%;" allowInput="true" />
+                </div>
+                <div name="ryCheckFlag" field="ryCheckFlag" width="80" align="center" headerAlign="center"　allowSort="false" >考核状态
+                     <input property="editor"  class="mini-textBox"   style="width:100%;" allowInput="true" />
+                </div>
+                <div name="ryCheckScore" field="ryCheckScore" width="80" align="center" headerAlign="center"　allowSort="false" >考核分数
+                    <input property="editor"  class="mini-textBox"   style="width:100%;" allowInput="true" />
+                </div>
+                <div name="ryCheckRemarks" field="ryCheckRemarks" width="80" align="center" headerAlign="center"　allowSort="false" >考核说明
+                    <input property="editor"  class="mini-textBox"   style="width:100%;" allowInput="true" />
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" iconCls="icon-add" id="add" onclick="addRow();">添加行</a>
+    <a class="mini-button" iconCls="icon-remove" id="remove" onclick="removeRow();">删除行</a>
+    <a class="mini-button" iconCls="icon-save" id="saveBtn" onclick="SaveData();">保存</a>
+    <a class="mini-button" iconCls="icon-cancel" id="colseBtn" onclick="onCancel();">关闭</a></div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get("code_grid");
+    /**
+     * 查询 Personnel
+     **/
+/*    function search_option() {
+        grid.load();
+    }*/
+    //新增行
+    function addRow() {
+        var newRow = {
+            name : "New Row"
+        };
+        grid.addRow(newRow, 0);
+    }
+    //移除行
+    function removeRow() {
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+        }
+        grid.clearSelect();
+    }
+
+    //保存数据
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("pxzxAdd.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        console.log(res);
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+    //grid刷新
+    function onValueChanged(){
+        grid.setUrl("/personnel/personnelTraining/trainingNotice/getRushGrid");
+        var tzNote = mini.get("tzNote").getValue();
+        grid.load({
+            params: mini.encode({
+                tzNote :tzNote
+            })
+        })
+    }
+
+    /**
+     * 修改
+     * @returns
+     * */
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getByNote/{0}".format(options.data.jlNote), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    var data =res.data;
+                    mini.get("jlPlanNote").setText(data.jlPlanNote);
+                }
+            });
+        }
+    }
+    /**
+     * 培训计划编号选择
+     * */
+    function onButtonEditNote(){
+        var btnEdit = this;
+        mini.open({
+            url: "/personnel/personnelTraining/trainingNotice/noteList.html",
+            title: "【培训计划编号选择】",
+            width: 800,
+            height: 480,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data);
+                    btnEdit.setValue(data.jhNote);
+                    btnEdit.setText(data.jhNote);
+                }
+            }
+        });
+    }
+    //关闭窗口
+    function onCancel(e) {
+        CloseWindow("close");
+    }
+</script>
+</html>

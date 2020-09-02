@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目小组</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="项目编号">
+            <input class="mini-textbox" name="xmId"/>
+        </label>
+        <label class="hmq-label" text="项目名称">
+            <input class="mini-textbox" name="xmName"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div tz:datagrid="datagrid" url="/project/projectArchives/projectTream/getList" id="datagrid" idField="xzId" sortField="workId,workName" sortOrder="desc" sizeList="[50,100,200]" pageSize="100" pager="#pager1" showPager="true">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="xzId" width="120" align="left" visible="false">主键id</div>
+            <div tz:datagrid="column" field="xmId" width="100" align="left">项目编号</div>
+            <div tz:datagrid="column" field="xmName" width="160" align="left">项目名称</div>
+            <div tz:datagrid="column" field="workName" width="120" align="left">员工姓名</div>
+            <div tz:datagrid="column" field="xmRole" displayField="xmRoleName" width="100" align="left">项目岗位</div>
+            <div tz:datagrid="column" field="workTel" width="100" align="left">员工手机</div>
+            <div tz:datagrid="column" field="workMail" align="left" width="100">员工邮箱</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="dataCorpName" align="left" width="90">所属公司</div>
+            <div tz:datagrid="column" field="workSm" align="left" width="240">岗位说明</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("datagrid");
+    srch_topgrid.bindSearchForm(form);
+
+    /**
+     * 查询
+     */
+    function search_option() {
+        srch_topgrid.load();
+    }
+
+    /**
+     * 添加
+     * @param e
+     */
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', data: "", width: 600, height: 120});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'edit', data: row, width: 600, height: 120});
+    }
+
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("delete/{0}".format(row.xzId), function (res) {
+                        if (200 === res.code) {
+                            srch_topgrid.reload();
+                            hmq.tipSuccess('删除完成');
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+</script>
+
+</body>
+</html>
+
+

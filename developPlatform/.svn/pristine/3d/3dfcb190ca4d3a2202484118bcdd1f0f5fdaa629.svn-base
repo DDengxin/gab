@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>委外结算</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="委外合同">
+            <input class="mini-textbox" name="srchHtNo"/>
+        </label>
+        <label class="hmq-label" text="供货单位">
+            <input id="srchSupplier" name="srchSupplier" emptyText="全部" showClose="true" oncloseclick="onCloseClickClearValue"
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_top_grid" style="width:100%;height:100%;" idField="htNo"
+         sizeList="[50,100,200]" pageSize="100" onDrawSummaryCell="onDrawSummaryCell"
+         pager="#pager1" showPager="false" sortMode="client">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="htDate" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="htNo" width="120" align="center">委外合同</div>
+            <div tz:datagrid="column" field="htSupplierName" width="120" align="center">供货单位</div>
+            <div tz:datagrid="column" name="htSl" field="htSl" width="130" align="right" headerAlign="center" allowSort="true" numberFormat="#0.0000" summaryType="sum">订单总量</div>
+            <div tz:datagrid="column" name="flsl" field="flsl" width="130" align="right" headerAlign="center" allowSort="true" numberFormat="#0.0000" summaryType="sum">发料总量</div>
+            <div tz:datagrid="column" name="shl" field="shl" width="130" align="right" headerAlign="center" allowSort="true" numberFormat="#0.0000" summaryType="sum">收回总量</div>
+            <div tz:datagrid="column" name="qjl" field="qjl" width="130" align="right" headerAlign="center" allowSort="true" numberFormat="#0.0000" summaryType="sum">欠交量</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar" style="padding:0px;border-bottom:1;height: 40px;">
+    <table style="width:100%;">
+        <tr>
+            <td style="white-space:nowrap;">
+                <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;border: none;" sizeList="[50,100,200]"></div>
+            </td>
+            <td style="white-space:nowrap;" align="right" id="btnbar"/>
+        </tr>
+    </table>
+</div>
+</body>
+<script type="text/javascript" src="/static/js/list.js"></script>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var surl = "/production/subcontract/wwtj";
+    srch_topgrid.setUrl(surl + "/getSrchTopList");
+    srch_topgrid.bindSearchForm(form);
+
+    //页面加载完成后加载Js
+    window.onload = function () {
+        getByBrand();
+    }
+
+    function search_option() {
+        srch_topgrid.load();
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "dataDate" && record.dataDate != null) {
+            return mini.formatDate(new Date(record.dataDate), "yyyy-MM-dd HH:mm");
+        }
+        if (e.field == "inDate" && record.inDate != null) {
+            return mini.formatDate(new Date(record.inDate), "yyyy-MM-dd HH:mm");
+        }
+        if (e.field == "inTax") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+    }
+
+    /**
+     汇总
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "inNote") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inJs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inZl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+
+    }
+
+    /**
+     * @Author: gxl
+     * @description: 供货单位选择页面
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+</script>
+</html>

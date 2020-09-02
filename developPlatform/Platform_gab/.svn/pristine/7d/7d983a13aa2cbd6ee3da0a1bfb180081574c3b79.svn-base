@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<!-- <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}"> -->
+
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+
+	<title>参数管理</title>
+</th:block>
+</head>
+
+<body>
+	<div  >
+
+		<form id="userform" class="supply-center">
+			<table class="hmq-modify-table"  style="padding-bottom: 0px !important;" >
+				<tr>
+					<td title>用户账户:</td>
+					<td content><input class="mini-textbox" name="userId"
+									   readonly="readonly"></td>
+					<td title>用户名称:</td>
+					<td content><input class="mini-textbox" name="nickName">
+					</td>
+					<td title>手机号:</td>
+					<td content><input class="mini-textbox" name="mobile"
+									   vtype="numberAndLetter" required></td>
+					<td title>邮箱：</td>
+					<td content><input class="mini-textbox" name="email">
+					</td>
+
+				</tr>
+
+			</table>
+		</form>
+        <!-- 需求方 -->
+		<form id="application-user">
+			<input name="supplyType" class="mini-hidden" />
+			<table class="hmq-modify-table"  style="padding-bottom: 0px !important;" >
+				<tr>
+					<td title>单位名称:</td>
+					<td content >
+						<input class="mini-textbox" name="supplyName" />
+					</td>
+					<td title>单位简称:</td>
+					<td content >
+						<input class="mini-textbox" name="customerExp" />
+					</td>
+					<td title>单位区域:</td>
+					<td content >
+						<input class="mini-textbox" name="district" />
+					</td>
+				</tr>
+				<tr>
+					<td title>用户头像:</td>
+					<td content colspan="3">
+						<Article class="pserson" name="uploaderSupplierImg"></Article>
+						<input  name="headImg" class="mini-hidden" />
+					</td>
+				</tr>
+
+				<tr>
+					<td title>上年度营业额:</td>
+					<td content><input class="mini-textbox" name="lastyearMoney" />
+					</td>
+					<td title>身份证号:</td>
+					<td content><input class="mini-textbox" name="idCard" />
+					</td>
+					<td title>数量范围:</td>
+					<td content ><input class="mini-textbox" name="numberScope" /></td>
+					<td title>交期范围:</td>
+					<td content ><input class="mini-textbox" name="deliveryDateScope" /></td>
+				</tr>
+				<tr>
+					<td title>精度要求:</td>
+					<td content ><input class="mini-textbox" name="accuracyRequire" /></td>
+					<td title>空间要求:</td>
+					<td content><input class="mini-textbox" name="spaceRequire" /></td>
+					<td title>重量要求:</td>
+					<td content><input class="mini-textbox" name="weightRequire" /></td>
+					<td title>自动化要求:</td>
+					<td content><input class="mini-textbox" name="autoRequire"/></td>
+				</tr>
+				<tr>
+					<td title>范围选择:</td>
+					<td content><input class="mini-textbox" name="targetScope"/></td>
+					<td title>客户等级:</td>
+					<td content><input class="mini-textbox" name="supplyLevel"/></td>
+					<td title>付款天数:</td>
+					<td content><input class="mini-textbox" name="supplyDay"/></td>
+					<td title>客户金额:</td>
+					<td content><input class="mini-textbox" name="supplyJe"/></td>
+
+				</tr>
+
+				<tr>
+					<td title>第三方监理:<input class="mini-checkbox" name="isProxy" /></td>
+					<td content></td>
+					<td title>公开竞标:<input class="mini-checkbox" name="isPublic" /></td>
+					<td content></td>
+				</tr>
+
+				<tr>
+
+					<td title>特别说明:</td>
+					<td content><input class="mini-textbox" name="explain" /></td>
+				</tr>
+															
+			</table>
+		</form>
+
+		
+	
+		
+		
+		
+	</div>
+	<th:block th:replace="~{model/Approval :: Approval() }">
+	</th:block>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	// 审核同意
+	function ApprovalAgreeHandler() {
+		_ApprovalActionHandler_('/platform/personal/agree');///system/workflow/process/agree
+	}
+	
+	var form = new mini.Form('application-user');
+	
+	var user_form = new mini.Form('userform');
+	
+	
+	setFormReadOnly(userform,null,true);
+	setFormReadOnly(form,null,true);
+	
+	function SetData(options) {
+		if ('sh' == options.action) {
+			$.get("/platform/personal/personalone/{0}".format(options.data.businessId), function(res) {
+				if (200 === res.code) {
+				user_form.setData(res.data.user);
+					var data = res.data.data;
+					form.setData(res.data.data);	
+					
+					$(".pserson").filesUpload({
+						pickerid :form.getField('headImg').getValue(),
+			             filecount : 1,
+			             view : "view",
+			            viewdownload : true
+			         });
+																											
+				}
+			});
+		} 
+	}
+
+
+	
+</script>
+</html>

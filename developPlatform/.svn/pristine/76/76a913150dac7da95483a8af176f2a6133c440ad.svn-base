@@ -1,0 +1,24 @@
+package com.tengzhi.business.production.subcontract.wwtj.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.cg.yw.purchaseSettle.model.ECwYsyf;
+import com.tengzhi.business.cg.yw.purchaseSettle.vo.ECwYsyfVo;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
+
+
+public interface WwtjService extends BaseService {
+
+
+	BasePage<Map<String, Object>> getSrchTopList(BaseDto baseDto) throws Exception;
+
+
+    void exportExcelOut(HttpServletResponse response, HttpServletRequest request);
+}

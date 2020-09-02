@@ -1,0 +1,120 @@
+package com.tengzhi.business.platform.enroll.model;
+
+import java.util.Collection;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.system.setting.model.SysSet;
+
+public class MixUser   extends SecurityUser {
+	private static final long serialVersionUID = 1L;
+    private SysSet cgsqSysSet;
+
+	//专家表
+	private  G_Expert expert;
+	//个人表
+	private G_personal personal;
+	//供应商表
+	private G_Supply  supply;	
+	
+	
+	
+	
+	public SysSet getCgsqSysSet() {
+		return cgsqSysSet;
+	}
+
+	public void setCgsqSysSet(SysSet cgsqSysSet) {
+		this.cgsqSysSet = cgsqSysSet;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	public G_Expert getExpert() {
+		return expert;
+	}
+
+	public void setExpert(G_Expert expert) {
+		this.expert = expert;
+	}
+
+	public G_personal getPersonal() {
+		return personal;
+	}
+
+	public void setPersonal(G_personal personal) {
+		this.personal = personal;
+	}
+
+	public G_Supply getSupply() {
+		return supply;
+	}
+
+	public void setSupply(G_Supply supply) {
+		this.supply = supply;
+	}
+	
+	
+	
+    public MixUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+        super(username, password, authorities);
+    }
+
+    public MixUser(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+        super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
+    }
+    
+    public static SysSet getCgsqSet(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(null == authentication || null == authentication.getPrincipal() ){
+            return null;
+        }else{
+            return ((SessionUser)authentication.getPrincipal()).getCgsqSysSet();
+        }
+    }
+
+
+
+
+	/**
+     * 获取当前登录用户
+     * 如果获取不到用户将会返回null
+     * @return
+     */
+    public static G_Expert ExperttUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(null == authentication || null == authentication.getPrincipal() ){
+            return null;
+        }else{
+            return ((MixUser)authentication.getPrincipal()).getExpert();
+        }
+    }
+    
+    public static G_personal PersontUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(null == authentication || null == authentication.getPrincipal() ){
+            return null;
+        }else{
+            return ((MixUser)authentication.getPrincipal()).getPersonal();
+        }
+    }
+
+    public static G_Supply SupplytUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(null == authentication || null == authentication.getPrincipal() ){
+            return null;
+        }else{
+            return ((MixUser)authentication.getPrincipal()).getSupply();
+        }
+    }
+
+    
+    
+
+
+}

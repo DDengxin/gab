@@ -1,0 +1,8 @@
+package com.tengzhi.business.platform.form.service;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.form.model.DynamicFormDetail;
+
+public interface DynamicFormDetailService {
+
+}

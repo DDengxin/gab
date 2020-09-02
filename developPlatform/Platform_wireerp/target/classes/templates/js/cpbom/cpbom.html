@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>成品BOM</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="产品编码">
+            <input id="srchCp" name="srchCp" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="true"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid" idField="idField" sortField="cpcodeId" url="/js/cpbom/sreach" treeColumn="cpcodeId" parentField="parentField" resultAsTree="true" showTreeLines="true" showTreeIcon="false" expandOnLoad="true"
+         showPager="true" showExpandButtons="true" expandOnDblClick="true" showPageIndex="false" showPageSize="false" showPageInfo="false" showPagerButtonIcon="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" field="num" width="48">序号</div>
+            <div tz:datagrid="column" field="cpcodeId" displayField="cpcodeName" width="200" align="left" name="cpcodeId">产品名称</div>
+            <div tz:datagrid="column" field="cpcodeId" width="120" align="center">产品品号</div>
+            <div tz:datagrid="column" field="cpcodeType" displayField="typeName" width="60" align="center">类型</div>
+            <div tz:datagrid="column" field="cpcodeStype" width="60" align="center">级别</div>
+            <div tz:datagrid="column" field="cpcodeBl" width="80" align="center">配比</div>
+            <div tz:datagrid="column" field="cpcodeSh" width="80" align="center">损耗</div>
+            <div tz:datagrid="column" field="cpcodeSm" width="150" align="center">BOM说明</div>
+            <div tz:datagrid="column" field="dataMan" displayField="manName" width="80" align="center">操作人员</div>
+            <div tz:datagrid="column" field="dataDate" width="100" align="center">操作日期</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="corpName" width="150" align="center">所属公司</div>
+            <div tz:datagrid="column" field="cpcodeUid" width="0" align="center">上级品号</div>
+            <div tz:datagrid="column" field="cpcodeBom" width="0" align="center">BOM</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on('load', function (e) {
+        var tree = new mini.DataTree();
+        tree.setExpandOnLoad(grid.getExpandOnLoad());
+        tree.setSortOrder(grid.getSortField());
+        tree.setCheckSelectOnLoad(grid.getCheckSelectOnLoad());
+        tree.setMultiSelect(grid.setMultiSelect());
+        var text = JSON.parse(e.text).data;
+        tree.setData(mini.listToTree(text, grid.getNodesField(), grid.getIdField(), grid.getParentField()));
+        grid.loadList(tree.getDataView());
+        tree.destroy();
+    });
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 720, height: 510});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: 720, height: 510});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $.get("deleteByBom.html/{0}/{1}/{2}".format(row.cpcodeBom, row.cpcodeStype, row.cpcodeId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onButtonEdit(e) {
+        var row = grid.getSelected();
+        var btnEdit = this;
+        var index = grid.getData().length;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleProduct/saleContract/wlbmselect.html",
+            title: "编码单选择列表",
+            width: 1300,
+            height: 620,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = {
+                    action: "search",
+                    cgStype: "XC"
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var rows = iframe.contentWindow.GetData();
+                    rows = mini.clone(rows);
+                    btnEdit.setValue(rows.cpcodeid);
+                    btnEdit.setText(rows.cpcodeid);
+                }
+                grid.clearSelect();
+            }
+        });
+    }
+</script>
+</body>
+</html>

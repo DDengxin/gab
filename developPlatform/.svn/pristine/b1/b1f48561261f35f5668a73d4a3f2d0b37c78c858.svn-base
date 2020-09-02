@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>切换账套</title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="userId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>用户名:</td>
+                <td content>
+                    <input class="mini-textbox" name="realName" readonly/>
+                </td>
+            </tr>
+            <tr>
+                <td title>档案账套:</td>
+                <td content>
+                    <input class="mini-textbox" required name="orgName" readonly/>
+                </td>
+            </tr>
+            <tr>
+                <td title>默认(登录)账套:</td>
+                <td content>
+                    <input class="mini-combobox" required name="defaultOrgId"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>操作账套:</td>
+                <td content>
+                    <input class="mini-combobox" required name="currentOrgId"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    /**
+     * 初始化数据
+     **/
+    function SetData(options) {
+        $.ajax({
+            loading: true,
+            url: '/system/user/userCorpInfo',
+            method: 'GET',
+            success: function (res) {
+                if (200 == res.code) {
+                    form.getField('defaultOrgId').setUrl('/system/org/combobox/getOrgList?ids={0}'.format(res.data.orgIds));
+                    form.getField('currentOrgId').setUrl('/system/org/combobox/getOrgList?ids={0}'.format(res.data.orgIds));
+                    form.setData(res.data);
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            }, error: function () {
+                hmq.tipDanger("网络请求错误!");
+            }
+        });
+    }
+    SetData();
+
+    /**
+     * 保存
+     * @param e
+     * @constructor
+     */
+    function SaveData(e) {
+        $.ajax({
+            loading: true,
+            url: '/system/user/userCorpInfo',
+            method: 'POST',
+            data:form.getData(),
+            success: function (res) {
+                if (200 == res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('ok');
+                        }
+                    });
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            }, error: function () {
+                hmq.tipDanger("网络请求错误!");
+            }
+        });
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+
+</script>
+</html>

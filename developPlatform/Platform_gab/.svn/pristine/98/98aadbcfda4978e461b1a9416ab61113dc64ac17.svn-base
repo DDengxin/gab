@@ -1,0 +1,6 @@
+.layui-form-item:first-child input {
+    background: rgb(246, 246, 246);
+}
+input{
+    color: rgb(103,103,103) !important;
+}

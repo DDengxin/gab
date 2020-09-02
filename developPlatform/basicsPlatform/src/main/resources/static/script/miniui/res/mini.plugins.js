@@ -1,0 +1,299 @@
+/***************************************miniui 扩展****************************************/
+//mini控件默认配置
+(function () {
+    //下拉框最大高度默认设定120
+    mini.ComboBox.prototype.popupMaxHeight = 120;
+
+    //DataGrid默认页面候选条数
+    mini.Pager.prototype.sizeList = [200, 500, 1000];
+
+    //TreeGrid默认加载条数
+    mini.DataTree.prototype.pageSize =
+        mini.TreeGrid.prototype.pageSize = 200;
+
+    //DataGrid默认页面加载条数
+    mini.DataTable.prototype.pageSize =
+        mini.DataSource.prototype.pageSize =
+            mini.DataGrid.prototype.pageSize =
+                mini.Pager.prototype.pageSize = 200;
+
+
+    if ('undefined' !== typeof (mini)) {
+        /**
+         * 按钮挂载miniopen函数
+         * @param options
+         * @returns {null|mini.Window}
+         */
+        mini.Button.prototype.miniopen = function (options) {
+            if ($.isFunction(window.miniopen)) {
+                return window.miniopen($.extend({_targetObject: this}, options));
+            } else {
+                console.error("miniopen function does not exists!");
+                return null;
+            }
+        };
+
+        /**
+         * 表单设置只读模式
+         * @param enable //默认：true
+         */
+        mini.Form.prototype.setLabelModel = function (enable) {
+            var fields = this.getFields();
+            if (false !== enable) {
+                for (var i = 0, l = fields.length; i < l; i++) {
+                    var c = fields[i];
+                    if (c.setReadOnly) c.setReadOnly(true);     //只读
+                    if (c.setIsValid) c.setIsValid(true);      //去除错误提示
+                    if (c.addCls) c.addCls("asLabel");          //增加asLabel外观
+                }
+            } else {
+                for (var i = 0, l = fields.length; i < l; i++) {
+                    var c = fields[i];
+                    if (c.setReadOnly) c.setReadOnly(false);
+                    if (c.removeCls) c.removeCls("asLabel");
+                }
+                mini.repaint(document.body)
+            }
+        };
+        /**
+         * 绑定查询表单对象
+         * @param form
+         */
+        mini.TreeGrid.prototype.bindSearchForm =
+            mini.DataGrid.prototype.bindSearchForm = function (form) {
+                var grid = this;
+                var formObject = null;
+                var _load = '_load';
+                if (null == form || $.isFunction(grid[_load])) {
+                    //解绑
+                    if ($.isFunction(grid[_load])) {
+                        grid.load = grid[_load];
+                        delete grid[_load];
+                    }
+                }
+                if (form instanceof mini.Form) {
+                    formObject = form;
+                } else {
+                    var $form = $(form).filter(function (index, dom) {
+                        return dom.tagName === 'FORM'
+                    });
+                    if ($form.length <= 0) {
+                        console.error("找不到表单对象");
+                    } else {
+                        formObject = new mini.Form($form[0]);
+                    }
+                }
+                if (null != formObject) {
+                    //覆写load
+                    grid[_load] = grid.load;
+                    grid.load = function (params, success, fail) {
+                        if ('undefined' === typeof (params)) {
+                            if (null != form && form.validate() && form.isValid()) {
+                                params = {params: JSON.stringify(formObject.getData(true))};
+                                grid[_load].call(this, params, success, fail);
+                            } else {
+                                mini.showTips({content: '请验证查询条件!', state: 'danger', x: "center", y: "center", timeout: 1000});
+                            }
+                        } else {
+                            grid[_load].call(this, params, success, fail);
+                        }
+                    };
+                }
+            };
+        /**
+         * 设置与Excel的复制模式
+         * @param state 启动/禁用
+         */
+        mini.DataGrid.prototype.setCopyExcelModel = function (state) {
+            var copyExcelPrototype = {
+                allowRowSelect: false,
+                enableHotTrack: false,
+                allowCellEdit: true,
+                allowCellSelect: true,
+                cellEditAction: 'celldblclick'
+            };
+            var KEY_COPY_EXCEL_INSTANCE = '__copy_excel_instance__';
+            var KEY_OLD_PROTOTYPE_MAP = '__old_prototype_map__';
+
+            if (state) {
+                //改变属性
+                if (!this[KEY_COPY_EXCEL_INSTANCE]) {
+                    this[KEY_OLD_PROTOTYPE_MAP] = {};
+                    for (var key in copyExcelPrototype) {
+                        if (copyExcelPrototype.hasOwnProperty(key)) {
+                            if ('cellEditAction' !== key) {
+                                this[KEY_OLD_PROTOTYPE_MAP][key] = this['get' + key.replace(key[0], key[0].toUpperCase())]();
+                            }
+                        }
+                    }
+                }
+                grid.set(copyExcelPrototype);
+                //记录实例
+                this[KEY_COPY_EXCEL_INSTANCE] = new CopyExcel(this);
+            } else if(this[KEY_OLD_PROTOTYPE_MAP] != null ) {
+                //恢复属性
+                grid.set(this[KEY_OLD_PROTOTYPE_MAP]);
+                this[KEY_OLD_PROTOTYPE_MAP] = null;
+                grid.un('cellEditAction', 'celldblclick');
+                //销毁事件绑定 && 清除实例
+                this[KEY_COPY_EXCEL_INSTANCE]['destroy'] && this[KEY_COPY_EXCEL_INSTANCE]['destroy']();
+                this[KEY_COPY_EXCEL_INSTANCE] = null;
+            }
+
+        };
+
+        /**
+         * 覆写mini.parseDate方法，使之支持毫秒数转时间
+         * @type {mini.parseDate}
+         * @private
+         */
+        var _parseDate_ = mini.parseDate;
+        mini.parseDate = function () {
+            var v = _parseDate_.apply(this, arguments);
+            if (null === v && typeof arguments[0] == "number") {
+                var date = new Date(arguments[0]);
+                if (date.getTime() != arguments[0])
+                    return null;
+                return isNaN(date) ? null : date;
+            } else {
+                return v;
+            }
+        };
+        /**
+         * 覆写mini.formatDate方法，使之支持字符串解析为时间
+         * @type {mini.formatDate}
+         * @private
+         */
+        /*var _formatDate_ = mini.formatDate;
+        mini.formatDate = function () {
+            var v = _formatDate_.apply(this, arguments);
+            if ('' === v && typeof (arguments[0]) === 'string' && '' !== arguments[0] && isNaN(new Number(arguments[0]))) {
+                var date = new Date(arguments[0].replaceAll('-','/'));
+                return _formatDate_.call(this,date,arguments[1]);
+            } else {
+                return v;
+            }
+        };*/
+
+
+        /**
+         * 扩展mini自定义验证规则
+         * @type {errorText: 错误文本提示, regex: 正则表达式, name: 验证规则名称}
+         */
+        var ExtendVtypes = [
+            {
+                name: 'mobile',
+                regex: /^1[3456789]\d{9}$/,
+                errorText: '手机号码格式错误',
+            },
+            {
+                name: 'numberAndLetter',
+                regex: /[a-zA-Z0-9]/,
+                errorText: '只能输入字母与数字',
+            }, {
+                name: 'numberAndUpper',
+                regex: /[A-Z0-9]/,
+                errorText: '只能输入大字母与数字',
+            }, {
+                name: 'email',
+                regex: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
+                //regex: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/,
+                errorText: '邮箱格式不正确',
+            }, {
+                name: 'telphone',
+                regex: /0\d{2}-\d{7,8}/,
+                errorText: '固定电话格式不正确,(格式：区号+号码,如010-1234567)',
+            }, {
+                name: 'zh',
+                regex: /^[\u4e00-\u9fa5]+$/,
+                errorText: '只允许输入汉字',
+            }
+        ];
+
+        for (var i = 0, max = ExtendVtypes.length; i < max; i += 1) {
+            mini.VTypes[ExtendVtypes[i]['name'] + 'ErrorText'] = ExtendVtypes[i]['errorText'];
+            mini.VTypes[ExtendVtypes[i]['name']] = (function (i) {
+                return function (v) {
+                    var re = new RegExp(ExtendVtypes[i]['regex']);
+                    if (re.test(v)) return true;
+                    return false;
+                }
+            })(i);
+        }
+    }
+})(mini);
+/***************************************END miniui 扩展****************************************/
+
+if (!window.UserControl) window.UserControl = {};
+UserControl.LabelBox = function (e) {
+    UserControl.LabelBox.superclass.constructor.call(this);
+};
+mini.extend(UserControl.LabelBox,
+    mini.Container, {
+        uiCls: "hmq-label",
+        text: null,
+        set: function (e) {
+            UserControl.LabelBox.superclass.set.call(this, e);
+            if (e.text) {
+                this.setText(e.text);
+            }
+            if (e['for']) {
+                this.setFor(e['for']);
+            }
+
+            return this;
+        },
+        _create: function () {
+            this.el = document.createElement("label");
+            this._bodyEl = this.el;
+            this._labelSpanEl = document.createElement("span");
+            this._bodyEl.appendChild(this._labelSpanEl);
+        },
+        _initEvents: function () {
+        },
+        doLayout: function () {
+            if (!this.canLayout()) {
+                return;
+            }
+            var childNodes = mini.getChildNodes(this.el, true);
+            for (var i = 0, max = childNodes.length; i < max; i++) {
+                mini.layout(childNodes[i])
+            }
+        },
+        set_bodyParent: function (el) {
+            if (!el) {
+                return;
+            }
+            while (el.firstChild) {
+                try {
+                    this._bodyEl.appendChild(el.firstChild);
+                } catch (c) {
+                }
+            }/**/
+            this.doLayout();
+
+        },
+        setText: function (value) {
+            this._labelSpanEl.innerText = this.getText() + (mini.isNull(this.getText()) ? this.getText() : ':');
+            this.text = value;
+        },
+        getText: function () {
+            return this.text;
+        },
+        setFor: function (value) {
+            this._labelSpanEl.setAttribute('for', value);
+            this['for'] = value;
+        },
+        getFor: function () {
+            return this['for'];
+        },
+        getAttrs: function (el) {
+            var attrs = UserControl.LabelBox.superclass.getAttrs.call(this, el);
+            attrs._bodyParent = el;
+            mini._ParseString(el, attrs,
+                ['text', 'for', 'id']
+            );
+            return attrs;
+        }
+    });
+mini.regClass(UserControl.LabelBox, "label");

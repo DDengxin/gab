@@ -1,0 +1,164 @@
+package com.tengzhi.business.sc.da.cardAbnormal.model;
+
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
+
+@Entity(name = "e_hr_attendance_abnormal")
+public class EHrAttendanceAbnormal {
+
+  private String note;
+
+  @Id
+  private long sid;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  private Date rq;
+  private String workId;
+  private String workName;
+  private String workDept;
+  private String kqSj;
+  private String kqSm;
+  private String flag;
+  private String dataMan;
+  private String dataCorp;
+
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  private Date dataDate;
+  private String kqYy;
+  private String kqType;
+
+
+  public String getNote() {
+    return note;
+  }
+
+  public void setNote(String note) {
+    this.note = note;
+  }
+
+
+  public long getSid() {
+    return sid;
+  }
+
+  public void setSid(long sid) {
+    this.sid = sid;
+  }
+
+
+  public Date getRq() {
+    return rq;
+  }
+
+  public void setRq(java.sql.Timestamp rq) {
+    this.rq = rq;
+  }
+
+
+  public String getWorkId() {
+    return workId;
+  }
+
+  public void setWorkId(String workId) {
+    this.workId = workId;
+  }
+
+
+  public String getWorkName() {
+    return workName;
+  }
+
+  public void setWorkName(String workName) {
+    this.workName = workName;
+  }
+
+
+  public String getWorkDept() {
+    return workDept;
+  }
+
+  public void setWorkDept(String workDept) {
+    this.workDept = workDept;
+  }
+
+
+  public String getKqSj() {
+    return kqSj;
+  }
+
+  public void setKqSj(String kqSj) {
+    this.kqSj = kqSj;
+  }
+
+
+  public String getKqSm() {
+    return kqSm;
+  }
+
+  public void setKqSm(String kqSm) {
+    this.kqSm = kqSm;
+  }
+
+
+  public String getFlag() {
+    return flag;
+  }
+
+  public void setFlag(String flag) {
+    this.flag = flag;
+  }
+
+
+  public String getDataMan() {
+    return dataMan;
+  }
+
+  public void setDataMan(String dataMan) {
+    this.dataMan = dataMan;
+  }
+
+
+  public String getDataCorp() {
+    return dataCorp;
+  }
+
+  public void setDataCorp(String dataCorp) {
+    this.dataCorp = dataCorp;
+  }
+
+  public String getKqYy() {
+    return kqYy;
+  }
+
+  public void setKqYy(String kqYy) {
+    this.kqYy = kqYy;
+  }
+
+
+  public String getKqType() {
+    return kqType;
+  }
+
+  public void setKqType(String kqType) {
+    this.kqType = kqType;
+  }
+
+  public void setRq(Date rq) {
+    this.rq = rq;
+  }
+
+  public Date getDataDate() {
+    return dataDate;
+  }
+
+  public void setDataDate(Date dataDate) {
+    this.dataDate = dataDate;
+  }
+}

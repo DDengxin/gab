@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>用户角色授权器</title>
+	</th:block>
+</head>
+<body>
+<input name="arNote" class="mini-hidden"/>
+<form id="form1" method="post">
+	<div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderStyle="border:0;">
+		<table style="width: 100%;">
+			<tr>
+				<td style="white-space: nowrap;" align="left" >
+					<label class="hmq-label" text="用户名称">
+						<input class="mini-textbox" name="roleName"/>
+					</label>
+				</td>
+				<td style="white-space: nowrap;" align="right">
+					<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+					<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+				</td>
+			</tr>
+		</table>
+	</div>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+	<div tz:datagrid="treegrid"  id="srch_grid"  treeColumn="nick_name"  idField="user_id"  parentField="parent_id"  url="file_auth.html"
+		 resultAsTree="true"  ShowTreeicon="false"   multiSelect="true"  showPager="false">
+
+		<div property="columns">
+			<div tz:datagrid="checkcolumn"></div>
+			<div  tz:datagrid="column" field="user_id" name="user_id" displayField="nick_name" width="100%">用户名称</div>
+			<div  tz:datagrid="column" field="dept_id" name="dept_id" displayField="dept_name" width="100%">部门</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form("form1");
+	var grid = mini.get("srch_grid");
+
+	function SetData(options) {
+		$("[name=arNote]").val(options.data.arNote);
+		search_option();
+	}
+
+	grid.on('load', function(e) {
+		grid.loadList(JSON.parse(e.text).data);
+	});
+
+	grid.on('update',function(e){
+		var rows = grid.findRows(function (row) {
+			if(!$.isEmptyObject(row.isflag)) return true;
+		});
+		String.load="Load";
+		grid.selects(rows);
+		delete String.load;
+	});
+
+	/**
+	 * 本地筛选
+	 **/
+	function search_option() {
+		grid.load({params:JSON.stringify({arNote:$("[name=arNote]").val(),roleName:$("[name=roleName]").val()})});
+	}
+
+	grid.on("select",function(e){
+		if(String.load!="Load") checkChildren(e.record,true);
+	});
+
+
+	grid.on("deselect",function(e){
+		checkChildren(e.record,false);
+	})
+
+	function checkChildren(e,bool) {
+		if (e.hasOwnProperty("children")) {
+			for (var i = 0; i < e.children.length; i++) {
+				if (bool == true) {
+					grid.selectNode(grid.getRowByUID(e.children[i]._uid));
+				}else if(bool==false){
+					grid.deselect(grid.getRowByUID(e.children[i]._uid));
+				}
+				checkChildren(e.children[i]);
+			}
+		}
+	}
+
+	function confirm(e) {
+		$.post("fileAuth_add.html",JSON.stringify({arNote:$("[name=arNote]").val(),roleMap:grid.getSelecteds()}),
+			function (res) {
+				if (200 === res.code) {
+					 hmq.tipSuccess(res.msg || '保存成功', {
+		                    exec: function () {
+		                        CloseWindow('refresh',false);
+		                    }
+		                });
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			},
+			null,
+			{contentType: 'application/json'}
+		);
+	}
+
+	//关闭
+	function closeWindow(action) {
+		if (window.CloseOwnerWindow) {
+			return window.CloseOwnerWindow(action);
+		} else {
+			window.close();
+		}
+	}
+</script>
+</body>
+</html>

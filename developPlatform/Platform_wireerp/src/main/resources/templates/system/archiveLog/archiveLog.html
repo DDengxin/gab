@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>档案文库日志管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="logType" value="1" type="hidden"/>
+        <input class="mini-hidden" name="description" value="档案文库查阅功能" type="hidden"/>
+        <label class="hmq-label" text="用户名">
+            <input class="mini-textbox" name="username"/>
+        </label>
+        <label class="hmq-label" text="请求ip">
+            <input class="mini-textbox" name="requestIp"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="createTime" sortField="createTime" sortOrder="desc" url="/system/archiveLog/list">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="username" width="80" align="center">用户名</div>
+            <div tz:datagrid="column" field="description" width="130" align="center">用户操作</div>
+            <div field="arTitle" width="200" sortField="arTitle" displayField="arTitle" headerAlign="center" allowSort="true" align="left">标题</div>
+            <div field="arSecrecy" displayField="arSecrecyName" width="80" sortField="arSecrecy" headerAlign="center" allowSort="true" align="center">密级</div>
+            <div field="arNote" width="150" sortField="arNote" displayField="arNote" headerAlign="center" allowSort="true" align="center">档案文库单号</div>
+            <div tz:datagrid="column" field="createTime" width="150" align="center" renderer="onActionRenderer">请求时间</div>
+            <div tz:datagrid="column" field="requestIp" width="120" align="center">请求ip</div>
+            <div tz:datagrid="column" field="address" width="160" align="center">请求地址</div>
+            <div tz:datagrid="column" field="browser" width="80" align="center">浏览器</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "createTime" && record.createTime) {
+            return mini.formatDate(new Date(record.createTime), "yyyy-MM-dd HH:mm:ss");
+        }
+        if (e.field == "time" && record.time) {
+            if (record.time > 2000) {
+                return '<span style="color:red;">' + record.time + 'ms</span>';
+            } else {
+                return '<span style="color:green;">' + record.time + 'ms</span>';
+            }
+        }
+
+    }
+</script>
+</body>
+</html>

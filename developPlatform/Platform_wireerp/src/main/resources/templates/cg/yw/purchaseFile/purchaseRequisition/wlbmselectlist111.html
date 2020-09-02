@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购-申请核销</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="cpcodeType"/>
+
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNote" width="120px"/>
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="srchCode" width="120px"/>
+        </label>
+        <label class="hmq-label" text="名称" for="cpcodeName">
+            <input class="mini-combobox" id="cpcodeName" name="cpcodeName" width="120px" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+        </label>
+        <label class="hmq-label" text="规格" for="cpcodeSize">
+            <input class="mini-combobox" id="cpcodeSize" name="cpcodeSize" width="120px" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input id="outCustomer" name="outCustomer"
+                   class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                   onbeforenodeselect="disableParentSelection" width="110" popupWidth="240"
+                   popupHeight="180"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick"
+         idField="cpcodeId" selectOnLoad="true"
+         sizeList="[50,100,200]" pageSize="100" multiSelect="true"
+         url="/cg/yw/purchaseFile/purchaseRequisition/taxiadsadas"
+    >
+        <div property="columns">
+            <div tz:datagrid="column" field="sqNote" width="120">申请单号</div>
+            <div tz:datagrid="column" field="sqRq" width="100" align="center">申请日期</div>
+            <div tz:datagrid="column" field="sqDept" displayField="deptname" width="100" align="center">申请部门</div>
+            <div tz:datagrid="column" field="cpcodeId" width="100">产品编码</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcodeNameName" width="130">产品名称</div>
+            <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize" displayField="cpcodeSizeName" width="130">产品规格</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" displayField="cpcodeSizeEnName" width="100" align="center">品牌</div>
+            <div tz:datagrid="column" name="cpcodeXp" field="cpcodeXp" displayField="cpcodeXpName" width="90">产品标重</div>
+            <div tz:datagrid="column" name="cpcodeFl" field="cpcodeFl" displayField="cpcodeFlName" width="90" align="center">所属分类</div>
+            <div tz:datagrid="column" name="cpcodeBz" field="cpcodebz" displayField="cpcodeBzName" width="90">计量单位</div>
+            <div tz:datagrid="column" field="sqsl" width="80" align="right" numberFormat="#,0.0000" headerAlign="center">申请数量</div>
+            <div tz:datagrid="column" field="ddsl" width="80" align="right" numberFormat="#,0.0000" headerAlign="center">订购数量</div>
+            <div tz:datagrid="column" field="sl" width="80" align="right" numberFormat="#,0.0000" headerAlign="center">差量</div>
+            <div tz:datagrid="column" field="flag" width="90" align="center">状态</div>
+            <div tz:datagrid="column" field="cpcode02" width="80" align="center">核算方式</div>
+            <div tz:datagrid="column" name="cpcode03" field="cpcode03" width="150">其他参数</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var form = new mini.Form("form1");
+    grid.bindSearchForm(form);
+    mini.get("outCustomer").load("/system/dept/combobox/getDeptTreeList");
+
+
+    //start
+    form.getField('cpcodeType').setValue(hmq.getQueryString("cpcodeType"));
+    if (hmq.getQueryString("cpcodeType")) {
+        hmq.business.dynamicProductParams(hmq.getQueryString("cpcodeType"), {
+            miniForm: form,
+            miniDataGrid: [grid,],
+            success: function (map, res) {
+
+            }, error: function (res) {
+
+            }
+        });
+    }
+
+    grid.on("DrawCell", function (e) {
+        if ("sqRq" == e.field && null != e.value) {
+            e.cellHtml = mini.formatDate(new Date(e.value), 'yyyy-MM-dd');
+        }
+    });
+
+
+    function search_option() {
+        grid.load();
+    }
+
+    function hx_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm('注意:确定要' + e.sender.text + '吗？', "提醒信息", function (action) {
+                if (action == "ok") {//核销
+                    $.put("/cg/yw/purchaseFile/purchaseRequisition/avacsaca", {
+                        a: e.sender.text,
+                        note: row.sqNote,
+                        code: row.code
+                    }, function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess('e.sender.text'+'成功!');
+                            grid.reload();
+                        } else {
+
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+    }
+</script>
+</body>
+</html>

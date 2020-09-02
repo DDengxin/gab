@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>操作手册</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="模块">
+            <input class="mini-combobox" name="module" allowInput="false"
+                   data="[{id:'ERP',text:'ERP'},{id:'MES',text:'MES'}]" valueFromSelect="true" emptyText="全部" showNullItem="true" nullItemText="全部" width="80"/>
+        </label>
+        <label class="hmq-label" text="标题">
+            <input class="mini-textbox" name="title"/>
+        </label>
+        <label class="hmq-label" text="类型">
+            <input class="mini-combobox" name="type" allowInput="false"
+                   data="[{id:'KF',text:'开发文档'},{id:'SC',text:'操作手册'}]" valueFromSelect="true" emptyText="全部" showNullItem="true" nullItemText="全部" width="100"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid"  sizeList="[50,100,200]" pageSize="100" url="archiveDataFindAll">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="title" width="150" align="left" >标题</div>
+            <div tz:datagrid="column" field="module" width="90" align="center" >模块</div>
+            <div tz:datagrid="column" field="bindId" width="100" displayField="rightName" align="left" >关联菜单</div>
+            <div tz:datagrid="column" field="type" width="100"   align="left">类型</div>
+            <div tz:datagrid="column" field="subclass" width="120"  align="left">小类</div>
+            <div tz:datagrid="column" field="label" width="130" align="left">自定义标签</div>
+            <div field="fileName" width="100" align="center" renderer="onActionRenderer"  headerAlign="center" allowSort="true">附件</div>
+            <div tz:datagrid="column" field="state" width="80"  align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            if(e.value == true){
+                e.cellHtml ='启用';
+            }else if(e.value == false){
+                e.cellHtml ='禁用';
+            }else{
+                e.cellHtml ='';
+            }
+        }
+        if (e.field == "type") {
+            if(e.value == "KF"){
+                e.cellHtml ='开发文档';
+            }else if(e.value == "SC"){
+                e.cellHtml ='操作手册';
+            }else{
+                e.cellHtml ='';
+            }
+        }
+    });
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html?act=view', action: 'view', data: row,  width: '100%', height: '100%'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function add_option(e) {
+        //var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: null,  width: '100%', height: '100%'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row,  width: '100%', height: '100%'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $.delete("archiveDataDelete/{0}".format(row.uuid),function (res) {
+                        if (200 === res.code) {
+                            search_option();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onActionRenderer(e) {
+        var html = "";
+        if (e.value != null) {
+            html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 附件  ' + '</a> ';
+        } else {
+            html = '-';
+        }
+        return html;
+    }
+
+    function file_view(noticeNo) {
+        miniopen({url: '/xt/notice/file.html', action: 'file', data: noticeNo, width: 400, height: 390, title: '附件下载'});
+    }
+
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,628 @@
+<html layout:decorator="~{gab/layout/gabPlatformManage}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/business.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/webuploader.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/uploadFile.css}" />
+    <script type="text/javascript" th:src="@{/static/script/webuploader/webuploader.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/webuploader/uploadFile.js}"></script>
+    <!-- <script type="text/javascript" th:src="@{/static/gab/js/plugs/PCASClass.js}"></script> -->
+    <link th:href="@{/static/gab/css/manage/jquery.tagsinput.css}">
+    <script th:src="@{/static/gab/js/plugs/jquery.tagsinput.js}"></script>
+    <script th:src="@{/static/gab/js/manage/business.js}"></script>
+
+    <script type="text/javascript" charset="utf-8" th:src="@{/static/script/utf8-jsp/ueditor.config.js}"></script>
+    <script type="text/javascript" charset="utf-8" th:src="@{/static/script/utf8-jsp/ueditor.all.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/utf8-jsp/lang/zh-cn/zh-cn.js}"></script>
+</th:block>
+<th:block layout:fragment="right-content">
+    <p class="tip">请完善一下信息，方便我们更好的为您服务</p>
+    <form action="" class="layui-form" lay-filter="supply">
+        <div class="base-msg">
+            <h4>基本信息</h4>
+            <div class="layui-form-item">
+                <label class="layui-form-label">厂商类型</label><b>*</b>
+                <div class="layui-input-block">
+                    <select name="supplyType" id="type" lay-filter="type" lay-verify="required">
+                        <option value="夹具厂商">夹具厂商</option>
+                        <option value="辅件厂商">辅件厂商</option>
+                        <option value="整合厂商">整合厂商</option>
+                        <option value="特色经贸商">特色经贸商</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">单位名称</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="supplyName" required lay-verify="required" placeholder="请输入单位名称"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">企业形象</label><b>*</b>
+                <div class="layui-input-block">
+                    <div id="License" name="uploaderheadImg"></div>
+                    <input id="BusinessLicense" name="headImg" type="hidden" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">主营业务</label><b>*</b>
+                <div class="layui-input-block">
+                    <textarea name="supplyInfo" placeholder="请输入内容" required lay-verify="required"
+                        class="layui-textarea"></textarea>
+                </div>
+                <div class="layui-form-mid layui-word-aux">控制在100个字符以内</div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">生产年限</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="productsYears" placeholder="" autocomplete="off" class="layui-input">
+                        <i>年</i>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">年产值范围</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="outputValue" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">技术人数</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="manNumber" placeholder="" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">设备能力</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="equipAbility" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">场地大小</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="localSize" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">服务范围</label>
+                    <div class="layui-input-block">
+                        <select name="serviceScope" required lay-required>
+                            <option value="0">请选择</option>
+                            <option value="全国">全国</option>
+                            <option value="全球">全球</option>
+                            <option value="省内">省内</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="business-msg">
+            <h4>业务信息</h4>
+            <div class="container" id="container"></div>
+        </div>
+        <div class="concact-msg">
+            <h4>联系信息</h4>
+            <div class="layui-form-item">
+                <label class="layui-form-label ">地址</label><b>*</b>
+                <div class="layui-inline address">
+                    <select id="province" name="province" required lay-verify="required" lay-filter="province"></select>
+                </div>
+                <div class="layui-inline">
+                    <select id="city" name="city" required lay-verify="required" lay-filter="city"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">手机号</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="telphone" required lay-verify="phone" autocomplete="off"
+                            class="layui-input" disabled="true">
+                        <span class="editPhone">修改</span>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">联系人</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="concatPerson" required lay-verify="required" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">公司网址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="website" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">联系邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">单位电话</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="workTelephone" autocomplete="off" required lay-verify="number"
+                            class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">单位传真</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="fax" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="company">
+            <h4>企业介绍</h4>
+            <!--  <textarea id="company" name="content" style="display: none;"></textarea>-->
+            <script type="text/plain" id="myEditor" style="width: 100%; height: 200px;">
+            </script>
+            <input id="company" name="content" type="hidden" />
+
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" lay-submit lay-filter="supply">提交</button>
+            </div>
+        </div>
+    </form>
+    <script id="JjBussinessMsg" type="text/html">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">月均吃单能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="outputMonth"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">平均交期</label>
+                <div class="layui-input-block">
+                    <input type="text" name="avgDay"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">合格率</label>
+                <div class="layui-input-block">
+                    <input type="text" name="adoptRate"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">形位公差</label>
+                <div class="layui-input-block">
+                    <input type="text" name="accuracy"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">尺寸公差</label>
+                <div class="layui-input-block">
+                    <input type="text" name="offsetSize"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">特长产品</label>
+                <div class="layui-input-block">
+                    <input type="text" name="strengths"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">产品工艺</label>
+                <div class="layui-input-block">
+                    <input type="text" name="productArt"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">产品优势</label>
+                <div class="layui-input-block">
+                    <input type="text" name="singleOrMix"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">单位等级</label>
+                <div class="layui-input-block">
+                    <input type="text" name="supplyLevel"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">发票类型</label>
+                <div class="layui-input-block">
+                    <select name="bill">
+                        <option value="普通发票">普通发票</option>
+                        <option value="工业增值税发票">工业增值税发票</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">违约金额比</label>
+                <div class="layui-input-block">
+                    <select name="lossRate">
+                        <option value="20%">20%</option>
+                        <option value="30%">30%</option>
+                        <option value="40%">40%</option>
+                        <option value="50%">50%</option>
+                        <option value="60%">60%</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">热门关键词</label><b>*</b>
+            <div class="layui-input-block">
+                <input id="tags" name="keyWord" type="text" class="tags" value="" required lay-verify="required" />
+            </div>
+            <div class="layui-form-mid layui-word-aux">输入内容后，按回车键增加关键字标签，不得超过3个关键字</div>
+        </div>
+        <div class="layui-form-item inputCheckbox">
+            <div class="layui-inline">
+                <input type="checkbox" name="isSale" title="是否有专职营销人员" value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isBeforeSale" title="是否有专职售前技术支持" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isAfterSale" title="是否有专职售后现场服务人员" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isTest" title="是否配备专业的精度检测人员" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isFlag" title="是否带液、电配套能力" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isMatching" title="是否带程控配套能力" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isExplainBook" title="是否提供电子或纸质使用说明书" value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isOuttest" title="是否提供出厂检测合格报告" value="true">
+            </div>
+        </div>
+    </script>
+    <script id="FjBussinessMsg" type="text/html">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">月均吃单能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="outputMonth"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">单位等级</label>
+                <div class="layui-input-block">
+                    <input type="text" name="supplyLevel"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">平均交期</label>
+                <div class="layui-input-block">
+                    <input type="text" name="avgDay"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">合格率</label>
+                <div class="layui-input-block">
+                    <input type="text" name="adoptRate"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">形位公差</label>
+                <div class="layui-input-block">
+                    <input type="text" name="accuracy"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">尺寸公差</label>
+                <div class="layui-input-block">
+                    <input type="text" name="offsetSize"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">热门关键词</label><b>*</b>
+            <div class="layui-input-block">
+                <input id="tags" name="keyWord" type="text" class="tags" value="" required lay-verify="required" />
+            </div>
+            <div class="layui-form-mid layui-word-aux">输入内容后，按回车键增加关键字标签，不得超过3个关键字</div>
+        </div>
+        <div class="layui-form-item inputCheckbox">
+            <div class="layui-inline ">
+                <input type="checkbox" name="isSale" title="是否有专职营销人员" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isBeforeSale" title="是否有专职售前技术支持" value="true">
+            </div>
+            <div class="layui-inline ">
+                <input type="checkbox" name="isAfterSale" title="是否有专职售后现场服务人员" value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isTest" title="是否配备专业的精度检测人员"  value="true">
+            </div>
+            <div class="layui-inline ">
+                <input type="checkbox" name="isFlag" title="是否带液、电配套能力"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isMatching" title="是否带程控配套能力" value="true" >
+            </div>
+            <div class="layui-inline ">
+                <input type="checkbox" name="isEntrust" title="是否委托夹具商做售后服务" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isReform" title="是否有改制和设计特制订单接单能力"  value="true">
+            </div>
+        </div>
+    </script>
+    <script id="ZhBussinessMsg" type="text/html">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">月均吃单能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="outputMonth" 
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">平均交期</label>
+                <div class="layui-input-block">
+                    <input type="text" name="avgDay"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">合格率</label>
+                <div class="layui-input-block">
+                    <input type="text" name="adoptRate"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">形位公差</label>
+                <div class="layui-input-block">
+                    <input type="text" name="accuracy"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">尺寸公差</label>
+                <div class="layui-input-block">
+                    <input type="text" name="offsetSize"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">特长产品</label>
+                <div class="layui-input-block">
+                    <input type="text" name="strengths"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">产品工艺</label>
+                <div class="layui-input-block">
+                    <input type="text" name="productArt"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">产品优势</label>
+                <div class="layui-input-block">
+                    <input type="text" name="singleOrMix"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">单位等级</label>
+                <div class="layui-input-block">
+                    <input type="text" name="supplyLevel"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">发票类型</label>
+                <div class="layui-input-block">
+                    <select name="bill">
+                        <option value="普通发票">普通发票</option>
+                        <option value="工业增值税发票">工业增值税发票</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">违约金额比</label>
+                <div class="layui-input-block">
+                    <input type="text" name="lossRate"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">售后事项内容</label>
+                <div class="layui-input-block">
+                    <input type="text" name="annexInfo"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">可贸易附件品</label>
+                <div class="layui-input-block">
+                    <input type="text" name="sideSaleInfo"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">热门关键词</label><b>*</b>
+            <div class="layui-input-block">
+                <!-- <div class="input_box" id="jjTags">
+                    <input type="text" name="keyWord" value="" required lay-verify="required" autocomplete="off" placeholder="请输入关键字" hidden>
+                    <p class="keyTips">输入内容后，按回车键增加关键字标签</p>
+                </div> -->
+                <input id="tags" name="keyWord" type="text" class="tags" value="" required lay-verify="required" />
+            </div>
+            <div class="layui-form-mid layui-word-aux">输入内容后，按回车键增加关键字标签，不得超过3个关键字</div>
+        </div>
+        <div class="layui-form-item inputCheckbox">
+            <div class="layui-inline">
+                <input type="checkbox" name="isSale" title="是否有专职营销人员"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isBeforeSale" title="是否有专职售前技术支持"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isAfterSale" title="是否有专职售后现场服务人员" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isTest" title="是否配备专业的精度检测人员"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isFlag" title="是否带液、电配套能力"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isMatching" title="是否带程控配套能力"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isExplainBook" title="是否提供电子或纸质使用说明书" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isOuttest" title="是否提供出厂检测合格报告"  value="true">
+            </div>
+        </div>
+    </script>
+    <script id="TsBussinessMsg" type="text/html">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">经销产品品牌</label>
+                <div class="layui-input-block">
+                    <input type="text" name="brand"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">产品整合能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="mixAblitity"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">型号类别</label>
+                <div class="layui-input-block">
+                    <input type="text" name="brandType"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">技术支持能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="techAblitity"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">资金能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="moneyAbility" 
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">团队服务能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="teamAblitity" 
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">人脉整合能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="contactsAblitity"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">热门关键词</label><b>*</b>
+            <div class="layui-input-block">
+                <input id="tags" name="keyWord" type="text" class="tags" value="" required lay-verify="required" />
+            </div>
+            <div class="layui-form-mid layui-word-aux">输入内容后，按回车键增加关键字标签，不得超过3个关键字</div>
+        </div>
+        <div class="layui-form-item inputCheckbox">
+            <div class="layui-inline">
+                <input type="checkbox" name="isFullstorage" title="是否专职存储和接送货"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isFullaftersale" title="是否有专职售后维修人员"  value="true">
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isFullsale" title="是否有专职产品销售" value="true" >
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isReform" title="是否有改制和设计特制订单接单能力"  value="true">
+            </div>
+        </div>
+        <!-- <div class="layui-form-item">
+        </div> -->
+    </script>
+</th:block>
+<th:block layout:fragment="footer">
+</th:block>
+
+</html>

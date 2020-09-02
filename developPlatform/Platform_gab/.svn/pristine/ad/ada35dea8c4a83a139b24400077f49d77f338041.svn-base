@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title></title>
+</th:block>
+</head>
+<body>
+	<form id="formHome">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<label class="hmq-label" text="联系人姓名">
+					<input class="mini-textbox" name="linkMan"/>
+				</label>
+				<label class="hmq-label" text="手机号">
+					<input class="mini-textbox" name="phone"/>
+				</label>
+				<label class="hmq-label" text="下单日期">
+					<input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" />
+				</label>
+				<label class="hmq-label" text="至">
+					<input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" />
+				</label>
+			</th:block>
+		</th:block>
+	</form>
+
+
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="HomeGrid" url="findAll">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn" width="40">序号</div>
+				<div tz:datagrid="column" field="note" width="150" >订单单号</div>
+				<div tz:datagrid="column" field="linkMan" width="100" >联系人姓名</div>
+	         	<div tz:datagrid="column" field="district" width="80">地区</div>
+                <div tz:datagrid="column" field="city"  width="80">城市</div>
+				<div tz:datagrid="column" field="phone" width="150" >手机号</div>
+				<div tz:datagrid="column" field="mail" width="180" >邮箱</div>
+				<div tz:datagrid="column" field="orderSize" width="60" >购买数量</div>
+				<div tz:datagrid="column" field="orderTime" width="130" >下单日期</div>
+				<div tz:datagrid="column" field="invoice" width="60" >是否需要发票</div>
+				<div tz:datagrid="column" field="contract" width="60" >是否需要合同</div>
+				<div tz:datagrid="column" field="remark" width="200" >备注</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("formHome");
+    var grid = mini.get("HomeGrid");
+    grid.bindSearchForm(form);
+
+	grid.on("DrawCell", function (e) {
+		if (e.field == "contract"||e.field == "invoice") {
+			e.cellHtml = e.value ? '否' : '是';
+		}
+	});
+
+	function search_option() {
+        grid.load();
+    }
+
+	function view(e) {
+		var row = grid.getSelected();
+		if (row) {
+			e.sender.miniopen({url: "add.html", action: 'sh',data:{id:row.productId},width:'1300px',height:'580px'});
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+
+
+</script>
+</body>
+</html>

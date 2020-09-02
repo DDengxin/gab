@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>产品市场</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/goodsList.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/goodsList.js}"></script>
+	<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+	<div class="needs_content">
+		<div class="needs_content_list">
+			<h2>
+				产品市场
+			</h2>
+			<table border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>行业分类</td>
+					<td id="allTypeUl"></td>
+				</tr>
+				<!-- <tr>
+					<td>加工工艺</td>
+					<td>
+						<ul class="conditions">
+							<li class="selected" onclick="">无限制</li>
+							<li onclick="">一级</li>
+							<li onclick="">二级</li>
+							<li onclick="">三级</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>结构特点</td>
+					<td>
+						<ul class="conditions">
+							<li class="selected" onclick="">无限制</li>
+							<li onclick="">工业设计</li>
+							<li onclick="">智能制造</li>
+							<li onclick="">模具设计与制造</li>
+							<li onclick="">生产制造</li>
+							<a href="javascript:void(0);">更多></a>
+						</ul>
+					</td>
+				</tr> -->
+			</table>
+			<div class="screen">
+				<div class="fl">
+					<ul>
+						<li class="liin">
+							综合
+							<span>
+								<b id="syn-up" class="layui-icon layui-icon-triangle-d"></b>
+								<b id="syn-down" class="layui-icon layui-icon-triangle-d"></b>
+							</span>
+						</li>
+						<li>
+							销售量
+							<span>
+								<b id="sale-up" class="layui-icon layui-icon-triangle-d"></b>
+								<b id="sale-down" class="layui-icon layui-icon-triangle-d"></b>
+							</span>
+						</li>
+					</ul>
+				</div>
+				<div class="fr">
+					<input id="searchContent" type="text" placeholder="请输入搜索内容">
+					<b id="search">搜索</b>
+				</div>
+			</div>
+			<div class="show_items">
+				<ul id="productUl"></ul>
+			</div>
+			<div id="page"></div>
+		</div>
+	</div>
+
+
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+
+</body>
+<script id="productMarket" type="text/html">
+	{{#layui.each(d.list, function(index, item){ }}
+		<li>
+			<img src="/system/setting/image?line_primary={{item.coverPicture}}" alt="" default-img="/static/gab/images/wt.png">
+			<div class="goods_title">
+				<h3>{{item.cpcodeName}}</h3>
+				<p>{{d.product.cpfl}}:<b>{{item.cpcodeFname}}</b></p>
+				<p>{{d.product.cpgg}}:<b>{{item.cpcodeSize}}</b></p>
+				<p>{{d.product.cplength}}:<b>{{item.cpcodeSizeEn}}</b></p>
+				<p>销售量:<b>{{item.productSales}}</b></p>
+				<p class="goods_company">公司:<a href="javascript:void(0);">{{item.supplyName}}</a></p>
+			</div>
+			<a href="/gab/supplyProDetails.html?productNote={{item.cpcodeId}}">查看详情</a>
+		</li>
+          {{#  });
+     }}
+	{{#  if(d.list.length === 0){ }}
+		<div class="noData"><h1>暂无数据</h1></div>
+	{{#  } }}	
+</script>
+<script id="productTypes" type="text/html">
+	<ul class="conditions">
+		<li class="selected allType" onclick="productTypeChange('')">无限制</li>
+		{{#layui.each(d.list, function(index, item){ }}
+    		<li class="allType" onclick="productTypeChange('{{item.id}}')">{{item.text}}</li>
+    		{{#  });
+   		}}
+		<a href="javascript:void(0);">更多></a>
+	</ul>
+</script>
+</html>

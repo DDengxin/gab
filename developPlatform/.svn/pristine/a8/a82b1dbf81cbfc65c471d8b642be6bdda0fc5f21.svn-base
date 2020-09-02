@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         name="taxiEhcache" updateCheck="false">
+
+    <!-- 磁盘缓存位置 -->
+   <!--<diskStore path="D:/WEB-INF/EhCache"/>-->
+    <diskStore path="java.io.tmpdir/platform-ehcache"/>
+
+    <!-- 默认缓存 -->
+    <defaultCache
+              maxElementsInMemory="1000"
+              overflowToDisk="false"
+              diskPersistent="false"
+              timeToIdleSeconds="0"
+              timeToLiveSeconds="0"
+              memoryStoreEvictionPolicy="LRU">
+    </defaultCache>
+
+
+    <!--
+        maxElementsInMemory:指定允许在内存中存放元素的最大数量，0表示不限制。这个属性也可以在运行期动态修改。(限制只能缓存1000g个缓存)
+        timeToIdleSeconds:单位是秒，表示一个元素所允许闲置的最大时间，也就是说一个元素在不被请求的情况下允许在缓存中待的最大时间。默认是0，表示不限制。(闲置2小时)
+        timeToLiveSeconds:单位是秒，表示无论一个元素闲置与否，其允许在Cache中存在的最大时间。默认是0，表示不限制。(生命周期半天)
+        overflowToDisk: 如果内存中数据超过内存限制，是否要缓存到磁盘上。
+        statistics：是否收集统计信息。如果需要监控缓存使用情况，应该打开这个选项。默认为关闭（统计会影响性能）。设置statistics="true"开启统计。
+        maxElementsOnDisk：硬盘最大缓存个数。0不限制
+        diskSpoolBufferSizeMB：这个参数设置DiskStore（磁盘缓存）的缓存区大小。默认是30MB。每个Cache都应该有自己的一个缓冲区。
+        diskExpiryThreadIntervalSeconds：磁盘失效线程运行时间间隔，默认是120秒。(心跳线程检测过期清除或者等等清除磁盘的心跳线程)
+        maxBytesLocalDisk：在CacheManager级别指定能够使用的本地磁盘的最大容量。当指定了该属性后隐式的使所有Cache的overflowToDisk变为true，如需关闭则需要在对应的Cache上设置
+        memoryStoreEvictionPolicy：当内存里面的元素数量或大小达到指定的限制后将采用的驱除策略。默认是LRU（最近最少使用），可选值还有LFU（最不常使用）和FIFO（先进先出）。
+    -->
+
+    <!--缓存自定义配置-->
+    <cache name="ehCacheConfig"
+           maxElementsInMemory="1000"
+           timeToIdleSeconds="10800"
+           timeToLiveSeconds="43200"
+           overflowToDisk="true"
+           statistics="true"
+           maxElementsOnDisk="0"
+           diskSpoolBufferSizeMB="50"
+           diskExpiryThreadIntervalSeconds="120"
+           maxBytesLocalDisk="100M"
+          memoryStoreEvictionPolicy="LRU">
+    </cache>
+
+
+
+
+
+
+
+</ehcache>

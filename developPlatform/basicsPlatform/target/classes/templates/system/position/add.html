@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>岗位管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="deptId" class="mini-hidden">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="positionId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr colspan="3">
+                <td title>编码:</td>
+                <td content>
+                    <input class="mini-textbox" id="positionId"  name="positionId" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>所属机构:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+                           emptyText="请选择..." allowInput="false" id="orgName" name="orgName" textName="orgName" required/>
+                </td>
+                <td title>所属部门:</td>
+                <td content >
+                    <input class="mini-buttonedit" onbuttonclick="onDeptClickHander"
+                           emptyText="请选择..." allowInput="false" id="deptName" name="deptName" textName="deptName" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>岗位名称:</td>
+                <td content>
+                    <input class="mini-textbox" required  name="positionName" />
+                </td>
+                <td title>排序:</td>
+                <td content>
+                    <input class="mini-spinner" maxValue="1000"  name="rank"/>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>是否禁用:</td>
+                <td content>
+                    <input class="mini-combobox" required name="state" value="false"   url="/dict/boolean"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>备注</td>
+                <td content colspan="3">
+                    <input class="mini-textbox" name="remark" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            mini.get("positionId").setEnabled(false);
+            mini.get("orgName").setEnabled(false);
+            $.get("position.html/{0}".format(options.data.positionId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html",JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+    /**
+     *  机构选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/org/hierarchyOrgTree.html",
+            title: "【机构】选择",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    $("[name=orgId]").val(data.orgId);
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.orgName);
+                }
+            }
+        });
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        if($("[name=orgName]").val()!=""){
+            var btnEdit = e.sender;
+            return miniopen({
+                targetWindow: window.top,
+                url: "/system/dept/hierarchyDeptTree.html",
+                title: "【部门】选择",
+                data: {root:"root",orgId:$("[name=orgId]").val()},
+                width: 500,
+                height: 620,
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        $("[name=deptId]").val(data.deptId);
+                        btnEdit.setValue(data.deptId);
+                        btnEdit.setText(data.deptName);
+                        if(data.deptName=="无"){
+                            $("[name=positionName]").val("无")
+                        }
+                    }
+                }
+            });
+        }else{
+            hmq.tipDanger('请先选择所属机构');
+        }
+    }
+
+
+
+
+
+</script>
+</html>

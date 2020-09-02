@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产类别【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input name="fid" class="mini-hidden"/>
+        <input id="action" name="action" class="mini-hidden"/>
+       <table class="hmq-modify-table">
+            <tr>
+                <td title>类别编码</td>
+                <td content colspan="4">
+                    <input class="mini-textbox" name="fnumber" vtype="required"/>
+                </td>
+            </tr>
+           <tr>
+               <td title>类别名称</td>
+               <td content colspan="4">
+                   <input class="mini-textbox" name="fname" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>折旧方法</td>
+               <td content colspan="4">
+                   <select class="mini-combobox" name="fdeprmethod2" onvaluechanged="onvaluechanged">
+                       <option value="100">平均年限法</option>
+                       <option value="101">不提折旧</option>
+                   </select>
+               </td>
+           </tr>
+           <tr>
+               <td title>预计使用年限</td>
+               <td content>
+                   <input class="mini-textbox" name="fusageyear" vtype="int" onvaluechanged="onvaluechanged"/>
+               </td>
+               <td>折为</td>
+               <td>
+                   <input class="mini-textbox" name="flifeperiods" readonly="readonly"/>
+               </td>
+               <td>期</td>
+           </tr>
+           <tr>
+               <td title>预计净残值率</td>
+               <td content >
+                   <input class="mini-textbox" name="fsalvagerate" vtype="int"/>
+               </td>
+               <td>%</td>
+           </tr>
+           <tr>
+               <td title>固定资产科目</td>
+               <td content colspan="4">
+                   <div property="editor" allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue"
+                        id="ffaacctid" name="ffaacctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  width="500"
+                        buttons="[{iconCls: 'icon-search', handler: chooseKM}]" url="/finance/voucher/vouch/getLeafSubjectList">
+                       <div property="columns">
+                           <div header="编码" field="fnumber" width="100"></div>
+                           <div header="名称" field="fnumberfullname" width="400"></div>
+                       </div>
+                   </div>
+               </td>
+           </tr>
+           <tr>
+               <td title>累计折旧科目</td>
+               <td content colspan="4">
+                   <div property="editor" allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue"
+                        id="fdepracctid" name="fdepracctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"  width="500"
+                        buttons="[{iconCls: 'icon-search', handler: chooseKM}]" url="/finance/voucher/vouch/getLeafSubjectList">
+                       <div property="columns">
+                           <div header="科目代码" headerAlign="center" field="fnumber" width="100"></div>
+                           <div header="凭证科目" headerAlign="center" field="fnumberfullname" width="400"></div>
+                       </div>
+                   </div>
+               </td>
+           </tr>
+           <tr>
+               <td title>备注</td>
+               <td content colspan="4">
+                   <input class="mini-textarea" name="fremark" height="50"/>
+               </td>
+           </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    form.getField("flifeperiods").setEnabled(false);
+
+    /**值改变事件*/
+    function onvaluechanged(e){
+        var field = e.sender.name;
+        if(field == "fdeprmethod2"){
+            if(e.value == '101'){
+                form.getField("fusageyear").setEnabled(false);
+                form.getField("fsalvagerate").setEnabled(false);
+                form.getField("fdepracctid").setEnabled(false);
+            }else{
+                form.getField("fusageyear").setEnabled(true);
+                form.getField("fsalvagerate").setEnabled(true);
+                form.getField("fdepracctid").setEnabled(true);
+            }
+        }else if(field == "fusageyear"){
+            if(form.getField("fusageyear").getValue() && !isNaN(form.getField("fusageyear").getValue())){
+                form.getField("flifeperiods").setValue(form.getField("fusageyear").getValue() * 12);
+            }else{
+                form.getField("flifeperiods").setValue(0);
+            }
+        }
+    }
+
+
+    /**
+     * 科目选择框
+     * @param e
+     */
+    function chooseKM(e){
+        var btnEdit = e.sender;
+        mini.open({
+            targetWindow: window.parent,
+            url: "/finance/voucher/vouch/accountselect.html",
+            title: "科目选择列表",
+            width: 650,
+            height: 380,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data); //必须
+                    if (data) {
+                        btnEdit.setValue(data.fnumber);
+                        btnEdit.setText(data.fnumbername);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.fid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("code").setEnabled(false);
+                }
+           });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            if(form.getField("fdeprmethod2").getValue() == "100" ){
+                if(!form.getField("fusageyear").getValue() || !form.getField("fsalvagerate").getValue()){
+                    hmq.tipDanger("请填写预计使用年限和预计净产值率");
+                    return false;
+                }
+            }
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+            function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                    contentType: 'application/json'
+            });
+        }
+    }
+
+
+
+
+
+
+
+
+</script>
+</html>

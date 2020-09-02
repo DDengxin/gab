@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>公共审批页面</title>
+</th:block>
+<link rel="stylesheet" th:href="@{/static/workflow/css/approval.css}">
+</head>
+<body>
+	<div style="display: none">
+		<input name="processId" />
+		<input name="businessId" />
+	</div>
+	<div class="mini-splitter" id="splitter1" handlerSize="10" style="width: 100%; height: 100%">
+		<div showCollapseButton="false">
+			<!--审批主体-->
+			<div class="wrap_iframe mini-fit">
+				<iframe name="approval-page" id="approval-page" width="100%" height="100%" frameborder="0" src=""></iframe>
+			</div>
+		</div>
+		<div size="265px" showCollapseButton="true">
+			<!--审批历史-->
+			<div class="wrap_handle">
+				<div class="info_flow" id="approval-history"></div>
+				<div class="handle_head">办理记录</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var splitter = mini.get('splitter1');
+	jQuery(window).on('load',function(e){
+		if(jQuery(window).width() <= 992){
+			splitter.collapsePane(2);
+		}
+	});
+
+	/**
+	 * 初始化数据
+	 *
+	 * @exp:SetData({
+	 *           action: 'sh',
+	 *           data: {
+	 *               backlogId: '1',
+	 *               businessId: '2'
+	 *               url:"/xt/notice/add.html" //该页面中需要引入<th:block th:replace="~{model/Approval :: Approval() }"> </th:block>
+	 *           }
+	 *       });
+	 **/
+	function SetData(options) {
+		if (!!~[ 'sh', 'view' ].indexOf(options.action)) {
+			$('[name=processId]').val(options.data.processId);
+			$('[name=businessId]').val(options.data.businessId);
+			refreshApprovalHistory();
+			options.isApproval = true;
+			//将action参数拼接进入URL中
+			var targetUrl = options.data.handleUrl;
+			if ('sh' === options.action) {
+				var urlOptions = hmq.parseURL(targetUrl);
+				//分析url并将action追加进入queryc参数中
+				targetUrl = urlOptions.protocol + "://" + urlOptions.host + ("80" === urlOptions.port ? "" : ":" + urlOptions.port) + urlOptions.path
+						+ (urlOptions.query.length > 0 ? urlOptions.query + "&" : '?') + "action=" + options.action
+						+'&isApproval=true'
+						+ (urlOptions.hash.length > 0 ? "#" + urlOptions.hash : "");
+				//该处解码后编码是为了兼容IE
+				targetUrl = encodeURI(decodeURI(targetUrl));
+			}
+			//加载审批页面，并将参数原样抛给子页面
+			loadApprovalPage(targetUrl, options);
+		}
+	}
+
+	/**
+	 * 加载审批页面
+	 * 页面加载会主动调用子页面中的SetData方法与InitApprovalHandler方法
+	 * @param url
+	 * @param option
+	 * */
+	function loadApprovalPage(targetUrl, options) {
+		var approvalPage = $('#approval-page')[0];
+		var approvalPageWindow = approvalPage.contentWindow || approvalPage;
+		approvalPage.onload = function(e) {
+			approvalPage.onload = null;
+			if ('function' === typeof approvalPageWindow.SetData) {
+				try {
+					approvalPageWindow.SetData(options);
+					if ('function' === typeof approvalPageWindow.InitApprovalHandler) {
+						approvalPageWindow.InitApprovalHandler(options);
+					}
+				} catch (e) {
+					console.error(e);
+				}finally{
+					//自适应子框架页样式
+					setTimeout(function(){
+						typeof (approvalPageWindow['mini']) != "undefined" && approvalPageWindow['mini'].layout();
+					},200);
+				}
+			} else {
+				console.error('参数调用失败');
+			}
+		};
+		approvalPage.onerror = function(e) {
+			approvalPage.onerror = null;
+			console.error('加载失败');
+		};
+		approvalPageWindow.location.replace(targetUrl);
+	}
+
+	/**
+	 * 刷新审批历史
+	 */
+	function refreshApprovalHistory() {
+		$['post']("/system/workflow/backlog/gethistory", JSON.stringify({
+			processId : $('[name=processId]').val(),
+			businessId : $('[name=businessId]').val(),
+		}), function(res) {
+			if (200 === res.code) {
+				addHistory(res.data);
+			} else {
+				hmq.tipDanger('办理记录获取失败');
+			}
+		}, null, {
+			contentType : 'application/json'
+		});
+
+		function addHistory(data) {
+			var approvalHistory = document.getElementById('approval-history');
+			var htmlText = '';
+			for (var i = 0, max = data.length; i < max; i += 1) {
+				htmlText += '<div class="flow_list">' + '<span></span>' + '<div class="flow_list_content">' + '<p><span class="link_name">' + data[i].linkName + '</span>'
+						+ '<u><i class="time">' + dateToStr(data[i].endTime) + '</i><i class="yes">已通过</i></u></p>' + '<div class="list_content">' + '<p>操作：<i>' + data[i].transactor
+						+ '</i></p>';
+
+				if (data[i].opinion != null  &&  data[i].opinion != '') {
+					htmlText += '<p>意见：<i>' + (data[i].opinion == null || data[i].opinion == '' ? '' : data[i].opinion) + '</i></p>';
+				}
+				if (data[i].signature != null && data[i].signature != '') {
+					htmlText += '<p>签名：<i><img  style="max-width:100%"  src="data:'+data[i].signature+'"/></i></p>';
+				}
+				htmlText += '</div></div></div>';
+			}
+			approvalHistory.innerHTML = htmlText;
+			$('.info_flow .flow_list:last-child').addClass("change");
+		}
+
+	}
+
+	/**
+	 * 日期转字符串
+	 * @param datetime
+	 * @returns {string}
+	 */
+	function dateToStr(datetime){
+        var dateTime = new Date(datetime);
+        var year = dateTime.getFullYear();
+        var month = dateTime.getMonth()+1;
+        var date = dateTime.getDate();
+        var hour = dateTime.getHours();
+        var minutes = dateTime.getMinutes();
+        var second = dateTime.getSeconds();
+        if(month<10){
+            month = "0" + month;
+        }
+        if(date<10){
+            date = "0" + date;
+        }
+        if(hour <10){
+            hour = "0" + hour;
+        }
+        if(minutes <10){
+            minutes = "0" + minutes;
+        }
+        if(second <10){
+            second = "0" + second ;
+        }
+        return month+"-"+date+" "+hour+":"+minutes;
+    }
+	
+</script>
+
+</html>

@@ -1,0 +1,81 @@
+<html layout:decorator="~{gab/layout/gabPlatformFrame}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <title>案例|学术|交流</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/share.css}"/>
+    <script type="text/javascript" th:src="@{/static/gab/js/technologyCase.js}"></script>
+	<script id="teachCaseTemplate" type="text/html">
+		{{#layui.each(d.list, function(index, item){}}
+		<li>
+			<a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">
+				<img src="{{item.imageSrc}}" alt="">
+				<div>
+					<p class="title">{{item.title}}</p>
+					<p class="time">
+						发布时间：<i>{{item.releaseDate}}</i>
+					</p>
+					<p class="zy">{{item.briefIntroduction}}</p>
+				</div>
+			</a>
+		</li>
+		{{#  });
+		}}
+	</script>
+</th:block>
+<th:block layout:fragment="content">
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+    <div class="share_content">
+        <div class="share_content_list">
+            <div class="tabContainer">
+                <ul id="tablist">
+                    <p class="changeTitle"></p>
+                    <li class="tabin">学术论文</li>
+                    <li>工艺知识</li>
+                    <li>经验分享</li>
+                    <li>行业动态</li>
+                    <li>商会活动</li>
+                    <li>技术案例</li>
+                </ul>
+            </div>
+            <div class="content-box">
+                <!-- 学术论文主页 -->
+                <div class="content contentin">
+                    <p class="showContent">学术论文</p>
+                    <ul id="xslwUl"></ul>
+                    <div id="page1"></div>
+                </div>
+                <!-- 工艺知识主页 -->
+                <div class="content">
+                    <p class="showContent">工艺知识</p>
+                    <ul id="gyzsUl"></ul>
+                    <div id="page2"></div>
+                </div>
+                <!-- 经验分享 -->
+                <div class="content">
+                    <p class="showContent">经验分享</p>
+                    <ul id="jyfxUl"></ul>
+                    <div id="page3"></div>
+                </div>
+                <!-- 行业动态 -->
+                <div class="content">
+                    <p class="showContent">行业动态</p>
+                    <ul id="hydtUl"></ul>
+                    <div id="page4"></div>
+                </div>
+                <!-- 商业活动 -->
+                <div class="content">
+                    <p class="showContent">商会活动</p>
+                    <ul id="shhdUl"></ul>
+                    <div id="page5"></div>
+                </div>
+                <!--技术案例-->
+                <div class="content">
+                    <p class="showContent">技术案例</p>
+                    <ul id="teachCase"></ul>
+                    <div id="page6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block layout:fragment="footer"></th:block>
+</html>

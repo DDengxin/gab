@@ -1,0 +1,48 @@
+package com.tengzhi.business.system.role.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.system.role.model.SysRole;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+public interface SysRoleService  extends BaseService {
+
+
+    Result findAll(BaseDto baseDto);
+
+    SysRole findByRoleId(String roleId);
+
+    SysRole save(SysRole sysRole);
+
+    void update(SysRole sysRole);
+
+    void deleteByRoleId(String roleId);
+
+    /**
+     * 判断当前角色是否已经存在
+     * @param sysRole
+     * @return
+     */
+    boolean judgeUnique(SysRole sysRole);
+
+    void saveUserAuth(Map<String,Object> map);
+
+
+    /**
+     *
+    * @description: 常规原生Sql实现授权菜单查询
+    */
+    List<Map<String, Object>> findSysRightAll(BaseDto baseDto);
+
+    /**
+     * 移除缓存
+     */
+    void removeCache();
+
+
+}

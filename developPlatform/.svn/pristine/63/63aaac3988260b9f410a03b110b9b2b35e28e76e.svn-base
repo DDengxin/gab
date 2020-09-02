@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>供货单位和客户选择页面</title>
+</th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+				<input class="mini-hidden" id="customerFlag" name="customerFlag" value="Y" />
+				<label class="hmq-label" text="编码">
+					<input class="mini-textbox" name="customerId"/>
+					<input class="mini-hidden" id="customerType" name="customerType"/>
+				</label>
+					<label class="hmq-label" text="名称">
+					<input class="mini-textbox" name="customerName"/>
+					<input class="mini-textbox" name="customerBuyer" value="" visible="false"/>
+				</label>
+			
+				<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+				<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+				<a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+				
+		</th:block>
+	
+	</th:block>
+	
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid"  style="width:100%;height:100%;" idField="customerId" 
+					sizeList="[50,100,200]" pageSize="500"  url="/cg/da/sysCustomer/list.html"
+					onrowdblclick="onRowDblClick"
+					 pager="#pager1" showPager="false" sortField="customerId" sortOrder="asc" >
+			<div property="columns">
+				<div tz:datagrid="checkcolumn"></div>
+			<div tz:datagrid="column" field="customerId"  align="center" width="80">单位编码</div>
+				<div tz:datagrid="column" field="customerName" align="left" width="140">单位名称</div>
+				<div tz:datagrid="column" field="customerNameEn"  width="100">英文名称</div>
+				<div tz:datagrid="column" field="customerExp" align="left" width="140">单位简称</div>
+				<div tz:datagrid="column" field="customerUid" align="left" width="130">上级单位</div>
+				<div tz:datagrid="column" field="customerBuyer" displayField="customerbuyername" align="center" width="80">业务人员</div>
+		<!-- 		<div tz:datagrid="column" field="customerType" align="center" width="40">单位分类</div>
+				<div tz:datagrid="column" field="customerProvince" align="left" width="120">单位区域</div>
+				<div tz:datagrid="column" field="customerCity" align="left" width="120">单位城市</div>
+				<div tz:datagrid="column" field="customerAddress" align="left" width="120">单位地址</div>
+				<div tz:datagrid="column" field="customerContact" align="left" width="120">单位联系</div>
+				<div tz:datagrid="column" field="customerBank" align="center" width="120">开户银行</div>
+				<div tz:datagrid="column" field="customerAccount" align="center" width="120">银行帐户</div> -->
+				<div tz:datagrid="column" width="100%"></div> 
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form1");
+		var grid = mini.get("srch_grid");
+		grid.bindSearchForm(form);
+		/**
+		 * 初始化页面
+		 * @param options
+		 *  multiSelect:是否多选
+		 * @constructor
+		 */
+		function SetData(options) {
+			mini.get("customerType").setValue(options.data);
+			//默认查询
+			search_option();
+		}
+
+
+		/**
+		 * 本地筛选
+		 **/
+		function search_option() {
+			grid.load();
+		}
+
+		function confirm(e) {
+			if (grid.getSelecteds().length <= 0) {
+				hmq.tipDanger('请选中一行数据!');
+			} else {
+				closeWindow('ok');
+			}
+		}
+
+		/**
+		 * 获取数据
+		 * @returns {*}
+		 * @constructor
+		 */
+		function GetData() {
+				return grid.getSelected();
+		}
+
+		/**
+		 * 行双击事件
+		 * @param e
+		 */
+		function onRowDblClick(e) {
+			confirm("ok");
+		}
+
+		//关闭
+		function closeWindow(action) {
+			if (window.CloseOwnerWindow) {
+				return window.CloseOwnerWindow(action);
+			} else {
+				window.close();
+			}
+		}
+	</script>
+</body>
+</html>

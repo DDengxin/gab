@@ -1,0 +1,25 @@
+package com.tengzhi.business.finance.voucher.vo;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.tengzhi.business.cg.yw.purchaseRequisition.model.EcgRequisition;
+import com.tengzhi.business.finance.voucher.model.CertificateWord;
+
+public class CertificateWordVo implements Serializable {
+	CertificateWord headdata;
+    List<CertificateWord> entitydata;
+    
+	public CertificateWord getHeaddata() {
+		return headdata;
+	}
+	public void setHeaddata(CertificateWord headdata) {
+		this.headdata = headdata;
+	}
+	public List<CertificateWord> getEntitydata() {
+		return entitydata;
+	}
+	public void setEntitydata(List<CertificateWord> entitydata) {
+		this.entitydata = entitydata;
+	}
+}

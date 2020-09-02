@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>流程管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="系统">
+            <input class="mini-combobox" name="processSystemType" onvaluechanged="Systemchange" id="processSystemType"
+                   url="/system/right/combobox/rightModule" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="模块">
+            <input class="mini-combobox" textField="text" valueField="text" name="processModule" onvaluechanged="processModulechange" id="processModule"
+                   url="" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="分类">
+            <input class="mini-combobox" name="processClassify" textField="text" valueField="text" id="processClassify" url="" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="流程名称">
+            <input class="mini-textbox" name="processName"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input name="state" class="mini-combobox" emptyText="全部" showNullItem="true" nullItemText="全部" value="2"
+                   data="[{'id':0,'text':'草稿'},{'id':2,'text':'启用'},{'id':1,'text':'禁用'}]"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="id" sortField="processModule,processClassify,version,creationTime" sortOrd="desc"
+         url="getProcess">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="processSystemType" align="center" width='80'>系統</div>
+            <div tz:datagrid="column" field="processModule" align="center" width='80'>模块</div>
+            <div tz:datagrid="column" field="processClassify" align="center" width='150'>分类</div>
+            <div tz:datagrid="column" field="processName" width='150'>流程名称</div>
+            <div tz:datagrid="column" field="version" width='80'>流程版本</div>
+            <div tz:datagrid="column" field="coutsl" width='80'>流程实例</div>
+            <div tz:datagrid="column" field="state" align="center" width='60'>状态</div>
+            <div tz:datagrid="column" field="processDescribe" width='350'>流程描述</div>
+            <div tz:datagrid="column" field="creator" width='100'>创建人</div>
+            <div tz:datagrid="column" field="creationTime" width='100'>创建时间</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+
+    //系统改变
+    function Systemchange() {
+        var system = mini.get("processSystemType").getValue();
+        if (system) {
+            var url = '/system/right/combobox/menu/' + system + '/ROOT';
+            mini.get("processModule").setUrl(url);
+        }
+    }
+
+    function processModulechange() {
+        var system = mini.get("processSystemType").getValue();
+        var Module = mini.get("processModule").getText();
+        if (system && Module) {
+            var url = '/system/workflow/process/getProcessClassify/' + Module + '/' + system;
+            mini.get("processClassify").setUrl(url);
+        }
+    }
+
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        var winopen = miniopen({
+            title: "流程管理【新增】",
+            url: "workflowEdit.html?action=add",
+            action: 'add',
+            data: row,
+        });
+        winopen.max();
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            var winopen = miniopen({
+                title: "流程管理【修改】",
+                url: "workflowEdit.html?id=" + row.id + "&action=add",
+                action: 'add',
+                data: row,
+            });
+            winopen.max();
+        } else {
+            hmq.tipDanger('请选择一条数据');
+        }
+
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            if (e.value == "1") {
+                e.cellHtml = '禁用';
+            } else if (e.value == "2") {
+                e.cellHtml = '启用';
+                e.cellStyle = "background: #40d340; color: white; border-radius: 5px; font-weight: bold;";
+            } else if (e.value == "0") {
+                e.cellHtml = '草稿';
+            }
+        }
+    });
+
+    function uplod_option(e) {
+        var row = grid.getSelected();
+        $['get']("/system/workflow/process/release?id=" + row.id, null, function (res) {
+            if (200 === res.code) {
+                hmq.tipSuccess(res.msg || '修改成功');
+                search_option()
+            } else {
+                hmq.tipDanger(res.msg || '修改失败');
+            }
+        }, null, {
+            contentType: 'application/json'
+        });
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row.state == "2" || row.coutsl > 0) {
+            hmq.tipDanger("启用状态或有正在运行流程实例的流程无法删除");
+            return;
+        }
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $["delete"]("/system/workflow/process/del/{0}".format(row.id), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售发货</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient" id="orient"/>
+        <input class="mini-hidden" name="outType" id="outType" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="outNote"/>
+        </label>
+        <label class="hmq-label" text="客户">
+            <input name="outCustomer" emptyText="请选择..."
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input class="mini-combobox" name="outFlag" id="outFlag" textField="text" valueField="id" popupHeight="200" width="80px"
+                   data="[{id:'登记',text:'登记'},{id:'确认',text:'确认'},{id:'结算',text:'结算'},{id:'库审',text:'库审'}]" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="outCode" width="110"/>
+        </label>
+        <label class="hmq-label" for="cpcodeName" text="名称">
+            <input id="cpcodeName" name="cpcodeName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid" parentField="pid" value="无" onbeforenodeselect="disableParentSelection"
+                   popupWidth="240" popupHeight="180" emptyText="全部" showNullItem="true" nullItemText="全部" allowInput="true"/>
+        </label>
+        <label class="hmq-label" for="cpcodeSize" text="规格">
+            <input class="mini-textbox" id="cpcodeSize" name="cpcodeSize" width="110"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" idField="outNote" sizeList="[50,100,200]" pageSize="100" onselectionchanged="onSelectionChanged" pager="#pager1"
+                     showPager="false" sortMode="client" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell" sortField="outRq,outNote" sortOrder="asc" multiSelect="true">
+                    <div property="columns">
+                        <div tz:datagrid="checkcolumn" width="35"></div>
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="outRq" width="100" align="center">日期</div>
+                        <div tz:datagrid="column" field="outNote" width="120" align="center">单号</div>
+                        <div tz:datagrid="column" field="outLib" width="80" align="center">库房</div>
+                        <div tz:datagrid="column" field="outCustomer" width="120" align="center">客户</div>
+                        <div tz:datagrid="column" field="outJs" width="100" align="right" numberFormat="#,0.00" summaryType="sum">件数</div>
+                        <div tz:datagrid="column" field="outSl" width="100" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+                        <div tz:datagrid="column" field="outFlag" width="100" align="center">状态</div>
+                        <div tz:datagrid="column" field="dataMan" width="100" align="center">操作人</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="white-space: nowrap;">
+                            <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+                        </td>
+                        <td style="white-space: nowrap;" align="right" id="btnbar"/>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="outContract" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                     ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="outContract,outCode" sortOrder="asc">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="outContract" align="center" width="150">订单</div>
+                        <div tz:datagrid="column" field="outCode" align="center" width="100">编码</div>
+                        <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" displayField="cpcodeNameName" align="left" width="120">名称</div>
+                        <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" displayField="cpcodeSizeName" align="left" width="80">规格</div>
+                        <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" displayField="cpcodeXpName" align="left" width="80">标重</div>
+                        <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" displayField="cpcodeSizeEnName" align="left" width="60">品牌</div>
+                        <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" align="left" width="120">大类</div>
+                        <div tz:datagrid="column" field="outJs" align="right" width="80" numberFormat="#,0.00" summaryType="sum">件数</div>
+                        <div tz:datagrid="column" field="outSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+                        <div tz:datagrid="column" field="outPack" width="150" align="left">包装号</div>
+                        <div tz:datagrid="column" field="outBpack" width="150" align="left">大包装号</div>
+                        <div tz:datagrid="column" field="outKw" displayField="kwname" width="80">库位</div>
+                        <div tz:datagrid="column" field="outPh" width="150">批号</div>
+                        <div tz:datagrid="column" field="htCustomerAssociatedRemarks" width="150">客户关联合同备注</div>
+                        <div tz:datagrid="column" field="outRemarks" width="150">备注</div>
+                        <div tz:datagrid="column" field="" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/sale/saleProduct/saleDelivery";
+    srch_bottomgrid.setUrl(surl + "/getOutList");
+    srch_topgrid.bindSearchForm(form);
+
+    //start
+    var outType = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(outType)) {
+        form.getField("outType").setValue(outType);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("outType,paramMod");
+
+        //动态列转换
+        hmq.business.dynamicProductParams(outType, {
+            miniDataGrid: srch_bottomgrid,
+            miniForm: form,
+            success: function (map, res) {
+
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+    }
+
+
+    //end
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params: mini.encode({
+                    outNote: record.outNote
+                })
+            });
+        }
+    }
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().outNote;
+        }
+    });
+
+    // 页面初始化模块和类型 END
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerName);
+                }
+            }
+        });
+    }
+
+    function search_option() {
+        srch_topgrid.load();
+        srch_bottomgrid.setData([]);
+    }
+
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function view_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: {row: row, formData: form.getData()}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要删除吗 ？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("delete/{0}".format(row.htNo), function (res) {
+                                if (200 === res.code) {
+                                    search_option();
+                                    //srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalConfirm({
+                        businessId: row.outNote,
+                        url: '/sale/saleProduct/saleDelivery/add.html',
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $['put']("confirm/{0}".format(row.outNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+
+                    /*     	mini.confirm("注意:确定要确认", "删除信息", function (action) {
+                                if (action == "ok") {
+                                    $['put']("confirm/{0}".format(row.outNote), function (res) {
+                                        if (200 === res.code) {
+                                            srch_topgrid.reload();
+                                        } else {
+                                            hmq.tipDanger(res.msg);
+                                        }
+                                    });
+                                }
+                            }); */
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '确认'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalCancel({
+                        businessId: row.outNote,
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $.put("cancel/{0}".format(row.outNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+                    /* 	mini.confirm("注意:确定要取消吗 ？", "删除信息", function (action) {
+                            if (action == "ok") {
+                                $.put("cancel/{0}".format(row.outNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            }
+                        }); */
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function print_option(e) {
+        var rows = srch_topgrid.getSelecteds();
+        if (rows) {
+            //if(row.outFlag=="确认"||row.outFlag=="结算"){
+            //e.sender.miniopen({url: "/ck/yw/warehouseOut/print.html", action: 'print', data: rows ,width:1000 ,height:570});
+            e.sender.miniopen({url: "print.html", action: 'print', data: {rows: rows, formData: form.getData()}, width: 1200, height: 600});
+            /* }else{
+                hmq.tipDanger("该状态不可打印");
+            } */
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "outContract") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "outSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "outJs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    function onDrawSummaryCell(e) {
+        if (e.field == "outNote") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "outSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "outJs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+</script>
+
+</body>
+</html>
+
+

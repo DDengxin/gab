@@ -1,0 +1,22 @@
+package com.tengzhi.business.sc.da.cardAbnormal.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormal;
+
+import java.util.List;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/5 0005 11:33
+ * @Description:
+ */
+
+public interface EHrAttendanceAbnormalService {
+
+    BasePage<EHrAttendanceAbnormal> findAll(BaseDto baseDto);
+
+    List<EHrAttendanceAbnormal> findByKqType();
+
+
+}

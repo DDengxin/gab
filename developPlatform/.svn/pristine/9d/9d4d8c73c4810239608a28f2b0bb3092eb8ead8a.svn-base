@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>刷卡异常</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block
+            th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+
+            <label class="hmq-label" text="日期">
+                <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+            </label>
+            <label class="hmq-label" text="至">
+                <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+            </label>
+            <label class="hmq-label" text="员工部门">
+                <input name="srchWorkerDept"  class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                       url="/system/dept/combobox/comboboxDeptTreeListByProduction"
+                       showClose="true" oncloseclick="onCloseClickClearValue"/>
+            </label>
+            <label class="hmq-label" text="员工姓名"> <input
+                    class="mini-textbox" name="workerName" />
+            </label>
+            <label class="hmq-label" text="员工工号"> <input
+                    class="mini-textbox" name="workerId" />
+            </label>
+            <label class="hmq-label" text="单号"> <input
+                    class="mini-textbox" name="note" />
+            </label>
+
+        </th:block>
+    </th:block>
+</form>
+
+<!--铺满页面-->
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="jbqjId" sortField="dataDate" sortOrder="desc" showPageInfo="false"
+         url="findAttendanceAbnormalAll">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="workId" align="left" width="130">工号</div>
+            <div tz:datagrid="column" field="rq" align="left" width="130">日期</div>
+            <div tz:datagrid="column" field="note" width="150">单号</div>
+
+            <div tz:datagrid="column" field="workName" displayField="workName" align="left" width="130">加班员工</div>
+            <div tz:datagrid="column" field="workDept" align="left" width="130">员工部门</div>
+
+            <div tz:datagrid="column" field="kqSj"align="left" width="160" >考勤时间</div>
+
+            <div tz:datagrid="column" field="kqYy" align="left" width="150">考勤原因</div>
+            <div tz:datagrid="column" field="kqType" align="left" width="130">考勤类别</div>
+            <div tz:datagrid="column" field="kqSm" align="left" width="150">考勤说明</div>
+
+            <div tz:datagrid="column" field="sid" align="left" width="0">id值</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form)
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "qjZtype") {
+            if(e.value=="PS"){
+                e.cellHtml ='平时';
+            }else if(e.value=="ZM"){
+                e.cellHtml ='周末';
+            }else if(e.value=="JR"){
+                e.cellHtml ='节日';
+            }
+        }
+    });
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "qjKrq") {
+            return mini.formatDate(new Date(record.qjKrq), "yyyy-MM-dd HH:mm");
+        }
+        if (e.field == "qjDrq") {
+            return mini.formatDate(new Date(record.qjDrq), "yyyy-MM-dd HH:mm");
+        }
+
+    }
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row ,width:1000 ,height:600});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            //发送请求：判断状态是否为登记状态，登记则可以修改，否则不能修改
+            $['put']("getFlag/"+row.sid+"/{1}".format(row.note,'登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: row,width:1000 ,height:600});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.qjNote,'登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("deleteStaff/{0}".format(row.jbqjId), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                    hmq.tipDanger(res.msg);
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /*  员工选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url:"/personnel/checkWorkAttendance/leave/worker.html",
+            title: "【请假员工】选择页面",
+            width: 750,
+            data:{},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    /**
+     * 确认
+     **/
+    function confirm_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if('登记' != row.qjFlag){
+                hmq.tipDanger("当前状态不允许操作");
+            }else{
+                /* 	hmq.business.approvalConfirm({
+                        title: "【{qjNote}】{qjZtype}:{dataMan}(时长:{qjSc})".format(row),
+                        businessId: row.qjNote,
+                        url: '/personnel/checkWorkAttendance/workOvertime/add.html',
+                    }); */
+
+                hmq.business.approvalConfirm({
+                    businessId: row.qjNote,
+                    url: 'system/workflow/process/startFinishFirstStep',
+                    error: function (res) {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+
+
+            }
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if ( '确认' != row.qjFlag) {
+                hmq.tipDanger("当前状态不允许操作");
+            } else {
+                hmq.business.approvalCancel({
+                    businessId : row.qjNote,
+                    error : function(res) {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+
+
+</script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+package com.tengzhi.business.system.keygenerator;
+
+import com.tengzhi.base.tools.ehcache.util.EhcacheMenu;
+import com.tengzhi.business.system.right.model.SysRight;
+import com.tengzhi.business.system.right.vo.SysRightVo;
+import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import com.tengzhi.business.dynamicrow.model.dynamicrow;
+import java.lang.reflect.Method;
+import java.util.Map;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-07-31
+ * 后续可扩展写自己的策略生成器
+ */
+@Configuration
+public class KeyCacheConfig{
+
+    /**
+    * @Param: []
+    * @return: org.springframework.cache.interceptor.KeyGenerator
+    * @Author: 鱼油浅水
+    * @Date: 2020/8/4 16:00
+    * @description: String策略生成器
+    */
+    @Bean("keyGeneratorSingle")
+    public KeyGenerator getKeyGenerator1(){
+        return new KeyGenerator() {
+            @Override
+            public Object generate(Object obj, Method method, Object... objects) {
+                return EhcacheMenu.dynamicColumn.getGroup_unique()+objects[0];
+            }
+        } ;
+    }
+
+
+    /**
+     * @Param: []
+     * @return: org.springframework.cache.interceptor.KeyGenerator
+     * @Author: 鱼油浅水
+     * @Date: 2020/8/4 16:00
+     * @description: 对象策略生成器
+     */
+    @Bean("keyGeneratorObject")
+    public KeyGenerator getKeyGenerator2(){
+        return new KeyGenerator() {
+            @Override
+            public Object generate(Object obj, Method method, Object... objects) {
+                dynamicrow dynamicrow=(dynamicrow) objects[0];
+                return EhcacheMenu.dynamicColumn.getGroup_unique()+dynamicrow.getMenuId();
+            }
+        };
+    }
+
+
+    @Bean("keyGeneratorMenuObjvo")
+    public KeyGenerator getKeyGeneratorMenuObjVo(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                SysRightVo sysRights=(SysRightVo) objects[0];
+                return EhcacheMenu.menu.getGroup_unique()+sysRights.getMenu().getRightModule();
+            }
+        } ;
+    }
+
+
+
+
+    @Bean("keyGeneratorButtonObjvo")
+    public KeyGenerator getKeyGeneratorButtonObjVo(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                SysRightVo sysRights=(SysRightVo) objects[0];
+                return EhcacheMenu.menu.getGroup_unique()+sysRights.getMenu().getOldid();
+            }
+        } ;
+    }
+
+
+
+        @Bean("keyGeneratorMenuObj")
+    public KeyGenerator getKeyGeneratorMenuObj(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                SysRight sysRights=(SysRight) objects[0];
+                return EhcacheMenu.menu.getGroup_unique()+sysRights.getRightModule();
+            }
+        } ;
+    }
+
+
+
+
+    @Bean("keyGeneratorButtonObj")
+    public KeyGenerator getKeyGeneratorButtonObj(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                SysRight sysRights=(SysRight) objects[0];
+                return EhcacheMenu.menu.getGroup_unique()+sysRights.getRightId();
+            }
+        } ;
+    }
+
+
+    @Bean("keyGeneratorMenuObjMap")
+    public KeyGenerator getKeyGeneratorMenuObjMap(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                Map<String, Object> map=(Map<String, Object>) objects[0];
+                return EhcacheMenu.menu.getGroup_unique()+map.get("rightModule");
+            }
+        } ;
+    }
+
+
+
+
+    @Bean("keyGeneratorButtonObjMap")
+    public KeyGenerator getKeyGeneratorButtonObjMap(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                Map<String, Object> map=(Map<String, Object>) objects[0];
+                return EhcacheMenu.menu.getGroup_unique()+map.get("rightId");
+            }
+        } ;
+    }
+
+
+
+    @Bean("keyGeneratorMenu")
+    public KeyGenerator getKeyGeneratorMenu(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                return EhcacheMenu.menu.getGroup_unique()+objects[0];
+            }
+        } ;
+    }
+
+    @Bean("keyGeneratorButton")
+    public KeyGenerator getKeyGeneratorButton(){
+        return new KeyGenerator() {
+            @Override
+            public String generate(Object obj, Method method, Object... objects) {
+                return EhcacheMenu.button.getGroup_unique()+objects[0];
+            }
+        } ;
+    }
+
+}

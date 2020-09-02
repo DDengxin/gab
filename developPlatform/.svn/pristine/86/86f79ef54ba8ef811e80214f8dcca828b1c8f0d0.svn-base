@@ -1,0 +1,20 @@
+package com.tengzhi.business.xt.telbook.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.xt.telbook.model.TelBook;
+
+public interface TelBookService {
+
+	BasePage<TelBook> findAll(BaseDto baseDto) throws IOException;
+
+	List<Map<Object, String>> selectDept();
+
+	List<SelectVo> getDeptWorker(String deptId);
+
+}

@@ -1,0 +1,409 @@
+package com.tengzhi.business.ck.yw.warehouseInfo.service.impl;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.tools.excel.ExcelUtil;
+import com.tengzhi.base.tools.json.MapperFactory;
+import com.tengzhi.business.base.publicinterfac.ProductType;
+import com.tengzhi.business.cg.yw.purchaseReceipt.dao.ECkInDao;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.ck.yw.warehouseInfo.service.WarehouseInfoService;
+import com.tengzhi.business.finance.constituent.model.EPzJyList;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class WarehouseInfoServiceImpl implements WarehouseInfoService {
+
+	@Autowired
+	private ECkInDao eCkInDao;
+	
+	@Autowired
+	private ECkOutDao eCkOutDao;
+	
+	@Autowired
+	private SysParamDao sysParamDao;
+	
+	@Override
+	public BasePage<Map<String, Object>> getSrchTopList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		
+		String sql =getInSql(map);
+		String countsql="select count(*) from ("+sql+")t";
+		//return eCkInDao.QueryPageList(sql,countsql,baseDto);
+		return eCkOutDao.QueryMapPageList(baseDto,sql,true);
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getSrchOutList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		
+		String sql =getOutSql(map);
+		String countsql="select count(*) from ("+sql+")t";
+		return eCkOutDao.QueryMapPageList(baseDto,sql,true);
+		//return eCkOutDao.QueryPageList(sql,countsql,baseDto);
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getInOutList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		
+		String sql = getInOutSql(map);
+		String countsql="select count(*) from ("+sql+")t";
+		return eCkOutDao.QueryMapPageList(baseDto,sql,true);
+		//return eCkOutDao.QueryPageList(sql,countsql,baseDto);
+	}
+	
+	@Override
+	public BasePage<Map<String, Object>> getInOutJeList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		
+		String sql =getInOutJe(map);
+		String countsql="select count(*) from ("+sql+")t";
+		return   eCkInDao.QueryMapPageList(baseDto, sql, true);
+		//return eCkOutDao.QueryPageList(sql,countsql,baseDto);
+	}
+	
+	@Override
+	public List<SelectVo> getActSelected(String paramType, String paramValue2 ,String paramValue3) {
+		String sql = " select  param_id,param_name "
+                + " from sys_param where "
+                + " param_type = :1   and param_value2 = :2 and param_value3 = :3 and param_status='true'  "
+                + " group by param_id,param_name ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql,paramType, paramValue2, paramValue3);
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+	}
+
+	
+	
+	@Override
+	public void exportExcelIn(HttpServletResponse response, HttpServletRequest request) throws IOException {
+			BaseDto dto = BaseDto.ValueOfRequest(request);
+			//将导出的页面定义为0
+			dto.setPageIndex(0);
+			//查询数据并且生成Excel
+			Map<String, String> map = dto.getParamsMap();	
+	        String sql = getInSql(map);
+	        String  title  = "入库统计";
+	        if("WL".equals(map.get("inType"))) {
+	        	title = "物料入库统计";
+	        }else if("YL".equals(map.get("inType"))) {
+	        	title = "原料入库统计";
+	        }else if("CP".equals(map.get("inType"))) {
+	        	title = "线材入库统计";
+	        }
+	        
+	        
+	        List<Map<String,Object>> list=null;
+	        list=eCkInDao.QueryToMap(sql);//SelectListMap
+	        ExcelUtil util = ExcelUtil.getInstance();
+	        util.ExcelToWeb(request, title,response,list);
+	}
+	
+	@Override
+	public void exportExcelOut(HttpServletResponse response, HttpServletRequest request) throws IOException {
+		//获取ExcelUitl实例
+		ExcelUtil util = ExcelUtil.getInstance();
+		//初始化dto对象
+		BaseDto dto = BaseDto.ValueOfRequest(request);
+		//将导出的页面定义为0
+		dto.setPageIndex(0);
+		//查询数据并且生成Excel
+		Map<String, String> map = dto.getParamsMap();	
+        String sql = getOutSql(map);
+        List<Map<String,Object>> list=null;
+        list=eCkOutDao.QueryToMap(sql);//SelectListMap
+        String  title = "出库统计";
+        if("CP".equals(map.get("outType"))) {
+        	title = "线材出库统计";
+        }else if("WL".equals(map.get("outType"))) {
+        	title = "物料出库统计";
+        }else if("YL".equals(map.get("outType"))) {
+        	title = "原料出库统计";
+        }
+        
+        util.ExcelToWeb(request, title,response,list);
+		
+	}
+	
+	@Override
+	public void exportExcelInOut(HttpServletResponse response, HttpServletRequest request) throws IOException {
+		BaseDto dto = BaseDto.ValueOfRequest(request);
+		//将导出的页面定义为0
+		dto.setPageIndex(0);
+		//查询数据并且生成Excel
+		Map<String, String> map = dto.getParamsMap();	
+        String sql = getInOutSql(map);
+        List<Map<String,Object>> list=null;
+        list=eCkOutDao.SelectListMap(sql);
+        ExcelUtil util = ExcelUtil.getInstance();
+        util.ExcelToWeb(request, "收发存统计",response,list);
+		
+	}
+	@Override
+	public void exportExcelInOutJe(HttpServletResponse response, HttpServletRequest request) throws IOException {
+		BaseDto dto = BaseDto.ValueOfRequest(request);
+		//将导出的页面定义为0
+		dto.setPageIndex(0);
+		//查询数据并且生成Excel
+		Map<String, String> map = dto.getParamsMap();	
+        String sql = getInOutJe(map);//getInOutJe getInOutSql
+        List<Map<String,Object>> list=null;
+        list=eCkOutDao.QueryToMap(sql);//SelectListMap
+        ExcelUtil util = ExcelUtil.getInstance();
+        util.ExcelToWeb(request, "收发存统计",response,list);
+		
+	}
+
+	public String getInSql (Map<String, String> map) {
+		SecurityUser securityUser=(SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String sqlWhere = " and a.data_corp='"+securityUser.getCorpId()+"' ";
+		String sqlOrderBy = "";
+		if(ObjectUtil.isNotEmpty(map.get("srchRqFlag"))) {
+			if(map.get("srchRqFlag").equals("库审时间")) {
+				if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+					sqlWhere+=" and in_date >='"+map.get("srchRq1")+"'";
+				}
+				if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+					sqlWhere+=" and in_date-1 <='"+map.get("srchRq2")+"'";
+				}
+				sqlOrderBy = " order by in_date ";
+			}else {
+				if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+					sqlWhere+=" and in_rq >='"+map.get("srchRq1")+"'";
+				}
+				if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+					sqlWhere+=" and in_rq <='"+map.get("srchRq2")+"'";
+				}
+				sqlOrderBy = " order by in_rq ";
+			}
+		}else {
+			if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+				sqlWhere+=" and in_rq >='"+map.get("srchRq1")+"'";
+			}
+			if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+				sqlWhere+=" and in_rq <='"+map.get("srchRq2")+"'";
+			}
+			sqlOrderBy = " order by in_rq ";
+		}
+		
+		if(ObjectUtil.isNotEmpty(map.get("inNote"))) {
+			sqlWhere+=" and in_note like '%"+map.get("inNote")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("inCustomer"))) {
+			sqlWhere+=" and in_customer = '"+map.get("inCustomer")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("inPack"))) {
+			sqlWhere+=" and in_pack = '"+map.get("inPack")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("inCode"))) {
+			sqlWhere+=" and in_code like '%"+map.get("inCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("inType"))) {
+			sqlWhere+=" and in_type = '"+map.get("inType")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+			sqlWhere+=" and cpcode_name = '"+map.get("srchName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			sqlWhere+=" and cpcode_size like '%"+map.get("srchSize")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchFl"))) {
+			sqlWhere+=" and cpcode_fl in ('"+ map.get("srchFl").replace(",", "','")+"') ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchAct"))) {
+			sqlWhere+=" and in_act in ('"+ map.get("srchAct").replace(",", "','")+"') ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchLib"))) {
+			sqlWhere+=" and in_lib in ('"+ map.get("srchLib").replace(",", "','")+"') ";
+		}
+		sqlOrderBy +=" ,in_note ,in_date ";
+		String  sql="  select to_char(in_rq,'yyyy-MM-dd') in_rq,in_note,in_customer,in_act,in_code,in_js,in_sl,in_pack,in_bpack,in_contract,in_lib,in_flag,in_type,in_luono,in_ph,in_kw,to_char(in_date,'yyyy-mm-dd hh24:mi')in_date,in_man,"
+				+ " cpcode_name,cpcode_size,cpcode_size_en,cpcode_xp,cpcode_fl ,"
+				+ " f_getname('GETDWNAME',in_customer,'',a.data_corp)in_customer_name,f_get_param_name('仓库收发',in_act,'')act_name,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'')cpcode_fl_name,"
+				+ " f_get_param_name('库房档案',in_lib,'')in_lib_name,f_get_param_name('仓库库位',in_kw,'')in_kw_name,f_getname('GETUSERNAME',in_man,'',a.data_corp)in_man_name,ht_customer_associated_remarks from e_ck_in a left join e_xs_contract_detailed de on in_contract=ht_no and in_code = ht_code ,e_js_cpcode   where in_code = cpcode_id"+sqlWhere +sqlOrderBy  ;
+		return sql;
+	}
+	
+	public String getOutSql (Map<String, String> map) {
+		SecurityUser securityUser=(SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String sqlWhere = " and a.data_corp='"+securityUser.getCorpId()+"' ";
+		String sqlOrderBy = "";
+		if(ObjectUtil.isNotEmpty(map.get("srchRqFlag"))) {
+			if(map.get("srchRqFlag").equals("库审时间")) {
+				if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+					sqlWhere+=" and out_date >='"+map.get("srchRq1")+"'";
+				}
+				if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+					sqlWhere+=" and out_date-1 <='"+map.get("srchRq2")+"'";
+				}
+				sqlOrderBy = "order by out_date " ;
+			}else {
+				if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+					sqlWhere+=" and out_rq >='"+map.get("srchRq1")+"'";
+				}
+				if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+					sqlWhere+=" and out_rq <='"+map.get("srchRq2")+"'";
+				}
+				sqlOrderBy = "order by out_rq " ;
+			}
+		}else {
+			if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+				sqlWhere+=" and out_rq >='"+map.get("srchRq1")+"'";
+			}
+			if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+				sqlWhere+=" and out_rq <='"+map.get("srchRq2")+"'";
+			}
+			sqlOrderBy = "order by out_rq " ;
+		}
+		
+		if(ObjectUtil.isNotEmpty(map.get("outNote"))) {
+			sqlWhere+=" and out_note like '%"+map.get("outNote")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outCustomer"))) {
+			sqlWhere+=" and out_customer = '"+map.get("outCustomer")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outPack"))) {
+			sqlWhere+=" and out_pack = '"+map.get("outPack")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outCode"))) {
+			sqlWhere+=" and out_code like '%"+map.get("outCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outType"))) {
+			sqlWhere+=" and out_type = '"+map.get("outType")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+			sqlWhere+=" and cpcode_name = '"+map.get("cpcodeName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeSize"))) {
+			sqlWhere+=" and cpcode_size like '%"+map.get("cpcodeSize")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+			sqlWhere+=" and cpcode_fl in ('"+ map.get("cpcodeFl").replace(",", "','")+"') ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outAct"))) {
+			sqlWhere+=" and out_act in ('"+ map.get("outAct").replace(",", "','")+"') ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outLib"))) {
+			sqlWhere+=" and out_lib in ('"+ map.get("outLib").replace(",", "','")+"') ";
+		}
+		sqlOrderBy +=" ,out_note ,out_date ";
+		String  sql="  select to_char(out_rq,'yyyy-MM-dd') out_rq,out_note,out_customer,out_act,out_code,out_js,out_sl,out_pack,out_bpack,out_contract,out_lib,out_flag,out_type,out_luono,out_ph,out_kw,to_char(out_date,'yyyy-mm-dd hh24:mi')out_date,out_man,"
+				+ " cpcode_name,cpcode_size,cpcode_size_en,cpcode_xp,cpcode_fl ,"
+				+ " f_getname('GETDWNAME',out_customer,'',a.data_corp) out_customer_name,f_get_param_name('仓库收发',out_act,'')out_act_name,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'')cpcode_name_name,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'')cpcode_fl_name,"
+				+ " f_get_param_name('库房档案',out_lib,'')out_lib_name,f_get_param_name('仓库库位',out_kw,'')out_kw_name,f_getname('GETUSERNAME',out_man,'',a.data_corp)out_man_name,ht_customer_associated_remarks from e_ck_out a left join e_xs_contract_detailed de on out_contract=ht_no and out_code = ht_code,e_js_cpcode  where out_code = cpcode_id"+sqlWhere +sqlOrderBy;
+		
+		return sql;
+	}
+	
+	public String getInOutSql (Map<String, String> map) {
+		SecurityUser securityUser=(SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String rq1 = map.get("srchRq1").toString();
+		String rq2 = map.get("srchRq2").toString();
+		String sqlWhere="";
+		String cpcodeType = map.get("cpcodeType").toString();
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeId"))) {
+			sqlWhere+=" and cpcode_id = '"+map.get("cpcodeId")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+			sqlWhere+=" and cpcode_name = '"+map.get("cpcodeName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeSize"))) {
+			sqlWhere+=" and cpcode_size = '"+map.get("cpcodeSize")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+			sqlWhere+=" and cpcode_fl in ('"+ map.get("cpcodeFl").replace(",", "','")+"') ";
+		}
+
+		if(ObjectUtil.isNotEmpty(map.get("lib"))) {
+			sqlWhere+=" and lib in ('"+ map.get("lib").replace(",", "','")+"') ";
+		}
+
+		String  sql=" select f_get_param_name('库房档案',lib,'')libname,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'')\"cpcodeName\",cpcode_size \"cpcodeSize\",cpcode_size_en \"cpcodeSizeEn\",cpcode_xp \"cpcodeXp\",f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'')\"cpcodeFl\",sfc1.* from (\r\n" 
+				+" select lib,code,sum(qcsl)qcsl,sum(case when actname='采购入库' then insl else 0 end )cgrk ,sum(case when actname='采购退回' then insl else 0 end )cgth,sum(case when actname='生产入库' then insl else 0 end ) scrk,sum(case when actname='生产领用' then outsl else 0 end ) scly,sum(case when actname='领用退回' then outsl else 0 end ) lyth,sum(case when actname='销售出库' then outsl else 0 end ) xsck,sum(case when actname='销售退回' then outsl else 0 end ) xsth,sum(qcsl+insl-outsl) qmsl from ("
+				+ "select code,lib,sum(qc) qcsl,sum(in_sl) insl,sum(out_sl) outsl,f_get_param_name('仓库收发',act,'')actname from (\r\n" + 
+				"select in_code code,in_lib lib,in_sl,0 out_sl,0 qc,in_act act from e_ck_in where  in_date>='"+rq1+"' and in_date<='"+rq2+"' and in_type ='"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and in_flag in ('库审','结算')\r\n" + 
+				" union all\r\n" + 
+				" select out_code,out_lib,0,out_sl,0 ,out_act act from e_ck_out where out_date>='"+rq1+"' and out_date<='"+rq2+"' and out_type = '"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and  out_flag in ('库审','结算')\r\n" + 
+				" union all\r\n "+
+				" select  in_code code,in_lib lib,0,0 ,in_sl,'' from e_ck_in where  in_date<'"+rq1+"'  and in_type ='"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and  in_flag in ('库审','结算')\r\n" + 
+				" union all\r\n" + 
+				" select out_code,out_lib lib,0,0,out_sl*-1,'' from e_ck_out where  out_type = '"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and out_date<'"+rq1+"' and  out_flag in ('库审','结算')" + 
+				//" select code,lib,0,0,sl from v_stock where corpid='"+securityUser.getCorpId()+"' and dtype='"+cpcodeType+"' \r\n" + 
+				" ) m\r\n" + 
+				" group by code,lib,act   ) sfc group by lib,code having sum(qcsl+insl+outsl)>0 )sfc1,e_js_cpcode cpcode where code=cpcode_id  "+sqlWhere +" order by lib ";
+				
+				
+		
+		return sql ; 
+	}
+
+	
+	
+	public String getInOutJe(Map<String, String> map) {  //
+		SecurityUser securityUser=(SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String sqlWhere = " and data_corp='"+securityUser.getCorpId()+"' ";
+		String rq1 = map.get("srchRq1");
+		String rq2 = map.get("srchRq2");
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeId"))) {
+			sqlWhere+=" and cpcode_id = '"+map.get("cpcodeId")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+			sqlWhere+=" and cpcode_name = '"+map.get("cpcodeName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeSize"))) {
+			sqlWhere+=" and cpcode_size = '"+map.get("cpcodeSize")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+			sqlWhere+=" and cpcode_fl in ('"+ map.get("cpcodeFl").replace(",", "','")+"') ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("lib"))) {
+			sqlWhere+=" and lib in ('"+ map.get("lib").replace(",", "','")+"') ";
+		}
+		String cpcodeType = map.get("cpcodeType");
+		String  sql="  select f_get_param_name('库房档案',lib,'')lib_name,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'') cpcode_name_name,cpcode_size ,cpcode_size_en ,cpcode_xp ,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'')cpcode_fl_name,sfc1.* from (\r\n" + 
+				" select lib,code,sum(qcsl)qcsl,sum(qcje)qcje,sum(qcsl+insl-outsl) qmsl ,sum(qcje+inje-outje)qmje,\r\n" + 
+				" sum(case when actname='采购入库' then insl else 0 end )cgrk ,sum(case when actname='采购入库' then inje else 0 end )cgrkje ,\r\n" + 
+				" sum(case when actname='采购退回' then insl else 0 end )cgth,sum(case when actname='采购退回' then inje else 0 end )cgthje,\r\n" + 
+				" sum(case when actname='生产入库' then insl else 0 end ) scrk,sum(case when actname='生产入库' then inje else 0 end ) scrkje,\r\n" + 
+				" sum(case when actname='生产领用' then outsl else 0 end ) scly, sum(case when actname='生产领用' then outje else 0 end ) sclyje,\r\n" + 
+				" sum(case when actname='领用退回' then outsl else 0 end ) lyth, sum(case when actname='领用退回' then outje else 0 end ) lythje,\r\n" + 
+				" sum(case when actname='销售出库' then outsl else 0 end ) xsck, sum(case when actname='销售出库' then outje else 0 end ) xsckje,\r\n" + 
+				" sum(case when actname='销售退回' then outje else 0 end ) xsth, sum(case when actname='销售退回' then outje else 0 end ) xsthje\r\n" + 
+				" from (select code,lib,sum(qc) qcsl,sum(qcje)qcje,sum(in_sl) insl,sum(inje)inje,sum(out_sl) outsl,sum(outje)outje,f_get_param_name('仓库收发',act,'')actname from (\r\n" + 
+				"select in_code code,in_lib lib,in_sl,(in_sl*in_price)/(1+in_tax) inje,0 out_sl,0 outje,0 qc,0 qcje,in_act act from e_ck_in where  in_date>='"+rq1+"' and in_date<='"+rq2+"' and in_type ='"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and in_flag in ('库审','结算')\r\n" + 
+				" union all\r\n" + 
+				" select out_code,out_lib,0,0,out_sl,(out_sl*out_price)/(1+out_tax) outje,0 ,0,out_act act from e_ck_out where out_date>='"+rq1+"' and out_date<='"+rq2+"' and out_type = '"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and  out_flag in ('库审','结算')\r\n" + 
+				" union all\r\n" + 
+				"  select  in_code code,in_lib lib,0,0 ,0,0,in_sl,(in_sl*in_price)/(1+in_tax) inje,'' from e_ck_in where  in_date<'"+rq1+"'  and in_type ='"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and  in_flag in ('库审','结算')\r\n" + 
+				" union all\r\n" + 
+				" select out_code,out_lib lib,0,0,0,0,out_sl*-1,-1*(out_sl*out_price)/(1+out_tax) outje,'' from e_ck_out where  out_type = '"+cpcodeType+"' and data_corp='"+securityUser.getCorpId()+"' and out_date<'"+rq1+"' and  out_flag in ('库审','结算') ) m  \r\n" + 
+				" group by code,lib,act ) sfc group by lib,code\r\n" + 
+				" )sfc1,e_js_cpcode cpcode where code=cpcode_id     "+sqlWhere+"   order by lib  ";
+		return sql;
+	}
+	
+	
+}

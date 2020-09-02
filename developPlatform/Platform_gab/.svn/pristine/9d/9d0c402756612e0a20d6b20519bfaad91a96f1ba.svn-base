@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>专家管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+       <label class="hmq-label" text="注册日期">
+        <input class="mini-datepicker" name="srchRq1" ateFormat="yyyy-MM-dd" width="110"/>
+    </label>
+    <label class="hmq-label" text="至">
+        <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+    </label>
+        <label class="hmq-label" text="哥爱帮用户名">
+            <input class="mini-textbox" name="guserId"/>
+        </label>
+        </label>
+        <label class="hmq-label" text="哥爱帮昵称">
+            <input class="mini-textbox" name="userName"/>
+        </label>
+
+
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch-grid" idField="b.user_id" url="/platform/user/getList">
+        <div property="columns">
+         <div width="30px" type="indexcolumn" headerAlign="center">序号</div>
+            <div align="center" header="哥爱帮用户信息">
+                <div property="columns">
+            <div tz:datagrid="column" field="dataDate" width="60px" align="center">注册日期</div>
+            <div tz:datagrid="column" field="guserId" align="center" width="60px"> 用户名</div>
+            <div tz:datagrid="column" field="userName"  align="center" width="60px"> 昵称</div>
+            <div tz:datagrid="column" field="userType" align="center" width="60px">类型</div>
+            <div tz:datagrid="column" field="userMtel" align="center" width="60px">手机号</div>
+            <div tz:datagrid="column" field="erpCorp" align="center" width="40px">公司账号</div>
+                </div>
+            </div>
+            <div align="center" header="ERP用户信息">
+                <div property="columns">
+            <div tz:datagrid="column" field="userId" align="center" width="60px">用户名</div>
+            <div tz:datagrid="column" field="nickName" align="center"  width="60px">姓名</div>
+            <div tz:datagrid="column" field="email" align="left"  width="60px">邮箱</div>
+            <div tz:datagrid="column" field="orgName" align="right"  width="50px">机构名称</div>
+            <div tz:datagrid="column" field="deptName" align="center"   width="40px">机构部门</div>
+            <div tz:datagrid="column" field="approveStatus" align="center"  width="60px">状态</div>
+              <div tz:datagrid="column" withd="100%"></div>
+                </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch-grid");
+
+    function search_option() {
+        var data  =  form.getData(true);
+        data.srchRq2 = form.getData(true).srchRq2
+        data.srchRq1 = form.getData(true).srchRq1
+        if(!!data.srchRq2){
+            data.srchRq2 = form.getData(true).srchRq2+" 23:59:59";
+        }
+        if(!!data.srchRq1){
+            data.srchRq1 = form.getData(true).srchRq1+" 00:00:00";
+        }
+        grid.load({params:JSON.stringify(data)});
+    }
+
+
+</script>
+
+</body>
+</html>

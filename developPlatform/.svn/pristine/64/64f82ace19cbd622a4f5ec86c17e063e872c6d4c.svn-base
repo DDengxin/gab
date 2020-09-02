@@ -1,0 +1,20 @@
+package com.tengzhi.base.tools.DATES;
+
+/**
+ * @author 王翔
+ * @create 2020-04-23
+ */
+public class DateUtils {
+
+    /**
+     * 获取8位不重复随机码（取当前时间戳转化为十六进制）
+     * @author ShelWee
+     * @param time
+     * @return
+     */
+    public static String toHex(long time){
+        return Integer.toHexString((int)time);
+    }
+
+
+}

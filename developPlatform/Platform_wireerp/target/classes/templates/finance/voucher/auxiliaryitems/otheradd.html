@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>辅助核算【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>辅助核算类型:</td>
+                <td content>
+                    <input class="mini-hidden" name="fusebstable" id="fusebstable" value="N"/>
+
+                    <input class="mini-combobox" name="fitemclassid" id="fitemclassid" url="/system/parameter/getParamsSelectListByParentId/财务/财务参数/FZHS" onvaluechanged="onHtItemClassChanged" nullItemText="全部" showNullItem="true" required/>
+                </td>
+
+            </tr>
+            <tr>
+
+                <td title>编码:</td>
+                <td content>
+                    <input class="mini-textbox" id="fnumber" name="fnumber" required/>
+
+                </td>
+                <td title>名称字段:</td>
+                <td content>
+                    <input class="mini-textbox" id="fname" name="fname" required/>
+
+                </td>
+            </tr>
+
+            <tr>
+                <td title>备注:</td>
+                <td content>
+                    <input class="mini-textbox" id="remark" name="remark" />
+
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("/finance/voucher/auxiliaryitems/auxiliaryItems/{0}".format(options.data.fitemid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    tableName();
+
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("/finance/voucher/auxiliaryitems/auxiliaryItems", JSON.stringify(form.getData()), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,11 @@
+package com.tengzhi.business.finance.voucher.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.finance.voucher.model.EFVoucher;
+import com.tengzhi.business.finance.voucher.model.EFVoucherAuxiliaryitems;
+import org.springframework.data.jpa.repository.Query;
+
+public interface VouchDao extends BasedaoRepository<EFVoucher, Long> {
+    @Query(value = "select f_getvoucherid()", nativeQuery = true)
+    Long getVoucherid();
+}

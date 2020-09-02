@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产登记【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="fcardid" name="fcardid" class="mini-hidden"/>
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>资产编码</td>
+                <td content >
+                    <input class="mini-textbox" name="fnumber" required="true"/>
+                </td>
+                <td title>资产名称</td>
+                <td content >
+                    <input class="mini-textbox" name="fname" required="true"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>资产类别</td>
+                <td content >
+                    <input class="mini-combobox" name="ftypeid" required="true" url="/finance/capitalManager/capitalType/getCapitalSelectList.html"
+                    valueField="fid" textField="fullname" onvaluechanged="ftpyeChanged"/>
+                </td>
+                <td title>录入期间</td>
+                <td content >
+                    <input class="mini-combobox" name="ffaacctitemid"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>设备类型</td>
+                <td content >
+                    <select class="mini-combobox" name="deviceType" >
+                        <option value="独立设备">独立设备</option>
+                        <option value="主设备">主设备</option>
+                        <option value="附属设备">附属设备</option>
+                    </select>
+                </td>
+                <td title>主设备编码</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="true"
+                          name="parentId" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>使用部门</td>
+                <td content >
+                    <input id="fdeptid" name="fdeptid" class="mini-treeselect" multiSelect="false" valueFromSelect="false" onbeforenodeselect="disableParentSelection"
+                            popupWidth="240" popupHeight="180" url="/system/dept/combobox/getDeptTreeList" required="true"/>
+                </td>
+                <td title>开始使用日期</td>
+                <td content >
+                    <input class="mini-datepicker" name="fbegindate" dateFormat="yyyy-MM-dd" showClearButton="false" required="true" allowInput="false"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>折旧方式</td>
+                <td content >
+                    <select class="mini-combobox" name="fdeprmethod" onvaluechanged="zjChanged" required="true">
+                        <option value="100">平均年限法</option>
+                        <option value="101">不提折旧</option>
+                    </select>
+                </td>
+                <td title>预计使用期限</td>
+                <td content >
+                    <input class="mini-textbox" name="flifeperiods" required="true" vtype="int"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>固定资产科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="true"
+                          name="ffaacctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>累计折旧科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="true"
+                          name="fdepracctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>折旧费用科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="true"
+                          name="ffeeacctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>税金科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="true"
+                          name="ftaxaccountid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>资产购入对方科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="true"
+                          name="ffacreditaccountid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>资产清理科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue" required="true"
+                          name="ffacleanaccountid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>减值准备科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue"
+                          name="fimpairacctid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+                <td title>减值准备对方科目</td>
+                <td content >
+                    <div  allowInput="true" valuefromselect="true" popupWidth="500" popupHeight="240" height="240" oncloseclick="onCloseClickClearValue"
+                          name="fimpairacctid2" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true"
+                          buttons="[{iconCls: 'icon-search', handler: chooseKM}]" width="100%">
+                        <div property="columns">
+                            <div header="科目代码" field="fnumber" width="100"></div>
+                            <div header="凭证科目" field="fnumberfullname" width="400"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>原值</td>
+                <td content >
+                    <input class="mini-textbox" name="forgval" required="true" vtype="float" value="0.00" onvaluechanged="forgvalChanged"/>
+                </td>
+                <td title>税额</td>
+                <td content >
+                    <input class="mini-textbox" name="ftaxamount" vtype="float" value="0.00"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>残值率</td>
+                <td content >
+                    <input class="mini-textbox" name="fsalvagerate"  vtype="float" value="0.00" onvaluechanged="fsalvagerateChanged"/>
+                </td>
+                <td title>预计残值</td>
+                <td content >
+                    <input class="mini-textbox" name="yjcz" value="0.00" />
+                </td>
+            </tr>
+            <tr>
+                <td title>减值准备</td>
+                <td content >
+                    <input class="mini-textbox" name="forgcredit"  vtype="float" value="0.00" onvaluechanged="forgcreditChanged"/>
+                </td>
+                <td title>已折旧期间</td>
+                <td content >
+                    <input class="mini-textbox" name="fusageperiods" vtype="int" value="0" onvaluechanged="fusageperiodsChanged"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>期初累计折旧</td>
+                <td content >
+                    <input class="mini-textbox" name="fdeprservice"  vtype="float" value="0.00" onvaluechanged="fdeprserviceChanged"/>
+                </td>
+                <td title>期初净值</td>
+                <td content >
+                    <input class="mini-textbox" name="qcjz"  value="0.00"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>月折旧</td>
+                <td content >
+                    <input class="mini-textbox" name="fperdepreciation"  vtype="float" value="0.00"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>备注</td>
+                <td content colspan="3">
+                    <input class="mini-textarea" name="fremark" height="50"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script th:inline="javascript">
+
+    var PERIOD = /*[[${CurrentPeriod}]]*/ "01";
+    var YEAR = /*[[${CurrentYear}]]*/ "1900";
+    var STARTPERIOD = /*[[${StartPeriod}]]*/ "01";
+    var STARTYEAR = /*[[${StartYear}]]*/ "1900";
+    var CORPID = /*[[${corp_id}]]*/ "TZ";
+    console.log(PERIOD);
+    console.log(PERIOD);
+    console.log(YEAR);
+</script>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    form.getField("qcjz").setEnabled(false);
+    form.getField("yjcz").setEnabled(false);
+    form.getField("ffaacctitemid").setEnabled(false);
+
+    form.getField("ffaacctitemid").setValue((YEAR && PERIOD)?String(YEAR)+String(PERIOD):'');
+    form.getField("ffaacctitemid").setText((YEAR && PERIOD)?YEAR+"年第"+PERIOD+"期":'');
+
+    //初始化科目下拉选
+    $.get("/finance/voucher/vouch/getLeafSubjectList", function (res) {
+        form.getField("ffaacctid").setData(res);
+        form.getField("fdepracctid").setData(res);
+        form.getField("ffeeacctid").setData(res);
+        form.getField("ftaxaccountid").setData(res);
+        form.getField("ffacreditaccountid").setData(res);
+        form.getField("ffacleanaccountid").setData(res);
+        form.getField("fimpairacctid").setData(res);
+        form.getField("fimpairacctid2").setData(res);
+    });
+
+
+
+
+    /**折旧方式选择*/
+    function zjChanged(e){
+        var zjfs = form.getField("zjfs").getValue();
+        if(zjfs && zjfs=='100'){   //平均年限法
+            form.getField("fperdepreciation").setEnabled(true);
+        }else{
+            form.getField("fperdepreciation").setEnabled(false);
+            form.getField("fperdepreciation").setValue(0.00);
+        }
+    }
+
+    /**资产类别值改变事件*/
+    function ftpyeChanged(e){
+        form.getField("fdeprmethod").setValue(e.selected.fdeprmethod2);
+        form.getField("flifeperiods").setValue(e.selected.flifeperiods);
+        form.getField("ffaacctid").setValue(e.selected.ffaacctid);
+        form.getField("fdepracctid").setValue(e.selected.fdepracctid);
+        form.getField("fsalvagerate").setValue(e.selected.fsalvagerate);
+    }
+
+
+    /**
+     * 科目选择框
+     * @param e
+     */
+    function chooseKM(e){
+        var btnEdit = e.sender;
+        mini.open({
+            targetWindow: window.parent,
+            url: "/finance/voucher/vouch/accountselect.html",
+            title: "科目选择列表",
+            width: 650,
+            height: 380,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data); //必须
+                    if (data) {
+                        btnEdit.setValue(data.fnumber);
+                        btnEdit.setText(data.fnumbername);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action || 'view' == options.action) {
+            $.get("getById/{0}".format(options.data.fcardid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("ffaacctitemid").setText(res.data.ffaacctitemid ? String(res.data.ffaacctitemid).substring(0,4)+"年第"+String(res.data.ffaacctitemid).substring(4)+"期":'');
+                    if('view' == options.action){
+                        form.setEnabled(false);
+                        $("#saveBtn").hide();
+                    }else{
+                        form.getField("fnumber").setEnabled(false);
+                    }
+                }
+            });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /**原值改变事件*/
+    function forgvalChanged(e){
+        if(isNaN(e.value)){
+            form.getField('yjcz').setValue('0.00');
+            form.getField('fdeprservice').setValue('0.00');
+            form.getField('qcjz').setValue('0.00');
+            form.getField("fperdepreciation").setValue('0.00');
+            return false;
+        }
+        // checkExpectedPeriod(this.id);
+        updateResidualValue();
+        updateOpeningDepreciation();
+        updateNetValue();
+        updateMonthDepreciation();
+    }
+
+    //残值率
+    function fsalvagerateChanged(e){
+        if(isNaN(e.value)){
+            form.getField('yjcz').setValue('0.00');
+            form.getField('fdeprservice').setValue('0.00');
+            form.getField('qcjz').setValue('0.00');
+            form.getField("fperdepreciation").setValue('0.00');
+            return false;
+        }
+        updateResidualValue();
+        updateOpeningDepreciation();
+        updateNetValue();
+        updateMonthDepreciation();
+    }
+
+    //减值准备
+    function forgcreditChanged(e){
+        if(isNaN(e.value)){
+            form.getField('fdeprservice').setValue('0.00');
+            form.getField('qcjz').setValue('0.00');
+            form.getField("fperdepreciation").setValue('0.00');
+            return false;
+        }
+        // checkExpectedPeriod(this.id);
+        updateOpeningDepreciation();
+        updateNetValue();
+        updateMonthDepreciation();
+    }
+
+    //已折旧期间
+    function fusageperiodsChanged(e){
+        if(isNaN(e.value)){
+            form.getField('fdeprservice').setValue('0.00');
+            form.getField('qcjz').setValue('0.00');
+            form.getField("fperdepreciation").setValue('0.00');
+            return false;
+        }
+        // checkExpectedPeriod(this.id);
+        updateOpeningDepreciation();
+        updateNetValue();
+        updateMonthDepreciation();
+    }
+
+
+    //期初累计折旧
+    function fdeprserviceChanged(e){
+        if(isNaN(e.value)){
+            form.getField('qcjz').setValue('0.00');
+            form.getField("fperdepreciation").setValue('0.00');
+            return false;
+        }
+        // checkOriginalValue(this.id);
+        updateNetValue();
+        updateMonthDepreciation();
+    }
+
+
+    //更新预计残值（预计残值=原值x残值率）
+    function updateResidualValue() {
+        var forgvalValue = getMiniValue(form.getField("forgval").getValue(),0),
+            fsalvagerateValue = getMiniValue(form.getField("fsalvagerate").getValue(),0);
+        if (forgvalValue.length > 0 && fsalvagerateValue.length > 0) {
+            form.getField('yjcz').setValue((forgvalValue * fsalvagerateValue / 100).toFixed(2));
+        } else {
+            form.getField('yjcz').setValue('0.00');
+        }
+    }
+
+    //更新期初累计折旧（期初累计折旧=（原值-减值准备-预计残值）/预计使用期限*已折旧期间 ）
+    function updateOpeningDepreciation() {
+        //修改的时候不更新
+        if(!('add' == $('[name=action]').val()))return false;
+
+        var forgvalValue = getMiniValue(form.getField("forgval").getValue(),0),
+            forgcreditValue = getMiniValue(form.getField("forgcredit").getValue(),0),
+            yjczValue = getMiniValue(form.getField("yjcz").getValue(),0),
+            flifeperiodsValue = getMiniValue(form.getField("flifeperiods").getValue(),0),
+            fusageperiodsValue = getMiniValue(form.getField("fusageperiods").getValue(),0),
+            val;
+        if(forgvalValue.length > 0 && forgcreditValue.length > 0 && yjczValue.length > 0 && flifeperiodsValue.length > 0 && fusageperiodsValue.length > 0) {
+            if (flifeperiodsValue) {
+                val = (forgvalValue - forgcreditValue - yjczValue) / flifeperiodsValue * fusageperiodsValue;
+            } else {
+                val = 0;
+            }
+            form.getField('fdeprservice').setValue(val.toFixed(2));
+        }
+    }
+
+
+    //更新期初净值（期初净值=资产原值-期初累计折旧-减值准备 ）
+    function updateNetValue() {
+        var forgvalValue = getMiniValue(form.getField("forgval").getValue(),0),
+            fdeprserviceValue = getMiniValue(form.getField("fdeprservice").getValue(),0),
+            forgcreditValue = getMiniValue(form.getField("forgcredit").getValue(),0);
+        if (forgvalValue.length > 0 && fdeprserviceValue.length > 0 && forgcreditValue.length > 0) {
+            form.getField('qcjz').setValue((forgvalValue - fdeprserviceValue - forgcreditValue).toFixed(2));
+        } else {
+            form.getField('qcjz').setValue('0.00');
+        }
+    }
+
+    //更新月折旧（月折旧=（资产原值-期初累计折旧-减值准备-预计净残值）/（预计使用期限–已折旧期间） ）
+    function updateMonthDepreciation() {
+        if (form.getField("fdeprmethod").getValue() == "101") {
+            form.getField("fperdepreciation").setValue('0.00');
+            return false;
+        }
+
+        var forgvalValue = getMiniValue(form.getField("forgval").getValue(),0),
+            fdeprserviceValue = getMiniValue(form.getField("fdeprservice").getValue(),0),
+            forgcreditValue = getMiniValue(form.getField("forgcredit").getValue(),0),
+            yjczValue = getMiniValue(form.getField("yjcz").getValue(),0),
+            flifeperiodsValue = getMiniValue(form.getField("flifeperiods").getValue(),0),
+            fusageperiodsValue = getMiniValue(form.getField("fusageperiods").getValue(),0),
+            val;
+        if (forgcreditValue.length > 0 && fdeprserviceValue.length > 0 && fusageperiodsValue.length > 0 && yjczValue.length > 0 && forgvalValue.length > 0 && flifeperiodsValue.length > 0) {
+            if (flifeperiodsValue - fusageperiodsValue != 0) {
+                val = ((forgvalValue - fdeprserviceValue - forgcreditValue - yjczValue) / (flifeperiodsValue - fusageperiodsValue)).toFixed(2);
+            } else {
+                val = '0.00';
+            }
+            form.getField("fperdepreciation").setValue(val);
+        }
+    }
+
+
+
+
+
+
+</script>
+</html>

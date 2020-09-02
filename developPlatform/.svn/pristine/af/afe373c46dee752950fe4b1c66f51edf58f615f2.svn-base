@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>销售合同</title>
+	</th:block>
+</head>
+
+<body>
+	<form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<label class="hmq-label" text="计划时间">
+				 	<select  class="mini-combobox"  id="srchType" name="srchType"   width="60">
+				 		<option value="START">开始</option>
+				 		<option value="END">结束</option>
+				 	</select>
+				</label>
+				<label class="hmq-label" text="日期">
+					<input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				<label class="hmq-label" text="至">
+					<input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				
+				<label class="hmq-label" text="任务单号">
+					<input class="mini-textbox" name="srchScmo" />
+				</label>
+				<label class="hmq-label" text="工序">
+				 	<input class="mini-combobox"  id="srchGx" name="srchGx" url="/js/cpgy/scgx/getGxAllSelectList" emptyText="全部"   />
+				</label>
+				<label class="hmq-label" text="品号">
+					<input class="mini-textbox" name="srchCode" />
+				</label>
+				<label class="hmq-label" text="品名">
+					<input class="mini-textbox" name="srchName" />
+				</label>
+				<label class="hmq-label" text="规格">
+					<input class="mini-textbox" name="srchSize" />
+				</label>
+			</th:block>
+
+		</th:block>
+	</form>
+	<!--撑满页面-->
+		<div class="mini-fit">
+			<div style="width:100%;height:100%">
+				<div tz:datagrid="datagrid" id="srch_grid" idField="gxId" sortField="gxOrd"
+					sortOrder="asc" style="width:100%;height:100%;" oncellcommitedit="OnCellCommitEdit"
+					oncellbeginedit="OnCellBeginEdit"
+					selectonload="true" allowCellEdit="true" allowCellSelect="true" multiSelect="false"
+					showPager="true" sortMode="client">
+					<div property="columns">
+						<div tz:datagrid="indexcolumn" width="35">序号</div>
+						<div tz:datagrid="column" field="scMo" width="130" align="center">任务单号</div>
+					
+						<div tz:datagrid="column" field="planStartDate" width="100" align="center">计划开始时间
+		                    <input property="editor" class="mini-datepicker" dateFormat="yyyy-MM-dd" />
+		                </div>
+		                 <div tz:datagrid="column" field="planEndDate" width="100" align="center">计划结束时间
+		                    <input property="editor" class="mini-datepicker" dateFormat="yyyy-MM-dd" />
+		                </div>
+		                <div tz:datagrid="column" field="gxOrd" width="60" align="center">排序
+							<input property="editor" class="mini-textbox" vtype="int;" />
+						</div>
+						<div tz:datagrid="column" name="gxId" field="gxId" displayField="gxName" width="100"
+							align="left">工序
+							<input property="editor" class="mini-combobox" url="/js/cpgy/scgx/getGxAllSelectList" />
+						</div>
+						<div tz:datagrid="column" name="gxName" field="gxName" align="center" width="110" visible="false">工序 </div>
+						<div tz:datagrid="column" field="tcode" align="center" width="100">品号
+						 	<input id="tcode" property="editor" class="mini-lookup" style="width:100%;" 
+					        textField="code" valueField="code" popupWidth="auto" 
+					        popup="#gridPanel" grid="#datagrid1" multiSelect="true" />
+							        
+						</div>
+						<div tz:datagrid="column" field="tname" displayField="zzptname" align="left" width="110">品名
+							<input  property="editor"  class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid" 
+							parentField="pid" value="无" onbeforenodeselect="disableParentSelection" popupWidth="240"  popupHeight="180"  allowInput="true" url="/system/parameter/getParamsTreeList/技术/ZZMC"   />
+							
+						</div>
+						<div tz:datagrid="column" field="tsize" align="left" width="110">规格
+							<input property="editor" class="mini-textbox" />
+						</div>
+						<div tz:datagrid="column" field="gxSl" width="80" align="right" numberFormat="#,0.0000"summaryType="sum" dataType="double">生产数量
+							<input property="editor" class="mini-textbox" vtype="float;" />
+						</div>
+						<div tz:datagrid="column" name="gxCt" field="gxCt" displayField="ctName" width="130"
+							align="left">车台
+							<input property="editor" class="mini-combobox" />
+						</div>
+						<div tz:datagrid="column" name="gxCj" field="gxCj" displayField="cjName" width="130"
+							align="left">车间
+							<input property="editor" class="mini-combobox" />
+						</div>
+						<div tz:datagrid="column" name="gxSxjj" field="gxSxjj" displayField="sxjjName"
+							width="130" align="left">上线检验
+							<input property="editor" class="mini-combobox"
+								url="/system/parameter/getParamsSelectListByValue3/半成品检验/SX" />
+						</div>
+						<div tz:datagrid="column" name="gxXxjj" field="gxXxjj" displayField="xxjjName"
+							width="130" align="left">下线检验
+							<input property="editor" class="mini-combobox"
+								url="/system/parameter/getParamsSelectListByValue3/半成品检验/XX" />
+						</div>
+						<div tz:datagrid="column" name="gxDojj" field="gxDojj" displayField="dojjName"
+							width="130" align="left">加工检验
+							<input property="editor" class="mini-combobox"
+								url="/system/parameter/getParamsSelectListByValue3/半成品检验/GG" />
+						</div>
+						<div tz:datagrid="column" name="gxStype" field="gxStype" displayField="stypeName"
+							width="90" align="center">生产方式
+							<input property="editor" class="mini-combobox"
+								url="/system/parameter/getParamsSelectListByParentId/生产/SCFS"
+								allowInput="true" />
+						</div>
+						<div tz:datagrid="column" name="gxBq" field="gxBq" displayField="bqName" width="130"
+							align="left">标签
+							<input property="editor" class="mini-combobox"
+								url="/system/parameter/getParamsSelectListByParentId/生产/ZZBQ" />
+						</div>
+						<div tz:datagrid="column" name="gxJsyq" field="gxJsyq" width="180" align="left">技术标准
+							<input property="editor" class="mini-textbox" />
+						</div>
+
+						<div tz:datagrid="column" field="gyJysx" width="280" align="left">生产注意
+							<input property="editor" class="mini-textbox" />
+						</div>
+					
+						<div tz:datagrid="column" field="" width="100%"></div>
+					</div>
+				</div>
+				<div id="gridPanel" class="mini-panel" title="header" iconCls="icon-add" style="width:450px;height:250px;display:none;"
+				        showToolbar="true" showCloseButton="true" showHeader="false" bodyStyle="padding:0" borderStyle="border:0" 
+				    >
+				        <div property="toolbar" style="padding:5px;padding-left:8px;text-align:center;">   
+				            <div style="float:left;padding-bottom:2px;">
+				                <span>规格：</span>                
+				                <input id="keyText" class="mini-textbox" style="width:160px;" onenter="onSearchClick"/>
+				                <a class="mini-button" onclick="onSearchClick">查询</a>
+				                <a class="mini-button" onclick="onClearClick">清除</a>
+				            </div>
+				            <div style="float:right;padding-bottom:2px;">
+				                <a class="mini-button" onclick="onCloseClick">关闭</a>
+				            </div>
+				            <div style="clear:both;"></div>
+				        </div>
+				        <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;"
+				            borderStyle="border:0" showPageSize="false" showPageIndex="false"  onSelectionChanged="onSelectionChangedZzp"  >
+				            <div property="columns">
+				                <div type="checkcolumn" ></div>
+				                <div field="code" width="120" headerAlign="center" allowSort="true">品号</div>    
+				                <div field="tname" displayField="zzptname"  width="120" headerAlign="center" allowSort="true">品名</div>
+				                <div field="tsize" width="120" headerAlign="center" allowSort="true">规格</div>
+				               
+				            </div>
+				        </div>  
+				    </div>
+			</div>
+		</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form_home");
+		var srch_grid = mini.get("srch_grid");
+		srch_grid.bindSearchForm(form);
+		srch_grid.setUrl("/sc/task/sctask/getSrchScpdList"); 
+
+		//半成品start
+	 	var grid = mini.get("datagrid1");
+      	var keyText = mini.get("keyText");
+      	grid.setUrl("/sc/task/sctask/getSrchGridList");
+      	grid.load({
+         	"params": mini.encode({cptype : "ZZ"})
+         });
+        function onSearchClick(e) {
+        	var params={
+                   key: keyText.value,
+                   cptype : "ZZ"
+        	};
+            grid.load({
+            	"params": mini.encode(params)
+            });
+        }
+        function onCloseClick(e) {
+            var lookup = mini.get("tcode");
+            lookup.hidePopup();
+        }
+        function onClearClick(e) {
+            var lookup = mini.get("tcode");
+            lookup.deselectAll();
+        	var rightRow = srch_grid.getSelected();
+        	srch_grid.updateRow(rightRow, {
+				tcode : "",
+				tname : "",
+				zzptname: "",	
+				tsize :  ""
+				
+			});
+        }
+        
+        function onSelectionChangedZzp(e) {
+			var grid = e.sender;
+			var rightRow = srch_grid.getSelected();
+			var record = grid.getSelected();
+			if (record) {
+				srch_grid.updateRow(rightRow, {
+					tcode : record.code,
+					tname : record.tname,
+					zzptname: record.zzptname,	
+					tsize :  record.tsize
+					
+				});
+			}
+		}
+
+      //半成品end
+      
+		function search_option() {
+			srch_grid.load();
+
+		}
+
+		function OnCellCommitEdit(e) {
+			var grid = e.sender;
+			var record = e.record;
+			var field = e.field, value = e.value;
+		}
+
+		function OnCellBeginEdit(e) {
+			var grid = e.sender;
+			var record = e.record;
+			var field = e.field, value = e.value;
+			var editor = e.editor;
+			var gx = record.gxId;
+			if (field == "gxCj") {
+				if (gx) {
+					editor.setUrl("/js/cpgy/scgx/getCjList/{0}".format(gx));
+				} else {
+					e.cancel = true;
+				}
+			}
+			if (field == "gxCt") {
+				if (gxCj) {
+					editor.setUrl("/mSbJt/sb/getGxJtList/{0}".format(gx));
+				} else {
+					e.cancel = true;
+				}
+			}
+		}
+
+		//工艺新增方法
+		
+
+		/**
+		 保存
+		 */
+		function saveData() {
+			srch_grid.validate();
+			if (srch_grid.isValid() == false) {
+				var error = srch_grid.getCellErrors()[0];
+				srch_grid.beginEditCell(error.record, error.column);
+				return;
+			}
+			var buttons = srch_grid.getChanges();
+			if (buttons == "") {
+				return hmq.tipDanger('没有需要保存的数据！');
+			}
+			$['post']("/sc/task/sctask/updateRwGx", JSON.stringify({
+				mScScrwGxList: buttons
+			}), function (res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec: function () {
+							search_option();
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType: 'application/json'
+			});
+
+		}
+
+		
+	</script>
+
+</body>
+
+</html>

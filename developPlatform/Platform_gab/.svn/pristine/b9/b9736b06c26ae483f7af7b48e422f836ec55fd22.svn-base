@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+		<title>企业ERP</title>
+	</th:block>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/erp.css}" />
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+
+	<div class="content">
+		<div class="content_list">
+			<p class="title">企业ERP管理系统</p>
+			<div class="describe">
+				<h2>系统概述</h2>
+				<p>企业ERP管理系统以协同创新的先进管理思想，结合企业的管理现状，运用先进信息技术和智能化管控模式，打破企业人、财、物、信息、流程等之间的壁垒和边界，实现不同业务流程的关联互动和协同管控，在任何时间、任何地点按需调配企业资源,
+					为企业实现科学、高效的先进管理，建立企业大数据集成管理平台，丰富功能和数据报表，指导企业管理决策，提升企业管理水平。
+				</p>
+				<img src="/static/gab/images/erp1.jpg" alt="">
+			</div>
+
+			<div class="page">
+				<h2>系统界面</h2>
+				<div class="con">
+					<img src="/static/gab/images/erp2.jpg" alt="">
+					<img src="/static/gab/images/erp3.jpg" alt="">
+				</div>
+			</div>
+
+			<div class="special">
+				<h2>特点优势</h2>
+				<p>企业ERP管理系统以协同创新的先进管理思想，结合企业的管理现状，运用先进信息技术和智能化管控模式，打破企业人、财、物、信息、流程等之间的壁垒和边界，实现不同业务流程的关联互动和协同管控，在任何时间、任何地点按需调配企业资源,
+					为企业实现科学、高效的先进管理，建立企业大数据集成管理平台，丰富功能和数据报表，指导企业管理决策，提升企业管理水平。
+				</p>
+				<img src="/static/gab/images/erp4.jpg" alt="">
+				<p>从线材、冷镦成型、红打、搓丝攻牙、机加工、热处理、筛选、包装等生产制程的任务、报工、品质、设备、物料进行实时监控和跟踪，对生产计划执行、生产进度、质量追溯和质量分析提供了全面的信息支持。</p>
+				<p>模具的库存管理、领用、报废、维修、改模、寿命、质量等管理功能与分析，有效控制模具成本，提高模具使用效率。</p>
+				<p>生产过程的成本监控与分析，通过工序、工艺参数、计划排程、质量跟踪等功能，对生产过程的异常损耗、生产周期进行分析与优化。</p>
+			</div>
+
+			<div class="model">
+				<h2>功能模块</h2>
+				<img src="/static/gab/images/erp5.jpg" alt="">
+			</div>
+
+			<div class="application">
+				<h2>现场应用</h2>
+				<img src="/static/gab/images/erp6.jpg" alt="">
+			</div>
+
+			<div class="btn">
+				<a href="#"> 立即体验 </a>
+			</div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+
+</html>

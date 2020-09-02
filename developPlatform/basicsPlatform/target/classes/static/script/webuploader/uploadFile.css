@@ -1,0 +1,140 @@
+@charset "UTF-8";
+/*覆盖样式*/
+.webuploader-pick {
+    padding: 2px 10px;
+    border: none;
+    float: left;
+    margin-right: 10px;
+}
+
+/*END 覆盖样式*/
+
+#uploader{
+  /*   min-height:90px; */
+    width: 100%;
+    height:auto;
+}
+/*进度条*/
+.uploader-list {
+    width: 100%;
+    max-width: inherit;
+    position: relative;
+    box-sizing: content-box;
+    padding: 2px 1px;
+    clear: both;
+}
+
+.uploader-list .progress {
+    width: 100%;
+    height: 16px;
+}
+
+.uploader-list .progress .percentage {
+    width: inherit;
+    height: inherit;
+    background-color: #e9ecef;
+    margin: 0px;
+    padding: 0px;
+    display: block;
+    overflow: hidden;
+    position: relative;
+    border-radius: 15px;
+}
+
+.uploader-list .progress .text {
+    display: inline-table;
+    position: absolute;
+    left: 50%;
+    margin-left: -15px;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.uploader-list .progress .bar {
+    background-color: #28a745!important;
+    display: block;
+    height: inherit;
+}
+.uploader-list .progress .bar-animated{
+    -webkit-animation: progress-bar-stripes 1s linear infinite;
+    animation: progress-bar-stripes 1s linear infinite;
+    background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+    background-size: 1rem 1rem;
+}
+/*进度条辅助颜色*/
+bg-primary,bg-blue{
+    background-color:#007bff !important;
+}
+bg-info{
+    background-color:#17a2b8!important;
+}
+bg-warning,bg-oorange{
+    background-color:#ffc107!important;
+}
+bg-danger,bg-red{
+    background-color:#dc3545!important;
+}
+/*END 进度条辅助颜色*/
+
+/*END 进度条*/
+
+/*文件状态*/
+.item {
+    width: 100%;
+    max-width: inherit;
+    position: relative;
+    box-sizing: content-box;
+    padding: 2px 1px;
+    clear: both;
+}
+
+.item .webuploadinfo {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 90%;
+}
+
+.item .webuploadstate {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.item .webuploadItemButtons {
+    width: inherit;
+    display: block;
+    clear: both;
+    text-align: right;
+}
+
+.item .webuploadItemButtons .webuploadDownload,
+.item .webuploadItemButtons .webuploadDelbtn,
+.item .webuploadItemButtons .webuploadPreview {
+    border-radius: 15px;
+    padding: 2px 7px;
+    font-size: 12px;
+    box-sizing: content-box;
+    display: inline-block;
+    color: #f3f3f3;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.item .webuploadItemButtons .webuploadDownload {
+    background-color: #007bff;
+}
+
+.item .webuploadItemButtons .webuploadDelbtn {
+    background-color: #dc3545;
+}
+
+.item .webuploadItemButtons .webuploadPreview {
+    background-color: rgb(37, 99, 241);
+}
+.item .webuploadItemButtons .webuploadNone {
+    background-color: #c3c3c3;
+}
+
+/*END 文件状态*/

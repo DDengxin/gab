@@ -1,0 +1,191 @@
+package com.tengzhi.business.platform.specialist.product.service.impl;
+
+import cn.hutool.core.util.StrUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.form.dao.DynamicFormSqlDao;
+import com.tengzhi.business.platform.specialist.product.dao.ProductDao;
+import com.tengzhi.business.platform.specialist.product.model.Product;
+import com.tengzhi.business.platform.specialist.product.service.ProductService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.service.SysParamService;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class ProductServiceImpl implements ProductService {
+	
+	@Autowired
+	private ProductDao productDao;
+	
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	private String productSql() {
+		return  " select cpcode_fl,\n" +
+				" cpcode_name,\n" +
+				" f_get_param_name('检验档案',cpcode_check,'cn') cpcode_check ,\n" +
+				" cpcode_id,cpcode_name_en,cpcode_size, f_get_param_name('计量单位',cpcode_bz,'cn') cpcode_bz,cpcode_xp,(select param_name from sys_param where param_mod='平台参数' and param_type='表单配置' and  param_id = cpcode_xp) cpcode_xp_name,\n" +
+				" f_get_param_name('大包单位',cpcode_dunit,'cn') cpcode_dunit, cpcode01,cpcode02,cpcode03,cpcode_flag,cpcode_pb,cpcode_sm,cpcode_type,\n" +
+				" data_man,cpcode_lower,cpcode_upper,cpcode_stock_warn,cpcode_size_en,product_description,product_sales\n" +
+				" ,(select org_name from sys_org where org_id=data_corp) data_corp_name,data_corp,data_rq,service_description,cover_picture,room_picture,product_project,product_piece,\n" +
+				" (select param_name from sys_param where param_mod='技术' and param_type='夹具详细分类' and  param_id = cpcode_fl) as cpcode_fname \n" +
+				" from " +
+				" e_js_cpcode ";
+	}
+	
+	@Override
+	public BasePage<Map<String,Object>> sreach(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sql = "select product_note,product_name,source_factory,locality,product_info,product_type,f_getparamname('GETBYPARENTID', product_type, '行业分类', '平台参数', 'HYFL', '') \"typeName\",product_image,product_sales,product_popularity,data_corp,f_getname('GETCORPNAME', '', '', data_corp) corp_name,to_char(data_date,'yyyy-MM-dd') data_date,data_man,f_getname('GETUSERNAME', data_man, '', data_corp) man_name,product_flag,product_price from g_product";
+		sql += " where 1=1 ";
+		if(StringUtils.isNotBlank(map.get("srchName"))) {
+			sql += " and product_name like '%"+map.get("srchName")+"%'";
+		}
+		if(StringUtils.isNotBlank(map.get("srchType"))) {
+			sql += " and product_type = '"+map.get("srchType")+"'";
+		}
+		if(StringUtils.isNotBlank(map.get("srchResult"))) {
+			sql += " and product_type = '"+map.get("srchResult")+"'";
+		}
+		return productDao.QueryMapPageList(baseDto, sql+" order by data_date desc", true);
+	}
+
+	@Override
+	public Result saveNeed(Product product) throws Exception {
+		String note = sysGenNoteService.getNote("g_product","PRO","yyyyMM",4);
+		SessionUser user = SessionUser.SessionUser();
+		product.setProductNote(note);
+		product.setDataCorp(user.getCorpId());
+		product.setDataDate(new Date());
+		product.setDataMan(user.getUserId());
+		product.setProductFlag("登记");
+		product.setSupplyId(productDao.getSupply(user.getUserId()));
+		productDao.save(product);
+		return Result.resultOk();
+	}
+	
+	@Override
+	public Result updateNeed(Product product) throws Exception {
+		SessionUser user = SessionUser.SessionUser();
+		product.setDataCorp(user.getCorpId());
+		product.setDataDate(new Date());
+		product.setDataMan(user.getUserId().toString());
+		product.setProductFlag("登记");
+		productDao.update(product);
+		return Result.resultOk();
+	}
+
+	@Override
+	public Product getByNote(String productNote) {
+		return productDao.getByNote(productNote);
+	}
+	
+	@Override
+	public int deleteByNote(String productNote) {
+		return productDao.deleteByNote(productNote);
+	}
+	@Autowired
+	public SysParamService sysParamService;
+	@Override
+	public Map<String,Object> getProductPaging(String params,String pageIndex,String pageSize) throws Exception {
+		Map<String,Object> rmap = new HashMap<String, Object>();
+		JSONObject json = new JSONObject(params);
+		String where = " where a.status = '核准' and a.openness = 't'";
+;
+		String rank = " order by data_rq desc ";
+		if (StringUtils.isNotBlank(json.get("type").toString())) {
+			where += " and cpcode_xp = '" + json.get("type") + "'";
+		}
+		if (StringUtils.isNotBlank(json.get("classify").toString())) {
+			where += " and cpcode_type = '" + json.get("classify") + "'";
+		}
+		if(StringUtils.isNotBlank(json.get("search").toString())) {
+			where += " and cpcode_name like '%" + json.get("search") + "%'";
+		}
+		if(StringUtils.isNotBlank(json.get("rankType").toString())) {
+			String[] strs = json.get("rankType").toString().split(",");
+			rank = " order by ";
+			for(int i = 0;i<strs.length;i++) {
+				if(i>0) {
+					rank+=",";
+				}
+				rank+= strs[i] +"  "+ json.get("rank");
+			}
+		}
+
+		String sqlPlus="select cpcode_fl,supply_name," +
+				" cpcode_price," +
+				" cpcode_name," +
+				" f_get_param_name('检验档案',cpcode_check,'cn') cpcode_check," +
+				"cpcode_id,cpcode_name_en,cpcode_size, f_get_param_name('计量单位',cpcode_bz,'cn') cpcode_bz,cpcode_xp,(select param_name from sys_param where param_mod='平台参数' and param_type='表单配置' and  param_id = cpcode_xp) cpcode_xp_name," +
+				"f_get_param_name('大包单位',cpcode_dunit,'cn') cpcode_dunit, cpcode01,cpcode02,cpcode03,cpcode_flag,cpcode_pb,cpcode_sm,cpcode_type,\n" +
+				" data_man,cpcode_lower,cpcode_upper,cpcode_stock_warn,cpcode_size_en,product_description,product_sales\n" +
+				" ,(select org_name from sys_org where org_id=data_corp) data_corp_name,data_corp,data_rq,service_description,cover_picture,room_picture,product_project,product_piece,\n" +
+				" (select param_name from sys_param where param_mod='技术' and param_type='夹具详细分类' and  param_id = cpcode_fl) as cpcode_fname \n" +
+				" from " +
+				" e_js_cpcode a left join sys_user b on a.data_man=b.user_id left join  g_supply c on c.supply_note=b.supply_id ";
+
+		String sql = sqlPlus +where+rank+" limit " + pageSize + " offset (" + pageIndex + " -1 ) * " + pageSize;
+		List<Map<String,Object>> list = productDao.QueryhumpMap(sql);
+		rmap.put("data", list);
+		list = productDao.QueryhumpMap(sqlPlus+where);
+		rmap.put("total", list.size());
+		Result result=sysParamService.getByAddName("CP");
+		Map<String,Object> maps= (Map<String, Object>) result.get("data");
+		rmap.put("product",maps);
+		return rmap;
+	}
+	@Autowired
+	private DynamicFormSqlDao dynamicFormSqlDao;
+	@Override
+	public Map<String,Object> getProduct(String productNote) {
+		Map<String,Object> map=productDao.QueryhumpMap(productSql()+" where cpcode_id = '"+productNote+"'").get(0);
+
+		String sql = "select dyn.*,code.cpcode_fl,code.cpcode_name,f_get_param_name('检验档案',code.cpcode_check,'cn') cpcode_check  " +
+			",code.cpcode_id,code.cpcode_name_en,code.cpcode_size,f_get_param_name('计量单位',code.cpcode_bz,'cn') cpcode_bz" +
+			",code.cpcode_xp,(select param_name from sys_param where param_mod='平台参数' and param_type='表单配置' and  param_id = cpcode_xp) as cpcode_xp_name" +
+			",f_get_param_name('大包单位',code.cpcode_dunit,'cn') cpcode_dunit" +
+			", code.cpcode01,code.cpcode02,code.cpcode03,code.cpcode_flag,code.cpcode_pb,code.cpcode_sm,code.cpcode_type," +
+			"code.product_sales,code.cpcode_lower,code.cpcode_upper,code.cpcode_stock_warn,code.cpcode_size_en,code.product_description,code.cpcode_price" +
+			",data_man,(select org_name from sys_org where org_id=data_corp) data_corp_name,code.status,code.service_description,code.cover_picture,code.room_picture,code.product_project,code.product_piece," +
+			"(select param_name from sys_param where param_mod='技术' and param_type='夹具详细分类' and  param_id = cpcode_fl) as cpcode_fname" +
+			" from e_js_cpcode code";
+		sql += " left join (" + dynamicFormSqlDao.getSql(map.get("cpcodeFl").toString())+") dyn on dyn.associated_form_key = code.cpcode_id ";
+		sql += SqlJoint.where(e -> {
+			e.eq("cpcode_id", productNote);
+		}, true);
+		return productDao.QueryhumpMap(sql).get(0);
+	}
+
+	@Override
+	public String supplyId(String sql) {
+		return StrUtil.isNotBlank(productDao.getSingleResult(sql))?productDao.getSingleResult(sql):null;
+	}
+
+	@Override
+	public List<Map<String, Object>> getSupplyProduct(String supply_id) {
+		return productDao.QueryhumpMap("select DISTINCT cpcode_fl," +
+				" cpcode_name," +
+				" f_get_param_name('检验档案',cpcode_check,'cn') cpcode_check," +
+				"cpcode_id,cpcode_name_en,cpcode_size, f_get_param_name('计量单位',cpcode_bz,'cn') cpcode_bz,cpcode_xp,(select param_name from sys_param where param_mod='平台参数' and param_type='表单配置' and  param_id = cpcode_xp) cpcode_xp_name," +
+				"f_get_param_name('大包单位',cpcode_dunit,'cn') cpcode_dunit, cpcode01,cpcode02,cpcode03,cpcode_flag,cpcode_pb,cpcode_sm,cpcode_type,\n" +
+				" data_man,cpcode_lower,cpcode_upper,cpcode_stock_warn,cpcode_size_en,product_description,product_sales\n" +
+				" ,(select org_name from sys_org where org_id=data_corp) data_corp_name,data_corp,data_rq,service_description,cover_picture,room_picture,product_project,product_piece,\n" +
+				" (select param_name from sys_param where param_mod='技术' and param_type='夹具详细分类' and  param_id = cpcode_fl) as cpcode_fname \n" +
+				" from " +
+				" e_js_cpcode a,sys_user b,g_supply c  where  a.data_man=b.user_id and b.supply_id=c.supply_note and b.supply_id = '"+supply_id+"'");
+	}
+}

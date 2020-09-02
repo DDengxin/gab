@@ -1,0 +1,100 @@
+package com.tengzhi.business.production.subcontract.wwhx.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.cg.yw.purchaseContract.dao.ECgContractDetailedDao;
+import com.tengzhi.business.production.subcontract.wwhx.service.WwhxService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Map;
+
+@Service
+@Transactional
+public class WwhxServiceImpl implements WwhxService {
+
+
+    @Autowired
+    private ECgContractDetailedDao eCgContractDetailedDao;
+
+    @Override
+    public Result getContractDetailed(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+
+        StringBuffer where = SqlJoint.where(e -> {
+            e.and(el->{el.between("cg.ht_date",map.get("srchRq1"),map.get("srchRq2"));});
+            e.and(el->{el.contains("cg.ht_no",map.get("srchNo"));});
+            e.and(el->{el.eq("cg.cg_stype", map.get("htStype"));});
+            e.and(el->{el.contains("f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'')",map.get("cpcodeName"));});
+            e.and(el->{el.eq("cp.cpcode_size",map.get("cpcodeSize"));});
+            e.and(el->{el.eq("mx.ht_code",map.get("srchCode"));});
+            e.and(el->{el.eq("mx.ht_flag",map.get("srchHtFlag"));});
+            e.and(el->{el.eq("cg.ht_type","WW");});
+        });
+
+        CharSequence sql="select a.*, (ddsl - rksl) ddcl\n" +
+                "from (\n" +
+                "         select to_char(cg.ht_date, 'yyyy-mm-dd')                                                                   ht_date,\n" +
+                "                cg.ht_no,\n" +
+                "                f_getparamname('GETBCPCODENAME', cpcode_name, '', '技术', cpcode_type,'')                            cpcode_name," +
+                "   	f_getparamname('GETCPCODESIZE',cpcode_size,'','技术',cg_stype,'')  	     cpcode_size,\n" +
+                "    f_getparamname('GETCPCODESIZEEN',cpcode_size_en,'','技术',cg_stype,'')              cpcode_size_en,\n" +
+                "                f_getparamname('GETBYCPCODEFL', cpcode_fl, '', '技术', cpcode_type,'') cpcode_fl,\n" +
+                "                mx.ht_code,\n" +
+                "          f_getparamname('GETCPCODEXP',cpcode_xp,'','技术',cg_stype,'')        cpcode_xp,\n" +
+                "                f_getname('TransformUser', cg.data_man,'', cg.data_corp)                                             customername,\n" +
+                "                mx.ht_sl                                                                                            ddsl,\n" +
+                "                COALESCE((select sum(in_sl) from e_ck_in where in_contract = mx.ht_no and in_code = mx.ht_code),\n" +
+                "                         0)                                                                                         rksl,\n" +
+                "                COALESCE((select sum(sl) from v_ck_mx where in_contract = mx.ht_no and code = mx.ht_code),\n" +
+                "                         0)                                                                                         kcsl,\n" +
+                "                COALESCE((select sum(in_sl)\n" +
+                "                          from e_ck_in\n" +
+                "                          where in_contract = mx.ht_no and in_code = mx.ht_code and in_act = 'CP51'),\n" +
+                "                         0)                                                                                         xssl,\n" +
+                "                case when mx.ht_flag = '核销' then '已核' else '未核' end                                                 ht_flag\n" +
+                "         from e_cg_contract cg,\n" +
+                "              e_cg_contract_detailed mx,\n" +
+                "              e_js_cpcode cp\n"+
+                "         where cg.ht_no = mx.ht_no\n" +
+                "           and mx.ht_code = cp.cpcode_id\n" +where.toString()+
+                "     ) a \n" +
+                "order by ht_date,ht_no";
+
+        return Result.formPage(eCgContractDetailedDao.QueryListMap(sql.toString()),eCgContractDetailedDao.QueryListMap(sql.toString()).size());
+    }
+
+    @Override
+    public Result getFlagH(String htNo, String flag, String code) {
+        String flagString=eCgContractDetailedDao.getFlagH(htNo,code);
+        if(flag.equals(flagString)) {
+            return  Result.resultOk("操作成功！");
+        }
+        if (flag.equals("核销")){
+            eCgContractDetailedDao.updateHx(htNo,code,flag);
+            return  Result.resultOk("操作成功！");
+        }
+        return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+    }
+
+    @Override
+    public Result getCancelFlagH(String htNo, String flag, String code) {
+        String flagString=eCgContractDetailedDao.getFlagH(htNo,code);
+        if(flag.equals(flagString)) {
+            return  Result.resultOk("操作成功！");
+        }
+
+        if (flag.equals("登记")){
+            eCgContractDetailedDao.updateHx(htNo,code,flag);
+            return  Result.resultOk("操作成功！");
+        }
+
+
+        return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+    }
+
+
+}

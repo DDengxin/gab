@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title></title>
+    </th:block>
+</head>
+<body>
+
+
+
+    <form id="form1">
+        <input id="cgStype" name="cgStype" class="mini-hidden"/>
+        <div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderStyle="border:0;">
+
+            <table style="width: 100%;">
+                <tr>
+
+                    <td style="white-space: nowrap;" align="left" >
+
+
+                        <label class="hmq-label" text="日期">
+                            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+                        </label>
+                        <label class="hmq-label" text="至">
+                            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+                        </label>
+                        <label class="hmq-label" text="收货单号">
+                            <input class="mini-textbox" name="inNote"/>
+                        </label>
+
+                        <label class="hmq-label" text="供应商">
+                            <input id="srchSupplier" name="srchSupplier" emptyText="全部"
+                                   allowInput="true" class="mini-buttonedit" onbuttonclick="onSupplierClick"/>
+                        </label>
+                        <label class="hmq-label" text="状态">
+                            <select class="mini-combobox" id="srchflag" name="srchflag" width="80" allowInput="true" emptyText="全部">
+                                <option value="">全部</option>
+                                <option value="登记">登记</option>
+                                <option value="确认">确认</option>
+                            </select>
+                        </label>
+
+
+                    </td>
+                    <td style="white-space: nowrap;" align="right">
+                        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+                        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+                        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+                    </td>
+                </tr>
+          </table>
+        </div>
+    </form>
+
+
+    <div tz:datagrid="datagrid"
+         id="button-grid"
+         onrowdblclick="onRowDblClick"
+         style="width:100%;height:90%;"
+         selectOnLoad="true"
+         sizeList="[50,100,200]"
+         pageSize="100"
+         multiSelect="false"
+         url="/cg/yw/purchaseFile/purchaseReceipt/getSrchBottomListAll"
+         sortMode="client">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn" width="35"></div>
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div tz:datagrid="column" field="id" width="130" align="center" allowSort="true" headerAlign="center" visible="false">id</div>
+            <div tz:datagrid="column" name="inContract" field="inContract" displayField="inContract" align="center" width="128">合同编号</div>
+            <div tz:datagrid="column" field="inKfcode" align="center" width="128">编码</div>
+            <div tz:datagrid="column" field="inNote" align="center" width="128">单号</div>
+            <div field="inRq" width="100" align="center" sortField="inRq" displayField="inRq" headerAlign="center" allowSort="true">日期</div>
+            <div field="inCustomer" displayField="incustomername" width="120" align="left" sortField="inCustomer" headerAlign="center" allowSort="true">供货单位</div>
+            <div tz:datagrid="column" name="inJs" field="inJs" width="80" align="right" numberFormat="#,00">件数</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcodeName" align="left" width="120">名称</div>
+            <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize" align="left" width="120">规格</div>
+            <div field="inFlag" width="60" align="center" sortField="inFlag" displayField="inFlag" headerAlign="center" allowSort="true">状态</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+            <div tz:datagrid="column" field="inSl" width="80" align="right" numberFormat="#,0.0000" >数量</div>
+            <div tz:datagrid="column" field="cpcodeBz" align="left" width="60">单位</div>
+            <div tz:datagrid="column" name="inZl" field="inZl" width="80" align="right" numberFormat="#,00000">重量</div>
+            <div tz:datagrid="column" field="inPrice" align="right" width="80" numberFormat="#,0.0000">单价</div>
+            <div tz:datagrid="column" field="inje" width="80" align="right" numberFormat="#,0.00">金额</div>
+            <div tz:datagrid="column" field="inHs" width="80" align="center">核算</div>
+            <div tz:datagrid="column" field="inPack" width="130" align="center">包装号</div>
+            <div tz:datagrid="column" field="inLuono" width="130" align="center">炉号</div>
+            <div tz:datagrid="column" field="inPh" width="130" align="center">批号</div>
+            <div tz:datagrid="column" field="inType" displayField="intypename" width="100" align="center">入库大类</div>
+            <div tz:datagrid="column" field="" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    button_grid.bindSearchForm(form);
+
+
+    function search_option() {
+        button_grid.load();
+    }
+
+    function onRowDblClick(e) {
+        CloseWindow("ok");
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+    function confirm() {
+        CloseWindow("ok");
+    }
+    function GetFormData(){
+        var data = form.getData();
+        return data;
+    }
+    function GetData() {
+        var row = button_grid.getSelected();
+        return row;
+    }
+
+    function SetData(options){
+        mini.getbyName("cgStype").setValue(options.data);
+    }
+
+</script>
+</html>

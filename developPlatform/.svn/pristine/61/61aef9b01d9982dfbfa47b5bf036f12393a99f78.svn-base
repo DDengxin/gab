@@ -1,0 +1,57 @@
+package com.tengzhi.service.impl;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.service.impl.BaseServiceImpl;
+import com.tengzhi.dao.LogDao;
+import com.tengzhi.model.Log;
+import com.tengzhi.service.Logservice;
+
+@Service
+@Transactional
+public class LogserviceImpl extends BaseServiceImpl<Log,String> implements Logservice {
+	@Autowired
+	private LogDao logDao;
+
+	@Override
+	public BasePage<Log> findAll(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		return logDao.QueryPageList(baseDto, Specifications.where((c) -> {
+			c.like("username", map.get("username"));
+			c.like("requestIp", map.get("requestIp"));
+			c.eq("logType", map.get("logType"));
+			c.contains("description", map.get("description"));
+			c.contains("exceptionDetail", map.get("exceptionDetail"));
+		}));
+	}
+
+	@Override
+	public Log findByRightId(String rightId) {
+		return null;
+	}
+
+	@Override
+	public void save(Log log) {
+		logDao.store(log);
+	}
+
+	@Override
+	public void update(Log log) {
+		logDao.update(log);
+	}
+
+	@Override
+	public void deleteByRightId(String rightId) {
+
+	}
+
+}

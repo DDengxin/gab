@@ -1,0 +1,10 @@
+package com.tengzhi.business.platform.specialist.advisory.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.specialist.advisory.model.Advisorys;
+
+public interface AdvisorysDao extends BasedaoRepository<Advisorys,String> {
+
+	Advisorys findByArticleId(String articleId);
+
+}

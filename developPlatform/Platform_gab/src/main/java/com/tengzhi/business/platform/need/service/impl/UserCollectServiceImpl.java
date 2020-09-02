@@ -1,0 +1,79 @@
+package com.tengzhi.business.platform.need.service.impl;
+
+import cn.hutool.core.lang.UUID;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.need.dao.UserCollectDao;
+import com.tengzhi.business.platform.need.dao.UserCollectSqlDao;
+import com.tengzhi.business.platform.need.model.G_UserCollection;
+import com.tengzhi.business.platform.need.service.UserCollectService;
+import com.tengzhi.business.system.user.model.SysUser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+
+
+@Service
+@Transactional
+public class UserCollectServiceImpl implements UserCollectService {
+	@Autowired
+	private  UserCollectDao userColectDao;
+	@Autowired
+	private  UserCollectSqlDao  userCollectSqlDao;
+	
+	
+	
+
+	
+	@Override
+	public Result save(G_UserCollection model) throws Exception {
+	   if(model != null) {
+		   
+		   SessionUser sessionUser = SessionUser.SessionUser();
+			SysUser  user = 	sessionUser.getSysUser();
+		   model.setCollectNote( UUID.randomUUID().toString(true));  
+		   model.setCollectTime(new Date());
+		   model.setUserId(user.getUserId());
+		   model.setName(user.getNickName());
+		   model.setContactMode("手机号:"+user.getMobile());
+		   userColectDao.save(model);
+		   
+		return   Result.resultOkMsg("收藏成功");
+	   }else {
+		   return   Result.error("数据格式不正确");
+	   }	
+	}
+
+
+	@Override
+	public Result deleteByNote(String needNote) {
+		SessionUser sessionUser = SessionUser.SessionUser();
+		SysUser  user = 	sessionUser.getSysUser();
+		userColectDao.deleteByNote(needNote,user.getUserId());
+		return Result.resultOk("取消收藏成功");
+	
+	  
+	}
+
+
+	@Override
+	public BasePage<Map<String, Object>> getSrchCollection(BaseDto baseDto) throws IOException {
+		return userCollectSqlDao.getSrchCollection(baseDto);
+	}
+
+
+	//Result getSrchAllCollection();
+
+	@Override
+    public Result getSrchAllCollection() {
+		Result rsResult  = new Result();
+		rsResult = userCollectSqlDao.getSrchAllCollection();
+		return rsResult ;
+	}
+}

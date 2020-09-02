@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>工序产能修增</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1" >
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="cgStype" name="cgStype" class="mini-hidden"/>
+        <input id="cgName" name="cgName" class="mini-hidden"/>
+        <table style="padding:5px;border-bottom:0;align-content: center">
+            <label class="hmq-label" text=""/>
+            <tr>
+                <td>
+                    <input id="clId" property="editor" name="clId" class="mini-buttonedit"
+                           onbuttonclick="onButtonEdit" visible="false"
+                           allowInput="true"/>
+                </td>
+                <td align="right" width="80px" >事业部：</td>
+                <td>
+                    <input id="clCj" name="clCj" class="mini-combobox" textField="param_name" valueField="param_id"
+                           emptyText="请选择" required="true" width="110" url="/sc/capacity/process/findCj"/>
+                </td>
+                <td align="right" width="80px" >产能类型：</td>
+                <td>
+                    <input id="clType" name="clType" class="mini-combobox" textField="param_name" valueField="param_id"
+                           emptyText="请选择" required="true" width="110" url="/sc/capacity/process/findCl"/>
+                </td>
+            </tr>
+
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grid" idField="code" style="width:100%;height:100%" url="/sc/capacity/process/findAll"
+             allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+             showPager="false" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+             showSummaryRow="true" sortMode="client">
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="clCode" align="center" width="120">
+                    产品编码
+                    <input id="clCode" property="editor" name="clCode" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="true"/>
+                </div>
+                <div tz:datagrid="column" field="ggclSize" align="left" width="120">
+                    代表规格
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="sizeMin" field="sizeMin" width="120"
+                     align="left">
+                    最小规格
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="sizeMax" width="120" align="left">
+                    最大规格
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="clBcl" field="clBcl" width="80" align="left">
+                    班产能
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="clRbs" field="clRbs" width="80" align="left">
+                    日班数
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="clRcl" field="clRcl" width="80" align="left">
+                    日产能
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="clYts" field="clYts" width="80" align="left">
+                    月天数
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="clYcl" field="clYcl" width="80" align="left">
+                    月产能
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var count = 0;
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    //隐藏件数重量列
+
+    /**
+     新增行:判断form表单是否填写并设置不可编辑
+     */
+    function addRow() {
+        count++;
+        var index = button_grid.getData().length;
+        var newRow = {
+            name: "",
+            htHs: "数量",
+            htJq: mini.formatDate(new Date(), "yyyy-MM-dd")
+
+        };
+        // var workDept = mini.get("workDept").getValue();
+        // var rq = mini.get("rq").getValue();
+        // if (isNull(workDept)) {
+        //     hmq.tipDanger("请先选择部门！");
+        //     return false;
+        // }
+        button_grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+
+    /**
+     * Description:修改保存删除操作
+     * @author: huangbiao
+     * @date: 2020/8/7 0007 17:37
+     * @param:
+     * @return:
+     */
+    function SaveData() {
+        if(count!=0){
+            if (form.validate() && form.isValid()) {
+                button_grid.validate();
+                if (button_grid.isValid() == false) {
+                    var error = button_grid.getCellErrors()[0];
+                    button_grid.beginEditCell(error.record, error.column);
+                    return;
+                }
+                var buttons = button_grid.getChanges();
+                if (buttons == "") {
+                    buttons = button_grid.getData();
+                }
+                $(buttons).each(function (index) {
+                    buttons[index].rightOrd = index;
+                    buttons[index]._state = buttons[index]._state || 'modified';
+                });
+                var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+                $[method]("saveUpdateDelete", JSON.stringify({
+                    headdata: form.getData(true),
+                    entitydata: buttons
+
+                }), function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+            }
+            }else{
+            hmq.tipDanger('保存失败');
+        }
+    }
+
+
+
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            //普通口径
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+            }
+            else if ('edit' == options.action) {
+                //发送请求：参数为sid，获取选中行的数据并通过setData放进表单
+                $.get("/sc/capacity/process/findByClId/{0}".format(options.data.row.clId), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);//将数据放进form表单内，包含note
+                        //mini.get("rq").disable();
+                        //mini.get("workDept").disable();
+
+                        //重写装载button_grid表格，url可以写在button_grid属性中，参数由此设置
+                        button_grid.load({
+                            params: JSON.stringify({clId: form.getField('clId').getValue()})//将表单note参数放进请求
+                        });
+                    }
+                });
+            }
+            else if (!!~['view','sh'].indexOf(options.action)) {
+                var note = options.data.businessId;
+                form.setEnabled(false);
+                $('.hmq-toolbar').hide();
+                $.post("findAttendanceAbnormalAll/{0}".format(note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        mini.get("workerId").setValue(res.data.workerId);
+                        mini.get("workerId").setText(res.data.workerName);
+                    }
+                });
+            }
+
+        }else {
+            //审批口径
+            $.get("staffOvertime/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("workerId").setValue(res.data.workerId);
+                    mini.get("workerId").setText(res.data.workerName);
+                }
+            }, null, null, {
+                complete : function() {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+    /**
+     验证数量、金额不小于0
+     */
+    function onCellValidation(e) {
+
+        if (e.field == "clCode") {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "编码不能为空！";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        } else if (e.field == "sizeMin" || e.field == "sizeMax"||e.field == "clBcl"||e.field == "clRbs"||e.field ==
+            "clRcl"||e.field == "clYts"||e.field == "clYcl") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "数量必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "数量不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        } else if (e.field == "zl") {
+            if (!isNull(e.value)) {
+                if (isNaN(e.value)) {
+                    e.isValid = false;
+                    e.errorText = "重量必须为数字";
+                    button_grid.beginEditCell(e.record, e.field);
+                    return hmq.tipDanger(e.errorText);
+                }
+            }
+        }
+
+    }
+
+    function onButtonEdit(e) {
+        // var row = button_grid.getSelected();
+        var btnEdit = this;
+        // var index = button_grid.getData().length;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleProduct/saleContract/wlbmselect.html",
+            title: "编码单选择列表",
+            width: 1300,
+            height: 620,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = {
+                    action: "search",
+                    cgStype: "CP"
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var rows = iframe.contentWindow.GetData();
+                    rows = mini.clone(rows);
+                    btnEdit.setValue(rows.cpcodeid);
+                    btnEdit.setText(rows.cpcodeid);
+                }
+                button_grid.clearSelect();
+            }
+        });
+    }
+
+    /**
+     * Description:修改时禁用工号选择
+     * @author: huangbiao
+     * @date: 2020/8/7 0007 13:38
+     * @param:
+     * @return:OnCellBeginEdit="OnCellBeginEdit"
+     */
+    /*    function OnCellBeginEdit(e) {
+            var record = e.record, field = e.field;
+            if (field == "workId" && record.workId != null) {
+                e.cancel = true;    //如果有值，不允许编辑
+            }
+            if(field == "workDept" && record.workDept != null){
+                e.cancel = true;
+            }
+        }*/
+
+
+    /**
+     汇总方法
+     */
+    /*    function onDrawSummaryCell(e) {
+            if (e.field == "code") {
+                var s = "<span style='color:Brown;'>";
+                s += "合计:</span>";
+                e.cellHtml = s;
+            } else if (e.field == "sl") {
+                e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+            } else if (e.field == "zl") {
+                e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+            }
+
+        }*/
+
+    /**
+     * 单元格完成编辑时验证
+     **/
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+
+    }
+
+
+    /**
+     * 附件行
+     **/
+    function appendRow(rows) {
+        var retRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (!isEixsts(rows[i])) {
+                retRows.push(rows[i]);
+            } else {
+                hmq.tipDanger("数据已添加");
+            }
+        }
+        return retRows;
+    }
+
+    /**
+     *判断是否存在
+     **/
+    function isEixsts(data) {
+        var row = button_grid.findRow(function (row) {
+            if (row.code == data.cpcodeid)
+                return true;
+        });
+        if (row != null) {
+            return true;
+        }
+        return false;
+    }
+</script>
+</html>

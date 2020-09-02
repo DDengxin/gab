@@ -1,0 +1,42 @@
+package com.tengzhi.business.project.projectProcess.projectTask.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.project.projectProcess.projectTask.model.EXmXmrw;
+import java.io.IOException;
+
+
+public interface ProjectTaskService  extends BaseService<EXmXmrw,String> {
+
+    EXmXmrw save(EXmXmrw model) throws Exception;
+
+    BasePage<EXmXmrw> getList(BaseDto baseDto) throws IOException;
+
+    EXmXmrw findById(String rwNote);
+
+    void update(EXmXmrw model);
+
+    void wcOption(EXmXmrw model);
+
+    void kpOption(EXmXmrw model);
+
+    void deleteByNote(String rwNote);
+
+    Result getFlag(String rwNote, String flag);
+
+    Result updateFlag(String rwNote, String currentFlag,String nextFlag);
+
+    Result receipt(String rwNote, String currentFlag,String nextFlag);
+
+    Result qxjs(String rwNote, String currentFlag,String nextFlag);
+
+    Result qxwc(String rwNote, String currentFlag,String nextFlag);
+
+    Result ksOption(String rwNote, String currentFlag,String nextFlag);
+
+    Result qxks(String rwNote, String currentFlag,String nextFlag);
+
+    Result qxkp(String rwNote, String currentFlag,String nextFlag);
+}

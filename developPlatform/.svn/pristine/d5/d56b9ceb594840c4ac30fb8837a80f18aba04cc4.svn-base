@@ -1,0 +1,1182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>凭证录入</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<link href="../../../../resources/css/all.css" rel="stylesheet" type="text/css" />
+<script src="../../../../resources/scripts/boot.js" type="text/javascript"></script>
+<script src="../../../../resources/js/init.js" type="text/javascript"></script>
+<script src="../../../../resources/js/shortcut.js" type="text/javascript"></script>
+<script src="../../../../resources/js/hotkeys.min.js" type="text/javascript"></script>
+<script src="../../../../resources/js/fixheight.js" type="text/javascript"></script>
+<style>
+.currencycell,.currencycell .mini-grid-cell-inner {
+	padding: 0;
+}
+
+.currency_table {
+	position: relative;
+	text-align: center;
+	/*border-collapse:collapse;*/
+	table-layout: fixed;
+	display: table;
+	width: 100%;
+	height: 22px;
+}
+
+.currency_table td {
+	border-right: solid 1px #ccc;
+}
+
+.mini-grid-headerCell { /*    border-right:1px;
+     border:1px;
+     border-left:2px;
+   border-top:2px;
+   border:1px solid black;
+    border-top:1px solid black;*/
+	border-right: 1px solid red;
+	border-bottom: 1px solid red;
+}
+
+.mini-grid-cell {
+	border-left: 2px;
+	border-top: 2px;
+	border-right: 1px solid red;
+	border-bottom: 1px solid red;
+}
+
+.mini-grid-summaryCell {
+	border-top: 1px solid black;
+	border-right: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+.mini-grid-cell-inner {
+	line-height: 40px;
+}
+
+.asLabel .mini-textbox-border,.asLabel .mini-textbox-input,.asLabel .mini-buttonedit-border,.asLabel .mini-buttonedit-input,.asLabel .mini-textboxlist-border
+	{
+	border: 0;
+	background: none;
+	cursor: default;
+}
+
+.asLabel .mini-buttonedit-button,.asLabel .mini-textboxlist-close {
+	display: none;
+}
+
+.asLabel .mini-textboxlist-item {
+	padding-right: 8px;
+}
+
+h1 {
+	font-size: 20px;
+	display: inline
+}
+</style>
+
+</head>
+<body onload="initbase('date','','fdate','')">
+	<form id="srch_form" method="post">
+		<div class="mini-toolbar" style="padding:1px;border-bottom:0; ">
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap; display:inline; ">
+						<label>凭证字:</label>
+						<select id="fgroupid" name="fgroupid" onvaluechanged="fgroupidvaluechanged" url="encodeURI(encodeURI('/engine/ba/cm/select/getComboList.do?select_id=select_cw_pzz'))" class="mini-combobox"
+							style="width:90px;" textField="combtext" valueField="combid" required="true">
+						</select>
+						<input id="action" name="action" class="mini-hidden" />
+						<input id="ftype" name="ftype" class="mini-hidden" />
+						<input id="note" name="note" class="mini-hidden" />
+						<input id="stype" name="stype" class="mini-hidden" />
+						<input id="shl" name="shl" class="mini-hidden" />
+						<input id="fvoucherid" name="fvoucherid" class="mini-hidden" />
+						<input id="fyearperiod" name="fyearperiod" class="mini-hidden" />
+						<input id="fcredittotal" name="fcredittotal" class="mini-hidden" />
+						<input id="fdebittotal" name="fdebittotal" class="mini-hidden" />
+						<label>字号:</label>
+						<select id="fnumber" name="fnumber" class="mini-combobox"  style="width:55px;" textField="combtext" valueField="combid" required="true"></select>
+						<label>日期: </label>
+						<!-- class="mini-datepicker asLabel" -->
+						<input id="fdate" name="fdate" class="mini-datepicker " onvaluechanged="onDateChange" style="width:110px;" />
+						<h1 class="voucher_tit">记账凭证</h1>
+						<span id="vch_year"></span>年第<span id="vch_period"></span>期
+						<label>附单据 </label>
+						<input id="fattachments" name="fattachments" class="mini-textbox" style="width:30px;" />
+						<label>张</label>
+						<input id="fvoucherno" name="fvoucherno" class="mini-textbox asLabel" style="width:100px;" allowInput="false" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+	<div class="mini-fit">
+		<div style="width:100%;height:100%;">
+			<div class="mini-fit">
+				<div id="srch_grid" class="mini-datagrid" style="width:100%;height:100%" idField="id" pager="#pager1" showPager="false" pageSize="100" showColumnsMenu="true" showSummaryRow="true"
+					allowCellEdit="true" allowCellSelect="true" oncellvalidation="onCellValidation" oncellbeginedit="OnCellBeginEdit" OnCellCommitEdit="OnCellCommitEdit" ondrawsummarycell="onDrawSummaryCell"
+					allowCellValid="true" editNextOnEnterKey="true">
+					<div property="columns">
+						<div type="indexcolumn" name="totalColumn" id="totalColumn" headerAlign="center" width="30">序号</div>
+						<div field="fid" visible="false" headerAlign="center" width="30">对方科目</div>
+						<div field="famount" visible="false" headerAlign="center" width="30">本币金额</div>
+						<div field="faccountid2" visible="false" headerAlign="center" width="30">对方科目</div>
+						<div field="fcustomid" displayField="fcustomidname" visible="false" headerAlign="center" width="30">客户</div>
+						<div field="fdeptid" displayField="fdeptidname" visible="false" headerAlign="center" width="30">部门</div>
+						<div field="fsupplierid" displayField="fsupplieridname" visible="false" headerAlign="center" width="30">供应商</div>
+						<div field="fempid" displayField="fempidname" visible="false" headerAlign="center" width="30">职员</div>
+						<div field="finventoryid" displayField="finventoryidname" visible="false" headerAlign="center" width="30">存货</div>
+						<div field="fprojectid" displayField="fprojectidname" visible="false" headerAlign="center" width="30">项目</div>
+						<div field="fdc" visible="true" headerAlign="center" width="30">借贷方向</div>
+						<div field="fexplanation" name="totalColumna" vtype="required" width="186" headerAlign="center" align="left" allowSort="true">
+							摘要
+							<input property="editor" url="/cw/ba/pzgl/voucher/voucher/getExplanationList.do" id="fexplanation" name="fexplanation" allowInput="true" textField="fdesc" valueField="fdesc"
+								class="mini-combobox" showClose="true" height="38" width="200" buttons="[{iconCls: 'icon-search', handler: onButtonEdit}]" />
+						</div>
+						<div field="faccountid" displayField="fnumberfullname" vtype="required" name="totalColumnb" width="200" headerAlign="center" align="left" allowSort="true">
+							会计科目
+							<div property="editor" allowInput="true" valuefromselect="true" popupWidth="500" url="/cw/ba/pzgl/voucher/voucher/getLeafSubjectList.do" id="faccountid" name="faccountid"
+								textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true" height="38" width="500" buttons="[{iconCls: 'icon-search', handler: onButtonEdit}]">
+								<div property="columns">
+									<div header="科目代码" field="fnumber" width="100"></div>
+									<div header="凭证科目" field="fnumberfullname" width="400"></div>
+								</div>
+							</div>
+						</div>
+						<div header="数量核算" headerAlign="center">
+							<div property="columns">
+								<div field="fqty" headerAlign="center" width="50">
+									数量
+									<input property="editor" id="fqty" name="fqty" class="mini-textbox" minValue="0" vtype="float" height="40" style="width:100%;" />
+								</div>
+								<div field="funit" headerAlign="center" width="50">单位</div>
+								<div field="fprice" headerAlign="center" align="right" width="50" allowSort="true">
+									单价
+									<input property="editor" id="fqty" name="fqty" class="mini-textbox" minValue="0" vtype="float" height="40" style="width:100%;" />
+								</div>
+							</div>
+						</div>
+						<div header="外币核算" headerAlign="center">
+							<div property="columns">
+								<div field="fcur" headerAlign="center" width="50">
+									币别
+									<div property="editor" allowInput="true" valuefromselect="true" popupWidth="30" textField="combtext" valueField="combid" class="mini-combobox" showClose="true" height="38" width="30"></div>
+								</div>
+								<div field="frate" headerAlign="center" width="50">
+									汇率
+									<input property="editor" id="frate" name="frate" class="mini-textbox" minValue="0" vtype="float" height="40" style="width:100%;" />
+								</div>
+								<div field="famountfor" headerAlign="center" align="right" width="70" allowSort="true">
+									原币
+									<input property="editor" id="famountfor" name="famountfor" class="mini-textbox" minValue="0" vtype="float" height="40" style="width:100%;" />
+								</div>
+							</div>
+						</div>
+						<div field="debit" width="160" headerAlign="center" align="center" allowSort="true" summaryType="sum">
+							借方
+							<table class="currency_table" cellspacing="0" cellpadding="0" border="0">
+								<tr>
+									<td>亿</td>
+									<td style="">千</td>
+									<td style="border-color:green;">百</td>
+									<td>十</td>
+									<td style="">万</td>
+									<td style="border-color:green;">千</td>
+									<td>百</td>
+									<td style="">十</td>
+									<td style="border-color:red;">元</td>
+									<td>角</td>
+									<td style="border-width:0;">分</td>
+								</tr>
+							</table>
+							<input property="editor" id="debit" name="debit" class="mini-textbox" minValue="0" vtype="float" height="40" style="width:100%;" />
+						</div>
+						<div field="credit" width="160" headerAlign="center" align="center" allowSort="true" summaryType="sum">
+							贷方
+							<table class="currency_table" cellspacing="0" cellpadding="0" border="0">
+								<tr border="0 1 0 0">
+									<td>亿</td>
+									<td style="">千</td>
+									<td style="border-color:green;">百</td>
+									<td>十</td>
+									<td style="">万</td>
+									<td style="border-color:green;">千</td>
+									<td>百</td>
+									<td style="">十</td>
+									<td style="border-color:red;">元</td>
+									<td>角</td>
+									<td style="border-width:0;">分</td>
+								</tr>
+							</table>
+							<input property="editor" id="credit" name="credit" class="mini-textbox" minValue="0" vtype="float" height="40" style="width:100%;" />
+						</div>
+						<div field="" width="100%" align="center" headerAlign="center" allowSort="true"></div>
+					</div>
+				</div>
+			</div>
+			<fieldset id="fd1" style="width:99%; padding:0px;border: solid 1px #aaa;">
+				<legend>
+					<span><h4>辅助核算</h4></span>
+				</legend>
+				<div id="editForm1" style="padding:0px;">
+					<input class="mini-hidden" name="id" />
+					<table style="width:100%;">
+						<tr>
+							<td style="width:100%;" align="center">
+								<label>客户:</label>
+								<input id="fcustomid" data-options='{qtable:"ba_cw_pz_customer"}' textName="fcustomidname" valueName="fcustomid" name="fcustomid" showNullItem="true" nullItemText="全部"
+									oncloseclick="clickClear" showClose="true" class="mini-buttonedit" onbuttonclick="onButtonEdit" style="width:160px;" allowInput="false" />
+								<label>供应商:</label>
+								<input id="fsupplierid" data-options='{qtable:"ba_cw_pz_supplier"}' textName="fsupplieridname" valueName="fsupplierid" name="fsupplierid" showNullItem="true" nullItemText="全部"
+									oncloseclick="clickClear" showClose="true" class="mini-buttonedit" onbuttonclick="onButtonEdit" style="width:160px;" allowInput="false" />
+								<label>部门:</label>
+								<input id="fdeptid" data-options='{qtable:"ba_cw_pz_department"}' textName="fdeptidname" valueName="fdeptid" name="fdeptid" showNullItem="true" nullItemText="全部" oncloseclick="clickClear"
+									showClose="true" class="mini-buttonedit" onbuttonclick="onButtonEdit" style="width:160px;" allowInput="false" />
+							</td>
+						</tr>
+						<tr>
+							<td style="width:100%;" align="center">
+								<label>职员:</label>
+								<input id="fempid" data-options='{qtable:"ba_cw_pz_employee"}' textName="fempidname" valueName="fempid" name="fempid" showNullItem="true" nullItemText="全部" oncloseclick="clickClear"
+									showClose="true" class="mini-buttonedit" onbuttonclick="onButtonEdit" style="width:160px;" allowInput="false" />
+								<label>存&nbsp;&nbsp;&nbsp;货:</label>
+								<input id="finventoryid" data-options='{qtable:"ba_cw_pz_inventory"}' textName="finventoryidname" valueName="finventoryid" name="finventoryid" showNullItem="true" nullItemText="全部"
+									oncloseclick="clickClear" showClose="true" class="mini-buttonedit" onbuttonclick="onButtonEdit" style="width:160px;" allowInput="false" />
+								<label>项目:</label>
+								<input id="fprojectid" data-options='{qtable:"ba_cw_pz_project"}' textName="fprojectidname" valueName="fprojectid" name="fprojectid" showNullItem="true" nullItemText="全部"
+									oncloseclick="clickClear" showClose="true" class="mini-buttonedit" onbuttonclick="onButtonEdit" style="width:160px;" allowInput="false" />
+							</td>
+						</tr>
+					</table>
+				</div>
+			</fieldset>
+			<div class="mini-toolbar" style="padding:0px;border-bottom:0;">
+				<table style="width:100%;">
+					<tr>
+						<td style="width:100%;" align="center">
+							<a class="mini-button" iconCls="icon-add" id="btn_addrow2" onclick="addRow2()">插入行</a>
+							<a class="mini-button" iconCls="icon-add" id="btn_addrow" onclick="addRow()">增加行</a>
+							<a class="mini-button" iconCls="icon-remove" id="btn_removerow" onclick="removeRow()">删除行</a>
+							<a class="mini-button" iconCls="icon-save" id="btn_save" onclick="saveData();">保存</a>
+							<a class="mini-button" iconCls="icon-cancel" onclick="onCancel();">关闭</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	<!-- 	<!--menu
+	<ul id="popupMenu" class="mini-menu" style="display:none;">
+		<li class="separator"></li>
+		<li iconCls="icon-new" onclick="createWithTemp()">从模板生成凭证</li>
+		<li class="separator"></li>
+		<li iconCls="icon-save" onclick="saveAsTemp();">存储为模板</li>
+		<li class="separator"></li>
+	</ul>
+ -->
+</body>
+</html>
+<script type="text/javascript">
+    mini.parse();
+    var winx = getDefaultPage();
+    var PERIOD = winx.SYSTEM.currentperiod;
+    var YEAR = winx.SYSTEM.currentyear;
+    var CORPID = winx.SYSTEM.corp_id;
+    $("#vch_period").text(PERIOD), $("#vch_year").text(YEAR);
+    var b = "yyyyMM";
+    var c = new Date(YEAR, PERIOD, 1);
+    var d = new Date(YEAR, PERIOD, 1);
+    d.addDays(-1);
+    var e = new Date;
+    mini.get("fdate").setValue(d.Format(b));
+    mini.get("fyearperiod").setValue(d.Format(b));
+
+    var form = new mini.Form("srch_form");
+    var editForm1 = new mini.Form("editForm1");
+    var grid = mini.get("srch_grid");
+    var db = new mini.DataBinding();
+    mini.get("fgroupid").select(0);
+    db.bindForm("editForm1", grid);
+    grid.setData([{}, {}]);
+    var vurl = "/cw/ba/pzgl/voucher/voucher";
+
+    var dataResult = null;
+    var isminichange = false;//用来控制关闭后是否刷新主界面
+    var debittotal = 0;
+    var credittotal = 0;
+    
+    $(document).keyup(function (e) {
+        if (187 === e.keyCode || 61 === e.which || 107 === e.keyCode || 229 === e.keyCode && "=" === e.key) {
+            if (e.target.name == "credit") {
+                var record = grid.getSelected();
+                var rows = grid.findRows(function (row) {
+                    if (row != record) return true;
+                });
+                var rowsx = rows;
+                var totalx = 0, x;
+                for (var i = 0, l = rowsx.length; i < l; i++) {
+                    var row = rowsx[i];
+                    x = 100 * parseFloat(row.debit);
+                    if (isNaN(x)) continue;
+                    (x = Math.round(x), totalx += x);
+                }
+                var b = totalx / 100;
+
+                var total = 0, t;
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
+                    t = 100 * parseFloat(row.credit);
+                    if (isNaN(t)) continue;
+                    (t = Math.round(t), total += t);
+                }
+                var c = total / 100;
+                // c!=0?d = b - c:d=0;
+                d = b - c;
+                grid.updateRow(record, {famount: (d.toFixed(2)), credit: (d.toFixed(2)), debit: 0});
+            } else {
+                var record = grid.getSelected();
+                var rows = grid.findRows(function (row) {
+                    if (row != record) return true;
+                });
+                // var rowsx = grid.getData();
+                var rowsx = rows;
+                var totalx = 0, x;
+                for (var i = 0, l = rowsx.length; i < l; i++) {
+                    var row = rowsx[i];
+                    x = 100 * parseFloat(row.credit);
+                    if (isNaN(x)) continue;
+                    (x = Math.round(x), totalx += x);
+                }
+                var c = totalx / 100;
+                var total = 0, t;
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
+                    t = 100 * parseFloat(row.debit);
+                    if (isNaN(t)) continue;
+                    (t = Math.round(t), total += t);
+                }
+                var b = total / 100;
+                b > c ? d = c - b : d = c - b;
+                grid.updateRow(record, {famount: (d.toFixed(2)), debit: (d.toFixed(2)), credit: 0});
+            }
+            //grid.commitEdit();
+        }
+    });
+
+    // 定义a快捷键
+    hotkeys('f12,ctrl+s', function (event, handler) {
+        event.returnValue = false;
+        var key_num = event.keyCode;
+        switch (handler.key) {
+            case "ctrl+s":
+                saveData();
+                break;
+            case "f12":
+                saveData();
+                break;
+        }
+        //handler.scope 范围
+    });
+
+    function onDateChange(e) {
+         var day = e.source.text.replace(/[&\|\\\*^%$#@\-]/g, "");
+        var yearperiod = day.slice(0, 6);
+        var year = yearperiod.slice(0, 4);
+        var period = parseInt(yearperiod.slice(-2), 10);
+        $("#vch_period").text(period), $("#vch_year").text(year);
+        mini.get("fyearperiod").setValue(yearperiod);
+        getCurrentMonthNextfvoucherno();
+    }
+
+    function onButtonEdit(e) {
+        if (e.source) {
+            var btnEdit = this;
+            var record = grid.getSelected();
+            var name = e.source.name;
+            var flagname = name.substring(0, name.length - 2);
+            var id = "" + e.source.name;
+            var idname = "" + e.source.name + "name";
+             if (record[flagname] == 1) {
+            } else {
+                return false;
+            }
+            mini.open({
+                url: "/cw/ba/pzgl/voucher/assistingselect.html",
+                title: "辅助核算项目选择",
+                width: 650,
+                height: 380,
+                onload: function () {
+                    var iframe = this.getIFrameEl();
+                    var data = {
+                        qtable: e.source.qtable
+                    };
+                    iframe.contentWindow.setData(data);
+                },
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        data = mini.clone(data); //必须
+                        if (data) {
+                            var object = {};
+                            object[id] = data.fid;
+                            object[idname] = data.fname;
+                            grid.updateRow(record, object);
+                            btnEdit.setValue(data.fid);
+                            btnEdit.setText(data.fname);
+                        }
+                    }
+                }
+            });
+        } else {
+            //var btnEdit = this;
+            var btnEdit = e.sender;
+            if (e.sender.id == "fexplanation") {
+                mini.open({
+                    targetWindow: window.parent,
+                    url: "/cw/ba/pzgl/voucher/voucherexplanation.html",
+                    title: "凭证摘要列表",
+                    width: 650,
+                    height: 380,
+                    onload: function () {
+                        var iframe = this.getIFrameEl();
+                        var data = {
+                            action: "select"
+                        };
+                        iframe.contentWindow.setData(data);
+                    },
+                    ondestroy: function (action) {
+                        if (action == "ok") {
+                            var iframe = this.getIFrameEl();
+                            var data = iframe.contentWindow.GetData();
+                            data = mini.clone(data); //必须
+                            if (data) {
+                                btnEdit.setValue(data.fdesc);
+                                btnEdit.setText(data.fdesc);
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (e.sender.id == "faccountid") {
+                mini.open({
+                    targetWindow: window.parent,
+                    url: "/cw/ba/pzgl/voucher/accountselect.html",
+                    title: "科目选择列表",
+                    width: 650,
+                    height: 380,
+                    ondestroy: function (action) {
+                        if (action == "ok") {
+                            var iframe = this.getIFrameEl();
+                            var data = iframe.contentWindow.GetData();
+                            data = mini.clone(data); //必须
+                            if (data) {
+                                btnEdit.setValue(data.faccountid);
+                                btnEdit.setText(data.fname);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    //栅格格式化货币
+    function currencyFormatter(num) {
+        num = parseFloat(num);
+        var arr = [
+            {}, {}, {color: 'green'},
+            {}, {}, {color: 'green'},
+            {}, {}, {color: 'red'},
+            {}, {}
+        ];
+
+        if (!isNaN(num)) {
+            num = num.toFixed(2);
+            var ss = String(num).replace('.', '').split('');
+            var count = ss.length;
+            var index = 0;
+            for (var i = arr.length - 1; i >= 0; i--) {
+                var o = arr[i];
+                var s = ss[count - 1 - index++];
+                if (s) o.value = s;
+            }
+        }
+
+        var sb = [];
+        sb.push('<table class="currency_table" cellspacing="0" cellpadding="0" border="0"><tr>');
+        for (var i = 0, l = arr.length; i < l; i++) {
+            var o = arr[i];
+            sb[sb.length] = '<td style="';
+            if (o.color) {
+                sb[sb.length] = 'border-color:' + o.color + ";";
+            }
+            if (i == arr.length - 1) {
+                sb[sb.length] = "border-width:0;";
+            }
+            sb[sb.length] = '">';
+            sb[sb.length] = o.value || '&nbsp;';
+            sb[sb.length] = '</td>';
+        }
+        sb.push('</tr></table>');
+        return sb.join('');
+    }
+
+    grid.on("drawcell", function (e) {
+         if (e.field == "debit" || e.field == "credit") {
+            e.cellCls = "currencycell";
+           e.cellHtml = currencyFormatter(e.value);
+        }
+    });
+
+
+    var x = "";
+     function onDrawSummaryCell(e) {
+        if (e.field == "debit") {
+            e.cellCls = "currencycell";
+            e.cellHtml = currencyFormatter(e.value);
+            mini.get("fdebittotal").setValue(e.value);
+            debittotal = e.value;
+        }
+        if (e.field == "credit") {
+            e.cellCls = "currencycell";
+            e.cellHtml = currencyFormatter(e.value);
+            credittotal = e.value;
+            mini.get("fcredittotal").setValue(e.value);
+            x = formatAmountToChinese(e.value);
+            setTimeout(function () {
+                mergeSummary(x);
+            }, 100);
+        }
+    }
+    function mergeSummary(value) {
+        var el = grid.getSummaryCellEl("totalColumn");
+        var ela = grid.getSummaryCellEl("totalColumna");
+        var elb = grid.getSummaryCellEl("totalColumnb");
+        el.innerText = value;
+        ela.style.display = "none";
+        elb.style.display = "none";
+        el.colSpan = 3;
+    }
+
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "rq") {
+            return mini.formatDate(new Date(record.rq), "yyyy-MM-dd");
+        }
+    }
+
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            //  minitips("系统提示", editor.getErrorText(), "danger");
+            e.cancel = true;
+        }
+        var grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = getMiniValue(e.value, 0);
+
+        var x = "x" + getMiniValue(value, 0);
+        if (field == "credit" || field == "debit") {
+            if (field == "credit") {
+                if (x.indexOf(" ") == -1) {
+                    if (x.indexOf("=") == -1) {
+                        var obj = {};
+                        obj["fdc"] = -1;
+                        obj["debit"] = 0;
+                        obj["famount"] = value;
+                        if (!isNull(e.record.fisrateadj) && e.record.fisrateadj == 1) {
+                            if (record.frate)obj["famountfor"] = value / record.frate;
+                        }
+                        if (!isNull(e.record.fisqtyaux) && e.record.fisqtyaux == 1) {
+                            if (record.fqty)obj["fprice"] = value / record.fqty;
+                        }
+                        grid.updateRow(record, obj);
+                    } else {
+                        e.cancel = true;
+                    }
+                } else {
+                    var obj = {};
+                    obj["fdc"] = 1;
+                    obj["debit"] = trim(value);
+                    obj["credit"] = 0;
+                    obj["famount"] = trim(value);
+                    if (!isNull(e.record.fisrateadj) && e.record.fisrateadj == 1) {
+                        if (record.frate)obj["famountfor"] = trim(value) / record.frate;
+                    }
+                    if (!isNull(e.record.fisqtyaux) && e.record.fisqtyaux == 1) {
+                        if (record.fqty)obj["fprice"] = trim(value) / record.fqty;
+                    }
+                    grid.updateRow(record, obj);
+                    e.cancel = true;
+                }
+
+            }
+            if (field == "debit") {
+                if (x.indexOf(" ") == -1) {
+                    if (x.indexOf("=") == -1) {
+                        var obj = {};
+                        obj["fdc"] = 1;
+                        obj["credit"] = 0;
+                        obj["famount"] = value;
+                        if (!isNull(e.record.fisrateadj) && e.record.fisrateadj == 1) {
+                            if (record.frate)obj["famountfor"] = value / record.frate;
+                        }
+                        if (!isNull(e.record.fisqtyaux) && e.record.fisqtyaux == 1) {
+                            if (record.fqty)obj["fprice"] = value / record.fqty;
+                        }
+                        grid.updateRow(record, obj);
+                    } else {
+                        e.cancel = true;
+                    }
+                } else {
+                    var obj = {};
+                    obj["debit"] = 0;
+                    obj["credit"] = trim(value);
+                    obj["fdc"] = -1;
+                    obj["famount"] = trim(value);
+                    if (!isNull(e.record.fisrateadj) && e.record.fisrateadj == 1) {
+                        if (record.frate)obj["famountfor"] = trim(value) / record.frate;
+                    }
+                    if (!isNull(e.record.fisqtyaux) && e.record.fisqtyaux == 1) {
+                        if (record.fqty)obj["fprice"] = trim(value) / record.fqty;
+                    }
+                    grid.updateRow(record, obj);
+                    e.cancel = true;
+                }
+
+            }
+        }
+        if (field == "fqty" || field == "fprice") {
+            var obj = {};
+            if (field == "fqty") {
+                if (record.fprice) obj["debit"] = value * record.fprice;
+                if (record.fprice)obj["famount"] = value * record.fprice;
+
+                if (!isNull(e.record.fisrateadj) && e.record.fisrateadj == 1) {
+                    if (record.fprice && record.frate)obj["famountfor"] = value * record.fprice / record.frate;
+                }
+            }
+            if (field == "fprice") {
+                if (record.fqty) obj["debit"] = value * record.fqty;
+                if (record.fqty)obj["famount"] = value * record.fqty;
+
+                if (!isNull(e.record.fisrateadj) && e.record.fisrateadj == 1) {
+                    if (record.fqty && record.frate)obj["famountfor"] = value * record.fqty / record.frate;
+                }
+            }
+            grid.updateRow(record, obj);
+        }
+        if (field == "fcur" || field == "frate" || field == "famountfor") {
+            var obj = {};
+            if (field == "fcur") {
+                $.ajax({
+                    url: "/common/fms/select/getCurrencyRate.do",
+                    type: 'post',
+                    data: {
+                        code: value,
+                        stime: (new Date()).getTime()
+                    },
+                    cache: false,
+                    success: function (text) {
+                        if (text.status) {
+                            var headdata = mini.decode(text.data);
+                            var ratex = mini.clone(headdata);
+                            var rate = {
+                                frate: ratex
+                            };
+                            grid.updateRow(record, rate);
+                        } else {
+                            minitips("系统提示", text.message, "danger");
+                        }
+                    },
+                    error: function () {
+                        minitips("系统提示", "网络请求失败！", "danger");
+                    }
+                });
+            }
+            if (field == "famountfor") {
+                if (record.frate) obj["debit"] = value * record.frate;
+                if (record.frate) obj["famount"] = value * record.frate;
+                if (!isNull(e.record.fisqtyaux) && e.record.fisqtyaux == 1) {
+                    if (record.frate)obj["fprice"] = value * record.frate / record.fqty;
+                }
+            }
+            if (field == "frate") {
+                if (record.famountfor) obj["debit"] = value * record.famountfor;
+                if (record.famountfor) obj["famount"] = value * record.famountfor;
+                if (!isNull(e.record.fisqtyaux) && e.record.fisqtyaux == 1) {
+                    if (record.famountfor && record.fqty)obj["fprice"] = value * record.famountfor / record.fqty;
+                    // if(record.fqty)obj["famountfor"]=record.price*record.fqty/value;
+                    if (record.famount)obj["famountfor"] = record.famount / value;
+                }
+            }
+            grid.updateRow(record, obj);
+        }
+        if (field == "faccountid") {
+            $.ajax({
+                url: "/common/fms/select/getSubjectById.do",
+                type: 'post',
+                data: {
+                    parms: value,
+                    stime: (new Date()).getTime()
+                },
+                cache: false,
+                success: function (text) {
+                    if (text.status) {
+                        var headdata = mini.decode(text.data);
+                        headdata = mini.clone(headdata);
+                        if (!isNull(headdata.faccountid)) {
+                            grid.updateRow(record, headdata);
+                           /*  if(headdata.ffullname.indexOf("主营业务") != -1 ){
+                           	 grid.updateRow(record, {fcur: "RMB",frate:"1"});
+                           } */
+                        }
+                    } else {
+                        minitips("系统提示", text.message, "danger");
+                    }
+                },
+                error: function () {
+                    minitips("系统提示", "网络请求失败！", "danger");
+                }
+            });
+        }
+    }
+    function onCellValidation(e) {
+        var value = e.value;
+        var record = e.record;
+        var x = "x" + getMiniValue(value, 0);
+        if (record.fisqtyaux == 1) {
+            if (e.field == "fqty") {
+                if (isNull(e.value)) {
+                    e.isValid = false;
+                    e.errorText = "不能为空０";
+                }
+            }
+            if (e.field == "fprice") {
+                if (isNull(e.value)) {
+                    e.isValid = false;
+                    e.errorText = "不能为空１";
+                }
+            }
+        }
+        if (record.fsupplier == 1) {
+            if (record.fsupplierid) {
+            } else {
+                e.isValid = false;
+                e.errorText = "供应商不能为空";
+            }
+        }
+        if (record.fcustom == 1) {
+            if (record.fcustomid) {
+            } else {
+                e.isValid = false;
+                e.errorText = "客户不能为空";
+            }
+        }
+        if (record.fdept == 1) {
+            if (record.fdeptid) {
+            } else {
+                e.isValid = false;
+                e.errorText = "部门不能为空";
+            }
+        }
+        if (record.femp == 1) {
+            if (record.fempid) {
+            } else {
+                e.isValid = false;
+                e.errorText = "职员不能为空";
+            }
+        }
+        if (record.finventory == 1) {
+            if (record.finventoryid) {
+            } else {
+                e.isValid = false;
+                e.errorText = "存货不能为空";
+            }
+        }
+        if (record.fproject == 1) {
+            if (record.fprojectid) {
+            } else {
+                e.isValid = false;
+                e.errorText = "项目不能为空";
+            }
+        }
+        if (record.fisrateadj == 1) {
+            if (e.field == "fcur") {
+                if (isNull(e.value)) {
+                    e.isValid = false;
+                    e.errorText = "币别不能为空";
+                }
+            }
+            if (e.field == "frate") {
+                if (isNull(e.value)) {
+                    e.isValid = false;
+                    e.errorText = "汇率不能为空";
+                }
+            }
+            if (e.field == "famountfor") {
+                if (isNull(e.value)) {
+                    e.isValid = false;
+                    e.errorText = "原币不能为空";
+                }
+            }
+        }
+        if (x.indexOf("=") > 0) {
+            e.cancel = true;
+        }
+        if (e.field == "code") {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "编码不能为空";
+            }
+        }
+        if (e.field == "sl") {
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "数量不能小于等于 0";
+            }
+        }
+        if (e.field == "price") {
+            if (isNull(e.value) || e.value < 0) {
+                e.isValid = false;
+                e.errorText = "金额不能小于0";
+            }
+        }
+    }
+
+    function SetData(data) {
+        mini.get("action").setValue(data.action);
+        if (data.action == "associated") {
+            data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+            var param = mini.encode(data.sid);
+ /*        mini.get("ftype").setValue(data.sid.pztype);
+            mini.get("note").setValue(data.sid.note);
+            mini.get("stype").setValue(data.sid.stype);
+            if(data.sid.pztype == "出货"){
+            	if(data.sid.shl ==0){
+              	mini.get("fgroupid").setText("集转账");
+              	mini.get("fgroupid").setValue(14);
+            	}else{
+            	mini.get("fgroupid").setText("转账");
+            	mini.get("fgroupid").setValue(9);
+            	}
+            	fgroupidvaluechanged();
+            }
+ */            $.ajax({
+              url: "/cw/ba/pzgl/voucher/associated/getEntryGridList.do",
+              type: "post",
+              data: {
+                  parms: param,
+                  stime: (new Date()).getTime()
+              },
+              cache: false,
+              success: function (text) {
+                  dataResult = mini.decode(text);
+                  mini.get("ftype").setValue(text.ftype);
+                  mini.get("note").setValue(text.note);
+                  mini.get("stype").setValue(text.stype);
+                  mini.get("shl").setValue(text.shl);
+                  if(text.ftype == "出货"){
+						if(text.shl == 0){
+						mini.get("fgroupid").setText("集转账");
+						mini.get("fgroupid").setValue(14);
+						}else{
+						mini.get("fgroupid").setText("转账");
+						mini.get("fgroupid").setValue(9);
+						}
+						fgroupidvaluechanged();
+                  }
+                  grid.reload();
+              },
+              error: function () {
+                  minitips("系统提示", "网络请求失败！", "danger");
+              }
+          });
+        }
+    }
+
+    // 监听分页前事件，阻止后自行设置当前数据和分页信息
+    grid.on("beforeload", function (e) {
+        var data = grid.getChanges();
+        if (data.length > 0) {
+            e.cancel = true;
+            minitips("系统提示", "数据已经修改，执行本操作，可能会丢失已修改数据，请先保存！", "danger");
+            return false;
+        }
+        e.cancel = true;
+        grid.setData(dataResult.data);
+    });
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+        var editor = e.editor;
+        if (field == "fcur") {
+            var id = record.faccountid;
+            if (id) {
+                var url = "/common/fms/select/getAccountCurrency.do?code=" + id;
+                editor.setUrl(url);
+            } else {
+                e.cancel = true;
+            }
+        }
+        if (field == "fqty" || field == "fprice") {
+            if (isNull(e.record.fisqtyaux) || e.record.fisqtyaux == 0) {
+                e.cancel = true;
+            }
+        }
+        if (field == "fcur" || field == "frate" || field == "famountfor") {
+            if (isNull(e.record.fisrateadj) || e.record.fisrateadj == 0) {
+                e.cancel = true;
+            }
+        }
+    }
+
+
+    function onCancel(e) {
+    	isminichange = true;
+        CloseWindow("refrush");
+    }
+    //控制是否刷新主界面
+    function isRefrush(isminichange) {
+        if (isminichange) {
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow("refrush");
+            else
+                window.close();
+        } else {
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow("close");
+            else
+                window.close();
+        }
+    }
+
+    function CloseWindow(action) {
+        if (action == "close" && (grid.isChanged())) {
+            mini.confirm("数据被修改了，是否先保存？", "提示信息", function (returndata) {
+                if (returndata != "ok") {
+                    isRefrush(isminichange);
+                }
+            });
+            return false;
+        }
+        isRefrush(isminichange);
+    }
+
+
+    /**
+     保存验证
+     */
+    function validateData() {
+        if (debittotal.toFixed(2) != credittotal.toFixed(2)) {
+            minitips("系统提示", "借贷不平衡不能保存,请修正！", "danger");
+            return false;
+        }
+        var row = grid.getRow(0);
+        if (!row.fexplanation) {
+            var column = grid.getColumn(1, "fexplanation");
+            minitips("系统提示", "第一条分录摘要不能为空！", "danger");
+            /*    	 var cell=[row, column];
+             grid.setCurrentCell(cell);
+             var ax=grid.getCurrentCell();
+             grid.beginEditCell(ax);	 */
+            return false;
+        }
+        //grid.getData().length 获取当页记录数
+        //grid.getTotalCount()  获取总记录数
+        for (var i = 0; i < grid.getTotalCount(); i++) {
+            var row = grid.getRow(i);
+            if (!row.famount) {
+                minitips("系统提示", "不能为空！", "danger");
+                return false;
+            }
+        }
+
+        form.validate();
+        if (form.isValid() == false) {
+            return false;
+        }
+        grid.validate();
+        if (grid.isValid() == false) {
+            var error = grid.getCellErrors()[0];
+            minitips("系统提示", error.errorText, "danger");
+            grid.beginEditCell(error.record, error.column);
+            return false;
+        }
+     /*   
+      //开放头部修改限制
+        if (grid.getChanges() == "") {
+            minitips("系统提示", "数据没有改变，无需保存", "danger");
+            return false;
+        } */
+        if (grid.getData() == "") {
+            minitips("系统提示", "没有明细数据，无需保存", "danger");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     保存方法
+     */
+    function saveData() {
+        if (validateData()) {
+            var o = form.getData();
+            var data = grid.getData();
+            var mainjson = mini.encode(o);
+            var mxjson = mini.encode(data);
+            mini.get("btn_save").disable();
+            $.ajax({
+                url: "../voucher/associated/saveData.do",
+                type: 'post',
+                data: {
+                    headdata: mainjson,
+                    entrydata: mxjson,
+                    stime: (new Date()).getTime()
+                },
+                cache: false,
+                success: function (data) {
+                    mini.get("btn_save").enable();
+                    if (data.status) {
+                        isminichange = true;
+                        minitips("系统提示", "保存成功！", "success");
+                        var ent = mini.decode(data.headData);
+                        mini.get("fvoucherno").setValue(ent.fvoucherno);
+                        mini.get("fvoucherid").setValue(ent.fvoucherid);
+                        setIdReadOnly("fvoucherno,fvoucherid");
+                        RefreshGrid(ent.fvoucherid);
+                        form.setChanged(false);
+                        isminichange = true;
+                    } else {
+                        minitips("系统提示", data.message, "danger");
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    minitips("系统提示", "网络请求失败!", "danger");
+                    CloseWindow();
+                }
+            });
+        }
+    }
+    function RefreshGrid(note) {
+      $.ajax({
+          url: vurl + "/getEntryGridList.do",
+          type: 'post',
+          data: {
+              parms: note,
+              stime: (new Date()).getTime()
+          },
+          cache: false,
+          success: function (text) {
+              dataResult = mini.decode(text);
+              grid.reload();
+          },
+          error: function () {
+              minitips("系统提示", "网络请求失败！", "danger");
+          }
+      });
+  }
+
+
+    fgroupidvaluechanged();
+    function fgroupidvaluechanged() {
+       // getNextfvoucherno();
+        getCurrentMonthNextfvoucherno();
+    }
+
+    function getNextfvoucherno() {
+        $.ajax({
+            url: vurl + "/getNextfvoucherno.do",
+            type: 'post',
+            data: {
+                stime: (new Date()).getTime(),
+                parms: mini.get("fgroupid").getText(),
+            },
+            cache: false,
+            success: function (data) {
+                if (data.status) {
+                    mini.get("fvoucherno").setValue(data.fvoucherno);
+                } else {
+                    minitips("系统提示", data.message, "danger");
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                minitips("系统提示", "网络请求失败!", "danger");
+                CloseWindow();
+            }
+        });
+    }
+    function getCurrentMonthNextfvoucherno() {
+    	var  a= mini.get("fdate").getFormValue();
+    	 var b=mini.get("fgroupid").getFormValue();
+    	 var c=mini.get("fvoucherid").getFormValue();
+    	 var n = isNull(a)?YEAR+"-"+(PERIOD.length==1?"0"+1:PERIOD) : a;
+    	 var o={
+    			 fdate:n,
+    			 fgroup:b,
+    			 fvoucherid:c
+    	 };
+        $.ajax({
+            url: "../voucher/associated/getCurrentMonthNextfvoucherNumber.do",
+            type: 'post',
+            data: {
+                stime: (new Date()).getTime(),
+                parms: mini.encode(o)
+            },
+            cache: false,
+            success: function (data) {
+                if (data.status) {
+                    //mini.get("fvoucherno").setValue(data.fvoucherno);
+                    mini.get("fnumber").load(data.list);
+                } else {
+                    minitips("系统提示", data.message, "danger");
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                minitips("系统提示", "网络请求失败!", "danger");
+                CloseWindow();
+            }
+        });
+    }
+    
+    function addRow() {
+		var newRow = {
+	            name: "New Row",
+	            fcur: "RMB",
+	            frate:"1"
+	        };
+      grid.addRow(newRow, grid.getData().length + 1);
+  }
+    
+    function addRow2() {
+    	 var row = grid.getSelected();
+    	 if(row){
+    		 var index=grid.indexOf(row);
+    		 var newRow = {
+    		            name: "New Row",
+    		            fcur: "RMB",
+    		            frate:"1"
+    		        };
+    	      grid.addRow(newRow, index + 1);
+    	 }else{
+    		 mini.alert("请选择一条记录!");
+    	 }
+		
+  }
+  
+  function removeRow() {
+      var rows = grid.getSelecteds();
+      if (rows.length > 0) {
+          grid.removeRows(rows, true);
+      }
+  }
+
+</script>

@@ -1,0 +1,117 @@
+package com.tengzhi.business.sc.task.pick.raw.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.app.ck.model.DeliveryNotice;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.sale.saleProduct.saleDeliveryNotice.vo.ECkDeliveryNoticeVo;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwWl;
+
+public interface RawPickService extends BaseService<MScScrwWl, MScScrwWl.MScScrwWl_PK> {
+	/**
+	 * 获取上grid数据
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<Map<String,Object>> getTopList(BaseDto baseDto) throws IOException;
+
+	/**
+	 * 获取左下grid数据
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<Map<String,Object>> getBottomLeftList(BaseDto baseDto) throws IOException;
+
+	/**
+	 * 获取右下grid数据
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<Map<String,Object>> getBottomRightList(BaseDto baseDto) throws IOException;
+
+	/**
+	 * 保存数据
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
+	Result save(ECkDeliveryNoticeVo vo) throws Exception;
+
+	BasePage<Map<String,Object>> getDemandNotifyListById(String fhNote, String fhCode);
+
+	BasePage<Map<String,Object>> getManualNoticeListById(String fhNote, String fhCode);
+
+	Result update(ECkDeliveryNoticeVo initECkDeliveryNoticeVo)  throws Exception;
+	
+	Result delete(String fhNote)  throws Exception;
+
+	BasePage<Map<String, Object>> getDemandNotifyListByNote(String fhNote);
+
+	BasePage<Map<String, Object>> getManualNoticeListByNote(String fhNote);
+
+	ModelAndView table(ModelAndView mv, String outNotes);
+	
+	/**
+	 * 获取出库扫描的数据
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<Map<String,Object>> getOutLsList(BaseDto baseDto) throws IOException;
+	
+	/**
+	 * 添加扫描的数据
+	 * @return
+	 * @throws Exception
+	 */
+	Result addOutLsData(DeliveryNotice deliveryNotice) throws Exception;
+	
+	/**
+	 * 删除扫描的数据
+	 * @param pack
+	 * @return
+	 * @throws Exception
+	 */
+	Result deleteOutLsData(String fhNote,String packType,String pack) throws Exception;
+
+	/**
+	 * 入库确认
+	 * @param fhNote
+	 * @return
+	 * @throws Exception
+	 */
+	Result saveOutData(String fhNote) throws Exception;
+	
+	/**
+	 * 根据通知单号获取材质列表
+	 * @param fhNote
+	 * @return
+	 */
+	List<SelectVo> getFhCode(String fhNote);
+	
+	/**
+	 * 
+	 * @param fhNote
+	 * @return
+	 */
+	DeliveryNotice getDataByNote(String fhNote);
+	
+	/**
+	 * 获取库存数据
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<Map<String,Object>> getStockList(BaseDto baseDto) throws IOException;
+}

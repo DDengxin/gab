@@ -1,0 +1,8 @@
+package com.tengzhi.business.platform.enroll.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.enroll.model.GUserInfo;
+
+public interface GUserInfoDao extends BasedaoRepository<GUserInfo, String>  {
+
+}

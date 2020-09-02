@@ -1,0 +1,31 @@
+package com.tengzhi.business.system.workflow.extension.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.system.user.dao.SysUserDao;
+import com.tengzhi.business.system.user.model.SysUser;
+import com.tengzhi.business.system.workflow.extension.Workflow;
+
+@Service
+public class GetDeptDirector implements Workflow {
+	@Autowired
+	private SysUserDao userdao;
+
+	@Override
+	public List<SysUser> find(Map<String, Object> map) {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		List<SysUser> list = userdao.findAll(Specifications.where((c) -> {
+//			c.eq("deptName", sessionUser.getDeptId());
+			c.eq("positionName", "经理");
+		}));
+		return list;
+	}
+
+}

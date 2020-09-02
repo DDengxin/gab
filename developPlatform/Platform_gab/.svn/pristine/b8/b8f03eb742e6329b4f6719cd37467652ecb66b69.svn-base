@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报价</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/offer.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/offer.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/ChinaNumToEnglishNum.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/formConfig.js}"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="content">
+            <h2>夹、治具报价单</h2>
+            <form action="" class="layui-form" id="offerForm">
+                <div class="base-msg">
+                    <h4>基础信息</h4>
+                    <ul>
+                        <li>
+                            <div>
+                                <label>公司名称</label>
+                                <input type="text" name="companyName" required lay-verify="required" autocomplete="off">
+                            </div>
+                            <div>
+                                <label>代理人</label>
+                                <input type="text" name="proxy" required lay-verify="required" autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <label>手机号码</label>
+                                <input type="text" name="phoneNumber" required lay-verify="phone" autocomplete="off">
+                            </div>
+                            <div>
+                                <label>传真</label>
+                                <input type="text" name="companyName" required lay-verify="required" autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <label>企业邮箱</label>
+                                <input type="text" name="companyName" required lay-verify="required" autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <label>夹、治具编号</label>
+                                <input type="text" name="fixtureNumber" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                            <div>
+                                <label>被夹产品编号</label>
+                                <input type="text" name="clampNumber" required lay-verify="required" autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <label>机台品牌型号</label>
+                                <input type="text" name="machineNumber" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                            <div>
+                                <label>工作台尺寸</label>
+                                <input type="text" name="tableSize" required lay-verify="required" autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <label>动力形式</label>
+                                <input type="text" name="powerType" required lay-verify="required" autocomplete="off">
+                            </div>
+                            <div>
+                                <label>形式工位数</label>
+                                <input type="text" name="formalNumber" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <label>报价分类</label>
+                                <div class="com-sel">
+                                    <select class="com-opt" id="productType" name="productType" required></select>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="direct-cost">
+                    <h4>直接成本项目<b>人民币单位：元</b></h4>
+                    <table>
+                        <tr>
+                            <td class="kind"></td>
+                            <td class="cost">成本项目</td>
+                            <td class="number">数量</td>
+                            <td class="price">单价</td>
+                            <td class="unit">单位</td>
+                            <td class="money">金额</td>
+                            <td class="remarks">备注说明</td>
+                        </tr>
+                        <tbody id="ConfigForm">
+                         
+                        </tbody>
+                        <tr>
+                            <td class="kind">总成费用</td>
+                            <td class="cost"><input type="text" name="totalCost" required lay-verify="required"
+                                    autocomplete="off"></td>
+                            <td class="number"><input type="text" name="totalNumber" required lay-verify="number"
+                                    autocomplete="off"></td>
+                            <td class="price"><input type="text" name="totalPrice" required lay-verify="number"
+                                    autocomplete="off"></td>
+                            <td class="unit"><input type="text" name="totalUnit" required lay-verify="required"
+                                    autocomplete="off"></td>
+                            <td class="money"><input type="text" name="totalMoney" required lay-verify="number"
+                                    autocomplete="off"></td>
+                            <td class="remark"><input type="text" name="totalRemarks" required lay-verify="required"
+                                    autocomplete="off"></td>
+                        </tr>
+                        <tr>
+                            <td class="kind">小计</td>
+                            <td class="cost"><input type="text" name="subtotalCost" required lay-verify="required"
+                                    autocomplete="off"></td>
+                            <td class="number"><input type="text" name="subtotalNumber" required lay-verify="number"
+                                    autocomplete="off"></td>
+                            <td class="price"><input type="text" name="subtotalPrice" required lay-verify="number"
+                                    autocomplete="off"></td>
+                            <td class="unit"><input type="text" name="subtotalUnit" required lay-verify="required"
+                                    autocomplete="off"></td>
+                            <td class="money"><input type="text" name="subtotalMoney" required lay-verify="number"
+                                    autocomplete="off"></td>
+                            <td class="remark"><input type="text" name="subtotalRemarks" required lay-verify="required"
+                                    autocomplete="off"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="indirect-cost">
+                    <h4>间接成本项目</h4>
+                    <table>
+                        <tr>
+                            <td></td>
+                            <td>财务费用</td>
+                            <td>销售费用</td>
+                            <td>管理费用</td>
+                            <td>售服费用</td>
+                            <td>税金</td>
+                            <td>风险费用</td>
+                            <td>净利润</td>
+                        </tr>
+                        <tr>
+                            <td>费用比率</td>
+                            <td><input type="text" name="financeRate" required lay-verify="required"
+                                    autocomplete="off"><b>%</b></td>
+                            <td><input type="text" name="saleRate" required lay-verify="number"
+                                    autocomplete="off"><b>%</b></td>
+                            <td><input type="text" name="managerRate" required lay-verify="number"
+                                    autocomplete="off"><b>%</b></td>
+                            <td><input type="text" name="serviceRate" required lay-verify="required"
+                                    autocomplete="off"><b>%</b></td>
+                            <td><input type="text" name="taxesRate" required lay-verify="number"
+                                    autocomplete="off"><b>%</b></td>
+                            <td><input type="text" name="riskRate" required lay-verify="required"
+                                    autocomplete="off"><b>%</b></td>
+                            <td><input type="text" name="profitsRate" required lay-verify="required"
+                                    autocomplete="off"><b>%</b></td>
+                        </tr>
+                        <tr>
+                            <td>成本小计</td>
+                            <td colspan="2"><input class="costTotal" type="text" name="costSubtotal" required
+                                    lay-verify="required" autocomplete="off">元</td>
+                        </tr>
+                        <tr></tr>
+                        <tr class="leadTime">
+                            <td>交货周期</td>
+                            <td colspan="3">
+                            	合同签定日期起
+                                <input type="text" name="leadTime" required lay-verify="required" autocomplete="off">
+                            	个工作日
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>含税总价</td>
+                            <td colspan="6" class="pri">
+                                <b>¥</b>
+                                <input type="text" id="taxTotal" name="taxTotal" required lay-verify="required" autocomplete="off"
+                                    value="123.00" disabled="true">
+                                <input type="text" id="chineseWord" name="chineseWord" placeholder="自动转换成大写" required lay-verify="required" autocomplete="off" disabled="true">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>含增值税价</td>
+                            <td colspan="3" class="pri">
+                                <b>¥</b>
+                                <input type="text" name="vatTotal" required lay-verify="required" autocomplete="off" disabled="true">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>附件清单</td>
+                            <td colspan="3">
+                            	共
+                                <input class="vatTotal" type="text" name="listNumber" required lay-verify="required" autocomplete="off">
+                            	张
+                            </td>
+                        </tr>
+                        <tr></tr>
+                    </table>
+
+                    <ul>
+                        <li>
+                            <div>
+                                <label>报价部门</label>
+                                <input type="text" name="quotationDepartment" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                            <div class="bidder">
+                                <label>报价人</label>
+                                <input type="text" name="bidder" required lay-verify="required" autocomplete="off">
+                            </div>
+                            <div class="bidder">
+                                <label>日期</label>
+                                <input type="text" name="quotationDate" id="quotationDate" required
+                                    lay-verify="required" autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                        	<div>
+                                <label>签发部门</label>
+                                <input type="text" name="quotationDepartment" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                            <div>
+                                <label>签发人</label>
+                                <input type="text" name="quotationDepartment" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                            <div class="bidder">
+                                <label>日期</label>
+                                <input type="text" name="issueDate" id="issueDate" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                            	本报价有效期自签发日起
+                                <input class="prescription" type="text" name="prescription" required lay-verify="required" autocomplete="off">
+                            	月内有效
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="btn">
+                    <button id="btn-submit">立即报价</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

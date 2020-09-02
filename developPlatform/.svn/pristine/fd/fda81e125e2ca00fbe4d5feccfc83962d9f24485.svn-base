@@ -1,0 +1,200 @@
+package com.tengzhi.business.system.right.model;
+
+import com.tengzhi.base.jpa.model.BaseModel;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+@Entity
+@Table(name = "sys_right")
+public class SysRight  extends BaseModel {
+    @Id
+    private String rightId;
+    private String parentId;
+    private String rightName;
+    private String rightLink;
+    private String rightResource;
+    private String rightType;
+    private String rightIconCls;
+    private String description;
+    private Boolean isForbidden;
+    private Integer rightOrd;
+    private String rightTrigger;
+    private String parentName;
+    private String rightModule;
+    private String rightAdministration;
+    private String rightPersonner;
+    private String rightSupplyChain;
+    private String rightProduction;
+    @Transient
+    private String _state;
+    @Transient
+    private String oldid;
+
+    public String getOldid() {
+        return oldid;
+    }
+
+    public void setOldid(String oldid) {
+        this.oldid = oldid;
+    }
+
+    public String getRightId() {
+        return rightId;
+    }
+
+    public void setRightId(String rightId) {
+        this.rightId = rightId;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getRightName() {
+        return rightName;
+    }
+
+    public void setRightName(String rightName) {
+        this.rightName = rightName;
+    }
+
+    public String getRightLink() {
+        return rightLink;
+    }
+
+    public void setRightLink(String rightLink) {
+        this.rightLink = rightLink;
+    }
+
+    public String getRightResource() {
+        return rightResource;
+    }
+
+    public void setRightResource(String rightResource) {
+        this.rightResource = rightResource;
+    }
+
+    public String getRightType() {
+        return rightType;
+    }
+
+    public void setRightType(String rightType) {
+        this.rightType = rightType;
+    }
+
+    public String getRightIconCls() {
+        return rightIconCls;
+    }
+
+    public void setRightIconCls(String rightIconCls) {
+        this.rightIconCls = rightIconCls;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getIsForbidden() {
+        return isForbidden;
+    }
+
+    public void setIsForbidden(Boolean isForbidden) {
+        this.isForbidden = isForbidden;
+    }
+
+    public Integer getRightOrd() {
+        return rightOrd;
+    }
+
+    public void setRightOrd(Integer rightOrd) {
+        this.rightOrd = rightOrd;
+    }
+
+    public String getRightTrigger() {
+        return rightTrigger;
+    }
+
+    public void setRightTrigger(String rightTrigger) {
+        this.rightTrigger = rightTrigger;
+    }
+
+    public String get_state() {
+        return _state;
+    }
+
+    public void set_state(String _state) {
+        this._state = _state;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
+
+    public String getRightModule() {
+        return rightModule;
+    }
+
+    public void setRightModule(String rightModule) {
+        this.rightModule = rightModule;
+    }
+
+	public String getRightAdministration() {
+		return rightAdministration;
+	}
+
+	public void setRightAdministration(String rightAdministration) {
+		this.rightAdministration = rightAdministration;
+	}
+
+	public String getRightPersonner() {
+		return rightPersonner;
+	}
+
+	public void setRightPersonner(String rightPersonner) {
+		this.rightPersonner = rightPersonner;
+	}
+
+	public String getRightSupplyChain() {
+		return rightSupplyChain;
+	}
+
+	public void setRightSupplyChain(String rightSupplyChain) {
+		this.rightSupplyChain = rightSupplyChain;
+	}
+
+	public String getRightProduction() {
+		return rightProduction;
+	}
+
+	public void setRightProduction(String rightProduction) {
+		this.rightProduction = rightProduction;
+	}
+
+	@Override
+	public String toString() {
+		return "SysRight [rightId=" + rightId + ", parentId=" + parentId + ", rightName=" + rightName + ", rightLink="
+				+ rightLink + ", rightResource=" + rightResource + ", rightType=" + rightType + ", rightIconCls="
+				+ rightIconCls + ", description=" + description + ", isForbidden=" + isForbidden + ", rightOrd="
+				+ rightOrd + ", rightTrigger=" + rightTrigger + ", parentName=" + parentName + ", rightModule="
+				+ rightModule + ", rightAdministration=" + rightAdministration + ", rightPersonner=" + rightPersonner
+				+ ", rightSupplyChain=" + rightSupplyChain + ", rightProduction=" + rightProduction + ", _state="
+				+ _state + "]";
+	}
+    
+    
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>邮件配置</title>
+    </th:block>
+</head>
+<body>
+    <th:block
+            th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <input id="action" name="action" class="mini-hidden"/>
+            <input id="type" name="type" class="mini-hidden"/>
+            <label class="hmq-label" text="产品编码"> <input
+                    class="mini-textbox" name="cpcodeId"/>
+            </label>
+            <label class="hmq-label" text="名称" for="cpcodeName">
+                <input id="cpcodeName" name="cpcodeName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" allowInput="true" textField="combtext" valueField="combid" parentField="pid" value="无"
+                       onbeforenodeselect="disableParentSelection" popupWidth="240" popupHeight="180"/>
+            </label>
+            <label class="hmq-label" text="产品规格"> <input
+                    class="mini-textbox" name="cpcodeSzie" id="cpcodeSzie"
+                    allowInput="true" nullItemText="全部" showNullItem="true"/>
+            </label>
+            <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+            <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+            <a class="mini-button" iconCls="icon-remove"
+               onclick="closeWindow('cancel')">取消</a>
+
+        </th:block>
+    </th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" sortField="code" sortOrder="desc" onrowdblclick="onRowDblClick"
+         url="/sc/finishedPicking/notice/findSerialNumber">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="code" width="120">编码</div>
+            <div tz:datagrid="column" field="cpcodename" width="120">名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" width="70">规格</div>
+            <div tz:datagrid="column" field="cpcodeXp" displayField="cpcodeXpName" name="cpcodeXp" width="120">产地</div>
+            <div tz:datagrid="column" field="sl" width="80">数量</div>
+            <div tz:datagrid="column" field="inPrice" width="80" visible="false">单价</div>
+            <div tz:datagrid="column" field="je" width="80" visible="false" numberFormat="#,0.00">金额</div>
+            <div tz:datagrid="column" field="cpcodebzname" width="80">单位</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    function SetData(options) {
+        if ('search' == options.action) {
+            var hsStype = options.sid.htStype;
+            mini.get("type").setValue(options.sid.htStype);
+            hmq.business.dynamicProductParams(mini.get("type").getValue(), {
+                miniGrid: grid,
+                success: function (map, res) {
+                   // mini.get("cpcodeName").load(map.cpcodeNameUrl);
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+            search_option();
+        }
+    }
+
+    function confirm(e) {
+        var row = grid.getSelected();
+        if (grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选中一行数据!');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+    /**
+     * 行双击事件
+     * @param e
+     */
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+
+    function GetMutiData() {
+        var row = grid.getSelected();
+        return row;
+    }
+
+</script>
+</body>
+</html>

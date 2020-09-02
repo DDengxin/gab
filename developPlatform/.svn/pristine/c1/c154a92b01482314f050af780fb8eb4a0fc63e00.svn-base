@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员外出【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="note" name="note" class="mini-hidden"/>
+        <input id="dataMan" name="dataMan"  class="mini-hidden"/>
+        <input id="dataCorp" name="dataCorp"  class="mini-hidden"/>
+        <input id="wcFlag" name="wcFlag"  class="mini-hidden"/>
+        <input id="wcPcnote" name="wcPcnote"  class="mini-hidden"/>
+        <input id="wcBznote" name="wcBznote"  class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>日 期：</td>
+                <td content>
+                    <input id="wcRq" name="wcRq" class="mini-datepicker" value="new Date()" showTime="true" allowInput="false"/>
+                </td>
+                <td title>外出人：</td>
+                <td content>
+                    <input id="wcMan" name="wcMan" class="mini-buttonedit" required  onbuttonclick="onButtonEditMan" allowInput="false" />
+                </td>
+                <td title>部 门：</td>
+                <td content>
+                    <input id="wcDept" name="wcDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" readonly/>
+                </td>
+                <td title>类 型：</td>
+                <td content>
+                    <select id="wcType" name="wcType" class="mini-combobox" required >
+                        <option value="出差">出差</option>
+                        <option value="外出">外出</option>
+                        <option value="用车">用车</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>地 点：</td>
+                <td content>
+                    <!--<input id="wcAdd" name="wcAdd" class="mini-combobox" required url="/system/parameter/getParamsSelectListByParentId/销售/订单类型/DDLX" />-->
+                    <select id="wcAdd" name="wcAdd" class="mini-combobox" required allowInput="true" popupMaxHeight="160">
+                        <option value="其他">其他</option>
+                        <option value="天津">天津</option>
+                        <option value="宁波">宁波</option>
+                        <option value="广州">广州</option>
+                        <option value="成都">成都</option>
+                        <option value="武汉">武汉</option>
+                        <option value="滕州">滕州</option>
+                        <option value="苏州">苏州</option>
+                    </select>
+                </td>
+                <td title>其他地点：</td>
+                <td content>
+                    <input id="wcAddsm" name="wcAddsm" class="mini-textbox" />
+                </td>
+                <td title>是否租车：</td>
+                <td content>
+                    <select id="wcIszc" name="wcIszc" class="mini-combobox" required >
+                        <option value="否">否</option>
+                        <option value="是">是</option>
+                    </select>
+                </td>
+                <td title>是否用车：</td>
+                <td>
+                    <select id="wcYc" name="wcYc" class="mini-combobox" onvaluechanged="onChangeYc" popupMaxHeight="160">
+                        <option value="派车(驾驶员)">派车(驾驶员)</option>
+                        <option value="派车(自驾)">派车(自驾)</option>
+                        <option value="派驾驶">派驾驶</option>
+                        <option value="自驾">自驾</option>
+                        <option value="派车送车站">派车送车站</option>
+                        <option value="否">否</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>用车说明：</td>
+                <td content colspan="7">
+                    <input id="wcYcsm" name="wcYcsm" class="mini-textarea" style="height:70px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>外出事由：</td>
+                <td content colspan="7">
+                    <input id="wcSm" name="wcSm" class="mini-textarea" style="height:70px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>出厂时间：</td>
+                <td content>
+                    <input id="wcTcrq" name="wcTcrq" class="mini-datepicker" required format="yyyy-MM-dd HH:mm"
+                           timeFormat="HH:mm"  showTime="true" allowInput="false"/>
+                </td>
+                <td title>回厂时间：</td>
+                <td>
+                    <input id="wcThrq" name="wcThrq" class="mini-datepicker" required format="yyyy-MM-dd HH:mm"
+                           timeFormat="HH:mm"  showTime="true" allowInput="false"/>
+                </td>
+                <td title>外出时长：</td>
+                <td content>
+                    <input id="wcSc" name="wcSc" class="mini-textbox" vtype="float" />
+                </td>
+                <td title>路 程：</td>
+                <td content>
+                    <input id="wcLc" name="wcLc" class="mini-textbox" vtype="float" />
+                </td>
+
+            </tr>
+        </table>
+    </form>
+
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    /**
+     *用车说明
+     */
+    function onChangeYc(){
+        var yc = mini.get("wcYc").getValue();
+        if(yc=="否"){
+            mini.get("wcYcsm").disable();
+            mini.get("wcYcsm").setValue("");
+        }else{
+            mini.get("wcYcsm").enable();
+        }
+    }
+
+    /**
+     人员选择
+     */
+     function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("wcMan").setValue(data.workerId);
+                    mini.get("wcMan").setText(data.workerName);
+                    mini.get("wcDept").setValue(data.workerDept);
+                    mini.get("wcDept").setText(data.workerDeptName);
+                    mini.get("dataCorp").setValue(data.workerCorpid);
+                }
+            }
+        });
+    }
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("wcsqAdd.html", JSON.stringify(form.getData(true)), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh',false);
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     * 回调函数
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+
+            //普通口径
+            var formData = options.data.formData;
+            var row = options.data.row;
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+                data = mini.clone(options);
+                form.setChanged(false);
+            } else if ('edit' == options.action) {
+                $.get("getById/{0}".format(row.note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        var data = mini.decode(res.data);
+                        mini.get("wcMan").setValue(data.wcMan);
+                        mini.get("wcMan").setText(data.manName);
+                        mini.get("wcDept").setValue(data.wcDept);
+                        mini.get("wcDept").setText(data.deptName);
+                    }
+                });
+            }
+        } else {
+            //审批口径
+            $.get("add.html/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            }, null, null, {
+                complete: function () {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //表单只读
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+</script>
+</html>

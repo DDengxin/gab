@@ -1,0 +1,335 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+	xmlns:o="urn:schemas-microsoft-com:office:office"
+	xmlns:x="urn:schemas-microsoft-com:office:excel"
+	xmlns="http://www.w3.org/TR/REC-html40"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>打印模板</title>
+</th:block>
+<style>
+	.container {
+		/* width: 100%; */
+		margin: 0 auto;
+		padding: 10px;
+	}
+	table {
+		/* width: 100%; */
+		text-align: center;
+		border-collapse: collapse;
+	}
+	table th,td{
+		border: 1px solid #000;
+		font-size: 12px;
+		height: 20px;
+	}
+	td{
+		width: 50px;
+	}
+</style>
+</head>
+<body>
+	<div class="container">
+		<table cellpadding="0" cellspacing="0">
+			<tr>
+				<th style="border: 0px;font-size: 16px;" colspan="20"><label>东台臻特特种合金有限公司 生产工艺流程单</label></th>
+			</tr>
+			<tr>
+				<th rowspan="2">订货单位</th>
+				<th rowspan="2" colspan="4">上海臻特</th>
+				<th rowspan="2" style="width: 40px;">序号</th>
+				<th rowspan="2">工艺路线</th>
+				<th rowspan="2" colspan="5">工艺要求</th>
+				<th colspan="2">完成数量</th>
+				<th>交接时间</th>
+				<th rowspan="2">操作员</th>
+				<th rowspan="2">备注区</th>
+				<th rowspan="2">质检员</th>
+				<th>合格数量</th>
+				<th rowspan="2">统计员</th>
+			</tr>
+			<tr>
+				<th>合格</th>
+				<th>次品</th>
+				<th>完成时间</th>
+				<th>时间</th>
+			</tr>
+			<tr>
+				<th>订单日期</th>
+				<td colspan="4" style="text-align: left;">2020/4/9</td>
+				<td style="width: 40px;">1</td>
+				<td>下料</td>
+				<td colspan="5" style="text-align: left;">用Φ14的黑棒，下料长度29.5</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<th>交货日期</th>
+				<td colspan="4" style="text-align: left;">2020/4/26</td>
+				<td style="width: 40px;">2</td>
+				<td>固溶</td>
+				<td colspan="5" style="text-align: left;">按照热处理工艺要求表炉号：</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>合同号</th>
+				<td colspan="4" style="text-align: left;">25902</td>
+				<td style="width: 40px;">3</td>
+				<td rowspan="4">数控</td>
+				<td rowspan="2" colspan="5" style="text-align: left;">平端面、车dk尺寸、倒角0.5*45打Φ5.9-6的孔，深4.1-4.6，不含尖、倒内角、内角直径7.1-7.2</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<th>产品名称</th>
+				<td colspan="4" style="text-align: left;">内六角螺钉DIN912</td>
+				<td style="width: 40px;">4</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>材质</th>
+				<td colspan="4" style="text-align: left;">17-4PH（H900）</td>
+				<td style="width: 40px;">5</td>
+				<td rowspan="2" colspan="5" style="text-align: left;">车中经、控制k尺寸、头部倒角去毛刺、平尾端控制L尺寸，倒角1.3*45°</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<th>钢锭炉号</th>
+				<td colspan="4" style="text-align: left;"></td>
+				<td style="width: 40px;">6</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>规格</th>
+				<td colspan="4" style="text-align: left;">M8-1.25P*20</td>
+				<td style="width: 40px;">7</td>
+				<td>滚丝</td>
+				<td colspan="5" style="text-align: left;">M8-1.25P、螺纹通直规</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<th>合同数量</th>
+				<td colspan="4" style="text-align: left;">200</td>
+				<td style="width: 40px;">8</td>
+				<td>清洗</td>
+				<td colspan="5" style="text-align: left;">稻壳去油</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>热处理炉号</th>
+				<td colspan="4" style="text-align: left;">210</td>
+				<td style="width: 40px;">9</td>
+				<td>热处理</td>
+				<td colspan="5" style="text-align: left;">按照热处理工艺要求表炉号：</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<th colspan="2">需要材料</th>
+				<th colspan="2">实领材料</th>
+				<th rowspan="2">领料人</th>
+				<td style="width: 40px;">10</td>
+				<td>电脉冲</td>
+				<td colspan="5" style="text-align: left;">内六角对边6.02-6.12，有效深度4-4.5</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>直径</td>
+				<td>公斤</td>
+				<td>直径</td>
+				<td>公斤</td>
+				<td style="width: 40px;">11</td>
+				<td>清洗</td>
+				<td colspan="5" style="text-align: left;">稻壳去油</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<td>14</td>
+				<td>8.1</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td style="width: 40px;">12</td>
+				<td>抛光</td>
+				<td colspan="5" style="text-align: left;">抛丸处理</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td rowspan="12" colspan="7">
+					<img src="../../../static/img/test.png"/>
+				</td>
+				<th rowspan="2">工艺路线</th>
+				<th rowspan="2" colspan="4" style="width: 220px;">工艺要求</th>
+				<th colspan="2">完成数量</th>
+				<th>完成时间</th>
+				
+				<th rowspan="2">操作员</th>
+				<th rowspan="2">质量原因</th>
+				<th rowspan="2">质检员</th>
+				<th>合格数量</th>
+				<th rowspan="2">统计员</th>
+			</tr>
+			<tr>
+				<th>合格</th>
+				<th>次品</th>
+				<th>交接时间</th>
+				<th>时间</th>
+			</tr>
+			<tr>
+				<th rowspan="2" style="width: 55px;">终检</th>
+				<td rowspan="2" colspan="4" style="width: 220px;">所有尺寸</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th rowspan="2" style="width: 55px;">打标</th>
+				<td rowspan="2" colspan="4" style="width: 220px;">见合同</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th rowspan="2" style="width: 55px;">包装</th>
+				<td rowspan="2" colspan="4" style="width: 220px;">合同数量</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td rowspan="2"></td>
+				<td rowspan="2"></td>
+				<td></td>
+				<td rowspan="2"></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th rowspan="4" style="width: 55px;">备注</th>
+				<td colspan="4" style="width: 220px;">dk=12.9-12.95</td>
+				<td colspan="4">L=19.8</td>
+				<td colspan="4"></td>
+			</tr>
+			<tr>
+				<td colspan="4" style="width: 220px;">k=7.83-8</td>
+				<td colspan="4">中经7.13±0.02</td>
+				<td colspan="4"></td>
+			</tr>
+			<tr>
+				<td colspan="4" style="width: 220px;">s=6.02-6.12</td>
+				<td colspan="4"></td>
+				<td colspan="4"></td>
+			</tr>
+			<tr>
+				<td colspan="4" style="width: 220px;">t=4-4.5</td>
+				<td colspan="4"></td>
+				<td colspan="4"></td>
+			</tr>
+			<tr>
+				<td colspan="22">备注：各项工序必须严格按照工艺生产，上道工序完成必须按工艺顺序包装数量交接到下道工序（签字为准），不得补签、代签或拒签，每个工序负责人必须对质量与数量负责，工艺员与质检员分别对产品工艺与质量负责</td>
+			</tr>
+			<tr>
+				<th>编制：</th>
+				<td colspan="5">赵之桂</td>
+				<th>审核：</th>
+				<td colspan="5">赵之桂</td>
+				<th colspan="2">编制日期：</th>
+				<td colspan="8">2020年4月9日</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

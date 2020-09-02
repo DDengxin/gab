@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购订单选择页面</title>
+    </th:block>
+    <style type="text/css">
+        .New_Button, .Edit_Button, .Delete_Button, .Update_Button, .Cancel_Button {
+            font-size: 11px;
+            color: #1B3F91;
+            font-family: Verdana;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="cpcodeType"/>
+
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110px" />
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110px" />
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNote" width="120px" />
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="srchCode" width="120px"/>
+        </label>
+        <label class="hmq-label" text="名称">
+            <input class="mini-textbox" name="srchName" width="120px"/>
+        </label>
+        <label class="hmq-label" text="规格">
+            <input class="mini-textbox" name="srchSize" width="120px"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input  id="outCustomer" name="outCustomer"
+            class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+            onbeforenodeselect="beforenodeselect" width="110" popupWidth="240"
+            popupHeight="180" />
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick"
+         idField="cpcodeId" selectOnLoad="true"
+         sizeList="[50,100,200]" pageSize="100" multiSelect="true"
+         url="/cg/yw/purchaseFile/purchaseRequisition/taxiadsadas"
+    >
+        <div property="columns">
+
+            <div tz:datagrid="column" field="sqnote" width="100">申请单号</div>
+            <div tz:datagrid="column" field="sqrq" width="100">申请日期</div>
+            <div tz:datagrid="column" field="sqrq" width="100">申请部门</div>
+            <div tz:datagrid="column" field="cpcodeid" width="100">产品编码</div>
+            <div tz:datagrid="column" name="cpcodename" field="cpcodename" width="130">产品名称</div>
+            <div tz:datagrid="column" name="cpcodesize" field="cpcodesize" width="130">产品规格</div>
+            <div tz:datagrid="column" name="cpcodesizeen" field="cpcodesizeen" width="100" align="center">品牌</div>
+            <div tz:datagrid="column" name="cpcodexp" field="cpcodexp" width="90">产品标重</div>
+            <div tz:datagrid="column" name="cpcodefl" field="cpcodefl" displayField="cpcodeflname" width="90"  align="center">所属分类</div>
+            <div tz:datagrid="column" field="cpcodebz" width="90">计量单位</div>
+            <div field="sqsl" width="80" align="right" numberFormat="#,0.0000" headerAlign="center">申请数量</div>
+            <div field="ddsl" width="80" align="right" numberFormat="#,0.0000" headerAlign="center">订购数量</div>
+            <div field="sl" width="80" align="right" numberFormat="#,0.0000" headerAlign="center">差量</div>
+            <div tz:datagrid="column" field="flag" width="90">状态</div>
+            <div tz:datagrid="column" field="cpcode02" width="80" align="center">核算方式</div>
+            <div tz:datagrid="column" field="cpcode03" width="150">其他参数</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var form = new mini.Form("form1");
+    grid.bindSearchForm(form);
+    mini.get("outCustomer").load("/system/dept/combobox/getDeptTreeList");
+
+    $("[name=cpcodeType]").val(hmq.getQueryString("cpcodeType"));
+    if(hmq.getQueryString("cpcodeType")){
+        $.get("/system/parameter/getByAddName/{0}".format(hmq.getQueryString("cpcodeType")), function (res) {
+            if (200 === res.code) {
+                var data = mini.decode(res.data);
+                srch_bottomgrid.updateColumn("cpcodexp", {header: data.cpbz});
+                srch_bottomgrid.updateColumn("cpcodesizeen", {header: data.cplength});
+                srch_bottomgrid.updateColumn("cpcodename", {header: data.cpname});
+                srch_bottomgrid.updateColumn("cpcodesize", {header: data.cpgg});
+                srch_bottomgrid.updateColumn("cpcodefl", {header: data.cpfl});
+            }
+        });
+    }
+
+    function beforenodeselect(e) {
+        if (e.isLeaf == false) e.cancel = true;
+    }
+    /*
+    mini.get("srchCpcodefl").setUrl("/system/parameter/getParamsSelectListByParentId/技术/{0}".format(data.cgStype));
+    */
+
+    function search_option() {
+        grid.load();
+    }
+
+    function hx_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.flag == "核准") {
+                mini.confirm(`注意:确定要${e.sender.text}吗？`, "提醒信息", function (action) {
+                    if (action == "ok") {//核销
+                        $.put("/cg/yw/purchaseFile/purchaseRequisition/avacsaca", {
+                            a: e.sender.text,
+                            note: row.sq_note,
+                            code: row.code
+                        }, function (res) {
+                            if (200 === res.code) {
+                                hmq.tipSuccess(`${e.sender.text}成功!`);
+                                grid.reload();
+                            } else {
+
+                            }
+                        });
+                    }
+                });
+            } else {
+                hmq.tipDanger("请选择核准的数据");
+            }
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+    }
+</script>
+</body>
+</html>

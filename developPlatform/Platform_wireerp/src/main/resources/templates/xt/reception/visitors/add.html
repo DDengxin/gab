@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>供货单位【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden" />
+    <form id="form1">
+        <input name="note" class="mini-hidden" />
+        <table class="hmq-modify-table">
+            <tr>
+             <!--   <td title>单号：</td>
+                <td content>
+                    <input id="note" name="note" class="mini-textbox" emptyText="自动生成" allowInput="false"/>
+                </td>-->
+                <td title>日期：</td>
+                <td content>
+                    <input class="mini-datepicker" name="rq" dateFormat="yyyy-MM-dd" value="new Date()"/>
+                </td>
+                <td title>来访日期</td>
+                <td content>
+                    <input class="mini-datepicker" name="vlfrq" dateFormat="yyyy-MM-dd" value="new Date()"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>来访单位</td>
+                <td content ><input class="mini-textbox"  required="true" name="vdw" /></td>
+                <td title>来访人数</td>
+                <td content ><input class="mini-textbox"  name="vsl" /></td>
+
+            </tr>
+            <tr>
+                <td title>参观证数</td>
+                <td content ><input class="mini-textbox" name="vcgz" /></td>
+                <td title>施工证数</td>
+                <td content ><input class="mini-textbox"  name="vsgz" /></td>
+            </tr>
+            <tr>
+                <td title>需要安全帽</td>
+                <td content><input class="mini-combobox" name="vcap"
+                                   textField="text" valueField="id" value="否"
+                                   data="[{id:'是',text:'是'},{id:'否',text:'否'}]" /></td>
+                <td title>安全帽数量</td>
+                <td content><input class="mini-textbox" name="vlysl" vtype="float"	/></td>
+            </tr>
+            <tr>
+                <td title>安全帽归还</td>
+                <td content><input class="mini-combobox" name="visgh"
+                                   textField="text" valueField="id" value="是"
+                                   data="[{id:'是',text:'是'},{id:'否',text:'否'}]" /></td>
+                <td title>归还日期</td>
+                <td ><input class="mini-datepicker" name="vghrq" dateFormat="yyyy-MM-dd" value="new Date()"/></td>
+            </tr>
+            <tr>
+
+                <td title>参观说明</td>
+                <td content colspan="3"><input name="vsm" id="vsm" vtype="float"
+                                   class="mini-textarea" /></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save"
+       id="saveBtn">保存</a> <a class="mini-button" onclick="CloseWindow"
+                              iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("list.html/{0}".format(options.data.note),
+                function(res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        mini.get("note").setValue(
+                            res.data.note);
+                    }
+                });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function(res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec : function() {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType : 'application/json'
+                });
+        }
+    }
+
+    /*  上级单位选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow : window.top,
+            url : "/cg/da/sysCustomer/treeCustomer.html",
+            title : "上级单位选择页面",
+            width : 750,
+            data : {},
+            height : 620,
+            ondestroy : function(action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+</script>
+</html>

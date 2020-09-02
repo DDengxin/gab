@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员档案</title>
+    </th:block>
+</head>
+<body>
+
+<form id="form_top">
+    <input class="mini-hidden" name="orient"/>
+    <input class="mini-hidden" name="paramType"/>
+    <input class="mini-hidden" name="paramXtype"/>
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+
+            性别:<select name="ry_sex" id="ry_sex" style="font-weight: bold;width: 60px;">
+                <option value="男" >男</option>
+                <option value="女">女</option>
+            </select>
+            <label class="hmq-label" text="民族">
+                <input class="mini-combobox" name="ry_mz" id="ry_mz" url="/test/personnelfile/ry_mz"
+                       onvaluechanged="onParamModValueChanged" nullItemText="全部" showNullItem="true" width="80"/>
+            </label>
+            <laber class="hmq-label" text="编号">
+                <input class="mini-textbox" name="ry_id">
+            </laber>
+            <label class="hmq-label" text="电话">
+                <input class="mini-textbox" name="paramId"/>
+            </label>
+            <label class="hmq-label" text="邮箱">
+                <input class="mini-textbox" name="paramName"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+
+<!--撑满页面-->
+<div class="mini-fit">
+    <!--virtualScroll参数请不要轻易设置，只因为该页参数过多，为提高流畅度才使用-->
+    <!--默认请求类型为POST-->
+    <div tz:datagrid="datagrid" id="srch_grid" sortField="paramOrd" treeColumn="paramName"
+         idField="paramId" parentField="parentId" resultAsTree="true"
+         expandOnLoad="0" showTreeLines="true" ShowTreeicon="false" pageSize="10000"
+         virtualScroll="true"
+     showPageInfo="false" url="findPersonnelFileAll">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" field="ry_id" width="200">人员编号</div>
+            <div tz:datagrid="column" field="ry_sex" name="paramName" width="200">性别</div>
+            <div tz:datagrid="column" field="ry_name" width="200">性名</div>
+            <div tz:datagrid="column" field="ry_mz" th:width="200">民族</div>
+            <div tz:datagrid="column" field="ry_tel" width="200" align="center">电话</div>
+            <div tz:datagrid="column" field="ry_email" width="200" name="paramType" align="left">电子邮箱</div>
+            <div tz:datagrid="column" field="ry_remarks" width="300" align="center">备注说明</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    mini.parse();//将html标签解析为miniui控件。解析后，才能使用mini.get获取到控件对象
+    var form = new mini.Form("form_top");
+    var grid = mini.get("srch_grid");
+    //对页面下拉框等数据的初始化拉取
+    var ry_mz = hmq.getQueryString("ry_mz");
+
+
+
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', data:""});
+    }
+
+    function edit_option(e){
+        var rowData = grid.getSelected();
+        e.sender.miniopen({url: "add.html",action:"edit"})
+    }
+
+
+
+</script>
+
+
+</body>
+</html>

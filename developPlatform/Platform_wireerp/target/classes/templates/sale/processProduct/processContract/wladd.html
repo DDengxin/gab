@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>加工合同物料【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input class="mini-hidden" name="orient" id="orient"/>
+        <input class="mini-hidden" name="htStype" id="htStype" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>合同编号：</td>
+                <td content>
+                    <input class="mini-textbox" readonly id="htNo" name="htNo"/>
+                </td>
+                <td title>日 期：</td>
+                <td content>
+                    <input class="mini-datepicker" required name="htDate" id="htDate" value="new Date()"/>
+                </td>
+                <td title>加工客户：</td>
+                <td content>
+                    <input required id="htCustomer" name="htCustomer" emptyText="请选择..."
+                           allowInput="false" class="mini-buttonedit"/>
+                </td>
+
+                <td title>业务方式：</td>
+                <td content>
+                    <input class="mini-combobox" required name="htType" id="htType" url="/system/parameter/getParamsSelectListByParentId/加工/订单类型/DDLX" onvaluechanged="onHtTypeValueChanged"/>
+                </td>
+                <td title>合同类别：</td>
+                <td content>
+                    <input class="mini-combobox" required name="htItemType" id="htItemType"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <fieldset style="width:1300px;">
+        <div class="fieldset-body">
+            <div tz:datagrid="datagrid" id="datagrid" idField="htNo" sortField="htMo" sortOrder="asc" style="width:1300px;height:250px;"
+                 url="/sale/processProduct/processContract/getSrchBottomWlList"
+                 allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+                 showPager="false" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+                 showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" ondrawsummarycell="onDrawSummaryCell">
+                <div property="columns">
+                    <div tz:datagrid="checkcolumn" width="35"></div>
+                    <div tz:datagrid="column" field="htNo" visible="false" width="60" align="center">序号
+                    </div>
+                    <div tz:datagrid="column" field="wlType" visible="false" width="60" align="center">序号
+                    </div>
+                    <div tz:datagrid="column" field="wlCode" align="center" width="100">编码
+                        <input id="wlCode" property="editor" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"/>
+                    </div>
+                    <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" align="left" width="120">名称</div>
+                    <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" align="left" width="80">规格</div>
+                    <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" align="left" width="60">品牌</div>
+                    <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" align="left" width="80">大类</div>
+                    <div tz:datagrid="column" field="wlPh" width="80" align="right">牌号
+                        <input property="editor" class="mini-textbox"/>
+                    </div>
+                    <div tz:datagrid="column" field="wlJs" width="80" align="right" visible="false" numberFormat="#,0.00" summaryType="sum">件数
+                        <input property="editor" class="mini-textbox"/>
+                    </div>
+                    <div tz:datagrid="column" field="wlSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum">数量
+                        <input property="editor" class="mini-textbox"/>
+                    </div>
+                    <div tz:datagrid="column" field="wlZl" width="80" align="right" visible="false" numberFormat="#,0.0000" summaryType="sum">重量
+                        <input property="editor" class="mini-textbox"/>
+                    </div>
+                    <div tz:datagrid="column" field="wlSh" width="80" align="right" numberFormat="#,0.000" summaryType="sum">损耗
+                        <input property="editor" class="mini-textbox"/>
+                    </div>
+                    <div tz:datagrid="column" field="wlSm" width="200" align="left">说明
+                        <input property="editor" class="mini-textbox"/>
+                    </div>
+                    <div tz:datagrid="column" field="htMo" width="150" align="left" visible="false"></div>
+                    <div tz:datagrid="column" field="" width="100%"></div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get('datagrid');
+
+
+
+    function onHtTypeValueChanged(e, callback) {
+        mini.get("htType").setEnabled(true);
+        if (hmq.isNotEmpty(e.sender.getValue())) {
+            mini.get("htItemType").load("/system/parameter/getParamsSelectListByParentId/加工/订单类型/{0}".format(e.sender.getValue()));
+        } else {
+            mini.get("htItemType").setData(null);
+        }
+        if ($.isFunction(callback)) {
+            callback();
+        }
+    }
+
+    /**
+     新增行
+     */
+    function addRow() {
+        var index = grid.getData().length;
+        var htCustomer = mini.get("htCustomer").getValue();
+        var htNo = mini.get("htNo").getValue();
+
+        if (isNull(htCustomer)) {
+            hmq.tipDanger("请先选择客户！");
+            return false;
+        }
+        var newRow = {
+            name: "",
+            htId: index + 1,
+            htHs: "数量",
+            htNo: htNo,
+        };
+        grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("htNo").getValue();
+        var rows = grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("deletewl/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                grid.removeRows(rows, true);
+            }
+        }
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed', false);
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("wladd.html", JSON.stringify({
+                eXsContract: form.getData(true),
+                eXsContractDetailedWl: entrydata,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        var formData = options.data.formData;
+        var row = options.data.row;
+        if ("true" == formData.orient) {
+            mini.get("htStype").setValue(formData.htStype);
+            mini.get("paramMod").setValue(formData.paramMod);
+        }
+        //动态列转换
+        hmq.business.dynamicProductParams(formData.htStype, {
+            miniDataGrid: grid,
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+        if ('add' == options.action) {
+            grid.clearData();
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action || 'view' == options.action) {
+            form.setData(row);
+            mini.get("htCustomer").setText(row.htCustomerName);
+            onHtTypeValueChanged({sender: form.getField('htType')}, function () {
+                mini.get("htItemType").setValue(row.htItemType);
+            });
+            grid.load({
+                params: JSON.stringify({htNo: form.getField('htNo').getValue()})
+            });
+            if (options.action == 'view') {
+                mini.get("addBtn").setVisible(false);
+                mini.get("delBtn").setVisible(false);
+                mini.get("delAllBtn").setVisible(false);
+                mini.get("saveBtn").setVisible(false);
+                mini.get("htCustomer").disable();
+                mini.get("htDate").disable();
+                mini.get("htType").disable();
+                mini.get("htTax").disable();
+                mini.get("htItemType").disable();
+                mini.get("htCurrency").disable();
+                mini.get("htTax").disable();
+            }
+        }
+    }
+
+
+    function onButtonEdit(e) {
+        var btnEdit = this;
+        var index = grid.getData().length;
+        if (e.source.id == "wlCode") {
+            return miniopen({
+                targetWindow: window.top,
+                url: "/sale/processProduct/processContract/wlbmselectlist.html",
+                title: "编码单选择列表",
+                width: 1300,
+                height: 620,
+                onload: function () {
+                    var iframe = this.getIFrameEl();
+                    var data = {
+                        action: "search",
+                        cgStype: "YL" //mini.get("htStype").getValue()
+
+                    };
+                    iframe.contentWindow.SetData(data);
+                },
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var rows = iframe.contentWindow.GetMutiData();
+                        var htNo = mini.get("htNo").getValue();
+
+                        rows = mini.clone(rows); //必须
+                        var dataRows = appendRow(rows);
+                        if (dataRows.length > 0) {
+                            btnEdit.setValue(dataRows[0].cpcodeId);
+                            btnEdit.setText(dataRows[0].cpcodeId);
+                            var row = grid.getSelected();
+                            grid.updateRow(row, {
+                                htNo: htNo,
+                                wlCode: dataRows[0].cpcodeId,
+                                cpcodeName: dataRows[0].cpcodeNameName,
+                                cpcodeSize: dataRows[0].cpcodeSizeName,
+                                /* cpcodeSizeEn:dataRows[0].cpcodesizeen, */
+                                cpcodeFl: dataRows[0].cpcodeFlName,
+                            });
+
+                            if (dataRows.length > 1) {
+                                for (var i = 1; i < dataRows.length; i++) {
+                                    var r = dataRows[i];
+                                    var newRow = {
+                                        htNo: htNo,
+                                        wlCode: r.cpcodeId,
+                                        cpcodeName: r.cpcodeNameName,
+                                        cpcodeSize: r.cpcodeSizeName,
+                                        /* cpcodeSizeEn:r.cpcodesizeen, */
+                                        cpcodeFl: r.cpcodeFlName,
+                                    };
+                                    grid.addRow(newRow, 0);
+                                }
+
+                            }
+                            grid.clearSelect();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     验证数量、金额不小于0
+     */
+    function onCellValidation(e) {
+
+        if (e.field == "code") {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "编码不能为空！";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htId") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "序号必须为数字";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "序号不能小于0";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+        if (e.field == "htSl") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "数量必须为数字";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+
+            if (isNull(e.value) || e.value < 0) {
+                e.isValid = false;
+                e.errorText = "数量不能小于0";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htPrice") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "单价必须为数字";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+            if (isNull(e.value) || e.value < 0) {
+                e.isValid = false;
+                e.errorText = "单价不能小于等于0";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htJe") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "金额必须为数字";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+            if (isNull(e.value) || e.value < 0) {
+                e.isValid = false;
+                e.errorText = "金额不能小于0";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+    }
+
+
+    /**
+     汇总方法
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "wlCode") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "wlSl") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+        }
+        if (e.field == "wlJs") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(2) + "</span>";
+        }
+
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+
+    /**
+     数量和单价联动自动生成金额
+     */
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+        var grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = e.value;
+        if (field == "htSl" || field == "htPrice" || field == "htJe") {
+            var price = getMiniValue(record.htPrice, 0);
+            var sl = getMiniValue(record.htSl, 0);
+            var js = getMiniValue(record.htJs, 0);
+            if (field == "htSl") {
+                grid.updateRow(record, {
+                    htJe: value * price
+                });
+            }
+            if (field == "htPrice") {
+                grid.updateRow(record, {
+                    htJe: value * sl
+                });
+            }
+
+        }
+
+
+    }
+
+    function getMiniValue(key, defaultValue) {
+        if (key == null || key == undefined || key == "") {
+            return defaultValue;
+        }
+        return key;
+    }
+
+    function getMiniDate(key) {
+        return mini.formatDate(new Date(key), "yyyy-MM-dd");
+    }
+
+    // 判读是否为空
+    function isNull(key) {
+        if (key == null || key == undefined || key === "") {
+            return true;
+        }
+        return false;
+    }
+
+    function readOnly() {
+        var fields = form.getFields();
+        for (var i = 0, l = fields.length; i < l; i++) {
+            var c = fields[i];
+            if (c.setReadOnly) c.setReadOnly(true);     //只读
+            if (c.setIsValid) c.setIsValid(true);      //去除错误提示
+            if (c.addCls) c.addCls("asLabel");          //增加asLabel外观
+        }
+    }
+
+    /**
+     附件行
+     */
+    function appendRow(rows) {
+        var retRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (!isEixsts(rows[i])) {
+                retRows.push(rows[i]);
+            } else {
+                hmq.tipDanger("数据已添加");
+            }
+        }
+        return retRows;
+    }
+
+    /**
+     判断是否存在
+     */
+    function isEixsts(data) {
+        var row = grid.findRow(function (row) {
+            if (row.wlCode == data.cpcodeId)
+                return true;
+        });
+        if (row != null) {
+            return true;
+        }
+        return false;
+    }
+
+</script>
+</html>

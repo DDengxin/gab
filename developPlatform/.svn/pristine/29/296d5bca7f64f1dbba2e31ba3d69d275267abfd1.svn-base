@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>数据修改</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号:</td>
+                <td content>
+                    <input class="mini-textbox" name="modifyNote" readonly emptyText="自动生成">
+                </td>
+                <td title>类型:</td>
+                <td content>
+                    <input class="mini-combobox" name="modifyType" required url="/system/data/modification/combobox/modifyType" onvaluechanged="onModifyTypeValueChnage()">
+                </td>
+                <td title>行业:</td>
+                <td content>
+                    <input class="mini-combobox" required name="targetType" url="encodeURI('/system/parameter/getParamsSelectListByParentId/技术/行业分类/HYCS')"
+                           onvaluechanged="onTargetTypeChanged"/>
+                </td>
+                <td title>目标单号:</td>
+                <td content>
+                    <input class="mini-textbox" required name="targetNote"/>
+                </td>
+                <td title colspan="3">
+                    <a class="mini-button" id="searchBox" onclick="search_option" iconCls="icon-search">查询</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div id="tabs" class="mini-tabs" activeIndex="0" style="width:100%;height:600px;" plain="false">
+        <div name="none" title="none">
+
+        </div>
+        <div name="采购合同" title="采购合同">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="button-grid-procured"
+                     sortField="htId" sortOrder="asc"
+                     url="modifySearch.html"
+                     allowCellEdit="true"
+                     OnCellCommitEdit="OnCellCommitEditCG"
+                     allowCellSelect="true"
+                     editNextOnEnterKey="true"
+                     editNextRowCell="true"
+                     allowMoveColumn="true"
+                     showPager="false"
+                     allowCellValid="true"
+                     showColumnsMenu="true"
+                     showSummaryRow="true"
+                     sortMode="client">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="htSqnote" width="140" align="center">申请单号</div>
+                        <div tz:datagrid="column" field="oldHtCode" align="center" width="100" visible="false">原编码</div>
+                        <div tz:datagrid="column" field="htCode" align="center" width="100">
+                            编码<input property="editor" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"/>
+                        </div>
+                        <div tz:datagrid="column" name="cpcodeName" field="cpcodeName" align="left" width="100">名称</div>
+                        <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize" align="left" width="100">规格</div>
+                        <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+                        <div tz:datagrid="column" name="cpcodeBz" field="cpcodeBz" width="60">单位</div>
+                        <div tz:datagrid="column" field="htJs" width="80" numberFormat="#,0.00">件数</div>
+                        <div tz:datagrid="column" field="htZl" width="80" numberFormat="#,0.0000">重量</div>
+                        <div tz:datagrid="column" field="htSl" width="80" numberFormat="#,0.0000">数量
+                            <input property="editor" class="mini-textbox"/>
+                        </div>
+                        <div tz:datagrid="column" field="htPrice" width="80" numberFormat="#,0.0000">单价
+                            <input property="editor" class="mini-textbox"/>
+                        </div>
+                        <div tz:datagrid="column" field="htJe" width="80" numberFormat="#,0.00">金额
+                            <input property="editor" class="mini-textbox"/>
+                        </div>
+                        <div tz:datagrid="column" field="htHs" width="100" align="center">核算</div>
+                        <div tz:datagrid="column" field="htJq" width="100" align="center">交期</div>
+                        <div tz:datagrid="column" field="htCgnote" width="100" align="center">外部订单</div>
+                        <div tz:datagrid="column" field="htSm" width="150" align="left">说明</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div name="销售合同" title="销售合同">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="button-grid-sell"
+                     sortField="htId" sortOrder="asc"
+                     url="modifySearch.html"
+                     allowCellEdit="true"
+                     OnCellCommitEdit="OnCellCommitEditXS"
+                     allowCellSelect="true"
+                     editNextOnEnterKey="true"
+                     editNextRowCell="true"
+                     allowMoveColumn="true"
+                     showPager="false"
+                     allowCellValid="true"
+                     showColumnsMenu="true"
+                     showSummaryRow="true"
+                     sortMode="client">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="htNo" width="140" align="center">合同编码</div>
+                        <div tz:datagrid="column" field="oldHtCode" align="center" width="100" visible="false">原编码</div>
+                        <div tz:datagrid="column" field="htCode" align="center" width="100">
+                            编码<input property="editor" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"/>
+                        </div>
+                        <div tz:datagrid="column" name="cpcodeName" field="cpcodeName" align="left" width="100">名称</div>
+                        <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize" align="left" width="100">规格</div>
+                        <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+                        <div tz:datagrid="column" name="cpcodeBz" field="cpcodeBz" align="left" width="60">单位</div>
+                        <div tz:datagrid="column" field="htSl" width="80" align="right" numberFormat="#,0.0000">数量
+                            <input property="editor" class="mini-textbox"/>
+                        </div>
+                        <div tz:datagrid="column" field="htPrice" align="right" width="80" numberFormat="#,0.000">单价
+                            <input property="editor" class="mini-textbox"/>
+                        </div>
+                        <div tz:datagrid="column" field="htJe" align="right" width="80" numberFormat="#,0.00">金额
+                            <input property="editor" class="mini-textbox"/>
+                        </div>
+                        <div tz:datagrid="column" field="htJq" width="100" align="center">交期</div>
+                        <div tz:datagrid="column" field="htSm" width="150" align="left">说明</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div name="出库" title="出库">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="button-grid-outlibrary"
+                     url="modifySearch.html" oncellbeginedit="OnCellBeginEdit"
+                     allowCellEdit="true"
+                     allowCellSelect="true"
+                     editNextOnEnterKey="true"
+                     editNextRowCell="true"
+                     allowMoveColumn="true"
+                     showPager="false"
+                     allowCellValid="true"
+                     showColumnsMenu="true"
+                     showSummaryRow="true">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="outNote" width="140" align="center">出库单号</div>
+                        <div tz:datagrid="column" field="outCode" align="center" width="100">编码</div>
+                        <div tz:datagrid="column" name="cpcodeName" field="cpcodeName" align="left" width="100">名称</div>
+                        <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize" align="left" width="100">规格</div>
+                        <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+                        <div tz:datagrid="column" name="cpcodeBz" field="cpcodeBz" width="60">单位</div>
+
+                        <div tz:datagrid="column"  field="outPh" align="center" width="100">
+                            批号<input property="editor" class="mini-textbox"/></div>
+                        <div tz:datagrid="column"  field="outLuono" align="center" width="100">
+                            炉号<input property="editor" class="mini-textbox"/></div>
+
+                        <div tz:datagrid="column" field="outJs" width="80" numberFormat="#,0.00">件数</div>
+                        <div tz:datagrid="column" field="outZl" width="80" numberFormat="#,0.00">重量</div>
+                        <div tz:datagrid="column" field="outSl" width="80" numberFormat="#,0.0000">数量</div>
+                        <div tz:datagrid="column" field="outPrice" width="80" numberFormat="#,0.0000">单价</div>
+                        <div tz:datagrid="column" field="outHs" width="100" align="center">核算</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div name="入库" title="入库">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="button-grid-inlibrary"
+                     url="modifySearch.html" oncellbeginedit="OnCellBeginEdit"
+                     allowCellEdit="true"
+                     allowCellSelect="true"
+                     editNextOnEnterKey="true"
+                     editNextRowCell="true"
+                     allowMoveColumn="true"
+                     showPager="false"
+                     allowCellValid="true"
+                     showColumnsMenu="true"
+                     showSummaryRow="true">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="inNote" width="100" align="center">入库单号</div>
+                        <div tz:datagrid="column" field="inCode" align="center" width="100">编码</div>
+                        <div tz:datagrid="column" name="cpcodeName"  field="cpcodeName" align="left" width="100">名称</div>
+                        <div tz:datagrid="column" name="cpcodeSize"  field="cpcodeSize" align="left" width="100">规格</div>
+                        <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+                        <div tz:datagrid="column" name="cpcodeBz" field="cpcodeBz" width="60">单位</div>
+
+                        <div tz:datagrid="column"  field="inPh" align="center" width="100">
+                            批号<input property="editor" class="mini-textbox"/></div>
+                        <div tz:datagrid="column"  field="inLuono" align="center" width="100">
+                            炉号<input property="editor" class="mini-textbox"/></div>
+
+                        <div tz:datagrid="column" field="inJs" width="80" numberFormat="#,0.00">件数</div>
+                        <div tz:datagrid="column" field="inZl" width="80" numberFormat="#,0.0000">重量</div>
+                        <div tz:datagrid="column" field="inSl" width="80" numberFormat="#,0.000">数量</div>
+                        <div tz:datagrid="column" field="inPrice" width="80" numberFormat="#,0.0000">单价</div>
+                        <div tz:datagrid="column" field="inHs" width="100" align="center">核算</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var tabs = mini.get('tabs');
+    //当前tab页面
+    var active_grid = null;
+    //当前tab页面加载的数据
+    var active_grid_old_data = null;
+
+
+    function SetData(options) {
+        if(options.action=="view"){
+            var head=options.data.row;
+            var body=options.data.row.targetAfterData;
+            //把数据赋过来准备动态切换tab
+            form.setData(head,true);
+            //动态切换tab
+            onModifyTypeValueChnage();
+            //重新映射
+            form.setData(head,true);
+            //隐藏搜索按钮咱们这不需要查与保存
+            $("#searchBox").hide();
+            $("#saveBtn").hide();
+            //转换JSON到grid表中 || 加上以圆括号强制把执行的javasrcript字符串语句转为对象
+            var obj=eval(`(${body})`);
+            //循环摩擦把数据塞入Grid表格
+            for(var i=0;i<obj.length;i++){
+                active_grid.addRow(obj[i],i);
+            }
+            //全部禁用
+            form.setEnabled(false);
+            //禁止所有单元格编辑
+            active_grid.setAllowCellEdit(false);
+        }
+        mini.getbyName("action").setValue(options.action);
+    }
+
+    function search_option() {
+        if (form.validate() && form.isValid()) {
+            active_grid.load({params:JSON.stringify(form.getData())},function(res){
+                active_grid_old_data = JSON.stringify(res.result.data);
+            });
+        } else {
+            hmq.tipDanger("请完善查询条件!");
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var field = e.field;
+        if (field == "inPh") {
+            if($("[name=targetType]").val()!="CP"){
+                e.cancel = true;
+            }
+        }
+        if(field=="inLuono"){
+            if($("[name=targetType]").val()!="YL") {
+                e.cancel = true;
+            }
+        }
+        if (field == "outPh") {
+            if($("[name=targetType]").val()!="CP"){
+                e.cancel = true;
+            }
+        }
+        if(field=="outLuono"){
+            if($("[name=targetType]").val()!="YL") {
+                e.cancel = true;
+            }
+        }
+    }
+
+
+
+    /**
+     * 保存数据
+     * @constructor
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            if (null == active_grid || active_grid.totalCount <= 0) {
+                hmq.tipDanger('未加载数据,无需失败');
+            } else {
+                var method = 'add' == mini.getbyName("action").getValue() ? 'post' : 'put';
+                $[method]("add.html", JSON.stringify({
+                        Head: form.getData(),
+                        Body: active_grid.getData(),
+                        OldData:active_grid_old_data,
+                    }),
+                    function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '保存成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '保存失败');
+                        }
+                    }, null, {
+                        contentType: 'application/json'
+                    });
+            }
+        }
+    }
+
+    /**
+     * tabs选中前拦截
+     */
+    tabs.on('beforeactivechanged', function (e) {
+        e.cancel = true;
+    });
+
+    /**
+     * 修改类型值改变事件
+     */
+    function onModifyTypeValueChnage(){
+        var tabName = $("[name=modifyType]").val();
+        tabs.activeTab(tabName || 'none');
+        var activeGrid = $(mini.getChildControls(tabs.getTabBodyEl(tabName)))
+            .filter(function (index, control) {
+                return control.type === 'datagrid'
+            });
+        if (activeGrid.length > 0) {
+            active_grid = activeGrid[0];
+        } else {
+            activeGrid = null;
+        }
+        refreshGridAndTargetCode();
+    }
+
+    /**
+     * 行业字段改变触发grid字段描述变化
+     * @param e
+     */
+    function onTargetTypeChanged(e) {
+        var cpcodeType = e.sender.getValue();
+        var allGrid = $(mini.getChildControls(tabs))
+            .filter(function (index, control) {
+                return control.type === 'datagrid'
+            });
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniDataGrid: allGrid.toArray(),
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+        refreshGridAndTargetCode();
+    }
+
+    /**
+     * 清除grid和目标单号中的值
+     */
+    function refreshGridAndTargetCode(){
+        if (null != active_grid) {
+            active_grid.clearData();
+        }
+        AutoResizePopupWindow(window,true,true);
+        active_grid.setAllowSortColumn(false);
+        form.getField('targetNote').setValue(null);
+    }
+
+    /**
+     * @Author: gxl
+     * @description: 供货单位选择页面
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * 数量和单价联动自动生成金额采购
+     */
+    function OnCellCommitEditCG(e) {
+            var editor = e.editor;
+            editor.validate();
+            if (editor.isValid() == false) {
+                hmq.tipDanger(editor.getErrorText());
+                e.cancel = true;
+            }
+            var button_grid = e.sender;
+            var record = e.record;
+            var field = e.field, value = e.value;
+            if (!!~["htSl", "htJs", "htPrice", "htJe", "htHs", "htZl"].indexOf(field)) {
+                var price = getMiniValue(record.htPrice, 0);
+                var sl = getMiniValue(record.htSl, 0);
+                var js = getMiniValue(record.htJs, 0);
+                var zl = getMiniValue(record.htZl, 0);
+
+                if (field == "htSl") {
+                    if (record.htHs == "数量") {
+                        button_grid.updateRow(record, {
+                            htJe: value * price
+                        });
+                    }
+                } else if (field == "htJs") {
+                    if (record.htHs == "件数") {
+                        button_grid.updateRow(record, {
+                            htJe: value * price
+                        });
+                    }
+                } else if (field == "htZl") {
+                    if (record.htHs == "重量") {
+                        button_grid.updateRow(record, {
+                            htJe: value * price
+                        });
+                    }
+                } else if (field == "htPrice") {
+                    if (record.htHs == "数量") {
+                        button_grid.updateRow(record, {
+                            htJe: value * sl
+                        });
+                    } else if (record.htHs == "件数") {
+                        button_grid.updateRow(record, {
+                            htJe: value * js
+                        });
+                    } else if (record.htHs == "重量") {
+                        button_grid.updateRow(record, {
+                            htJe: value * zl
+                        });
+                    } else {
+                        button_grid.updateRow(record, {
+                            htJe: 0
+                        });
+                    }
+                } else if (field == "htJe") {
+                    if (record.htHs == "数量") {
+                        button_grid.updateRow(record, {
+                            htPrice: value / sl
+                        });
+                    } else if (record.htHs == "件数") {
+                        button_grid.updateRow(record, {
+                            htPrice: value / js
+                        });
+                    } else if (record.htHs == "重量") {
+                        button_grid.updateRow(record, {
+                            htPrice: value / zl
+                        });
+                    } else {
+                        button_grid.updateRow(record, {
+                            htPrice: 0
+                        });
+                    }
+                } else if (field == "htHs") {
+                    if (value == "数量") {
+                        button_grid.updateRow(record, {
+                            htJe: price * sl
+                        });
+                    } else if (value == "件数") {
+                        button_grid.updateRow(record, {
+                            htJe: price * js
+                        });
+                    } else if (value == "重量") {
+                        button_grid.updateRow(record, {
+                            htJe: price * zl
+                        });
+                    } else {
+                        button_grid.updateRow(record, {
+                            htJe: 0
+                        });
+                    }
+                }
+            }
+
+
+        }
+
+
+    /**
+     数量和单价联动自动生成金额销售
+     */
+    function OnCellCommitEditXS(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+        var grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = e.value;
+        if (field == "htSl" || field == "htPrice" || field == "htJe") {
+            var price = getMiniValue(record.htPrice, 0);
+            var sl = getMiniValue(record.htSl, 0);
+            var js = getMiniValue(record.htJs, 0);
+            if (field == "htSl") {
+                grid.updateRow(record, {
+                    htJe: value * price
+                });
+            }
+            if (field == "htPrice") {
+                grid.updateRow(record, {
+                    htJe: value * sl
+                });
+            }
+
+        }
+
+    }
+
+
+    function onButtonEdit(e) {
+        var btnEdit = this;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleProduct/saleContract/wlbmselectlist.html",
+            title: "编码单选择列表",
+            width: 1300,
+            height: 620,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = {
+                    action: "single",
+                    cgStype: mini.getbyName("targetType").getValue()
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var rows = iframe.contentWindow.GetMutiData();
+                    rows = mini.clone(rows); //必须
+                    var dataRows=rows;
+                    btnEdit.setValue(dataRows[0].cpcodeid);
+                    btnEdit.setText(dataRows[0].cpcodeid);
+                    var row = active_grid.getSelected();
+                    active_grid.updateRow(row,{
+                        htCode: dataRows[0].cpcodeid,
+                        cpcodeName: dataRows[0].cpcodeNameName,
+                        cpcodeSize: dataRows[0].cpcodesize,
+                        cpcodeSizeEn:dataRows[0].cpcodesizeen,
+                        cpcodeBz: dataRows[0].cpcodebz
+                    });
+                    active_grid.clearSelect();
+                }
+            }
+        });
+    }
+
+
+
+</script>
+</html>

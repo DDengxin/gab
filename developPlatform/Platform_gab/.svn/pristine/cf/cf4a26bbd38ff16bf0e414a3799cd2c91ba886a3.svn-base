@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员定岗新增</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>用户ID</td>
+                <td content>
+                    <input class="mini-textbox" id="id" name="id"/>
+                </td>
+                <td title>用户名称</td>
+                <td content>
+                    <input class="mini-textbox" id="name" name="name"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>用户年龄</td>
+                <td content>
+                    <input class="mini-textbox" id="age" name="age"/>
+                    <!-- url="/mesPersonnel/producetSchedule/staffing/type/deptlist" textField="dept_name" valueField="dept_id" parentField="parent_id" -->
+                </td>
+                <td title>用户性别</td>
+                <td content>
+                    <input class="mini-textbox" id="sex" name="sex">
+                </td>
+            </tr>
+
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save"
+       id="saveBtn">保存</a> <a class="mini-button" onclick="CloseWindow"
+                              iconCls="icon-cancel"> 关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("demo01.html/{0}".format(options.data.id), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("id").setText(res.data.id);
+                    mini.get("name").setText(res.data.name);
+                    mini.get("sex").setText(res.data.sex);
+                    mini.get("age").setText(res.data.age);
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /* 员工选择  */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    form.setData({
+                        dgWorkerDept: data.workerDept,
+                    });
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerId);
+                    mini.get("workName").setValue(data.workerName);
+                    mini.get("workName").setText(data.workerName);
+                    mini.get("workDept").setValue(data.workerDept);
+                    mini.get("workDept").setText(data.workerDeptName)
+                }
+            }
+        });
+    }
+
+
+</script>
+</html>

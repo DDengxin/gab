@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <th:block th:replace="~{model/Head :: head(_,_,_,${'miniui,common'})}"></th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/layui/css/layui.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/basic.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/gate_ind.css}"/>
+
+    <script th:src="@{/static/script/layui/layui.js}"></script>
+    <script th:src="@{/static/javascript/echarts.min.js}"></script>
+    <script th:src="@{/static/javascript/d-toast.min.js}"></script>
+</head>
+<body style="overflow: hidden;">
+<div id="container" style="width: 100%; height: 100%;"></div>
+<script type="text/javascript">
+    var url = document.location.toString();//获取url地址
+    var urlParmStr = url.slice(url.indexOf('?') + 1);//获取问号后所有的字符串
+    var arr = urlParmStr.split('&');//通过&符号将字符串分割转成数组
+    var name = arr[0].split("=")[1];//获取数组中第一个参数
+    // var unit_title=arr[1].split("=")[1];//第二个参数
+    name = decodeURI(name);//转码将解码方式unscape换为
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('container'));
+    var xAxisData = [];
+    var data3 = [];
+    var data4 = [];
+
+    for (var i = 1; i < 13; i++) {
+        xAxisData.push(i);
+        data3.push((Math.random() * 5).toFixed(2));
+        data4.push((Math.random() + 0.3).toFixed(2));
+    }
+
+    var emphasisStyle = {
+        itemStyle: {
+            barBorderWidth: 1,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            shadowColor: 'rgba(0,0,0,0.5)'
+        }
+    };
+    option = {
+        title: {
+            text: name
+        },
+        backgroundColor: '#fff',
+        legend: {
+            data: ['数据1', '数据2']
+        },
+        grid: {
+            left: '5%',
+            right: '5%'
+        },
+        toolbox: {
+            feature: {
+                magicType: {
+                    type: ['stack', 'tiled']
+                },
+                dataView: {}
+            }
+        },
+        tooltip: {},
+        xAxis: {
+            data: xAxisData,
+            axisLine: {
+                show: false
+            },
+            axisLabel: {
+                color: "rgb(116,116,116)"
+            },
+            axisTick: {
+                show: false
+            },
+            splitLine: {
+                show: true,
+                interval: 1,
+                lineStyle: {
+                    color: "rgb(240,240,240)"
+                }
+            },
+            splitArea: {show: false}
+        },
+        yAxis: {
+            axisLine: {
+                lineStyle: {
+                    color: "rgb(237,237,237)"
+                }
+            },
+            splitLine: {
+                show: true,
+                lineStyle: {
+                    color: "rgb(240,240,240)"
+                }
+            },
+            axisLabel: {
+                color: "rgb(116,116,116)"
+            },
+            axisTick: {
+                show: false
+            },
+            splitArea: {show: false}
+        },
+
+        series: [
+            {
+                name: '数据1',
+                type: 'bar',
+                stack: 'two',
+                emphasis: emphasisStyle,
+                data: data3,
+                itemStyle: {
+                    normal: {
+                        color: '#4fc78a'
+                    }
+                }
+            },
+            {
+                name: '数据2',
+                type: 'bar',
+                stack: 'two',
+                emphasis: emphasisStyle,
+                data: data4,
+                itemStyle: {
+                    normal: {
+                        color: '#feb501'
+                    }
+                }
+            }
+        ]
+    };
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+    //兼容IE处理
+    if ($.isFunction(window.addEventListener)) {
+        window.addEventListener("resize", function () {
+
+        })
+    } else {
+        window.onresize = function () {
+            myChart.resize();
+        }
+    }
+
+</script>
+</body>
+</html>

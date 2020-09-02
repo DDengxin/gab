@@ -1,0 +1,13 @@
+package com.tengzhi.business.sc.capacity.specification.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.sc.capacity.specification.model.MScGgcl;
+
+/**
+ * @Auther: huangbiao
+ * @Date: 2020/8/12 0012 14:36
+ * @Description:
+ */
+
+public interface MScGgclDao extends BasedaoRepository<MScGgcl,String> {
+}

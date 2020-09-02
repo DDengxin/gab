@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>版本管理</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="应用包名">
+                <input class="mini-comboBox" name="appPackage" textField="text" valueField="text" url="/system/pda/getPackageSelectList"
+                       width="250" emptyText="全部" allowInput="true" valueOfSelect="true" showNullItem="true" nullItemText="全部"/>
+            </label>
+            <label class="hmq-label" text="应用平台">
+                <input class="mini-comboBox" name="platform" textField="text" valueField="text" showNullItem="true" valueOfSelect="true"
+                       emptyText="全部" nullItemText="全部" url="/system/pda/getPlatformSelectList"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="uuid" url="/system/pda/list">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="appPackage" name="appPackage" align="center" width="250">应用包名</div>
+            <div tz:datagrid="column" field="platform" name="platform" align="center" width="80">应用平台</div>
+            <div tz:datagrid="column" field="version" name="version" width="80" align="center">应用版本</div>
+            <div tz:datagrid="column" field="versionCode" name="versionCode" width="80" align="center">应用版本号</div>
+            <div tz:datagrid="column" field="forceUpdate" name="forceUpdate" width="80" align="center">强制更新</div>
+            <div tz:datagrid="column" field="appFlag" name="appFlag" align="center" width="60">状态</div>
+            <div tz:datagrid="column" field="genTime" dateFormat="yyyy-MM-dd" width="120" align="center">创建时间</div>
+            <div tz:datagrid="column" field="updateTime" dateFormat="yyyy-MM-dd" width="120" align="center">最后修改时间</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "forceUpdate") {
+            e.cellHtml = e.value ? '强制' : '不强制';
+        } else if (e.field == "appFlag") {
+            e.cellHtml = e.value ? '启用' : '禁用';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $["delete"]("pda.html/{0}".format(row.uuid), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 下载
+     */
+    function download_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $.post('/system/upload/listByViewid', {
+                viewid: row.fileId
+            }, function (res) {
+                if (res.status && Array.isArray(res.data)) {
+                    var list = res.data;
+                    $.each(list, function (index, file) {
+                        if (file._exists) {
+                            var fileDownloadUrl = '{0}/system/upload/download?uuid={1}'.format(window.location.origin, file.uuid);
+                            window.open(fileDownloadUrl);
+                        } else {
+                            hmq.tipDanger("文件不存在");
+                        }
+                    });
+                } else {
+                    hmq.tipDanger("文件不存在");
+                }
+            })
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+.sel-box{
+	width: 100%;
+	border:1px solid #666;
+	overflow: hidden;
+	/* border-radius: 5px !important; */
+}
+.sel-box.on{
+	border-color: #15A0F5;
+}
+.sel-title-box{
+	position: relative;
+	cursor: default;
+	overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+	background-color:white;
+	padding-right: 0 !important;
+}
+
+.sel-title{
+	padding-left: 10px;
+	line-height: 25px;
+}
+.sel-sign{
+	position: absolute;
+	display: inline-block;
+	right: 0;
+	top: 0;
+	background: url(down2.png);
+	background-size: center center;
+}
+.sel-sign.on{
+	background: url(up2.png);
+	background-size: center center;
+}
+.sel-float-box{
+	position: absolute;
+	border:1px solid #666;
+	
+	z-index: 2;
+	background-color:white;
+	margin-left: -1px;
+	overflow: hidden;
+	line-height: 1.8;
+}
+.sel-float-box.on{
+	border-color: #15A0F5;
+}
+.sel-float-div{
+	padding-left: 12px;
+	cursor: default;
+	overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+	background-color: white;
+	color:#000;
+}
+.sel-float-div:hover{
+	background-color:#15A0F5;
+	color:white;
+}
+.sel-float-div-disabled{
+	padding-left: 12px;
+	line-height: 1.8;
+	color:#bbb;
+	overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.sel-hide{
+	display: none;
+
+}

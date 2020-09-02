@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+	
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>锦州特种焊条 埋弧 质量证明书</title>
+</th:block>
+
+<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 99%;
+            height: 100%;
+        }
+
+        b,
+        i {
+            font-weight: normal;
+            font-style: normal;
+        }
+        .header{
+            width: 100%;
+            height: 140px;
+            margin-bottom: 15px;
+            
+        }
+        .logo{
+            width: 30%;
+            height: 100%;
+            float: left;
+            line-height: 140px;
+            text-align: center;
+        }
+        .title{
+            width: 32%;
+            height: 100%;
+            text-align: center;
+            font-size: 25px;
+            font-weight: bold;
+            color: #000;
+            float: left;
+            padding-top: 35px;
+        }
+        .title .cn{
+            line-height: 50px;
+        }
+        .title .eng{
+            line-height: 30px;
+        }
+        .details{
+            width: 38%;
+            float: left;
+            text-align: center;
+            font-size: 13px;
+            line-height: 25px;
+            padding-top: 2%;
+        }
+        .details b{
+            margin: 0 5px 0 0;
+        }
+        .details b i{
+            margin: 0 6px;
+        }
+        .kind,.chemical,.pwht{
+            width: 100%;
+            overflow: hidden;
+            padding:0 30px;
+            margin-bottom: 5px;
+            font-size: 14px;
+            height: 25px;
+            line-height: 28px;
+        }
+        .kind span{
+            float: right;
+        }
+        .cu,.che,.pw{
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .cu td{
+            line-height: 28px;
+        }
+        .columnName{
+            height: 40px;
+        }
+        .che tr td{
+            width: 7.69%;
+            height: 30px;
+        }
+        .l{
+            text-align: left;
+            padding-left: 5px;
+        }
+        .w{
+            width: 15.38% !important;
+        }
+        .h{
+            height: 30px;
+        }
+        .conform{
+            padding-left: 5px;
+            padding-bottom: 20px;
+            width: 100%;
+            border: 1px solid #000;
+            border-top: none;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        .conform>p {
+            margin-bottom: 8px;
+        }
+        .conform>p span{
+            margin-left: 100px;
+        }
+        .sign{
+            float: right;
+            margin-right: 200px;
+            margin-top: -30px;
+        }
+        .sign p{
+            line-height: 30px;
+        }
+        .sign p{
+            line-height: 30px;
+        }
+        .sign b{
+            margin-left: 45px;
+        }
+        .jy{
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 class="logo">
+        	<img src="../../../../static/img/zbs_logo.png" alt="logo"/>
+        </h1>
+        <div class="title">
+            <p class="cn">质量证明书</p>
+            <p class="eng">QUALITY CERTIFICATE</p>
+        </div>
+        <div class="details">
+            <p>锦州特种焊条有限公司</p>
+            <p>JIN ZHOU SPECIAL WELDING ELECTRODE CO.,LTD</p>
+            <p>中国辽宁葫芦岛市打渔山园区同德路</p>
+            <p>on de road Play Yushan District 'Huludao City 'liaoning 'China</p>
+            <p>
+                <b>Tel:<i>(0429) 4702001</i></b>
+                <b>Fax:<i>(0429) 4702000</i></b>
+                <b>ZIP:<i>125000</i></b>
+            </p>
+        </div>
+    </div>
+    <p class="kind">客&nbsp;&nbsp;&nbsp;&nbsp;户(Cusomer)： <span>No.0015</span></p>
+    <table class="cu" cellspacing='0' cellpadding='0' border="1">
+        <tr class="columnName">
+            <td colspan="1">品&nbsp;&nbsp;名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Commodity</td>
+            <td colspan="1">牌&nbsp;&nbsp;号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Brand</td>
+            <td colspan="1">规&nbsp;&nbsp;格&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Size</td>
+            <td colspan="1">批&nbsp;&nbsp;号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Lot N0.</td>
+            <td colspan="1">符合标准&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executed Stande</td>
+            <td colspan="1">日&nbsp;&nbsp;期&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date</td>
+        </tr>
+        <tr>
+            <td colspan="1" th:text="${cpcodefl}"></td>
+            <td colspan="1"><span th:text="${cpname}"></span> <br th:text="${ph}"></td>
+            <td colspan="1" th:text="${cpsize}"></td>
+            <td colspan="1" th:text="${pch}"></td>
+            <td colspan="1">
+            	<span th:each="criterion,index:${criterion}">
+            		<span th:text="${criterion.criterion}"></span>
+            		<span th:if="${index.odd}">&nbsp;</span>
+            		<br th:if="${index.even}">
+            	</span>
+            	
+            </td>
+            <td colspan="1" th:text="${rq}"></td>
+        </tr>
+    </table>
+
+    <p class="chemical">焊丝化学成分 CHEMICCAL COMPOSITION OF WIRE(%)</p>
+    <table class="che" cellspacing='0' cellpadding='0' border="1">
+        <tr>
+            <td class="l w" colspan="2">成&nbsp;&nbsp;&nbsp;&nbsp;份&nbsp;&nbsp;(Element)</td>
+            <td th:each="cf,index:${cf}"><span th:text="${cf.xmcode}"></span></td>
+            <td th:if="${cfsize<11}" th:each="i:${#numbers.sequence(1,11-cfsize)}"></td>
+        </tr>
+        <tr>
+            <td class="l w" colspan="2">标&nbsp;&nbsp;&nbsp;&nbsp;准&nbsp;&nbsp;(Specification)</td>
+            <td th:each="cf,index:${cf}"><span th:text="${cf.xmtvalue}"></span></td>
+            <td th:if="${cfsize<11}" th:each="i:${#numbers.sequence(1,11-cfsize)}"></td>
+        </tr>
+        <tr>
+            <td class="l w" colspan="2">实测值&nbsp;&nbsp;(Actual Result)</td>
+            <td th:each="cf,index:${cf}"><span th:text="${cf.xmvalue}"></span></td>
+            <td th:if="${cfsize<11}" th:each="i:${#numbers.sequence(1,11-cfsize)}"></td>
+        </tr>
+    </table>
+
+    <p class="pwht">熔敷金属力学性能试验结果&nbsp;&nbsp;&nbsp;&nbsp;(经PWTH)&nbsp;&nbsp;&nbsp;THE TESTRESULTS OF MECHANICAL PROPERTY OF DEPOSITED METAL</p>
+    <table class="pw" cellspacing='0' cellpadding='0' border="1">
+        <tr>
+            <td class="">项目(Ltem)</td>
+            <td colspan="3">拉伸试验<br>Tension Test</td>
+            <td colspan="2">冲击试验<br>Impact Test</td>
+            <td colspan="2">弯曲试验<br>Bend Test</td>
+            <td>配合焊剂<br>Dictonary flu</td>
+            <td>X射线探伤<br>X Reys Test</td>
+        </tr>
+        <tr>
+            <td rowspan="2">标准<br>(Specification)</td>
+            <td>抗拉强度(Mpa)<br>Tensile Strength</td>
+            <td>屈服强度(Mpa)<br>Yield Point</td>
+            <td>延伸率(%)<br>Elongation</td>
+            <td>温度(°C)<br>Temp</td>
+            <td>冲击力(j)<br>Impact Value</td>
+            <td>面弯<br>Face</td>
+            <td>侧弯<br>Side</td>
+            <td rowspan="3" th:text="${YDSYBZ}"></td>
+            <td rowspan="3" th:text="${XXXSCZ}">I级</td>
+        </tr>
+        <tr>
+            <td class="h" th:text="${KLQDBZ}"></td>
+            <td class="h" th:text="${QFQDBZ}"></td>
+            <td class="h" th:text="${YSLBZ}"></td>
+            <td class="h" rowspan="2" th:text="${WDBZ}"></td>
+            <td class="h" th:text="${CJLBZ}">/</td>
+            <td class="h" th:text="${MWBZ}"></td>
+            <td class="h" th:text="${CWBZ}"></td>
+        </tr>
+        <tr>
+            <td class="h">实测值(Actual Result)</td>
+            <td class="h" th:text="${KLQDSCZ}"></td>
+            <td class="h" th:text="${QFQDSCZ}"></td>
+            <td class="h" th:text="${YSLSCZ}"></td>
+            <td class="h" th:text="${CJLSCZ}"></td>
+            <td class="h" th:text="${MWSCZ}"></td>
+            <td class="h" th:text="${CWSCZ}"></td>
+        </tr>
+    </table>
+    <div class="conform">
+        <p>
+            兹证明此焊丝符合上述标准之要求。
+        </p>
+            <p>This is to certify that electrodes conform with the above standard.</p>
+        <div class="sign">
+            <p>
+                <span>Signature <b>张建军</b></span>
+            </p>
+            <p>
+                <span class="jy">检验签章 <b>合格</b></span>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

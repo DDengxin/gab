@@ -1,0 +1,42 @@
+package com.tengzhi.business.xt.dailyRoutine.travelReport.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.xt.dailyRoutine.travelReport.vo.EXtTravelReportVo;
+
+import java.io.IOException;
+import java.util.Map;
+
+/**
+ * @Author: czf
+ * @Date:2020-08-21 10:44
+ */
+public interface TravelReportService extends BaseService {
+
+    BasePage<Map<String,Object>> findAll(BaseDto baseDto) throws IOException;
+
+    Result save(EXtTravelReportVo eXtTravelReportVo) throws Exception;
+
+    Result update(EXtTravelReportVo eXtTravelReportVo);
+
+    Map<String,Object> findByNote(String bzNote);
+
+    void delete(String bzNote);
+
+    Result getFlag(String bzNote,String bzFlag);
+
+    Result confirm(String bzNote);
+
+    Result cancle(String bzNote);
+
+    BasePage<Map<String,Object>> getReportList(BaseDto baseDto) throws IOException;
+
+    BasePage<Map<String,Object>> getWcsqList(BaseDto baseDto) throws IOException;
+
+    BasePage<Map<String,Object>> getClwcList(BaseDto baseDto) throws IOException;
+
+    boolean checkBzNote(String bzNote);
+
+}

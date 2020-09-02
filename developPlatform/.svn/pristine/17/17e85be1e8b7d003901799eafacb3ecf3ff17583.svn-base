@@ -1,0 +1,495 @@
+package com.tengzhi.business.production.subcontract.wwrk.service.impl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.publicinterfac.IUserConstants;
+import com.tengzhi.business.cg.yw.purchaseReceipt.dao.ECkInDao;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn.ECkIn_PK;
+import com.tengzhi.business.cg.yw.purchaseSettle.dao.ECwYsyfDao;
+import com.tengzhi.business.mesGz.gzck.vo.ECkInVo;
+import com.tengzhi.business.production.subcontract.wwrk.service.WwrkService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.params.service.SysParamService;
+import cn.hutool.core.util.ObjectUtil;
+import org.springframework.web.servlet.ModelAndView;
+
+@Service
+@Transactional
+public class WwrkServiceImpl implements WwrkService {
+
+	@Autowired
+	private ECkInDao eCkInDao;
+
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private SysParamService sysParamService;
+	
+	@Autowired
+	private  ECwYsyfDao eCwYsyfDao;
+	
+	@Override
+    public BasePage<ECkIn> getSrchTopList(BaseDto baseDto) throws Exception {
+        Map<String, String> map = baseDto.getParamsMap();
+        Object srchrq1=map.get("srchRq1");
+        Object srchrq2=map.get("srchRq2");
+        Object inNote=map.get("srchinNote");
+        Object supplier=map.get("srchSupplier");
+    	Object inType=map.get("inType");
+    	SessionUser securityUser=SessionUser.SessionUser();
+        String sqlWhere = " where  data_corp='"+securityUser.getCorpId()+"' ";
+		if (srchrq1 != null && !StringUtils.isBlank(srchrq1.toString())) {
+		
+			sqlWhere += " and in_rq >='" + srchrq1 + "'";
+		}
+		if (srchrq2 != null && !StringUtils.isBlank(srchrq2.toString())) {
+			sqlWhere += " and in_rq <='" + srchrq2 + "'";
+		}
+		if (inNote != null && !StringUtils.isBlank(inNote.toString())) {
+			sqlWhere += " and in_note like'%" + inNote + "%'";
+		}
+		if (supplier != null && !StringUtils.isBlank(supplier.toString())) {
+			sqlWhere += " and in_customer like'%" + supplier + "%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchflag"))) {
+            sqlWhere+=" and in_flag like '%"+map.get("srchflag")+"%'";
+        }
+		
+		if(inType != null && inType.toString().trim().length() > 0) {
+			sqlWhere +=" and in_act in (select param_id from sys_param where param_name = '"+IUserConstants.wwrk+"' )";
+ 			sqlWhere +=" and in_type ='"+inType+"'  ";
+ 		}else{
+
+			List<Map> list = eCkInDao.QueryListMap(" select param_id from Sys_param where param_type='仓库收发' and param_name='"+IUserConstants.wwrk+"'  ");
+			if(list.size() > 0){
+				String paramIds = "";
+				for(int i = 0;i<list.size();i++){
+					Map pmap = list.get(i);
+					paramIds += pmap.get("param_id").toString();
+					if(i+1<list.size()){
+						paramIds += "','";
+					}
+				}
+				sqlWhere +=" and in_act in ('"+paramIds+"')  ";
+			}
+		}
+		
+		String sql = "select in_rq ,in_note ,in_customer ,in_lib,in_act,in_bz,in_tax ,sum(in_js) in_js,sum(in_sl) in_sl,sum(in_zl) in_zl,sum(coalesce(in_sl,0)*coalesce(in_price,0)) inje,in_flag ,data_man ,MAX(data_date) data_date,data_corp  "
+				+",f_get_param_name('产品大类',in_type,'"+   SessionUser.getCurrentCorpId()   +"') intypename,f_get_param_name('仓库收发',in_act,'"+   SessionUser.getCurrentCorpId()   +"') inactname,f_get_param_name('交易币种',in_bz,'"+   SessionUser.getCurrentCorpId()   +"') inbzname,f_getname('GETDWEXP',in_customer,'',data_corp) incustomername,f_get_param_name('库房档案',in_lib,'"+   SessionUser.getCurrentCorpId()   +"') inlibname,f_getname('GETUSERNAME',data_man,'',data_corp) datamanname "
+				+ " from  e_ck_in " + sqlWhere + "  group by in_rq,in_note,in_customer,in_act,in_flag,data_man,data_corp,in_lib,in_bz,in_tax,in_type  ";
+		return eCkInDao.QueryPageLists(baseDto,sql +"  order by in_rq desc,in_note desc ");
+	} 
+
+	@Override
+	public BasePage<ECkIn> getSrchBottomList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object inNote = map.get("inNote");
+		String sql = "select in_contract||'_'||in_Kfcode as id,in_code,in_js ,in_sl,coalesce((in_sl*in_price),0) inje ,in_zl ,in_pack ,in_bpack ,coalesce(in_price,0) in_price,in_contract ,in_kfcontract ,in_Kfcode, in_checkflag ,"
+				+ " in_month,in_type ,in_luono ,in_vnote,in_hs," +
+				" f_getparamname('GETBCPCODENAME',b.cpcode_name,'','技术',a.in_type,'"+   SessionUser.getCurrentCorpId()   +"')   cpcode_name, " +
+				" f_getparamname('GETCPCODESIZE',b.cpcode_size,'','技术',a.in_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_size, " +
+				" f_getparamname('GETCPCODESIZEEN',b.cpcode_size_en,'','技术',a.in_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_size_en, " +
+				" f_getparamname('GETBYCPCODEFL',b.cpcode_fl,'','技术',a.in_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_fl, " +
+				" f_getparamname('GETCPCODEXP',b.cpcode_xp,'','技术',a.in_type,'"+   SessionUser.getCurrentCorpId()   +"')  cpcode_xp, " +
+				" f_getparamname('GETBYPARENTID',b.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"')  cpcode_bz, " +
+				" b.cpcode_check,b.cpcode01,b.cpcode02,b.cpcode03, " +
+				" f_get_param_name('产品大类',in_type,'"+   SessionUser.getCurrentCorpId()   +"') intypename,f_getsl('GETKSHSL',in_contract,in_code,in_note,a.data_corp) rksl,in_ph,a.in_remarks "
+				+ "  from  e_ck_in a,e_js_cpcode b where a.in_Kfcode=b.cpcode_id and  in_note='" + inNote + "' ";
+		sql = "select * from (" + sql + ")n ";
+		return eCkInDao.QueryNoPageLists(sql);
+	}
+
+	@Override
+	public Result save(ECkInVo eCkInVo) throws Exception {
+		List<ECkIn> addECkIns=new ArrayList<ECkIn>();
+		List<ECkIn> modifyedECkIns=new ArrayList<ECkIn>();
+		String inType = eCkInVo.geteCkIn().getInType();
+		BigDecimal initBigDecimal=new BigDecimal("0");
+		SessionUser securityUser = SessionUser.SessionUser();
+		String parameterId = eCkInDao.getSingleResult("select f_get_in_out_act('GETACT',?1,?2,?3) "
+				,IUserConstants.wwrk,inType,securityUser.getCorpId());
+		SysParams sysParams = sysParamService.findByParameterId(parameterId, "仓库收发");
+		String note = sysGenNoteService.getInOutNote(ECkIn.class,inType,IUserConstants.wwrk,securityUser.getCorpId());
+		eCkInVo.geteCkIn().setInNote(note);
+		eCkInVo.geteCkIn().setInFlag("登记");
+		eCkInVo.geteCkIn().setDataMan(securityUser.getUserId());
+		eCkInVo.geteCkIn().setDataDate(new Date());
+		eCkInVo.geteCkIn().setDataCorp(securityUser.getCorpId());
+		eCkInVo.geteCkIn().setInAct(parameterId);
+		//业务逻辑判断start
+		//新增
+		for(int i=0;i<eCkInVo.geteCkInMx().size();i++) {
+			ECkIn model=eCkInVo.geteCkInMx().get(i);
+			model.setInPrice(eCkInVo.geteCkIn().getInPrice());
+			model.setInBz(eCkInVo.geteCkIn().getInBz());
+			model.setInTax(eCkInVo.geteCkIn().getInTax());
+			model.setInHs(eCkInVo.geteCkIn().getInHs());
+			model.setInNote(note);
+			model.setInRq(eCkInVo.geteCkIn().getInRq());
+			model.setInType(eCkInVo.geteCkIn().getInType());
+			model.setInContract(eCkInVo.geteCkIn().getInContract());
+			model.setInCustomer(eCkInVo.geteCkIn().getInCustomer());
+			model.setInLib(eCkInVo.geteCkIn().getInLib());
+			model.setInFlag(eCkInVo.geteCkIn().getInFlag());
+			model.setDataMan(eCkInVo.geteCkIn().getDataMan());
+			model.setDataDate(eCkInVo.geteCkIn().getDataDate());
+			model.setDataCorp(eCkInVo.geteCkIn().getDataCorp());
+			model.setInAct(eCkInVo.geteCkIn().getInAct());
+			model.setInKfcode(model.getInCode());
+			//数量，重量，件数*paramvalue
+			model.setInJs(model.getInJs()== null ? initBigDecimal :model.getInJs().multiply(sysParams.getParamValue()));
+			model.setInSl(model.getInSl()== null ? initBigDecimal :model.getInSl().multiply(sysParams.getParamValue()));
+			model.setInZl(model.getInZl() == null ? initBigDecimal :model.getInZl().multiply(sysParams.getParamValue()));
+			//如果为空自动生成包装号
+			if (model.getInPack() == null) {
+				try {
+					String pack = sysGenNoteService.getyyyyMMddNote4(ECkIn.class, "P");
+					model.setInPack(pack);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}else {
+				//判断保存的包装号有没有重复
+				if(checkExists(model,eCkInVo.getAddedList())) {
+					return 	Result.error("第"+(i+1)+"行包装号重复，不能保存！");
+				}
+				//判断数据库有没有该包装号
+				int count=eCkInDao.getAddInBack(model.getInPack());
+				if(count==1) {
+					return 	Result.error("包装号：“"+model.getInPack()+"”在数据库中已存在，保存失败！");
+				}
+			}
+			//默认大包装号和包装号相等，后续可能需要根据产品规则生成
+			model.setInBpack(model.getInPack());
+			eCkInDao.save(model);
+		}
+		//end
+		return Result.resultOk(eCkInVo.geteCkIn());
+	}
+
+	@Override
+	public Result update(ECkInVo eCkInVo) throws Exception {
+		String flag = eCkInDao.getFlag(eCkInVo.geteCkIn().getInNote());
+		if(!"登记".equals(flag)) {
+			return Result.error("【"+flag+"】状态不能进行修改操作！");
+		}
+		BigDecimal initBigDecimal=new BigDecimal("0");
+		List<ECkIn> addECkIns=new ArrayList<ECkIn>();
+		List<ECkIn> modifyedECkIns=new ArrayList<ECkIn>();
+		String inType = eCkInVo.geteCkIn().getInType();
+		SessionUser securityUser = SessionUser.SessionUser();
+		String parameterId = eCkInDao.getSingleResult("select f_get_in_out_act('GETACT',?1,?2,?3) "
+				,IUserConstants.wwrk,inType,securityUser.getCorpId());
+		SysParams sysParams = sysParamService.findByParameterId(parameterId, "仓库收发");
+
+		eCkInVo.geteCkIn().setInFlag("登记");
+		eCkInVo.geteCkIn().setDataMan(securityUser.getUserId());
+		eCkInVo.geteCkIn().setDataDate(new Date());
+		eCkInVo.geteCkIn().setDataCorp(securityUser.getCorpId());
+		eCkInVo.geteCkIn().setInAct(parameterId);
+		//业务逻辑判断start
+		//新增
+		for(int i=0;i<eCkInVo.getAddedList().size();i++) {
+			ECkIn model=eCkInVo.getAddedList().get(i);
+			model.setInPrice(eCkInVo.geteCkIn().getInPrice());
+			model.setInBz(eCkInVo.geteCkIn().getInBz());
+			model.setInTax(eCkInVo.geteCkIn().getInTax());
+			model.setInHs(eCkInVo.geteCkIn().getInHs());
+			model.setInNote(eCkInVo.geteCkIn().getInNote());
+			model.setInRq(eCkInVo.geteCkIn().getInRq());
+			model.setInType(eCkInVo.geteCkIn().getInType());
+			model.setInContract(eCkInVo.geteCkIn().getInContract());
+			model.setInCustomer(eCkInVo.geteCkIn().getInCustomer());
+			model.setInLib(eCkInVo.geteCkIn().getInLib());
+			model.setInFlag(eCkInVo.geteCkIn().getInFlag());
+			model.setDataMan(eCkInVo.geteCkIn().getDataMan());
+			model.setDataDate(eCkInVo.geteCkIn().getDataDate());
+			model.setDataCorp(eCkInVo.geteCkIn().getDataCorp());
+			model.setInAct(eCkInVo.geteCkIn().getInAct());
+			model.setInKfcode(model.getInCode());
+			//数量，重量，件数*paramvalue
+			model.setInJs(model.getInJs()== null ? initBigDecimal :model.getInJs().multiply(sysParams.getParamValue()));
+			model.setInSl(model.getInSl()== null ? initBigDecimal :model.getInSl().multiply(sysParams.getParamValue()));
+			model.setInZl(model.getInZl() == null ? initBigDecimal :model.getInZl().multiply(sysParams.getParamValue()));
+			//如果为空自动生成包装号
+			if (model.getInPack() == null) {
+				try {
+					String pack = sysGenNoteService.getyyyyMMddNote4(ECkIn.class, "P");
+					model.setInPack(pack);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}else {
+				//判断数据库有没有该包装号
+				int count=eCkInDao.getAddInBack(model.getInPack());
+				if(count==1) {
+					return 	Result.error("包装号：“"+model.getInPack()+"”在数据库中已存在，保存失败！");
+				}
+			}
+			//默认大包装号和包装号相等，后续可能需要根据产品规则生成
+			model.setInBpack(model.getInPack());
+			addECkIns.add(model);
+		}
+		//修改
+			if (!eCkInVo.getModifyedList().isEmpty()) {
+				for(int i=0;i<eCkInVo.getModifyedList().size();i++) {
+					ECkIn model=eCkInVo.getModifyedList().get(i);
+					model.setInPrice(eCkInVo.geteCkIn().getInPrice());
+					model.setInBz(eCkInVo.geteCkIn().getInBz());
+					model.setInTax(eCkInVo.geteCkIn().getInTax());
+					model.setInHs(eCkInVo.geteCkIn().getInHs());
+					model.setInNote(eCkInVo.geteCkIn().getInNote());
+					model.setInRq(eCkInVo.geteCkIn().getInRq());
+					model.setInType(eCkInVo.geteCkIn().getInType());
+					model.setInContract(eCkInVo.geteCkIn().getInContract());
+					model.setInCustomer(eCkInVo.geteCkIn().getInCustomer());
+					model.setInLib(eCkInVo.geteCkIn().getInLib());
+					model.setInFlag(eCkInVo.geteCkIn().getInFlag());
+					model.setDataMan(eCkInVo.geteCkIn().getDataMan());
+					model.setDataDate(eCkInVo.geteCkIn().getDataDate());
+					model.setDataCorp(eCkInVo.geteCkIn().getDataCorp());
+					model.setInAct(eCkInVo.geteCkIn().getInAct());
+					model.setInKfcode(model.getInCode());
+					//数量，重量，件数*paramvalue
+					model.setInJs(model.getInJs()== null ? initBigDecimal :model.getInJs().multiply(sysParams.getParamValue()));
+					model.setInSl(model.getInSl()== null ? initBigDecimal :model.getInSl().multiply(sysParams.getParamValue()));
+					model.setInZl(model.getInZl() == null ? initBigDecimal :model.getInZl().multiply(sysParams.getParamValue()));
+
+					//判断保存的包装号有没有重复
+					if(checkExists(model,eCkInVo.getModifyedList())) {
+						return 	Result.error("第"+(i+1)+"行包装号重复，不能保存！");
+					}
+					//判断数据库有没有该包装号
+					ECkIn oldCkIn=eCkInDao.findById(new ECkIn_PK(eCkInVo.geteCkIn().getInNote(), model.getInPack())).orElse(null);
+					if(!oldCkIn.getInPack().equals(model.getInPack())) {
+						int count=eCkInDao.getAddInBack(model.getInPack());
+						if(count==1) {
+							return 	Result.error("包装号：“"+model.getInPack()+"”在数据库中已存在，保存失败！");
+						}
+					}
+
+					modifyedECkIns.add(model);
+				}
+			}
+		//业务逻辑判断end
+		//开始保存到数据库
+		if (!addECkIns.isEmpty()) {
+			addECkIns.forEach(item -> {
+				eCkInDao.save(item);
+			});
+		}
+		if (!modifyedECkIns.isEmpty()) {
+			modifyedECkIns.forEach(item -> {
+				eCkInDao.dynamicSave(item, eCkInDao.findById(new ECkIn_PK(eCkInVo.geteCkIn().getInNote(), item.getInPack())).orElse(null));
+			});
+		}
+		if (!eCkInVo.getDeletedList().isEmpty()) {
+			eCkInVo.getDeletedList().forEach( item ->{
+				ECkIn_PK pk = new ECkIn_PK(eCkInVo.geteCkIn().getInNote(),item.getInPack() );
+				eCkInDao.deleteById(pk);
+			});
+		}
+		//修改表头 
+		String sqlString ="update ECkIn set inLib=?1,inBz=?2,inTax=?3 where inNote=?4 ";
+		eCkInDao.executeUpdate(sqlString, eCkInVo.geteCkIn().getInLib(),eCkInVo.geteCkIn().getInBz(),eCkInVo.geteCkIn().getInTax(),eCkInVo.geteCkIn().getInNote());
+		//end
+		return Result.resultOkMsg("修改成功");
+	}
+
+	@Override
+	public ECkIn findByInNote(String inNote) {
+		 ECkIn in=new ECkIn();
+		 String sqlString=" select *,(f_getname('GETDWEXP',in_customer,'',data_corp)) incustomername from E_Ck_In where in_Note ='"+inNote+"' ";
+		 BasePage<ECkIn> list=eCkInDao.QueryNoPageLists(sqlString);
+		 if(list.getContent().size()>0) {
+			 in=list.getContent().get(0);
+		 }		 
+		 return  in;
+	}
+
+	@Override
+	public ECkIn findById(String inNote, String inPack) {
+		ECkIn_PK pk = new ECkIn_PK(inNote, inPack);
+		return eCkInDao.findById(pk).orElse(null);
+
+	}
+
+	@Override
+	public void deleteById(String inNote) {
+		eCkInDao.deleteByInNote(inNote);
+
+	}
+	
+	@Override
+	public Result getFlag(String inNote, String flag) {
+		String flagString=eCkInDao.getFlag(inNote);
+		if(flag.equals(flagString)) {
+			return  Result.resultOk("操作成功！");
+		}
+		return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+	}
+	
+	@Override
+	public Result setFlag(String inNote, String flag) {
+		eCkInDao.setFlag(inNote,flag);
+		return  Result.resultOk("操作成功！");
+	}
+	
+	@SuppressWarnings("unused")
+	private boolean  checkExists(ECkIn model,List<ECkIn> eCkIns) {
+		boolean isflag=false;
+    	for(int i=0;i<eCkIns.size();i++){
+    		ECkIn indexrow= eCkIns.get(i);
+    		if(!indexrow.getId().equals(model.getId())){
+	    		if(indexrow.getInPack().equals(model.getInPack())){
+		    		 isflag=true;
+		    		 break;
+		    	}
+	    	}
+    	}
+    	return isflag;
+	}
+
+
+	/**
+	 * 更新原包装号的数量
+	 */
+	@Override
+	public Result updateSplitData(BigDecimal sl,String pack, String contract  ) {
+		eCkInDao.updateSplitData(sl,pack,contract);
+		return  Result.resultOk();
+	}
+
+
+
+	
+	@Override
+	public BasePage<Map<String, Object>> getWwhtSelectList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object srchRq1=map.get("srchRq1");
+		Object srchRq2=map.get("srchRq2");
+		Object srchMo=map.get("srchMo");
+		Object srchSupplier=map.get("srchSupplier");
+		Object inType=map.get("inType");
+		Object srchCode=map.get("srchCode");
+ 		String sqlWhere="  and a.ht_type ='JG' and a.ht_item_type='WWJG'  ";
+ 		String wwrk="";
+ 		if(srchRq1 != null && srchRq1.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.ht_date >= '"+srchRq1+"' ";
+ 		}
+ 		if(srchRq2 != null && srchRq2.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.ht_date <= '"+srchRq2+"' ";
+ 		}
+ 		if(srchMo != null && srchMo.toString().trim().length() > 0) {
+ 			sqlWhere +=" and b.ht_mo like  '%"+srchMo+"%' ";
+ 		}
+ 		if(srchSupplier != null && srchSupplier.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.ht_customer ='"+srchSupplier+"' ";
+ 		}
+ 		if(inType != null && inType.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.ht_stype='"+inType+"' ";
+ 		}
+ 		if(srchCode != null && srchCode.toString().trim().length() > 0) {
+ 			sqlWhere +=" and b.ht_code like '%"+srchCode+"%' ";
+ 		}
+ 		baseDto.setSortField("htdate");
+		baseDto.setSortOrder("DESC");
+		String sql = " select c.*,f_getparamname('GETBCPCODENAME',d.cpcode_name,'','技术',c.htstype,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,d.cpcode_size,d.cpcode_size_en,d.cpcode_xp,d.cpcode_fl,f_getparamname('GETBYPARENTID',d.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"') cpcodebz, "+
+				"(c.htsl - c.shsl) kssl,(c.htsl - c.shsl) wssl " + 
+				"from ( " +
+				"select a.ht_stype htstype,to_char(a.ht_date, 'yyyy-mm-dd') htdate,b.ht_mo htmo,a.ht_customer htcustomer,b.ht_code htcode,b.ht_sl htsl,ht_price htprice,ht_je htje,ht_currency htbz,ht_tax httax,to_char(b.ht_jq, 'yyyy-mm-dd') htjq,b.ht_requirements htsm, " + 
+				"(select COALESCE(sum(in_sl),0) insl from e_ck_in i where i.in_contract=b.ht_mo and i.in_kfcode=b.ht_code and  i.in_act in(select param_id from sys_param where param_name='"+IUserConstants.wwrk+"') ) shsl, " +
+				"f_getname('GETDWEXP',a.ht_customer,'',a.data_corp) htcustomername " + 
+				"from e_xs_contract a ,e_xs_contract_detailed b where a.ht_no=b.ht_no  "+sqlWhere +
+				") c,e_js_cpcode d where c.htcode=d.cpcode_id   ";
+		String countsql="select count(*) cn from ("+sql+") t";
+		return eCkInDao.QueryPageList(sql,countsql,baseDto);
+	}
+	
+	
+	public BasePage<Map<String,Object>> getCgWwhtSelectList(BaseDto baseDto){
+		Map<String, String> map = baseDto.getParamsMap();
+		Object srchRq1=map.get("srchRq1");
+		Object srchRq2=map.get("srchRq2");
+		Object srchMo=map.get("srchMo");
+		Object srchSupplier=map.get("srchSupplier");
+		Object htType=map.get("htType");
+		Object srchCode=map.get("srchCode");
+ 		String sqlWhere="  and a.ht_type ='WW'  ";
+ 		String wwrk="";
+ 		if(srchRq1 != null && srchRq1.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.ht_date >= '"+srchRq1+"' ";
+ 		}
+ 		if(srchRq2 != null && srchRq2.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.ht_date <= '"+srchRq2+"' ";
+ 		}
+ 		if(srchMo != null && srchMo.toString().trim().length() > 0) {
+ 			sqlWhere +=" and b.ht_no like  '%"+srchMo+"%' ";
+ 		}
+ 		if(srchSupplier != null && srchSupplier.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.ht_supplier ='"+srchSupplier+"' ";
+ 		}
+ 		if(htType != null && htType.toString().trim().length() > 0) {
+ 			sqlWhere +=" and a.cg_stype='"+htType+"' ";
+ 		}
+ 		if(srchCode != null && srchCode.toString().trim().length() > 0) {
+ 			sqlWhere +=" and b.ht_code like '%"+srchCode+"%' ";
+ 		}
+ 		baseDto.setSortField("htdate");
+		baseDto.setSortOrder("DESC");
+		String sql = " select c.*,f_getparamname('GETBCPCODENAME',d.cpcode_name,'','技术',c.cgstype,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,d.cpcode_size,d.cpcode_size_en,d.cpcode_xp,d.cpcode_fl,f_getparamname('GETBYPARENTID',d.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"') cpcodebz, "  
+				+ " (c.htsl - c.shsl) kssl,(c.htsl - c.shsl) wssl "
+				+ " from ( "
+				+ " select to_char(a.ht_date, 'yyyy-mm-dd') htdate,b.ht_no htno,b.ht_id htid,f_getname('GETDWEXP',a.ht_supplier,'',a.data_corp) htsuppliername,a.ht_supplier htsupplier,b.ht_sl htsl,b.ht_je htje,a.ht_bz htbz,a.ht_tax httax,to_char(b.ht_jq, 'yyyy-mm-dd') htjq,b.ht_sm htsm,b.ht_code htcode,b.ht_price htprice,  "
+				+ " (select COALESCE(sum(in_sl),0) insl from e_ck_in i where i.in_contract=b.ht_no and i.in_code=b.ht_code and  i.in_act in(select param_id from sys_param where param_name='"+IUserConstants.wwrk+"') ) shsl,a.cg_stype cgstype,b.ht_hs hths    "
+				+ " from e_cg_contract a,e_cg_contract_detailed b "
+				+ " where a.ht_no = b.ht_no  " + sqlWhere
+				+ " ) c,e_js_cpcode d "
+				+ " where c.htcode=d.cpcode_id ";
+		String countsql="select count(*) cn from ("+sql+") t";
+		return eCkInDao.QueryPageList(sql,countsql,baseDto);
+	}
+
+	@Override
+	public ModelAndView table(ModelAndView mv, String inNote) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String sql = " select in_note innote,to_char(in_rq,'yyyy-MM-dd')inrq,f_getname('GETCORPNAME', '', '', data_corp) corpname,f_get_param_name('产品大类',in_type,'"+   SessionUser.getCurrentCorpId()   +"','',false) intype,f_getname('GETCUSTOMERNAME', in_customer, '', data_corp) incustomername from e_ck_in where in_note='"+inNote+"' and data_corp='"+securityUser.getCorpId()+"' ";
+		List<Map> table = eCkInDao.QueryListMap(sql);
+		mv.addObject("innote", table.get(0).get("innote"));
+		mv.addObject("inrq", table.get(0).get("inrq"));
+		mv.addObject("corpname", table.get(0).get("corpname"));
+		mv.addObject("intype", table.get(0).get("intype"));
+		mv.addObject("incustomername", table.get(0).get("incustomername"));
+		sql = " select a.in_code,f_getparamname('GETBCPCODENAME',cp.cpcode_name,'','技术',a.in_type,'"+   SessionUser.getCurrentCorpId()   +"')||'   '||cp.cpcode_size \"NameAndSize\",round(a.in_sl ,2) insl,f_getparamname('GETBYPARENTID',cp.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"') cpcodebz,a.in_remarks inremarks from e_ck_in a,e_js_cpcode cp where a.in_note = '"+inNote+"' and a.in_code = cp.cpcode_id ";
+		List<Map> tableMx = eCkInDao.QueryListMap(sql);
+		mv.addObject("mx", tableMx);
+		double sumsl = 0;
+		for(int i = 0 ; i < tableMx.size() ; i++) {
+			sumsl += Double.parseDouble(tableMx.get(i).get("insl").toString());
+		}
+		DecimalFormat df = new DecimalFormat("0.00");
+		mv.addObject("sumsl", df.format(sumsl));
+		mv.addObject("mxCount", tableMx.size());
+		return mv;
+	}
+
+
+
+
+}

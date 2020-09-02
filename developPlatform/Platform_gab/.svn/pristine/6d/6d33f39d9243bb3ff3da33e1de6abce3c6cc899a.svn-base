@@ -1,0 +1,12 @@
+collocate:
+  security:
+    salt: qwer #MD5盐
+  sms: #短信平台配置
+    api: https://api.mix2.zthysms.com/v2/sendSms #自定义短信发送API
+    user: nbtz88hy
+    passsword: 1QTELKJI
+    productid: 676767
+    signature: 腾智软件
+  business:
+     userName: 1001,T20050014,1007 #超级用户
+     defaultCorp: JD #登录页面展示的默认账套

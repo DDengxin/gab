@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>质量证明</title>
+    </th:block>
+</head>
+<body>
+	<form id="form_home">
+	    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+	        <th:block th:fragment="content">
+	       		<input class="mini-hidden" name="orient" id="orient" />
+				<input class="mini-hidden" name="zmType" id="zmType" width="100"/>	
+				<input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>	
+				<label class="hmq-label" text="日期">
+					<input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				<label class="hmq-label" text="至">
+					<input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				<label class="hmq-label" text="单号">
+					<input class="mini-textbox" name="srchNo" />
+				</label>
+				<label class="hmq-label" text="出货单号">
+					<input class="mini-textbox" name="srchDeliveryNo" />
+				</label>
+				<label class="hmq-label" text="批号">
+					<input class="mini-textbox" name="srchLotNo" />
+				</label>
+				<label class="hmq-label" text="状态">
+                    <input class="mini-combobox"  name="srchFlag" id="srchFlag" textField="text" valueField="id" popupHeight="200"  width="80px" 
+						data="[{id:'登记',text:'登记'},{id:'确认',text:'确认'},{id:'审核中',text:'审核中'},{id:'核准',text:'核准'},{id:'核销',text:'核销'}]"  nullItemText="全部" showNullItem="true" />
+                </label>
+			</th:block>
+	    </th:block>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit"  style="height: 100%; clear: both; margin-bottom: 0px; padding-bottom: 0px;">
+		<div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+			<div size="60%" showCollapseButton="true">
+				<div class="mini-fit">
+					<div tz:datagrid="datagrid" id="srch_top_grid" idField="htNo" sortField="zmNote,zmRq" sortOrder="desc" sizeList="[50,100,200]" pageSize="100"
+						 pager="#pager1" url="/quality/qualityArchives/qualityCertificate/getSrchBottomList000" onselectionchanged="onSelectionChanged" 
+						 showPager="false"  >
+						<div property="columns">
+							<div tz:datagrid="indexcolumn" width="35">序号</div>
+							<div tz:datagrid="column" field="zmRq" width="100" align="center">日期</div>
+							<div tz:datagrid="column" field="zmNote" width="120" align="center">单号</div>
+							<div tz:datagrid="column" field="zmItem" width="80" align="center">订单</div>
+							<div tz:datagrid="column" field="zmCustomer" width="120" align="left">客户</div>
+							<div tz:datagrid="column" field="zmDeliveryNo" width="120" align="left">出库单号</div>
+							<div tz:datagrid="column" field="zmSl" width="100" align="right"   numberFormat="#,0.0000">数量</div>
+							<div tz:datagrid="column" field="zmJs" width="100" align="right"  numberFormat="#,0.00">件数</div>
+							<div tz:datagrid="column" field="dataMan"  width="100" align="center">操作人</div>
+							<div tz:datagrid="column" field="zmFlag"  width="100" align="center">状态</div>
+							<div tz:datagrid="column" width="100%"></div>
+						</div>
+					</div>
+				</div>
+				<div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+					<table style="width: 100%;" >
+						<tr>
+							<td style="white-space: nowrap;">
+								<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+							</td>
+							<td style="white-space: nowrap;" align="right" id="btnbar" />
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div showCollapseButton="true">
+				<div class="mini-fit">
+					<div tz:datagrid="datagrid" id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="zmItem" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+						ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="zmItem" sortOrder="asc">
+						<div property="columns">
+							<div tz:datagrid="indexcolumn" width="35">序号</div>
+							<div tz:datagrid="column" field="zmItem" width="90" align="center">合同</div>
+		                    <div tz:datagrid="column" field="zmCode" width="90" align="center">编码</div>
+		                    <div tz:datagrid="column" field="cpcodeName" width="90" align="center">名称</div>
+		                    <div tz:datagrid="column" field="cpcodeSize" width="90" align="center">规格</div>
+		                    <div tz:datagrid="column" field="cpcodeSizeEn" width="90" align="center">长度</div>
+		                    <div tz:datagrid="column" field="cpcodeXp" width="90" align="center">标重</div>
+		                    <div tz:datagrid="column" field="zmLotNo" width="90" align="center">批号</div>
+		                    <div tz:datagrid="column" field="zmStandard" width="90" align="center">标准</div>
+		                    <div tz:datagrid="column" field="zmJs" width="90" align="center" numberFormat="#,0.00" summaryType="sum">件数</div>
+		                    <div tz:datagrid="column" field="zmSl" width="90" align="center" numberFormat="#,0.0000" summaryType="sum">数量</div>
+		                    <div tz:datagrid="column" field="zmBrand" width="90" align="center">牌号 </div>
+		                    <div tz:datagrid="column" field="upload" width="90" renderer="onActionRenderer" align="center">上传与下载</div>
+		                    <div tz:datagrid="column" field="fileUuid" width="90" align="center" visible="false">111111111111</div>
+                     		<div tz:datagrid="column" field="" width="100%" ></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/quality/qualityArchives/qualityCertificate";
+    srch_bottomgrid.setUrl(surl + "/getSrchBottomList1111");
+	srch_topgrid.bindSearchForm(form);
+
+	var htStype = hmq.getQueryString("paramType");
+	var paramMod = hmq.getQueryString("paramMod");
+	form.getField("orient").setValue(hmq.getQueryString("orient"));
+	if (hmq.isNotEmpty(htStype)) {
+	     form.getField("htStype").setValue(htStype);
+	     form.getField("paramMod").setValue(paramMod);
+	     setIdReadOnly("outType,paramMod");
+	     //动态列名
+	     $.get("/system/parameter/getParamValue2/产品大类/{0}".format(htStype), function (res) {
+             if (200 === res.code) {
+                 srch_bottomgrid.updateColumn("cpcodeSizeEn",{header:res.data});
+             }
+         });
+	 }
+	function onSelectionChanged(e) {
+		var srch_topgrid = e.sender;
+		var record = srch_topgrid.getSelected();
+		if (record) {
+			srch_bottomgrid.load({
+				params : mini.encode({
+					zmNote : record.zmNote
+				})
+			});
+		}
+	}
+    function search_option() {
+    	srch_topgrid.load();
+    }
+    
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}});
+    }
+
+	function edit_option(e) {
+		var row = srch_topgrid.getSelected();
+		if (row) {
+			$['put']("getFlag/{0}/{1}".format(row.zmNote, '登记'), function (res) {
+				if (200 === res.code) {
+					e.sender.miniopen({
+						url: 'add.html',
+						action: 'edit',
+						data: {row: row, formData: form.getData()},
+					
+					});
+				} else {
+					hmq.tipDanger(res.msg);
+				}
+			});
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+
+
+	function delete_option() {
+		var row = srch_topgrid.getSelected();
+		if (row) {
+			$['put']("getFlag/{0}/{1}".format(row.zmNote, '登记'), function (res) {
+				if (200 === res.code) {
+					mini.confirm("注意:确定要删除吗 ？", "删除信息", function (action) {
+						if (action == "ok") {
+							$.delete("delete/{0}".format(row.zmNote), function (res) {
+								if (200 === res.code) {
+									search_option();
+								} else {
+									hmq.tipDanger(res.msg);
+								}
+							});
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg);
+				}
+			});
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+
+
+    function print_option(e){
+    	var row = srch_topgrid.getSelected();
+    	if (row) {
+    		e.sender.miniopen({url: "print.html", action: 'print', data: row ,width:1000 ,height:570});
+    	}else{
+    		hmq.tipDanger("请选择一条记录");
+    	}
+    }
+
+
+	function confirm_option(e) {
+		var row = srch_topgrid.getSelected();
+		if (row) {
+				$['put']("getFlag/{0}/{1}".format(row.zmNote,'登记'), function (res) {
+					if (200 === res.code) {
+				         hmq.business.approvalConfirm({
+			                    businessId: row.zmNote, 
+			                    url: '/quality/qualityArchives/qualityCertificate/add.html',
+			                    error: function (res) {
+			                        if (404 == res.code) {
+			                            $.put("confirm/{0}".format(row.zmNote), function (res) {
+			    	                        if (200 === res.code) {
+			    	                        	srch_topgrid.reload();
+			    	                        } else {
+			    	                            hmq.tipDanger(res.msg);
+			    	                        }
+			    	                    });
+			                        } else {
+			                            hmq.tipDanger(res.msg);
+			                        }
+			                    }
+			                });
+						
+					/* 	mini.confirm("注意:确定要确认吗 ？", "信息", function (action) {
+	    	                if (action == "ok") {
+	    	                    $.put("confirm/{0}".format(row.zmNote), function (res) {
+	    	                        if (200 === res.code) {
+	    	                        	srch_topgrid.reload();
+	    	                        } else {
+	    	                            hmq.tipDanger(res.msg);
+	    	                        }
+	    	                    });
+	    	                }
+	    	            }); */
+					} else {
+						hmq.tipDanger(res.msg);
+					}
+				});
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+
+	function cancel_option() {
+        var row = srch_topgrid.getSelected();
+    	if(row){
+    		$['put']("getFlag/{0}/{1}".format(row.zmNote,'核准'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalCancel({
+                        businessId: row.zmNote,
+                        error: function (res) {
+                            if (404 == res.code) {
+                            	  $.put("cancel/{0}".format(row.zmNote), function (res) {
+          	                        if (200 === res.code) {
+          	                            srch_topgrid.reload();
+          	                        } else {
+          	                            hmq.tipDanger(res.msg);
+          	                        }
+          	                    });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+          /*       	mini.confirm("注意:确定要取消吗 ？", "信息", function (action) {
+    	                if (action == "ok") {
+    	                    $.put("cancel/{0}".format(row.zmNote), function (res) {
+    	                        if (200 === res.code) {
+    	                            srch_topgrid.reload();
+    	                        } else {
+    	                            hmq.tipDanger(res.msg);
+    	                        }
+    	                    });
+    	                }
+    	            }); */
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    function onActionRenderer(e) {
+    	var record = e.record;
+    	if ('upload' == e.field) {
+    		if(isNull(record.fileUuid)){
+    			return  '<a class="text-link" >' + ' 无  '+ '</a> ';
+    		}else{
+    			return  '<a class="text-link" href="javascript:file_view(\'' + record.fileUuid + '\')">' + ' 附件  '+ '</a> ';
+    		}
+            
+        }
+    }
+    function file_view(noticeNo){
+    	miniopen({url: 'file.html', action:'file', data:noticeNo, width:400, height:390,title:'附件下载'});
+    }
+    function onDrawSummaryCellmx(e) {
+		if (e.field == "zmNote") {
+			var s = "<span style='color:Brown;'>";
+			s += "合计:</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "zmJs") {
+			var s = "<span style='color:Brown;float:right;'>";
+			s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "zmSl") {
+			var s = "<span style='color:Brown;float:right;'>";
+			s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+			e.cellHtml = s;
+		}
+	}
+
+</script>
+
+</body>
+</html>
+
+

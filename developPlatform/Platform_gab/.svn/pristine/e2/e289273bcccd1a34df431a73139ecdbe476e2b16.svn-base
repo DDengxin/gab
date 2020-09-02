@@ -1,0 +1,67 @@
+$(function () {
+    // 上传文件的控件初始化
+    _init_upload(['#License', '#BusinessLicense']);
+
+    // 省市联动
+    // new PCAS("province", "city");
+    // 关键字
+    $.FreeTags('jjTags');
+
+    // 修改手机号码
+    $('.editPhone').click(function(){
+        $('input[name="userMtel"]').removeAttr('disabled');
+    })
+
+
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form;
+
+        // 专家类型下拉框
+        var firmValue = '';
+        form.on('select(type)', function (data) {
+            // console.log(data.value); //得到被选中的值
+            firmValue = data.value;
+            if (firmValue == "工艺专家") {
+                _vendorShow(GyExpertMsg);
+                $('.sidebar').css('height', $('.right').height() + 'px');
+            }
+            if (firmValue == "售前专家") {
+                _vendorShow(SqExpertMsg);
+                $('.sidebar').css('height', $('.right').height() + 'px');
+            }
+            if (firmValue == "售后专家") {
+                _vendorShow(ShExpertMsg);
+                $('.sidebar').css('height', $('.right').height() + 'px');
+            }
+        });
+
+        // form.on('submit()', function (data) {})
+    });
+
+    // 根据厂商类型的下拉选择的值，渲染不同的模板
+    _vendorInit();
+
+})
+
+// 厂商切换展示
+function _vendorShow(Template) {
+    _pageShow(Template, "container");
+}
+
+// 根据不同的厂商渲染不同的模板
+function _pageShow(Template, name) {
+    var getTpl = Template.innerHTML, view = document.getElementById(name);
+    laytpl(getTpl).render({}, function (html) {
+        view.innerHTML = html;
+        layui.use('form', function () {
+            var form = layui.form;
+            form.render();
+        })
+    });
+}
+
+// 初始化
+function _vendorInit() {
+    _vendorShow(GyExpertMsg);
+    $('.sidebar').css('height', '1573px');
+}

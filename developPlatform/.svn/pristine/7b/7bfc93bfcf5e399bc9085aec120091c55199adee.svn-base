@@ -1,0 +1,119 @@
+package com.tengzhi.business.system.library.service.impl;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.library.dao.LibraryDao;
+import com.tengzhi.business.system.library.model.Library;
+import com.tengzhi.business.system.library.service.LibraryService;
+import com.tengzhi.business.system.user.model.SysUser;
+
+@Service
+@Transactional
+public class libraryserviceimpl implements LibraryService {
+	@Autowired
+	private LibraryDao libraryDao;
+
+	/**
+	 * 获取列表信息
+	 */
+	@Override
+	public Result findAll(BaseDto dto) {
+		Map<String,String> map = dto.getParamsMap();
+		String arType = map.get("arType");
+		String arLocation = map.get("arLocation");
+		String arSecrecy = map.get("arSecrecy");
+		String arNote = map.get("arNote");
+		String arTitle = map.get("arTitle");
+		String arModifyUserName = map.get("arModifyUserName");
+		SessionUser user = SessionUser.SessionUser();
+		String where = SqlJoint.where(c -> {
+			c.eq("ar_type", arType);
+			c.eq("ar_location", arLocation);
+			c.eq("ar_secrecy", arSecrecy);
+			c.eq("ar_note", arNote);
+			c.eq("ar_title", arTitle);
+			c.eq("data_corp", user.getCorpId());
+			c.contains("f_getname('TransformUser',ar_modify_user_id,'','')",arModifyUserName);
+		}, true);
+		String sql = "select *,f_getname('GETARTYPENAME', ar_type, '', '') ar_type_name,f_getname('GETARTYPENAME', ar_location, '', '') ar_location_name,f_getname('GETARTYPENAME', ar_secrecy, '', '') ar_secrecy_name,f_getname('GETUSERNAME',COALESCE(ar_modify_user_id,gen_user_id),'',data_corp) ar_modify_user_name from e_xt_archive" + where;
+		if("".equals(where) || null == where) {
+			sql = sql + " where ar_newest = true" ;
+		}else {
+			sql = sql + " and ar_newest = true";
+		}
+		//档案文库权限控制
+		sql = sql +" and (ar_note in (select ar_note from e_xt_archive_r_right where position(','||'"+user.getUserId()+"'|| ',' in ','||link_user_id||',' )>0) or gen_user_id='"+user.getUserId()+"')";
+		return libraryDao.QueryMapPageList(dto, sql, true).getResult();
+	}
+	/**
+	 * 获取修改记录
+	 */
+	@Override
+    public Result findByArUuid(String arUuid) {
+		return Result.resultOk(libraryDao.findByArUuid(arUuid));
+	}
+	
+	/**
+	 * 新增
+	 */
+	@Override
+	public Result save(Library library) throws Exception{
+		libraryDao.save(library);
+		return Result.resultOk(library.getArUuid());
+	}
+	
+	/**
+	 * 根据arUuid修改最新版本bool值
+	 */
+	@Override
+	public void updateNewEst(boolean arNewest, String arUuid) {
+		libraryDao.updateNewEst(arNewest, arUuid);
+	}
+	/**
+	 * 修改
+	 */
+	@Override
+	public void update(Library library) {
+		library.setArModifyUserId(SessionUser.SessionUser().getUserId());
+		library.setArModifyTime(new Timestamp(System.currentTimeMillis()));
+		library.setArNewest(true);
+		libraryDao.save(library);
+	}
+	
+	/**
+	 * 删除
+	 */
+	@Override
+	public void delete(String arNote) {
+		libraryDao.deleteById(arNote);
+	}
+	
+	/**
+	 *  查阅时 获取版本列表信息
+	 */
+	@Override
+	public List<SelectVo> getVersion(String arNote,String corpid) {
+		List<SelectVo> voList=new ArrayList<SelectVo>();
+		String[] val = {arNote,corpid};
+      	String sql="select  ar_uuid,ar_version||'('||f_getname('GETUSERNAME',COALESCE(ar_modify_user_id,gen_user_id),'',data_corp)||'-'||to_char(COALESCE(ar_modify_time,gen_time),'yy/mm/dd')||')' versionname from e_xt_archive where ar_note=? and data_corp=? order by ar_version desc ";
+      	List<Map> mapList=libraryDao.QueryListMap(sql,val);
+      	mapList.forEach(Map -> {
+      		voList.add(new SelectVo(Map.get("ar_uuid"),String.valueOf(Map.get("versionname"))));
+      	});
+      	return voList;
+	}
+}

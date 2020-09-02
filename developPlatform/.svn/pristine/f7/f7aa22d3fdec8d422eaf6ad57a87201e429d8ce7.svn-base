@@ -1,0 +1,477 @@
+/**
+ * 创建html容器
+ */
+function createHtml(item, options, pickerid) {
+    if (options.auto) {
+        uploaderStrdiv = '<div class="btns">' + '<div id="' + pickerid + '">选择文件</div>' + '</div>'
+    } else {
+        uploaderStrdiv = '<div >' + '<div id="' + pickerid + '" class="btns">选择文件</div>' + '<button class="webuploader-pick webuploadbtn">开始上传</button>' + '</div>'
+    }
+    uploaderStrdiv += '<div  class="uploader-list"></div><div style="display:none" class="UploadhiddenInput" ></div>'
+    uploaderStrdiv += '<input type="hidden" value="" class="state"></input></div>';
+    $(item).html(uploaderStrdiv);
+}
+
+/**
+ * 或取附件id
+ */
+function getFileId() {
+    var fileId = "";
+    $.ajax({
+        url: '/system/upload/getFileID',
+        type: 'POST',
+        async: false,
+        success: function (res) {
+            fileId = res.uuid;
+        }
+    });
+    return fileId;
+}
+
+(function ($, window) {
+
+    /**
+     *
+     * @param item
+     *            对象id
+     * @param options
+     *            配置json对象
+     * @returns
+     */
+    function myfilesUpload(item, options) {
+        var target = $(item);// 容器
+        // 判断浏览器是否兼容
+        if (!WebUploader.Uploader.support()) {
+            var error = "上传控件不支持您的浏览器！请尝试升级flash版本或者使用Chrome引擎的浏览器。";
+            if (window.console) {
+                window.console.log(error);
+            }
+            $(item).text(error);
+            return;
+        }
+        // 方法的扩展
+        var defaults = {
+            auto: true,
+            deleteServer: '/system/upload/delete',
+            innerOptions: {},// webupload的默认配置
+            filecount: null,// 文件数量
+            pickerid: "",
+            view: "edit",// 如果等于view 隐藏选择文件删除默认不隐藏下载
+            viewdownload: false,// 下载是否隐藏
+            WhetherTheShard: false
+            // 是否分片上传
+        };
+        var opts = $.extend(defaults, options);
+        // 创建html容器
+        createHtml(item, opts, opts.pickerid);
+        // 获取一些用到的对象为后续调整准备
+        var $list = target.find('.uploader-list'), $btn = target.find('.webuploadbtn'), // 手动上传按钮备用
+            state = 'pending', $hiddenInput = target.find('.UploadhiddenInput');
+        // 创建百度的文件上传对象
+        var uploadjson;
+        if (opts.WhetherTheShard) {
+            uploadjson = $.extend({
+                swf: '../Uploader.swf',
+                server: '/system/upload/uploadFiles',
+                pick: '#' + opts.pickerid,
+                name: opts.pickerid,
+                formData: {
+                    'pid': opts.pickerid
+                },
+                chunked: true, // 开启分块上传
+                chunkSize: 10 * 1024 * 1024,
+                chunkRetry: 3,// 网络问题上传失败后重试次数
+                threads: 5, // 上传并发数
+                fileSizeLimit: 2000 * 1024 * 1024,// 最大2GB
+                fileSingleSizeLimit: 2000 * 1024 * 1024,
+                // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+                resize: false
+            }, opts.innerOptions)
+        } else {
+            uploadjson = $.extend({
+                swf: '../Uploader.swf',
+                server: '/system/upload/uploadFile',
+                pick: '#' + opts.pickerid,
+                name: opts.pickerid,
+                formData: {
+                    'pid': opts.pickerid
+                },
+                // 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+                resize: false
+            }, opts.innerOptions)
+        }
+
+        var uploader = WebUploader.create(uploadjson);
+
+        var GenerateHtml = {
+            buttons: {
+                container: function (items) {
+                    var $html = $('<span class="webuploadItemButtons"></span>');
+                    // isArray $html.html((Array.isArray(items) ? items :
+                    // [items,]).join(''));
+                    $html.html(($.isArray(items) ? items : [items,]).join(''));
+                    return $html.prop("outerHTML");
+                },
+                download: '<span class="webuploadDownload">下载</span>',
+                remove: '<span class="webuploadDelbtn">删除</span>',
+                preview: '<span class="webuploadPreview">预览</span>',
+                none: '<span class="webuploadNone">文件不存在</span>'
+            }
+        };
+
+        // 修改时默认加载的数据
+        if (opts.view == "view") {
+            $("#" + opts.pickerid).hide();
+            $.post('/system/upload/listByViewid', {
+                viewid: opts.pickerid
+            }, function (res) {
+                if (res.status && Array.isArray(res.data)) {
+                    var list = res.data;
+                    $.each(list, function (index, file) {
+                        var newid = 1 + index;
+                        if (opts.viewdownload) {
+                            $list.append('<div id="' + $(item)[0].id + newid + '" class="item">' + '<input class="webuploaduuid" type="hidden" value="' + file.uuid
+                                + '" /><span class="info">' + file.file_name + '</span>' + '<span class="webuploadstate">已上传</span>'
+                                + (!file._exists ? GenerateHtml.buttons.container([GenerateHtml.buttons.none]) : GenerateHtml.buttons.container([GenerateHtml.buttons.preview, GenerateHtml.buttons.download]))
+                                + '</div>');
+                        } else {
+                            $list.append('<div id="' + $(item)[0].id + newid + '" class="item">' + '<input class="webuploaduuid" type="hidden" value="' + file.uuid
+                                + '" /><span class="info">' + file.file_name + '</span>' + '<span class="webuploadstate">已上传</span>'
+                                + (!file._exists ? GenerateHtml.buttons.container([GenerateHtml.buttons.none]) : GenerateHtml.buttons.container([GenerateHtml.buttons.preview]))
+                                + '</div>');
+                        }
+                    });
+                }
+            })
+        } else {
+            // 修改时默认加载的数据
+            if (opts.pickerid != null) {
+                $.post('/system/upload/listByViewid', {
+                    viewid: opts.pickerid
+                }, function (res) {
+                    if (res.status && Array.isArray(res.data)) {
+                        var list = res.data;
+                        $.each(list, function (index, file) {
+                            var newid = 1 + index;
+                            $list.append('<div id="' + $(item)[0].id + newid + '" class="item">' + '<input class="webuploaduuid" type="hidden" value="' + file.uuid
+                                + '" /><span class="info">' + file.file_name + '</span>' + '<span class="webuploadstate">已上传</span>'
+                                + (!file._exists ? '' : GenerateHtml.buttons.container([GenerateHtml.buttons.preview, GenerateHtml.buttons.download]))
+                                + GenerateHtml.buttons.container([GenerateHtml.buttons.remove])
+                                + '</div>');
+                            var val = target.find('.state').val();
+                            if (val) {
+                                target.find('.state').val(val + file.uuid + ",")
+                            } else {
+                                target.find('.state').val(file.uuid + ",")
+                            }
+                        });
+                    }
+                })
+            }
+        }
+        if (opts.auto) {
+            uploader.on('fileQueued', function (file) {
+                if (opts.filecount != null) {
+                    var count = $list.children('div .item').length;
+                    if (count >= opts.filecount) {
+                        mixtips({text: "只能选择" + opts.filecount + "个文件上传。"});
+                        return false;
+                    }
+                }
+                uploader.md5File(file).then(function (fileMd5) {
+                    uploader.options.formData.md5value = fileMd5;
+                })
+                $list.append('<div id="' + $(item)[0].id + file.id + '" class="item">' + '<input class="webuploaduuid" type="hidden" /> <span class="webuploadinfo">' + file.name
+                    + '</span>' + '<span class="webuploadstate">上传中</span>' + GenerateHtml.buttons.container(GenerateHtml.buttons.remove) + '</div>');
+                uploader.upload();
+            });
+        } else {
+            uploader.on('fileQueued', function (file) {// 队列事件
+                if (opts.filecount != null) {
+                    var count = $list.children('div .item').length;
+                    if (count >= opts.filecount) {
+                        mixtips({text: "只能上传" + opts.filecount + "个文件"});
+                        return false;
+                    }
+                }
+                uploader.md5File(file).then(function (fileMd5) {
+                    uploader.options.formData.md5value = fileMd5;
+                });
+                $list.append('<div id="' + $(item)[0].id + file.id + '" class="item">' + '<input class="webuploaduuid" type="hidden" /> <span class="webuploadinfo">' + file.name
+                    + '</span>' + '<span class="webuploadstate">等待上传</span>' + GenerateHtml.buttons.container(GenerateHtml.buttons.remove) + '</div>');
+            });
+        }
+
+        uploader.on('uploadProgress', function (file, percentage) {// 进度条事件
+            var $li = target.find('#' + $(item)[0].id + file.id), $percent = $li.find('.progress .bar');
+            // 避免重复创建
+            if (!$percent.length) {
+                $percent = $(
+                    '<span class="progress">' + '<span  class="percentage"><span class="text"></span>' + '<span class="bar bar-animated" role="progressbar" style="width: 0%">'
+                    + '</span></span>' + '</span>').appendTo($li).find('.bar');
+            }
+            $li.find('span.webuploadstate').html('上传中');
+            $li.find(".text").text(Math.round(percentage * 100) + '%');
+            $percent.css('width', percentage * 100 + '%');
+        });
+        uploader.on('uploadSuccess', function (file, response) {// 上传成功事件
+            if (!response.states) {
+                target.find('#' + $(item)[0].id + file.id).find('span.webuploadstate').html(response.message);
+            } else {
+                target.find('#' + $(item)[0].id + file.id).find('input.webuploaduuid').val(response.data);
+                target.find('#' + $(item)[0].id + file.id).find('span.webuploadstate').html('已上传');
+                target.find('#' + $(item)[0].id + file.id).find('span.webuploadDelbtn').before(GenerateHtml.buttons.preview);
+                target.find('#' + $(item)[0].id + file.id).find('span.webuploadDelbtn').before(GenerateHtml.buttons.download);
+                $hiddenInput.append('<input type="text" id="hiddenInput' + $(item)[0].id + file.id + '" class="hiddenInput" value="' + response.message + '" />')
+            }
+        });
+
+        uploader.on('uploadError', function (file) {
+            target.find('#' + $(item)[0].id + file.id).find('span.webuploadstate').html('上传出错');
+        });
+
+        uploader.on('uploadComplete', function (file) {// 全部完成事件
+            target.find('#' + $(item)[0].id + file.id).find('.progress').fadeOut();
+        });
+
+        uploader.on('all', function (type) {
+            if (type === 'startUpload') {
+                state = 'uploading';
+            } else if (type === 'stopUpload') {
+                state = 'paused';
+            } else if (type === 'uploadFinished') {
+                state = 'done';
+            }
+            if (state === 'uploading') {
+                $btn.text('开始上传');
+            } else {
+                $btn.text('开始上传');
+            }
+        });
+
+        /**
+         * 删除时执行的方法
+         */
+        uploader.on('fileDequeued', function (file) {
+            var uuid = target.find('#' + $(item)[0].id + file.id).find('input.webuploaduuid').val();
+            if (uuid != null) {
+                $.post(defaults.deleteServer, {
+                    parms: JSON.stringify({
+                        uuid: uuid
+                    })
+                }, function (data) {
+                    mixtips({text: data.message, state: 'success', icon: 1});
+                })
+            }
+            $("#" + $(item)[0].id + file.id).remove();
+        });
+
+        /**
+         * 多文件点击上传的方法
+         */
+        $btn.on('click', function () {
+            if (state === 'uploading') {
+                uploader.stop();
+            } else {
+                uploader.upload();
+            }
+        });
+
+        /**
+         * 删除
+         */
+        $list.on("click", ".webuploadDelbtn", function () {
+            var $ele = $(this);
+            var id = $ele.parent().parent().attr("id");
+            var uuid = target.find('#' + id).find('input.webuploaduuid').val();
+            id = id.replace($(item)[0].id, "");
+            var file = uploader.getFile(id);
+            if (file) {
+                uploader.removeFile(file);
+            } else {
+                $ele.parent().parent().remove();
+                $.post(defaults.deleteServer, {
+                    parms: JSON.stringify({
+                        uuid: uuid
+                    })
+                }, function (data) {
+                    mixtips({text: data.message, state: 'success', icon: 1});
+                })
+            }
+        });
+
+        /**
+         * 下载
+         */
+        $list.on("click", ".webuploadDownload", function () {
+            var $ele = $(this);
+            var id = $ele.parent().parent().attr("id");
+            var uuid = target.find('#' + id).find('input.webuploaduuid').val();
+            window.open('/system/upload/download?uuid=' + uuid)
+        });
+
+        /**
+         * 预览
+         */
+        $list.on("click", ".webuploadPreview", function () {
+
+            var $ele = $(this);
+            var id = $ele.parent().parent().attr("id");
+            var uuid = target.find('#' + id).find('input.webuploaduuid').val();
+            var name = "";
+            var $list = target.find('.uploader-list');
+            var filelist = $list.children('div .item');
+            $.each(filelist, function () {
+                var uuid1 = $(this).find('.webuploaduuid').val();
+                var filename = $(this).find('.webuploadinfo').text();
+                filename = !filename ? $(this).find('.info').text() : filename;
+                if (uuid1 == uuid) {
+                    name = filename;
+                }
+            });
+
+            $.post("/system/upload/Info/{0}".format(uuid), function (res) {
+                var originUrl = window.location.origin + '/system/upload/download?uuid=' + uuid;
+                var previewUrl = originUrl + '&fullfilename=TZSOFT' + uuid + '.' + name.split('.').pop().toLowerCase();
+                window.open('http://' + res.ip + ':' + res.port + '/onlinePreview?url=' + encodeURIComponent(previewUrl));
+            });
+
+        });
+
+        return uploader;
+    }
+
+    /**
+     * 初始化上传控件
+     * @param options
+     */
+    $.fn.filesUpload = function (options) {
+        var ele = this;
+        myfilesUpload(ele, options);
+    };
+    /**
+     * 默认只清除显示内容flag为true时清除控件
+     * @param flag
+     */
+    $.fn.clearUploader = function (flag) {
+        var ele = this;
+        var target = $(ele);// 容器
+        var $list = target.find('.uploader-list');
+        $list.html("");
+        if (flag) {
+            target.html("");
+        }
+    };
+    /**
+     * 重置上传控件
+     * @param options 初始化参数
+     */
+    $.fn.resetUploader = function (options) {
+        var ele = this;
+        var target = $(ele);// 容器
+        target.html("");
+        myfilesUpload(ele, options);
+    };
+    /**
+     * 获取附件个数
+     * @returns {{uploadlength: number, length: number}}
+     */
+    $.fn.getFileList = function () {
+        var ele = this;
+        var target = $(ele);// 容器
+        var $list = target.find('.uploader-list');
+        var filelist = $list.children('div .item');
+        var FileList = {
+            length: 0,
+            uploadlength: 0
+        };
+        var index = 0;
+        $.each(filelist, function () {
+            var fieleText = $(this).find('.webuploadstate').text();
+            if (fieleText == '已上传') {
+                index++;
+            }
+        });
+        FileList.length = $list.children('div .item').length;
+        FileList.uploadlength = index;
+        return FileList;
+    };
+    /**
+     * 获取附件状态
+     * @returns {number}
+     */
+    $.fn.getState = function () {
+        var ele = this;
+        var target = $(ele);// 容器
+        var $list = target.find('.uploader-list');
+        var filelist = $list.children('div .item');
+        var FileList = {
+            length: 0,
+            uploadlength: 0
+        };
+        var index = 0;
+        var states = "";
+        $.each(filelist, function () {
+            states += $(this).find('.webuploaduuid').val() + ",";
+        });
+        var state = ele.find('.state').val();
+        if (states == state) {
+            return 0;
+        } else {
+            return 1;
+        }
+    };
+    /**
+     * 获取附件列表
+     * @returns {[]}
+     */
+    $.fn.getFiles = function () {
+        var ele = this;
+        var target = $(ele);// 容器
+        var $list = target.find('.uploader-list');
+        var filelist = $list.children('div .item');
+        var Array = [];
+        $.each(filelist, function () {
+            var uuid = $(this).find('.webuploaduuid').val();
+            var filename = $(this).find('.webuploadinfo').text();
+            filename = !filename ? $(this).find('.info').text() : filename;
+            var jsonObj = {
+                "uuid": uuid,
+                "filename": filename
+            };
+            Array.push(jsonObj);
+        });
+        return Array;
+
+    };
+
+    /**
+     * 弹出提醒
+     * @exp mixtips({text:'info',state:'danger',icon:'1'})
+     * @param options
+     */
+    function mixtips(options) {
+        options = ($ || layui.$).extend({
+            text: '',
+            timeout: 2000,
+            icon: 2,
+            state: 'danger',
+            callback: function () {
+            }
+        }, options);
+        if ('undefined' !== typeof (window.mini)) {
+            mini.showTips({content: options.text, state: options.state, x: "center", y: "middle", timeout: options.timeout});
+            setTimeout(function () {
+                options.callback();
+            }, options.timeout);
+        } else if ('undefined' !== typeof (window.layui) && 'undefined' !== typeof (window.layui.layer)) {
+            window.layui.layer.msg(options.text, {
+                icon: options.icon,
+                time: options.timeout,
+            }, options.callback);
+        } else {
+            window.alert(options.text);
+            options.callback();
+        }
+    }
+})(jQuery, window);

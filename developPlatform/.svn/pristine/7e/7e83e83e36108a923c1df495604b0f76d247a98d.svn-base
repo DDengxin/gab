@@ -1,0 +1,163 @@
+package com.tengzhi.business.finance.gathering.service.impl;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.da.sysCustomer.service.SysCustomerService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.business.finance.gathering.dao.gatheringDao;
+import com.tengzhi.business.finance.gathering.service.gatheringService;
+import com.tengzhi.business.finance.payment.dao.paymentDao;
+import com.tengzhi.business.finance.payment.model.payment;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+
+import cn.hutool.core.util.StrUtil;
+
+
+@Service
+@Transactional
+public class gatheringServiceImpl implements gatheringService{
+	
+	@Autowired
+	private gatheringDao gatheringDao;
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	@Autowired
+	private paymentDao paymentDao;
+	
+	
+	
+	
+	@Override
+	public BasePage<payment> findAll(BaseDto baseDto) throws IOException, ParseException {
+		Map<String, String> map = baseDto.getParamsMap();
+	    String sqlWhere = SqlJoint.whereSuffixAnd((c) ->{
+            c.ge("sfk_rq",map.get("srchRq1"));
+            c.le("sfk_rq",map.get("srchRq2"));
+            c.contains("sfk_note", map.get("srchNote"));
+            c.eq("sfk_bz",map.get("srchBz"));
+            c.eq("sfk_dw", map.get("sfkDw"));
+            c.eq("sfk_flag", map.get("sfkFlag"));
+            c.eq("sfk_fkfs", map.get("sfkFkfs"));
+        });
+		//业务员权限过滤
+		sqlWhere += " and sfk_dw = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(null);
+
+	    String sql="select sfk_note ,sfk_rq ,f_getname('GETDWEXP',sfk_dw,'',data_corp) sfk_dw,sfk_dtype ,sfk_type ,f_get_param_name('交易币种', sfk_bz) sfk_bz ,sfk_shl ,sfk_bzje ,sfk_yfje ,sfk_fkje ,f_get_param_name('收款方式',sfk_fkfs,'')sfk_fkfs ,sfk_mess ,sfk_flag ,sfk_month ,sfk_xtype ,sfk_sm ,f_getname('GETUSERNAME',data_man,'',data_corp)data_man,data_date,data_corp,sfk_id   " + 
+	        " from  e_cw_sfk where sfk_xtype='SK'"+sqlWhere+"  group by sfk_note ,sfk_rq ,sfk_dw ,sfk_dtype ,sfk_type ,sfk_bz ,sfk_shl ,sfk_bzje ,sfk_yfje ,sfk_fkje ,sfk_fkfs ,sfk_mess ,sfk_flag ,sfk_month ,sfk_xtype ,sfk_sm ,data_man,data_date,data_corp,sfk_id    ";
+	    return gatheringDao.QueryToBeanPage(baseDto,sql);
+	}
+	
+	
+	
+	@Override
+    public payment save(payment payment) throws Exception {
+		//SysGenNoteService sysGenNoteService=new SysGenNoteService();
+		payment.setSfkNote(sysGenNoteService.getNote(payment.class, "SK", "yyMMdd", 4));
+		SessionUser securityUser=SessionUser.SessionUser();
+		if (judgeUnique(payment)) {
+			payment.setSfkId(UUIDUtil.uuid());
+			payment.setDataDate(new Date());
+			payment.setDataCorp(securityUser.getCorpId());
+			payment.setDataMan(securityUser.getUserId());
+			payment.setSfkXtype("SK");
+			//payment.setSfkRq(new Date());
+			//payment.setDataMan("全涛");
+			payment.setSfkFlag("登记");
+			payment.setSfkMonth("未结");
+			payment.Validate();
+            return gatheringDao.save(payment);
+	
+		  } else { throw new Exception("编码已存在"); }
+		 
+    }
+	
+	@Override
+    public void deleteByPaymentId (String sfkId){
+		gatheringDao.deleteById(sfkId);
+    }
+	
+	 @Override
+	    public boolean judgeUnique(payment payment) {
+	        return gatheringDao.findAll(Specifications.where((c) -> {
+	            c.eq("sfkNote", payment.getSfkNote());
+			/*
+			 * c.lt("fprq1", invoice.getFpRq()); c.gt("fprq2", invoice.getFpRq());
+			 */
+	        })).size() <= 0;
+	    }
+	 
+	 @Override
+	    public void update(payment payment){
+	        //sysRole.setModifyTime(new Date());
+		   // invoice.setFpRq(new Date());
+		 gatheringDao.dynamicSave(payment,gatheringDao.findBySfkId(payment.getSfkId()));
+	    }
+
+	 @Override
+	    public payment findByPaymentId(String fpId) {
+	        payment ps= gatheringDao.findBySfkId(fpId);
+	        ps.setSfkdwname(paymentDao.getSfkdwname(ps.getSfkDw(), ps.getDataCorp()));
+	        return ps;
+	    }
+
+
+
+	@Override
+	public void ok(String sfkId) {
+		// TODO Auto-generated method stub
+		gatheringDao.ok(sfkId);
+		
+	}
+	
+	@Override
+	public void yok(String sfkId) {
+		// TODO Auto-generated method stub
+		gatheringDao.yok(sfkId);
+		
+	}
+	
+	
+	@Override
+	public void qx(String sfkId) {
+		// TODO Auto-generated method stub
+		gatheringDao.qx(sfkId);
+		
+	}
+	
+	@Override
+	public void yqx(String sfkId) {
+		// TODO Auto-generated method stub
+		gatheringDao.yqx(sfkId);
+		
+	}
+
+
+
+	@Override
+	public void confirmGathering(payment gathering) {
+		gathering.setSfkFlag("确认");
+		System.out.println(gathering.toString());
+		gatheringDao.dynamicSave(gathering,gatheringDao.findById(gathering.getSfkId()).orElse(null));
+		
+	}
+	
+	
+
+}

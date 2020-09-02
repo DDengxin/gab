@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>客户报价【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="note" name="note" class="mini-hidden"/>
+        <input id="dataMan" name="dataMan"  class="mini-hidden"/>
+        <input id="dataCorp" name="dataCorp"  class="mini-hidden"/>
+        <input id="salsFlag" name="wcFlag"  class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>报价日期：</td>
+                <td content>
+                    <input id="rq" name="rq" class="mini-datepicker" value="new Date()" showTime="true"/>
+                </td>
+                <td title>销售客户：</td>
+                <td content>
+                    <input id="wcMan" name="wcMan" class="mini-buttonedit" required  onbuttonclick="onButtonEditMan" allowInput="false" />
+                </td>
+                <td title>联系人：</td>
+                <td content>
+                    <input id="wcDept" name="wcDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" readonly/>
+                </td>
+                <td title>联系电话：</td>
+                <td content>
+                    <select id="wcType" name="wcType" class="mini-combobox" required >
+                        <option value="出差">出差</option>
+                        <option value="外出">外出</option>
+                        <option value="用车">用车</option>
+                    </select>
+                </td>
+                <td title>传真：</td>
+                <td content>
+                    <input id="wcDept" name="wcDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" readonly/>
+                </td>
+            </tr>
+            <tr>
+                <td title>交易币种：</td>
+                <td content>
+                    <!--<input id="wcAdd" name="wcAdd" class="mini-combobox" required url="/system/parameter/getParamsSelectListByParentId/销售/订单类型/DDLX" />-->
+                    <select id="wcAdd" name="wcAdd" class="mini-combobox" required allowInput="true" popupMaxHeight="160">
+                        <option value="其他">其他</option>
+                        <option value="天津">天津</option>
+                        <option value="宁波">宁波</option>
+                        <option value="广州">广州</option>
+                        <option value="成都">成都</option>
+                        <option value="武汉">武汉</option>
+                        <option value="滕州">滕州</option>
+                        <option value="苏州">苏州</option>
+                    </select>
+                </td>
+                <td title>发票税率：</td>
+                <td content>
+                    <input id="wcAddsm" name="wcAddsm" class="mini-textbox" />
+                </td>
+                <td title>业务员：</td>
+                <td content>
+                    <input id="saleMan" name="saleMan" class="mini-combobox" url="/system/parameter/getParamsSelectList/销售/业务员"/>
+                </td>
+                <td title>运输方式：</td>
+                <td>
+                    <select id="wcYc" name="wcYc" class="mini-combobox" onvaluechanged="onChangeYc" popupMaxHeight="160"/>
+                </td>
+                <td title>提货仓库：</td>
+                <td>
+                    <select id="wcYc" name="wcYc" class="mini-combobox" onvaluechanged="onChangeYc" popupMaxHeight="160"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>是否上门：</td>
+                <td content colspan="3">
+                    <input id="wcYcsm" name="wcYcsm" class="mini-textarea" style="height:40px;"/>
+                </td>
+                <td title>送货地址：</td>
+                <td content colspan="3">
+                    <input id="wcSm" name="wcSm" class="mini-textarea" style="height:40px;"/>
+                    <input id="wcSm" name="wcSm" class="mini-textarea" style="height:40px;"/>
+                    <input id="wcSm" name="wcSm" class="mini-textarea" style="height:40px;"/>
+                </td>
+                <td title>详细地址：</td>
+                <td content colspan="3">
+                    <input id="wcYcsm" name="wcYcsm" class="mini-textarea" style="height:40px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>包装要求：</td>
+                <td content colspan="9">
+                    <input id="wcTcrq" name="wcTcrq" class="mini-datepicker" />
+                </td>
+            </tr>
+            <tr>
+                <td title>技术标准：</td>
+                <td content>
+                    <input id="wcSc" name="wcSc" class="mini-textbox" vtype="float" />
+                </td>
+                <td title>技术要求：</td>
+                <td content colspan="7">
+                    <input id="wcLc" name="wcLc" class="mini-textbox" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td title>价格方式：</td>
+                <td content>
+                    <input id="wcFy" name="wcFy" class="mini-textbox" vtype="float" />
+                </td>
+                <td title>价格有效：</td>
+                <td>
+                    <input id="wcFysm" name="wcFysm" class="mini-textbox" />
+                </td>
+                <td title>结算方式：</td>
+                <td content>
+                    <input id="wcGzap" name="wcGzap" class="mini-textarea" style="height:40px;"/>
+                </td>
+                <td title>结算要求：</td>
+                <td content colspan="3">
+                    <input id="wcZcsm" name="wcZcsm" class="mini-textarea" style="height:40px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>其他要求：</td>
+                <td content>
+                    <input id="wcSc" name="wcSc" class="mini-textbox" vtype="float" />
+                </td>
+                <td title>要求说明：</td>
+                <td content colspan="7">
+                    <input id="wcLc" name="wcLc" class="mini-textbox" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td title>其他说明：</td>
+                <td content colspan="9">
+                    <input id="wcTcrq" name="wcTcrq" class="mini-datepicker" />
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <div tz:datagrid="datagrid" id="datagrid" idField="item" sortField="item" sortOrder="asc" style="width:100%;height:250px;"
+         url="/sale/saleManage/offer/getOfferDetailList"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+         showPager="false" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+         showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" allowSortColumn="false">
+        <input id="item" name="item" class="mini-hidden"/>
+        <input id="itemMo" name="itemMo" class="mini-hidden"/>
+        <div property="columns">
+            <div tz:datagrid="checkcolumn" width="35"></div>
+            <div tz:datagrid="column" field="cd" name="cd" align="center" width="60">产地
+                <input id="cd" property="editor" class="mini-datepicker" showTime="true" />
+            </div>
+            <div tz:datagrid="column" field="cz" name="cz" align="center" width="60">材质
+                <input id="cz" property="editor" class="mini-datepicker"  showTime="true"/>
+            </div>
+            <div tz:datagrid="column" field="gg" name="gg" align="left" width="60">规格
+                <input id="gg" property="editor" class="mini-textbox" />
+            </div>
+            <div tz:datagrid="column" field="length" name="length" align="right" width="60">长度
+                <input id="length" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="type" name="type" align="right" width="60">种类
+                <input id="type" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="amount" name="amount" align="right" width="60">数量
+                <input id="amount" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="price" name="price" align="right" width="60">单价
+                <input id="price" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="money" name="money" align="right" width="60">金额
+                <input id="money" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="deliveryTime" name="deliveryTime" align="right" width="60">交期
+                <input id="deliveryTime" property="editor" class="mini-datepicker"/>
+            </div>
+            <div tz:datagrid="column" field="otherCost" name="otherCost" align="right" width="60">其他费用
+                <input id="otherCost" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="originPalce" name="originPalce" align="right" width="60">原料产地
+                <input id="originPalce" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="ylcz" name="ylcz" align="right" width="60">原料材质
+                <input id="ylcz" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="ylgg" name="ylgg" align="right" width="60">原料规格
+                <input id="ylgg" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="processStatus" name="processStatus" align="right" width="60">状态
+                <input id="processStatus" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="isPickling" name="isPickling" align="right" width="60">是否酸洗
+                <input id="isPickling" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="meterialPrice" name="meterialPrice" align="right" width="60">原料价格
+                <input id="meterialPrice" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="meterialFreight" name="meterialFreight" align="right" width="60">原料运费
+                <input id="meterialFreight" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="processFreight" name="processFreight" align="right" width="60">加工费用
+                <input id="processFreight" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="saleFreight" name="saleFreight" align="right" width="60">销售运费
+                <input id="saleFreight" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="saleDifferencePrice" name="saleDifferencePrice" align="right" width="60">销售价差
+                <input id="saleDifferencePrice" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="grossMargin" name="grossMargin" align="right" width="60">销售差额
+                <input id="grossMargin" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="code" name="code" align="right" width="60">编码
+                <input id="code" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="shop" name="shop" align="right" width="60">类别
+                <input id="shop" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="remarks" name="remarks" align="right" width="60">备注
+                <input id="remarks" property="editor" class="mini-textbox"/>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get('datagrid');
+    /**
+     *用车说明
+     */
+    function onChangeYc(){
+        var yc = mini.get("wcYc").getValue();
+        if(yc=="否"){
+            mini.get("wcYcsm").disable();
+            mini.get("wcYcsm").setValue("");
+        }else{
+            mini.get("wcYcsm").enable();
+        }
+    }
+
+    /**
+     新增行
+     */
+    function addRow() {
+        var iszc = mini.get("wcIszc").getValue();
+        if(iszc=="否"){
+            hmq.tipDanger("未选择租车!");
+            return;
+        }else{
+            var index = grid.getData().length;
+            var newRow = {
+                name: "",
+            };
+            grid.addRow(newRow, index + 1);
+        }
+
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("sid").getValue();
+        var rows = grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                grid.removeRows(rows, true);
+            }
+        }
+    }
+    /**
+     人员选择
+     */
+     function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("wcMan").setValue(data.workerId);
+                    mini.get("wcMan").setText(data.workerName);
+                    mini.get("wcDept").setValue(data.workerDept);
+                    mini.get("wcDept").setText(data.workerDeptName);
+                    mini.get("dataCorp").setValue(data.workerCorpid);
+                }
+            }
+        });
+    }
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed', false);
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                eXtWcsq: form.getData(true),
+                eXtWcsqZc: entrydata,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh',false);
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     * 回调函数
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+
+            //普通口径
+            var formData = options.data.formData;
+            var row = options.data.row;
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+                data = mini.clone(options);
+                form.setChanged(false);
+            } else if ('edit' == options.action) {
+                $.get("getById/{0}".format(row.note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        var data = mini.decode(res.data);
+                        mini.get("wcMan").setValue(data.wcMan);
+                        mini.get("wcMan").setText(data.manName);
+                        mini.get("wcDept").setValue(data.wcDept);
+                        mini.get("wcDept").setText(data.deptName);
+                        grid.load({
+                            params: JSON.stringify({note: form.getField('note').getValue()})
+                        });
+                    }
+                });
+            }
+        } else {
+            //审批口径
+            $.get("add.html/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            }, null, null, {
+                complete: function () {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //表单只读
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+    }
+</script>
+</html>

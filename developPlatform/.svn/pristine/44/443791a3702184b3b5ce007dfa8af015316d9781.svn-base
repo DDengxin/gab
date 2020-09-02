@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,md5'})}">
+        <title>密码修改</title>
+    </th:block>
+    <style type="text/css">
+        div.errorText {
+            color: red;
+            font-size:14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mini-fit">
+    <form id="form1">
+        <input name="userId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>旧密码<p>&emsp;</p>
+                </td>
+                <td content>
+                    <input name="oldPassWord" required="true" vtype="rangeLength:1,20" class="mini-password" onvalidation="updateError"/>
+                    <div class="errorText">*<span id="oldPassWord_error"></span></div>
+                </td>
+            </tr>
+            <tr>
+                <td title>新密码<p>&emsp;</p>
+                </td>
+                <td content>
+                    <input name="newPassWord" required="true" vtype="rangeLength:8,20" class="mini-password" onvalidation="updateError"/>
+                    <div class="errorText">*<span id="newPassWord_error"></span></div>
+                </td>
+            </tr>
+            <tr>
+                <td title>确认密码<p>&emsp;</p>
+                </td>
+                <td content>
+                    <input name="newPasssWordAgain" required="true" vtype="rangeLength:8,20" class="mini-password" onvalidation="updateError"/>
+                    <div class="errorText">*<span id="newPasssWordAgain_error"></span></div>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="updatePass" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("#form1");
+
+    /**
+     * 修改密码
+     * @returns {*}
+     */
+    function updatePass() {
+        if (form.validate() && form.isValid()) {
+            var formData = form.getData();
+            var oldPassWord = hex_md5(formData.oldPassWord);
+            var newPasssWord = hex_md5(formData.newPassWord);
+            if (newPasssWord == oldPassWord) {
+                return hmq.tipDanger("新密码不能与旧密码相同");
+            } else if (formData.newPassWord != formData.newPasssWordAgain) {
+                return hmq.tipDanger("新密码与重复密码不一致");
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "password.html",
+                    data: {
+                        newPassWord: newPasssWord,
+                        oldPassWord: oldPassWord
+                    },
+                    success: function (res) {
+                        if (res.code === 200) {
+                            hmq.tipSuccess("密码修改成功", {
+                                exec: function () {
+                                    CloseWindow('ok');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || "密码修改失败");
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * 更新错误信息
+     * @param e
+     */
+    function updateError(e) {
+        var id = e.sender.name + "_error";
+        var el = document.getElementById(id);
+        if (el) {
+            el.innerHTML = e.errorText;
+        }
+    }
+</script>
+</html>

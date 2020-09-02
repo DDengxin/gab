@@ -1,0 +1,28 @@
+$(function () {
+    // 省市区联动
+    new PCAS("province", "city", "area");
+
+    // 上传文件的控件初始化
+    _init_upload(['#License', '#BusinessLicense']);
+
+    layui.use(['form', 'laydate','layer'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var layer = layui.layer;
+
+        //日期控件初始化
+        laydate.render({
+            elem: '#operationPeriod' //指定元素
+        });
+
+        //监听提交
+        form.on('submit()', function (data) {
+            var index = layer.load(); //加载load提示
+            console.log(JSON.stringify(data.field));
+
+            return false;
+        });
+    });
+
+    
+})

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>角色管理</title>
+</th:block>
+</head>
+<body>
+	<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+			<label class="hmq-label" text="编码">
+				<input class="mini-textbox" name="roleId" />
+			</label>
+			<label class="hmq-label" text="名称">
+				<input class="mini-textbox" name="roleName" />
+			</label>
+			 <input class="mini-hidden" name="isForbidden" value="false" />
+		</th:block>
+	</th:block>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="roleId" orderField="roleOrd">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn"></div>
+				<!--<div tz:datagrid="column" field="roleId">编码</div>-->
+				<div tz:datagrid="column" field="roleName">名称</div>
+				<!--<div tz:datagrid="column" field="parentId">父级ID</div>-->
+				<div tz:datagrid="column" field="roleOrd" width="80" align="center">排序</div>
+				<div tz:datagrid="column" field="genTime" dateFormat="yyyy-MM-dd">创建时间</div>
+				<div tz:datagrid="column" field="modifyTime">修改时间</div>
+				<div tz:datagrid="column" field="description">描述</div>
+				<div tz:datagrid="column" field="isForbidden">是否禁用</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    grid.on("DrawCell", function (e) {
+        if (e.field == "isForbidden") {
+			e.cellHtml = e.value ? '是' : '否';
+        }
+    });
+    function search_option() {
+        grid.load();
+    }
+</script>
+</body>
+</html>

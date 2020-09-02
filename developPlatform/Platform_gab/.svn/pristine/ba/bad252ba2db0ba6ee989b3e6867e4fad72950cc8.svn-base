@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+        <title>无账号权限</title>
+    </th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/platform/accountPermission.css}"/>
+</head>
+
+<body>
+<!-- <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block> -->
+<div class="min-header">
+    <div class="top">
+        <h1 class="logo">
+            <a href="/gab/index.html">
+                <img th:src="@{/static/gab/images/sy_00.png}" alt="">
+            </a>
+            <span>专业夹治具工业互联平台</span>
+        </h1>
+        <dl>
+            <!-- <dt>我是</dt> -->
+            <dd class="selected"><a href="/gab/index.html">返回首页</a></dd>
+        </dl>
+    </div>
+</div>
+<div class="main">
+    <div class="wrap">
+        <img th:src="@{/static/gab/images/no.png}" alt="">
+        <p>您的账号<b>权限不足</b>，请申请认证或者耐心等待认证结果！</p>
+    </div>
+</div>
+<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+</th:block>
+
+</body>
+
+</html>

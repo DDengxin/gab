@@ -1,0 +1,704 @@
+package com.tengzhi.business.platform.enroll.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.da.sysCustomer.dao.SysCustomerDao;
+import com.tengzhi.business.platform.common.model.UsersPwdVo;
+import com.tengzhi.business.platform.enroll.constant.GabUserTypeEnum;
+import com.tengzhi.business.platform.enroll.dao.*;
+import com.tengzhi.business.platform.enroll.model.GUserInfo;
+import com.tengzhi.business.platform.enroll.model.G_Expert;
+import com.tengzhi.business.platform.enroll.model.G_Supply;
+import com.tengzhi.business.platform.enroll.model.G_personal;
+import com.tengzhi.business.platform.enroll.service.GUserInfoService;
+import com.tengzhi.business.system.sms.constant.SmsType;
+import com.tengzhi.business.system.sms.model.SysSmsLog;
+import com.tengzhi.business.system.sms.service.SysSmsService;
+import com.tengzhi.business.system.user.dao.GabSysUserDao;
+import com.tengzhi.business.system.workflow.service.ProcessService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Date;
+
+@Service
+@Transactional
+public class GUserInfoServiceImpl implements GUserInfoService {
+    @Autowired
+    private GUserInfoDao gUserInfoDao;
+    @Autowired
+    private SupplyDao supplyDao;
+    @Autowired
+    private ExpertDao expertDao;
+    @Autowired
+    private PersonalDao personalDao;
+    @Autowired
+    SysSmsService sysSmsService;
+
+
+    @Autowired
+    private SupplySqlDao supplySqlDao;
+    @Autowired
+    private GabSysUserDao gabSysUserDao;
+    @Autowired
+    SmsDao smsDao;
+    @Autowired
+    private ProcessService processService;
+
+
+    @Autowired
+    private SysCustomerDao sysCustomerDao;
+
+    /**
+     * 用户注册
+     *
+     * @param gUserInfo
+     * @return
+     */
+    @Override
+    public Result register(GUserInfo gUserInfo) {
+        GabUserTypeEnum gabUserTypeEnum = GabUserTypeEnum.valueOfName(gUserInfo.getUserType());
+        //规范数据(去除用户ID和手机号码前后空格)
+        gUserInfo.setUserId(ObjectUtil.defaultIfEmpty(gUserInfo.getUserId(), "").trim());
+        gUserInfo.setUserMtel(ObjectUtil.defaultIfEmpty(gUserInfo.getUserMtel(), "").trim());
+
+        //验证数据是否合法
+        if (null == gabUserTypeEnum) {
+            return Result.error("用户类型不存在");
+        } else if (StrUtil.isEmpty(gUserInfo.getUserId())) {
+            return Result.error("用户名不得为空");
+        } else if (StrUtil.isEmpty(gUserInfo.getRandCode())) {
+            return Result.error("验证码不得为空");
+        } else if (StrUtil.isEmpty(gUserInfo.getUserMtel())) {
+            return Result.error("手机号码不得为空");
+        } else {
+            SysSmsLog sysSmsLog = sysSmsService.getFristSmsLog(SmsType.GABREGISTER.getType(), SessionUser.getDefaultCorp(), gUserInfo.getUserId(), gUserInfo.getUserMtel(), false, true);
+            if (null == sysSmsLog || !gUserInfo.getRandCode().equals(sysSmsLog.getCode())) {
+                //验证 验证码 是否合法
+                return Result.error("验证码不匹配");
+            } else {
+                if (!judgeUnique(gUserInfo)) {
+                    //验证用户是否允许注册(用户ID、手机号码是否已存在)
+                    return Result.error("当前用户名已被占用");
+                } else {
+                    //保存用户信息
+                    gUserInfo.setErpUserid(gUserInfo.getUserId());
+                    gUserInfo.setDataCorp(gUserInfo.getUserId());
+                    gUserInfo.setErpCorp(SessionUser.getDefaultCorp());
+                    gUserInfo.Validate();
+                    gUserInfoDao.save(gUserInfo);
+
+
+                    //同步生成到信息扩展表
+                    switch (gabUserTypeEnum) {
+                        case 专家团队:
+                            G_Expert gExpert = new G_Expert();
+                            gExpert.setExpertNote(gUserInfo.getUserId());
+                            gExpert.setExpertName(gUserInfo.getUserId());
+
+                            gExpert.setIsPlatform(false);
+                            gExpert.setRegisterDate(new Date());
+                            gExpert.setStatus("登记");
+                            expertDao.save(gExpert);
+                            break;
+                        case 供应厂商:
+                            G_Supply gSupply = new G_Supply();
+                            gSupply.setSupplyNote(gUserInfo.getUserId());
+                            gSupply.setSupplyName(gUserInfo.getUserId());
+                            gSupply.setSupplyUid(gUserInfo.getUserId());
+
+                            gSupply.setIsPlatform(false);
+                            gSupply.setRegisterDate(new Date());
+                            gSupply.setStatus("登记");
+                            supplyDao.save(gSupply);
+                            break;
+                        case 需求用户:
+                            G_personal gPersonal = new G_personal();
+                            gPersonal.setPersonNote(gUserInfo.getUserId());
+                            gPersonal.setPersonName(gUserInfo.getUserId());
+                            gPersonal.setIsPlatform(false);
+                            gPersonal.setRegisterDate(new Date());
+                            gPersonal.setStatus("登记");
+                            personalDao.save(gPersonal);
+                            break;
+                        default:
+                            break;
+                    }
+
+
+                    //同步生成到SysUser
+                    //SysUser sysUser = gUserInfo.toSysUser();
+                    //sysUser.setIsForbidden(false);
+                    //sysUser.setDeleteLogo(false);
+                    //sysUser.setGenTime(new Timestamp(System.currentTimeMillis()));
+                    //sysUser.setModifyTime(new Timestamp(System.currentTimeMillis()));
+                    //授权
+                    //sysUserDao.saveUserAuth(UUIDUtil.uuid(), gUserInfo.getUserId(), gabUserTypeEnum.getInitRole(), gUserInfo.getUserId());
+                    //sysUser.Validate();
+                    //sysUserDao.save(sysUser);
+
+
+                    //bak:发起审批流程
+                    //Examine examine = new Examine();
+                    //examine.setTitle(String.format("%s注册审批",gabUserTypeEnum.getName()));
+                    //examine.setMenuId(gabUserTypeEnum.getRegisterApprovalMenuId());
+                    //examine.setUrl(gabUserTypeEnum.getRegisterApprovalUrl());
+                    //examine.setBusinessId(gUserInfo.getUserId());
+                    //processService.startFinishFirstStep(examine);
+                    return Result.resultOk();
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public Result getSmsCode(GUserInfo gUserInfo) {
+        //判断当前手机号是否已注册
+        boolean notExistsUserFlag = gUserInfoDao
+                .findAll(Specifications.where((c) -> c.eq("userMtel", gUserInfo.getUserMtel()))).size()<=0;
+        if (notExistsUserFlag) {
+            SysSmsLog sysSmsLog = sysSmsService.send(SysSmsLog.GenSms(gUserInfo.getUserId(), gUserInfo.getUserMtel(), SessionUser.getDefaultCorp(), SmsType.GABREGISTER, RandomUtil.randomNumbers(6)));
+            if (sysSmsLog.getSuccess()) {
+                return Result.resultOkMsg("验证码已经发送，请及时查收，5分钟内有效!");
+            } else {
+                return Result.error("验证码发送失败，请重试");
+            }
+        } else {
+            return Result.error("当前手机号码已被注册，请修改");
+        }
+    }
+
+    @Override
+    public boolean judgeUnique(GUserInfo gUserInfo) {
+        return gUserInfoDao.findOne(Specifications.where(false, (c) -> {
+            c.eq("userId", gUserInfo.getUserId())
+                    .or(cc -> cc.eq("userMtel", gUserInfo.getUserMtel()));
+        })).orElse(null) == null;
+    }
+
+    @Override
+    public Result updatePwd(UsersPwdVo usersPwdVo) {
+        GUserInfo user = gUserInfoDao.findByUserId(usersPwdVo.getUserName());
+        //原密码不相等
+        if (!(user.getUserPwd().equals(usersPwdVo.getOldPwd()))) {
+            return Result.error("原密码输入有误，请重新输入");
+        } else if (!(usersPwdVo.getNewPwd().equals(usersPwdVo.getSurePwd()))) {
+            return Result.error("两次输入密码不一致，请重新输入");
+        } else {
+            user.setUserPwd(usersPwdVo.getNewPwd());
+            gUserInfoDao.update(user);
+            return Result.resultOkMsg("修改成功");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*@Override
+    public Result save(modelVo modelVo) throws Exception {
+        return null;
+    }
+
+
+    @Override
+    public modelVo findById() {// String id
+        modelVo entry = new modelVo();
+        SessionUser securityUser = (SessionUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String id = securityUser.getUserId();
+        SysUser user = gabSysUserDao.findById(id).orElse(null);
+        entry.setSysuser(user);
+        if (null == user.getType()) {
+
+        } else if (user.getType().contains("厂商") || user.getType().contains("特色经贸商")) {
+
+            entry.setSupply(supplyDao.findById(user.getSupplyId()).orElse(null));
+        } else {
+
+        }
+        return entry;
+    }
+
+    @Override
+    public void update(modelVo vo) {
+        // TODO Auto-generated method stub
+        // 修改用户基础信息
+        SysUser user = gabSysUserDao.findById(vo.getSysuser().getUserId()).orElse(null);
+        gabSysUserDao.dynamicSave(vo.getSysuser(), user);
+        // 修改企业基础信息
+        if (vo.getSupply() != null) {
+            supplyDao.dynamicSave(vo.getSupply(), supplyDao.findById(user.getSupplyId()).orElse(null));
+        }
+        G_Supply g_supply = vo.getSupply();
+        //数据同步到客户表
+        SysCustomer sysCustomer = new SysCustomer();
+        sysCustomer.setCustomerName(g_supply.getSupplyName());
+        sysCustomer.setCustomerExp(g_supply.getCustomerExp());
+        sysCustomer.setCustomerJe(g_supply.getSupplyJe());//客户额度
+        sysCustomer.setCustomerDay(g_supply.getSupplyDay());//付款天数
+        sysCustomer.setCustomerLevel(g_supply.getSupplyLevel());//客户级别
+        sysCustomer.setCustomerProvince(g_supply.getDistrict());//单位区域
+        sysCustomerDao.dynamicSave(sysCustomer, sysCustomerDao.findById(user.getSupplyId()).orElse(new SysCustomer()));
+
+
+    }
+
+    @Override
+    public Map<String, Object> getAll(String cur, String pageSize, String pageIndex, String searchType, String... keyWords) {
+        String sql = "";
+        String sqlCount = "";
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String type = "夹具厂商 ";
+        if (cur.equals("jj")) {
+            type = "夹具厂商";
+        } else if (cur.equals("hh")) {
+            type = "混合厂商' or supply_type='整合厂商";
+        } else if (cur.equals("fj")) {
+            type = "辅件厂商";
+        } else if (cur.equals("ts")) {
+            type = "特色经贸商";
+        }
+        if (keyWords.length > 0 && searchType.equals("searchName")) {
+            sql = "select supply_note \"supplyNote\",supply_info \"supplyInfo\",key_word \"keyWord\",supply_name \"supplyName\",('/system/upload/getImage?line_primary='||head_img) \"headImg\",'"
+                    + cur + " stype' from g_supply where status ='核准'  and  supply_type  = '" + type + "' and supply_name like '%" + keyWords[0] + "%' limit " + pageSize + " offset ("
+                    + pageIndex + " -1 ) * " + pageSize;
+            sqlCount = "select supply_note \"supplyNote\",supply_info \"supplyInfo\",key_word \"keyWord\",supply_name \"supplyName\",('/system/upload/getImage?line_primary='||head_img) \"headImg\" from g_supply where status ='核准'  and supply_type  = '"
+                    + type + "' and supply_name like '%" + keyWords[0] + "%' ";
+        } else if (keyWords.length > 0 && searchType.equals("SearchHotWords")) {
+            sql = "select supply_note \"supplyNote\",supply_info \"supplyInfo\",key_word \"keyWord\",supply_name \"supplyName\",('/system/upload/getImage?line_primary='||head_img) \"headImg\",'"
+                    + cur + " stype' from g_supply where status ='核准'  and  key_word like '%" + keyWords[0] + "%' limit " + pageSize + " offset ("
+                    + pageIndex + " -1 ) * " + pageSize;
+            sqlCount = "select supply_note \"supplyNote\",supply_info \"supplyInfo\",key_word \"keyWord\",supply_name \"supplyName\",('/system/upload/getImage?line_primary='||head_img) \"headImg\" from g_supply where status ='核准'  and supply_type  = '"
+                    + type + "' and supply_name like '%" + keyWords[0] + "%' ";
+        } else {
+            sql = "select supply_note \"supplyNote\",supply_info \"supplyInfo\",key_word \"keyWord\",supply_name \"supplyName\",('/system/upload/getImage?line_primary='||head_img) \"headImg\",'"
+                    + cur + " stype' from g_supply where status ='核准'  and  supply_type  = '" + type + "' limit " + pageSize + " offset ("
+                    + pageIndex + " -1 ) * " + pageSize;
+            sqlCount = "select supply_note \"supplyNote\",supply_info \"supplyInfo\",key_word \"keyWord\",supply_name \"supplyName\",('/system/upload/getImage?line_primary='||head_img) \"headImg\" from g_supply where status ='核准'  and supply_type  = '"
+                    + type + "'";
+        }
+        List<Map<String, Object>> list = supplyDao.SelectListMap(sql);
+        rmap.put("data", list);
+        list = supplyDao.SelectListMap(sqlCount);
+        rmap.put("total", list.size());
+        return rmap;
+
+    }
+
+    @Override
+    public Map<String, Object> getSrchExpertTeam(String cur, String pageSize, String pageIndex) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String type = " ";
+        if ("Team".equals(cur)) {
+            type = "工艺专家";
+        } else if ("artTeam".equals(cur)) {
+            type = "工艺专家";
+        } else if ("saleBeforeTeam".equals(cur)) {
+            type = "售前专家";
+        } else if ("saleAfterTeam".equals(cur)) {
+            type = "售后专家";
+        } else {
+
+        }
+        String sql1 = " 	SELECT expert_note,  COALESCE ((SELECT nick_name from sys_user  where supply_id = g_expert.expert_note limit 1 ),'无姓名' ) nick_name,  strengths,   job_age, level ,introduce  from  g_expert  where status ='核准'  and  expert_type ='"
+                + type + "'  limit " + pageSize + " offset (" + pageIndex + " -1 ) * " + pageSize;
+
+        String sql = " 	SELECT ('/system/upload/getImage?line_primary='||head_img) headImgSrc, "
+                + "    expert_note,  COALESCE ((SELECT nick_name from sys_user  where supply_id = g_expert.expert_note limit 1 ),'无姓名' ) nick_name, "
+                + " strengths,   job_age, level ,introduce  from  g_expert  where  status ='核准' and  expert_type ='" + type + "'  limit "
+                + pageSize + " offset (" + pageIndex + " -1 ) * " + pageSize;
+
+        List<Map<String, Object>> list = supplyDao.SelectListMap(sql);
+        rmap.put("data", list);
+        sql = "	SELECT   job_age, level ,introduce  from  g_expert  where status ='核准'  and   expert_type = '" + type + "'";
+        list = supplyDao.SelectListMap(sql);
+        rmap.put("total", list.size());
+        return rmap;
+    }
+
+    @Override
+    public Map<String, Object> getByidExpert(String id) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String userid = supplyDao.GetUserid(id);
+        rmap.put("data", supplySqlDao.GetSingleExpert(id));
+        rmap.put("art", supplySqlDao.GetAdvisory(userid));
+        rmap.put("random_data", supplySqlDao.getRandomExpert(id));
+        return rmap;
+    }
+
+    @Override
+    public Map<String, Object> getRandomExpert() {
+        // TODO Auto-generated method stub
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql = "SELECT  ('/system/upload/getImage?line_primary='||head_img) headImgSrc,  expert_note, (SELECT  supply_name from  g_supply    where supply_note =  g_expert.bind_supplyid   LIMIT 1 )supply_name,   expert_type,sale_experience, expert_name,job_age,main_job, level ,introduce  "
+                + "from  g_expert where status = '核准'  order by random() limit 5 ";
+        rmap.put("data", supplyDao.SelectListMap(sql));
+        return rmap;
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getSrchGridList(BaseDto baseDto) throws IOException {
+
+        String sql = "SELECT (SELECT nick_name  from sys_user where supply_id  =g_supply.supply_note LIMIT 1 ) as nick_name,"
+                + "  supply_name, "
+                + " supply_note,supply_info,local_size from g_supply   ";
+        String countsql = "select count(*) cn from (" + sql + ") t";
+        baseDto.setSortField("supply_note");
+        baseDto.setSortOrder("desc");
+        return supplyDao.QueryPageList(sql, countsql, baseDto);
+    }
+
+    @Override
+    public List<Map<String, Object>> getSupply(String supplyType) {
+        // TODO
+        String sql = "select supply_note \"supplyNote\",supply_name \"supplyName\",supply_info \"supplyInfo\",key_word \"keyWord\",('/system/upload/getImage?line_primary='||head_img) \"headImg\" from g_supply where supply_type = '"
+                + supplyType + "' and status='核准'  order by register_date desc limit 8 ";
+        return supplyDao.SelectListMap(sql);
+    }
+
+    @Override
+    public Result getAllsupply() {
+        // TODO
+        String sql = "select supply_note,supply_name  from g_supply where  status = '核准'  ";
+        return Result.resultOk(supplyDao.SelectListMap(sql));
+    }
+
+    @Override
+    public List<SelectVo> getAllsupplyxxx() {
+        String sql = "select supply_note,supply_name from g_supply where  status = '核准'  ";
+        List<Map<String, Object>> l = supplyDao.SelectListMap(sql);
+        List<SelectVo> list = new ArrayList<>();
+        l.forEach(item -> {
+            SelectVo selectVo = new SelectVo(item.get("supply_note"), item.get("supply_name").toString());
+            list.add(selectVo);
+        });
+        return list;
+    }
+
+    @Override
+    public Map<String, Object> getExpertTeamByParam(List<ExpertVo> expertVos) {
+        String cur = expertVos.get(0).getCur();
+        String pageSize = expertVos.get(0).getPageSize();
+        String pageIndex = expertVos.get(0).getPageIndex();
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        StringBuilder param = new StringBuilder();
+        String type = " ";
+        if ("Team".equals(cur)) {
+            type = "工艺专家";
+        } else if ("artTeam".equals(cur)) {
+            type = "工艺专家";
+        } else if ("saleBeforeTeam".equals(cur)) {
+            type = "售前专家";
+        } else if ("saleAfterTeam".equals(cur)) {
+            type = "售后专家";
+        } else {
+        }
+
+        for (int i = 0; i < expertVos.size(); i++) {
+            if (expertVos.get(i).getType().equals("allType")) {
+                if (expertVos.get(i).getValue().equals("0-3年")) {
+                    param.append("and job_age>=0 and job_age<=3");
+                } else if (expertVos.get(i).getValue().equals("3-5年")) {
+                    param = new StringBuilder("and job_age>=3 and job_age<=5");
+                } else if (expertVos.get(i).getValue().equals("5-8年")) {
+                    param = new StringBuilder("and job_age>=5 and job_age<=8");
+                } else if (expertVos.get(i).getValue().equals("8-15年")) {
+                    param = new StringBuilder("and job_age>=8 and job_age<=15");
+                } else if (expertVos.get(i).getValue().equals("15年以上")) {
+                    param = new StringBuilder("and job_age>=15");
+                }
+            } else if (expertVos.get(i).getType().equals("filterLevel")) {
+                if (expertVos.get(i).getValue().equals("一级")) {
+                    param.append(" and level='一级'");
+                } else if (expertVos.get(i).getValue().equals("二级")) {
+                    param.append(" and level='二级'");
+                } else if (expertVos.get(i).getValue().equals("三级")) {
+                    param.append(" and level='三级'");
+                }
+            }
+
+        }
+        String sql = " 	SELECT ('/system/upload/getImage?line_primary='||head_img) headImgSrc, "
+                + "    expert_note,  COALESCE ((SELECT nick_name from sys_user  where supply_id = g_expert.expert_note limit 1 ),'无姓名' ) nick_name, "
+                + " strengths,   job_age, level ,introduce  from  g_expert  where  status ='核准' and  expert_type ='" + type + "' " + param + "  limit "
+                + pageSize + " offset (" + pageIndex + " -1 ) * " + pageSize;
+
+        List<Map<String, Object>> list = supplyDao.SelectListMap(sql);
+        rmap.put("data", list);
+        sql = "	SELECT   job_age, level ,introduce  from  g_expert  where status ='核准'  and   expert_type = '" + type + "'";
+        list = supplyDao.SelectListMap(sql);
+        rmap.put("total", list.size());
+        return rmap;
+    }
+
+    @Override
+    public Map<String, Object> getExpertTeamBykeyWords(String keyWords) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql = " 	SELECT ('/system/upload/getImage?line_primary='||head_img) headImgSrc, "
+                + "    expert_note,  COALESCE ((SELECT nick_name from sys_user  where supply_id = g_expert.expert_note limit 1 ),'无姓名' ) nick_name, "
+                + " strengths,   job_age, level ,introduce  from  g_expert  where  status ='核准'  and expert_name like'%" + keyWords + "%'  limit 8"
+                + " offset (" + "1" + " -1 ) * 8";
+        List<Map<String, Object>> list = supplyDao.SelectListMap(sql);
+        rmap.put("data", list);
+        sql = "	SELECT   job_age, level ,introduce  from  g_expert  where status ='核准'  and   expert_name like '" + keyWords + "'";
+        list = supplyDao.SelectListMap(sql);
+        rmap.put("total", list.size());
+        return rmap;
+    }
+
+    @Override
+    public Map<String, Object> getAdvisory(String supplyUid) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        String sql = "select * from g_advisory where founder_id = (select user_id from sys_user where supply_id = '" + supplyUid + "') and status='核准' order by release_date desc";
+        List<Map<String, Object>> list = supplyDao.SelectListMap(sql);
+        map.put("data", list);
+        return map;
+    }
+
+    // getAllsupply
+
+    *//**
+     * 审批查阅
+     *//*
+    @Override
+    public Result getSupplyByNote(String needNote) {
+        Result rs = new Result();
+        String sql = "SELECT * from g_supply   where  supply_note  = '" + needNote + "'";
+        String user_sql = "SELECT  user_id, nick_name,mobile, email   from sys_user where supply_id = '" + needNote
+                + "'";
+
+        rs.put("data", supplyDao.QueryhumpMap(sql).get(0));
+        rs.put("user", supplyDao.QueryhumpMap(user_sql).get(0));
+
+        return rs;
+
+    }
+
+    *//**
+     * 审批结束后，给对应的供应商授权
+     *
+     * @throws Exception
+     *//*
+    @Override
+    public Result agree(Examine examine) throws Exception {
+        // 审批流
+        processService.agree(examine);
+        // 给对应的供应商进行授权
+        String note = examine.getBusinessId();
+        String status = supplyDao
+                .getSingleResult("SELECT \"status\"   from  g_supply  where supply_note  = '" + note + "'");
+        if ("核准".equals(status)) {
+            // 获取用户id
+            String userid = gabSysUserDao.getSingleResult("SELECT   user_id from   sys_user  where supply_id = '" + note + "'");
+            Map<String, Object> map = new HashMap<String, Object>();
+            List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+            Map<String, Object> map2 = new HashMap<String, Object>();
+            map2.put("roleId", "GYSBM");
+            list.add(map2);
+            map.put("userId", userid);
+            map.put("roleMap", list);
+            // 授权
+            //sysUserDao.saveUserAuth(map);
+            SysUser sysuser = gabSysUserDao.findById(userid).orElse(new SysUser());
+            SessionUser sessionUser = SessionUser.SessionUser();
+            SysUser user = sessionUser.getSysUser();
+            //修改用户的机构id为审核人所在的机构id
+            gabSysUserDao.updateOrgId(userid, user.getOrgId());
+            // 发送短信给对应供应商
+            SysSmsLog sysSmsLog = sysSmsService.send(SysSmsLog.GenSms(sysuser, SmsType.GREANT, "已审核通过"));
+            if (sysSmsLog.getSuccess()) {
+
+            } else {
+                throw new RuntimeException("审核通过，短信发送失败");
+            }
+        }
+
+        return Result.resultOk();
+    }
+
+
+    @Override
+    public Map<String, Object> getSupplyById(String supplyId) {
+        String sql = "select supply_address \"supplyAddress\",  supply_note \"supplyNote\",supply_name \"supplyName\",'/system/upload/getImage?line_primary='||head_img \"headImg\",supply_info \"supplyInfo\",key_word \"keyWord\",customer_exp \"customerExp\",supply_uid \"supplyUid\"  from g_supply where supply_note = '" + supplyId + "'";
+        List<Map<String, Object>> list = supplyDao.SelectListMap(sql);
+        if (list.size() > 0) {
+            return supplyDao.SelectListMap(sql).get(0);
+        } else {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("supplyName", "暂无名称");
+            map.put("supplyNote", "");
+            map.put("headImg", "");
+            map.put("supplyInfo", "");
+            map.put("keyWord", "");
+            map.put("customerExp", "");
+            return map;
+
+        }
+    }
+
+
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto dto) {
+        String sql = " select  * from g_supply   ";
+        Map<String, String> map = dto.getParamsMap();
+        String where = SqlJoint.where(e -> {
+
+            e.contains("supply_name", map.get("supply_name"));
+            e.eq("supply_type", map.get("supply_type"));
+            e.ge("register_date", map.get("srchRq1"));
+            e.le("register_date", map.get("srchRq2"));
+
+        }, true);
+        return supplyDao.QueryToMapPage(dto, sql + where);
+    }
+
+    @Override
+    public Result SupplySave(modelVo modelVo) throws Exception {
+        Result rs = new Result();
+        if (modelVo.getSysuser() != null) {
+            String note = UUID.randomUUID().toString(true);
+            SysUser user = modelVo.getSysuser();
+            G_Supply supply = modelVo.getSupply();
+            SessionUser sessionUser = SessionUser.SessionUser();
+            SysUser session_user = sessionUser.getSysUser();
+            //注册需要同步erp 客户表
+            SysCustomer customer = new SysCustomer();
+            // 验证的关键字段不能重复
+            if (false *//*judgeUnique(gUserInfoDao)*//*) {
+                // 用户基础信息表
+                user.setIsForbidden(false);
+                user.setGenTime(new Timestamp(System.currentTimeMillis()));
+                user.setJobNumber(user.getUserId());
+                user.setDeleteLogo(false);
+                user.setPassword(MD5Util.encode(user.getPassword()));
+                Property pro = SpringUtil.getBean(Property.class);
+                user.setOrgId(pro.getBusiness().getDefaultCorp());
+                user.setSupplyId(note);
+                user.setIsForbidden(false);
+                user.setType("厂商");
+
+                if (supply != null) {
+                    supply.setSupplyNote(note);
+                    supply.setSupplyName(user.getNickName());
+                    supply.setStatus("登记");
+                    supply.setIsPlatform(true);
+                    supply.setRegisterDate(new Date());
+
+                }
+                customer.setCustomerId(note);
+                customer.setCustomerName(supply.getSupplyName());//
+                customer.setCustomerExp(supply.getCustomerExp());//supply.getCustomerExp()
+                customer.setCustomerFlag("Y");
+                user.Validate();
+                sysCustomerDao.save(customer);
+                gabSysUserDao.save(user);
+                supplyDao.save(supply);
+
+                //添加初始权限
+                Map<String, Object> map = new HashMap<String, Object>();
+                List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+                Map<String, Object> map2 = new HashMap<String, Object>();
+                map2.put("roleId", "GYSINIT");
+                list.add(map2);
+                map.put("userId", user.getUserId());
+                map.put("roleMap", list);
+                //sysUserDao.saveUserAuth(map);
+                return Result.resultOk("保存成功");
+
+            } else {
+                return Result.resultError(300, "用户名已被占用,请重新输入");
+            }
+
+
+        } else {
+            return Result.resultError(300, "新增失败");
+        }
+
+    }
+
+    @Override
+    public Result getSupplyStatus(String supplyNote, String status) {
+        String flag = supplyDao.getSupplyStatus(supplyNote);
+        if (status.equals(flag)) {
+            return Result.resultOk("操作成功！");
+        }
+        return Result.error("该单不是“" + status + "”状态,或该数据非平台用户添加,不能操作！");
+
+    }
+
+    @Override
+    public modelVo SupplyInfo(String supplyNote) throws Exception {
+        modelVo entry = new modelVo();
+
+        String userId = gabSysUserDao.findUserId(supplyNote);
+        //用户基础信息表
+        SysUser user = gabSysUserDao.findById(userId).orElse(new SysUser());
+        //专家基础信息表
+        G_Supply supply = supplyDao.findById(supplyNote).orElse(new G_Supply());
+        entry.setSysuser(user);
+        entry.setSupply(supply);
+        return entry;
+    }
+
+    @Override
+    public void supplyedit(modelVo vo) {
+        SysUser sysuser = vo.getSysuser();
+        G_Supply supply = vo.getSupply();
+        //修改用户基础信息
+        SysUser user = gabSysUserDao.findById(vo.getSysuser().getUserId()).orElse(null);
+        gabSysUserDao.dynamicSave(sysuser, user);
+        //修改供应商档案
+        if (supply != null) {
+            supplyDao.dynamicSave(supply, supplyDao.findById(user.getSupplyId()).orElse(null));
+        }
+        //同步erp供应商表
+        SysCustomer customer = new SysCustomer();
+        customer.setCustomerName(supply.getSupplyName());
+        customer.setCustomerExp(supply.getCustomerExp());
+        sysCustomerDao.dynamicSave(customer, sysCustomerDao.findByCustomerId(user.getSupplyId()));
+
+    }
+
+    @Override
+    public void deleteBySupplyNote(String supplyNote) {
+        String userId = gabSysUserDao.findUserId(supplyNote);
+        //删除用户表 的记录
+        gabSysUserDao.deleteByUserIdTrue(userId);
+        //删除个人表中的记录
+        supplyDao.deleteBySupplyNoteTrue(supplyNote);
+        //删除关联erp员工表
+        sysCustomerDao.deleteById(supplyNote);
+    }
+
+    @Override
+    public Result getGUserInfoStatus(String supplyNote, String status) {
+        String  flag =	gUserInfoDao.getGUserInfoStatus(supplyNote);
+        if (status.equals(flag)) {
+            return Result.resultOk("操作成功！");
+        }
+        return Result.error("该单不是“" + status + "”状态,或该数据非平台用户添加,不能操作！");
+
+    }*/
+
+
+
+
+}

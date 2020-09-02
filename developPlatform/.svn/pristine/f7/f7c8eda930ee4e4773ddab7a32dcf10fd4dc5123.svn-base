@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>费用报支</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="htStype" id="htStype" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNo"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input class="mini-combobox" name="srchHtFlag" id="srchHtFlag" textField="text" valueField="id" popupHeight="200" width="80px"
+                   data="[{id:'登记',text:'登记'},{id:'确认',text:'确认'},{id:'审核中',text:'审核中'},{id:'核准',text:'核准'},{id:'核销',text:'核销'}]" nullItemText="全部" showNullItem="true"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" idField="bzNote" sortField="bzRq" sortOrder="desc" onselectionchanged="onSelectionChanged">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="bzRq" width="100" align="center">日期</div>
+                        <div tz:datagrid="column" field="bzNote" width="120" align="center">报支单号</div>
+                        <div tz:datagrid="column" field="bzMethod"  width="80" align="center">报支方式</div>
+                        <div tz:datagrid="column" field="bzMan" displayField="manName" width="80" align="center">报支人</div>
+                        <div tz:datagrid="column" field="bzDept" width="120" displayField="deptName" align="left">报支部门</div>
+                        <div tz:datagrid="column" field="bzCurrency" width="100" align="right" >报支币种</div>
+                        <div tz:datagrid="column" field="bzInvoiceType" width="100" align="center">发票类型</div>
+                        <div tz:datagrid="column" field="bzInvoiceNumber" width="100" align="center">发票号</div>
+                        <div tz:datagrid="column" field="bzInvoiceAmount" width="100" align="right" >发票张数</div>
+                        <div tz:datagrid="column" field="bzInvoiceMoney" width="100" align="center" numberFormat="#,0.000">发票金额</div>
+                        <div tz:datagrid="column" field="bzMoney" width="100" align="center">报支金额</div>
+                        <div tz:datagrid="column" field="bzRemarks" width="100" align="center">报支摘要</div>
+                        <div tz:datagrid="column" field="bzInformation" width="100" align="center">报支信息</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-splitter"  style="width: 100%; height: 100%;" borderStyle="border:0;">
+                <div size="70%" showCollapseButton="false">
+                    <div class="mini-fit">
+                        <div tz:datagrid="datagrid" id="cost_detailed_grid" style="width: 100%; height: 100%;" idField="bzMo" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                             ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="bzCostCorp" sortOrder="asc">
+                            <div property="columns">
+                                <div tz:datagrid="indexcolumn" width="35">序号</div>
+                                <div tz:datagrid="column" field="bzCostCorp" width="110" align="center">费用公司</div>
+                                <div tz:datagrid="column" field="bzCostDept" width="100" align="center">费用部门</div>
+                                <div tz:datagrid="column" field="bzCostItemType"  align="left" width="120">费用项目类型</div>
+                                <div tz:datagrid="column" field="bzCostTypeValue"   align="left" width="100">费用项目</div>
+                                <div tz:datagrid="column" field="bzCostType"  align="left" width="80">费用类型</div>
+                                <div tz:datagrid="column" field="bzCostMoney"  align="left" width="80">费用金额</div>
+                                <div tz:datagrid="column" field="bzCostRemarks"   align="left" width="300">费用说明</div>
+                                <div tz:datagrid="column" width="100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div showCollapseButton="false">
+                    <div class="mini-fit">
+                        <div tz:datagrid="datagrid" id="plan_payment_grid" style="width: 100%; height: 100%;" idField="bzMo" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                             ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="bzPlanRq" sortOrder="asc">
+                            <div property="columns">
+                                <div tz:datagrid="indexcolumn" width="35">序号</div>
+                                <div tz:datagrid="column" field="bzPlanRq" displayField="planRqStr" width="110" align="center">日期</div>
+                                <div tz:datagrid="column" field="bzPlanMoney" width="100" align="center">计划付款金额</div>
+                                <div tz:datagrid="column" field="bzPlanFlag"  align="left" width="120">状态</div>
+                                <div tz:datagrid="column" width="100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var cost_detailed_grid = mini.get("cost_detailed_grid");
+    var plan_payment_grid = mini.get("plan_payment_grid");
+    var surl = "/xt/dailyRoutine/expenseReport";
+    cost_detailed_grid.setUrl(surl + "/getCostList");
+    plan_payment_grid.setUrl(surl + "/getPaymentList");
+    srch_topgrid.bindSearchForm(form);
+
+    //start
+    var htStype = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    if (hmq.isNotEmpty(htStype)) {
+        form.getField("htStype").setValue(htStype);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("outType,paramMod");
+    }
+
+    //end
+
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            cost_detailed_grid.load({
+                params: mini.encode({
+                    bzNote: record.bzNote
+                })
+            });
+            plan_payment_grid.load({
+                params: mini.encode({
+                    bzNote: record.bzNote
+                })
+            });
+        }
+    }
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().htNo;
+        }
+    });
+
+    // 页面初始化模块和类型 END
+    function onHtTypeValueChanged(e, callback) {
+        mini.get("srchHtType").setEnabled(true);
+        if (hmq.isNotEmpty(e.sender.getValue())) {
+            mini.get("srchHtItemType").load("/system/parameter/getParamsSelectListByParentId/销售/订单类型/{0}".format(e.sender.getValue()));
+        } else {
+            mini.get("srchHtItemType").setData(null);
+        }
+        if ($.isFunction(callback)) {
+            callback();
+        }
+    }
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        srch_topgrid.load();
+       // srch_bottomgrid.setData([]);
+    }
+
+    /**
+     * 新增
+     **/
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}, width: 1300, height: 700});
+    }
+
+    /**
+     * 编辑
+     **/
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.bzNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}, width: 1300, height: 700});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 查阅
+     **/
+    function view_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: {row: row, formData: form.getData()}, width: 1300, height: 700});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.bzNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要删除吗 ？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("delete/{0}".format(row.bzMo), function (res) {
+                                if (200 === res.code) {
+                                    srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 审批-确认
+     **/
+    function confirm_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.bzNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalConfirm({
+                        businessId: row.bzNote,
+                        url: '/xt/dailyRoutine/expenseReport/add.html',
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $.put("confirm/{0}".format(row.bzNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+                }else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    /**
+     * 审批-取消
+     **/
+    function cancel_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.bzNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalCancel({
+                        businessId: row.bzNote,
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $.put("cancel/{0}".format(row.bzNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "htCode") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        } else if (e.field == "htSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "htJe") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    /**
+     * @Author: xutao
+     * @description: 打印弹出页面
+     */
+    function print_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "print.html", action: 'print', data: row, width: 700, height: 570});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function hx_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.htNo, '核准'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要核销吗 ？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $.put("hx/{0}".format(row.htNo), function (res) {
+                                if (200 === res.code) {
+                                    srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+
+    }
+
+    function qxhx_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.htNo, '核销'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要取消吗 ？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $.put("qxhx/{0}".format(row.htNo), function (res) {
+                                if (200 === res.code) {
+                                    srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+
+</body>
+</html>
+
+

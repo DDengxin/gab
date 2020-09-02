@@ -1,0 +1,121 @@
+package com.tengzhi.business.platform.form.dao.impl;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.form.dao.DynamicFormDao;
+import com.tengzhi.business.platform.form.dao.DynamicFormSqlDao;
+import com.tengzhi.business.platform.form.model.DynamicForm;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public class DynamicFormSqlDaoImpl extends BasicsDaoImpl<DynamicForm, String> implements DynamicFormSqlDao {
+
+	@Autowired
+	private DynamicFormDao dynamicFormDao;
+
+	@Override
+	public Map<String, Object> getById(String Id) {
+		String sql = "select *,f_getparamname('GETBYPARENTID', parameter_type, '参数类型', '平台参数', 'CSLX', '') type_name,f_getparamname('GETBYPARENTID', parameter_way, '参数方式', '平台参数', 'CSFS', '') way_name from g_dynamic_form ";
+		sql += SqlJoint.where(e -> {
+			e.eq("id", Id);
+		}, true);
+		return dynamicFormDao.QueryhumpMap(sql).get(0);
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> findAll(BaseDto baseDto) {
+		String corpId = SessionUser.getCurrentCorpId();
+		String sql = "select *,f_getparamname('GETBYPARENTID', classify, '表单配置', '平台参数', '','"+corpId+"') classify_name,f_getparamname('GETBYPARENTID', parameter_type, '参数类型', '平台参数', 'CSLX', '') type_name,f_getparamname('GETBYPARENTID', parameter_way, '参数方式', '平台参数', 'CSFS', '','"+corpId+"') way_name from g_dynamic_form";
+		Map<String, String> map = baseDto.getParamsMap();
+		String where = SqlJoint.where(e -> {
+			e.eq("is_delete", "true");
+			e.contains("parameter_name", map.get("srchName"));
+			e.eq("classify", map.get("srchClassify"));
+		}, true);
+		return dynamicFormDao.QueryMapPageList(baseDto, sql + where, true);
+	}
+
+	@Override
+	public List<Map<String, Object>> getDynamicFormByClassify(String classify) {
+		String sql = "select *,f_getparamname('GETBYPARENTID', parameter_type, '参数类型', '平台参数', 'CSLX', '') type_name,f_getparamname('GETBYPARENTID', parameter_way, '参数方式', '平台参数', 'CSFS', '') way_name from g_dynamic_form";
+		sql += SqlJoint.where(e -> {
+			e.eq("classify", classify);
+			e.eq("is_delete", "true");
+		}, true);
+		return dynamicFormDao.QueryhumpMap(sql + " order by rank asc");
+	}
+
+	@Override
+	public String getSql(String type) {
+		if (StringUtils.isEmpty(type)) {
+			throw new RuntimeException("分类不能为空");
+		}
+		@SuppressWarnings("unchecked")
+		List<DynamicForm> list = super.query("select * from g_dynamic_form " + SqlJoint.where(e -> {
+			e.eq("classify", type, true);
+		}, true), DynamicForm.class);
+		StringBuffer sqlStr = new StringBuffer();
+		StringBuffer DetailsqlStr = null;
+		sqlStr.append("select associated_form_key,");
+		list.forEach(e -> {
+			sqlStr.append(e.getAssociatedFields());
+			sqlStr.append(" as \"" + e.getParameter() + "\" ,");
+		});
+		if (sqlStr.length() > 0) {
+			DetailsqlStr = new StringBuffer(sqlStr.substring(0, sqlStr.length() - 1));
+		}
+		DetailsqlStr.append(" from g_dynamic_form_detail");
+		return DetailsqlStr.toString();
+	}
+
+	@Override
+	public String getShowSql(String type) {
+		if (StringUtils.isEmpty(type)) {
+			throw new RuntimeException("分类不能为空");
+		}
+		@SuppressWarnings("unchecked")
+		List<DynamicForm> list = super.query("select * from g_dynamic_form " + SqlJoint.where(e -> {
+			e.eq("classify", type, true);
+		}, true), DynamicForm.class);
+		if (list == null || list.size() < 1) {
+			throw new RuntimeException("配置错误，请联系管理员");
+		}
+		StringBuffer sqlStr = new StringBuffer();
+		StringBuffer DetailsqlStr = null;
+		sqlStr.append("select ");
+		list.forEach(e -> {
+			sqlStr.append(e.getAssociatedFields());
+			sqlStr.append(" as \"" + e.getParameterName() + "\" ,");
+		});
+		if (sqlStr.length() > 0) {
+			DetailsqlStr = new StringBuffer(sqlStr.substring(0, sqlStr.length() - 1));
+		}
+		DetailsqlStr.append(" from g_dynamic_form_detail");
+		return DetailsqlStr.toString();
+	}
+
+	@Override
+	public Map<String, Object> getShowSqlValue(String type, String id, String table) {
+		try {
+			String sql = getShowSql(type) + " where associated_form_key='" + id + "' and associated_table_name='"
+					+ table + "' and associated_key='" + type + "'";
+			List<Map<String, Object>> list = this.queryToMap(sql);
+			if (list != null && list.size() > 0) {
+				return list.get(0);
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+
+	}
+
+}

@@ -1,0 +1,185 @@
+package com.tengzhi.base.tools.ehcache.util;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-08-04
+ */
+@Component
+public class EhcacheTemplate {
+
+    @Autowired
+    @Qualifier("ehCacheCacheManager")
+    private EhCacheCacheManager ehCacheCacheManager;
+    
+
+    /**
+     * 存入
+     *
+     * @param <T>       the type parameter
+     * @param cacheName the cache name
+     * @param key       键
+     * @param value     值
+     */
+    public <T extends Serializable> void put(String cacheName, String key, T value) {
+        Cache cache = checkCache(cacheName);
+        Element e = new Element(key, value);
+        cache.put(e);
+        cache.flush();
+    }
+
+
+    /**
+     * 存入 并设置元素是否永恒保存
+     *
+     * @param <T>       the type parameter
+     * @param cacheName the cache name
+     * @param key       键
+     * @param value     值
+     * @param eternal   对象是否永久有效，一但设置了，timeout将不起作用
+     */
+    public <T extends Serializable> void put(String cacheName, String key, T value, boolean eternal) {
+        Cache cache = checkCache(cacheName);
+        Element element = new Element(key, value);
+        element.setEternal(eternal);
+        cache.put(element);
+        cache.flush();
+    }
+
+
+    /**
+     * 存入
+     *
+     * @param <T>               the type parameter
+     * @param cacheName         the cache name
+     * @param key               键
+     * @param value             值
+     * @param timeToLiveSeconds 最大存活时间
+     * @param timeToIdleSeconds 最大访问间隔时间
+     */
+    public <T extends Serializable> void put(String cacheName, String key, T value, int timeToLiveSeconds, int timeToIdleSeconds) {
+        Cache cache = checkCache(cacheName);
+        Element element = new Element(key, value);
+        element.setTimeToLive(timeToLiveSeconds);
+        element.setTimeToIdle(timeToIdleSeconds);
+        cache.put(element);
+        cache.flush();
+    }
+
+
+    /**
+     * @Param: [cacheName, key]
+     * @return: java.lang.Object
+     * @Author: 鱼油浅水
+     * @Date: 2020/8/3 15:20
+     * @description: 清除当前缓存区所有
+     */
+    public void clearAll(String cacheName) {
+       Cache cache = checkCache(cacheName);
+       cache.removeAll();
+    }
+
+
+
+    /**
+     * @Param: [cacheName, key]
+     * @return: java.lang.Object
+     * @Author: 鱼油浅水
+     * @Date: 2020/8/3 15:20
+     * @description: 获取某个缓存池的keyss
+     */
+    public  Object get(String cacheName, String key) {
+        Cache cache = checkCache(cacheName);
+        Element e = cache.get(key);
+        if (e != null) {
+            return e.getObjectValue();
+        }
+        return null;
+    }
+
+    /***
+     * 删除当前组
+     * @param cacheName
+     * @param Group 枚举组
+     * @return
+     */
+    public  Object removeLike(String cacheName,String Group) {
+        Cache cache = checkCache(cacheName);
+        List<String> list=cache.getKeys();
+        List<String> keys=new ArrayList<>();
+        list.forEach(item->{
+            if(item.indexOf(Group)!=-1){
+                keys.add(item);
+            }
+        });
+        removeAll(cacheName,keys);
+        return null;
+    }
+
+
+    /**
+     * @Param: [cacheName, key]
+     * @return: void
+     * @Author: 鱼油浅水
+     * @Date: 2020/8/3 15:19
+     * @description:删除当前缓存池单个Key
+     */
+    public  void remove(String cacheName, String key) {
+        Cache cache = checkCache(cacheName);
+        cache.remove(key);
+    }
+
+
+    /**
+     * @Param: []
+     * @return: void
+     * @Author: 鱼油浅水
+     * @Date: 2020/8/3 15:17
+     * @description:清除当前缓存中所有的元素
+     */
+    public void clearAll() {
+        ehCacheCacheManager.getCacheManager().clearAll();
+    }
+
+
+    /**
+     * @Param: [cacheName, keys]
+     * @return: void
+     * @Author: 鱼油浅水
+     * @Date: 2020/8/3 15:18
+     * @description: 删除当前缓存池中的多个key
+     */
+    public void removeAll(String cacheName, Collection<String> keys) {
+        Cache cache = checkCache(cacheName);
+        cache.removeAll(keys);
+    }
+
+
+    /**
+     * @Param: [cacheName]
+     * @return: net.sf.ehcache.Cache
+     * @Author: 鱼油浅水
+     * @Date: 2020/8/3 15:17
+     * @description: 获取当前XML配置的缓存池
+     */
+    private Cache checkCache(String cacheName) {
+        Cache cache = ehCacheCacheManager.getCacheManager().getCache(cacheName);
+        if (null == cache) {
+            throw new IllegalArgumentException("name=[" + cacheName + "],不存在对应的缓存组,请查看ehcache.xml");
+        }
+        return cache;
+    }
+
+
+}

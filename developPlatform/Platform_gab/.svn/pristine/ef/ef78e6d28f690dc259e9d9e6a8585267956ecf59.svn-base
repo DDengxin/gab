@@ -1,0 +1,379 @@
+package com.tengzhi.business.platform.enroll.service.impl;
+
+import cn.hutool.core.lang.UUID;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.property.Property;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.security.common.tool.spring.SpringUtil;
+import com.tengzhi.base.tools.MD5.MD5Util;
+import com.tengzhi.business.personnel.eHrWorker.model.EHrWorker;
+import com.tengzhi.business.platform.enroll.constant.GabUserTypeEnum;
+import com.tengzhi.business.platform.enroll.dao.ExpertDao;
+import com.tengzhi.business.platform.enroll.dao.GUserInfoDao;
+import com.tengzhi.business.platform.enroll.dao.PersonalDao;
+import com.tengzhi.business.platform.enroll.dao.SupplyDao;
+import com.tengzhi.business.platform.enroll.model.GUserInfo;
+import com.tengzhi.business.platform.enroll.model.G_Expert;
+import com.tengzhi.business.platform.enroll.model.G_Supply;
+import com.tengzhi.business.platform.enroll.model.G_personal;
+import com.tengzhi.business.platform.enroll.service.ExpertService;
+import com.tengzhi.business.platform.enroll.vo.modelVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.sms.constant.SmsType;
+import com.tengzhi.business.system.sms.model.SysSmsLog;
+import com.tengzhi.business.system.sms.service.SysSmsService;
+import com.tengzhi.business.system.user.dao.GabSysUserDao;
+import com.tengzhi.business.system.user.dao.GabeHrWorkerDao;
+import com.tengzhi.business.system.user.model.SysUser;
+import com.tengzhi.business.system.user.service.SysUserService;
+import com.tengzhi.business.system.workflow.service.ProcessService;
+import com.tengzhi.business.system.workflow.vo.Examine;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.sql.Timestamp;
+import java.util.*;
+
+@Service
+@Transactional
+public class ExpertServiceImpl implements ExpertService {
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+    @Autowired
+    private SupplyDao supplyDao;
+    @Autowired
+    private ExpertDao expertDao;
+    @Autowired
+    private PersonalDao personDao;
+    @Autowired
+    private GabSysUserDao gabSysUserDao;
+    @Autowired
+    private SysUserService sysuserService;
+    @Autowired
+    private ProcessService processService;
+    @Autowired
+    SysSmsService sysSmsService;
+    @Autowired
+    private GabeHrWorkerDao gabeHrWorkerDao;
+    @Autowired
+    private GUserInfoDao   gUserInfoDao;
+
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto dto) {
+        String sql = " select   * ,(SELECT  user_id  from  sys_user  where  supply_id = g_expert.expert_note  limit 1   ) from g_expert ";  
+    	Map<String, String> map = dto.getParamsMap();
+		String where = SqlJoint.where(e -> {
+			e.contains("expert_name", map.get("expert_name"));
+			e.eq("expert_type", map.get("expert_type"));
+			e.ge("register_date", map.get("srchRq1"));
+			e.le("register_date", map.get("srchRq2"));
+			
+		}, true);
+        return supplyDao.QueryToMapPage(dto,sql + where);
+    }
+
+    @Override
+    public void save(modelVo modelVo) throws Exception {
+        String note = sysGenNoteService.getNote(G_Supply.class, "GYS", "yyyy-mm-dd", 3);
+        if (modelVo.getSysuser() != null) {
+            SysUser user = modelVo.getSysuser();
+            // 验证方法，保存的重要字段不重复
+            if (judgeUnique(user)) {
+                // 用户基础信息表
+                user.setIsForbidden(false);
+                user.setGenTime(new Timestamp(System.currentTimeMillis()));
+                user.setJobNumber(user.getUserId());
+                user.Validate();
+                user.setPassword(MD5Util.encode(user.getPassword()));
+                Property pro = SpringUtil.getBean(Property.class);
+                user.setOrgId(pro.getBusiness().getDefaultCorp());
+                if (modelVo.getSupply() != null) {
+                    // 供应商注册
+                    G_Supply supply = modelVo.getSupply();
+                    supply.setRegisterDate(new Date());
+                    supply.setSupplyNote(note);
+                    supply.setKeyWord(supply.getKeyWord().substring(1, supply.getKeyWord().length()));
+                    supplyDao.save(supply);
+                    user.setSupplyId(supply.getSupplyNote());
+                    //user.setOrgId(supply.getSupply_note());
+                    user.setType("厂商");
+                    user.setAssociatedId(supply.getSupplyNote());
+                } else if (modelVo.getPersonal() != null) {
+                    // 个人注册
+                    G_personal person = modelVo.getPersonal();
+                    person.setRegisterDate(new Date());
+                    person.setPersonNote(note);
+                    personDao.save(person);
+                    user.setSupplyId(person.getPersonNote());
+                    //user.setOrgId(person.getPersonNote());
+                    user.setType("客户");
+                } else if (modelVo.getExpert() != null) {
+                    // 专家注册
+                    G_Expert expert = modelVo.getExpert();
+                    expert.setRegisterDate(new Date());
+                    expert.setExpertNote(note);
+                    expertDao.save(expert);
+                    user.setSupplyId(expert.getExpertNote());
+                    //user.setOrgId(expert.getExpertNote());
+                    user.setType("专家");
+                    user.setAssociatedId(expert.getExpertNote());
+                } else {
+                    // do nothting
+                }
+                gabSysUserDao.save(user);
+            } else {
+                throw new Exception("用户ID，或姓名或机构名称或机构id已存在！");
+            }
+        }
+    }
+
+    @Override
+    public boolean judgeUnique(SysUser sysUser) {
+        return gabSysUserDao.findAll(Specifications.where(false, (c) -> {
+            c.eq("jobNumber", sysUser.getJobNumber());
+            c.eq("userId", sysUser.getUserId());
+            c.eq("nickName", sysUser.getNickName());
+            c.eq("orgId", sysUser.getOrgId());
+            c.eq("orgName", sysUser.getOrgName());
+        })).size() <= 0;
+    }
+
+    @Override
+    public modelVo findById(String  expertNote) throws Exception {//String id
+        modelVo entry = new modelVo();
+         //用户基础信息表
+        GUserInfo gUserInfo = gUserInfoDao.findById(expertNote).orElse(new GUserInfo());
+        //专家基础信息表
+        G_Expert  expert = expertDao.findById(gUserInfo.getUserId()).orElse(new  G_Expert());
+        entry.setExpert(expert);
+        entry.setgUserInfo(gUserInfo);
+        return entry;
+    }
+
+    @Override
+    public void update(modelVo vo) throws Exception {
+        // TODO Auto-generated method stub
+        G_Expert expert =     vo.getExpert();
+        //修改用户基础信息
+      GUserInfo gUserInfo =   vo.getgUserInfo();
+        gUserInfoDao.dynamicSave(gUserInfo,gUserInfoDao.findById(gUserInfo.getUserId()).orElse(null));
+        //修改专家基础信息
+        if (expert!= null) {
+            expertDao.dynamicSave(expert, expertDao.findById(gUserInfo.getUserId()).orElse(null));
+        }
+
+        //完善信息自动提交审批
+        if(StringUtils.isNotEmpty(vo.getSelectType()) && "complete".equals(vo.getSelectType())){
+            Examine  examine = new   Examine();
+            examine.setTitle("专家管理");
+            examine.setMenuId("R9003");
+            examine.setUrl(GabUserTypeEnum.专家团队.getRegisterApprovalUrl());
+            examine.setBusinessId(expert.getExpertNote());
+            processService.startFinishFirstStep(examine);
+            //状态修改为确认
+            expertDao.updateStatus(expert.getExpertNote(),"确认");
+            gUserInfoDao.updateFlag(expert.getExpertNote(),"确认");
+
+        }
+
+
+    }
+
+    /**
+     * academic.html专家数据
+     */
+    @Override
+    public Map<String, Object> getAcademic(String founder) {
+        String sql = "select expert_note \"expertNote\",expert_name \"expertName\",main_job \"mainJob\",job_age \"jobAge\",level,strengths,introduce,('/system/upload/getImage?line_primary='||head_img) \"imageSrc\" from g_expert,sys_user where sys_user.associated_id = g_expert.expert_note and sys_user.user_id = '" + founder + "'";
+        List<Map<String, Object>> map = expertDao.SelectListMap(sql);
+        if (map != null && map.size() > 0) {
+            return map.get(0);
+        }
+        return null;
+    }
+
+
+    @Override
+    public Result expertalone(String id) {
+
+        Result rs = new Result();
+        String sql = "SELECT *,(select supply_name from g_supply where supply_note=g_expert.supply_name limit 1 ) supply_name_x from  g_expert    where expert_note = '" + id + "'";
+
+        String sql1 = "SELECT  user_id, nick_name,mobile, email   from sys_user where supply_id = '" + id + "'";
+
+        rs.put("data", expertDao.QueryhumpMap(sql).get(0));
+        rs.put("user", expertDao.QueryhumpMap(sql1).get(0));
+        return rs;
+
+    }
+
+
+    @Override
+    public Result agree(Examine examine) throws Exception {
+        //审批流
+        processService.agree(examine);
+        //给对应的供应商进行授权
+        String note = examine.getBusinessId();
+        String status = expertDao.getSingleResult("SELECT status  FROM  g_expert  where  expert_note = '" + note + "'");
+        if ("核准".equals(status)) {
+            //获取用户id
+           /* Map<String, Object> map = new HashMap<String, Object>();
+            List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+            Map<String, Object> map2 = new HashMap<String, Object>();
+            map2.put("roleId", "2501");
+            list.add(map2);
+            map.put("userId", note);
+            map.put("roleMap", list);
+            sysuserService.saveUserAuth(map);*///修改G_userinfo表中的信息是否完善字段为核准
+           gUserInfoDao.updateFlag(note,"核准");
+              // 发送短信给对应供应商
+            GUserInfo gUserInfo = gUserInfoDao.findById(note).orElse(new GUserInfo());
+            SysUser   user  = new SysUser();
+            user.setUserId(gUserInfo.getUserId());
+            user.setMobile(gUserInfo.getUserMtel());
+            user.setOrgId(gUserInfo.getDataCorp());
+            SysSmsLog sysSmsLog = sysSmsService.send(SysSmsLog.GenSms(user, SmsType.GREANT, "已审核通过"));
+            if (sysSmsLog.getSuccess()) {
+            } else {
+                throw new RuntimeException("审核通过，短信发送失败");
+            }
+
+
+        }
+
+
+        return Result.resultOk();
+    }
+
+
+    public Map<String, Object> getExpertTech(String cur, String pageSize, String pageIndex, String expert_id) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String user_id = supplyDao.getSingleResult("select ");
+        String sql = " SELECT *   from g_advisory  where   founder_id = '" + expert_id + "'   limit "
+                + pageSize + " offset (" + pageIndex + " -1 ) * " + pageSize;
+
+        List<Map<String, Object>> list = supplyDao.SelectListMap(sql);
+        rmap.put("data", list);
+        rmap.put("total", list.size());
+        return rmap;
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getExpertTech(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String where = "";
+        if (StringUtils.isNotBlank(map.get("expert_id"))) {
+            String user_id = supplyDao.getSingleResult("select user_id from sys_user  where supply_id = '" + map.get("expert_id") + "'");
+            where += " AND founder_id = '" + user_id + "'";
+        }
+        if (StringUtils.isNotBlank(map.get("type"))) {
+            String advisort_type = "";
+            if ("technology".equals(String.valueOf(map.get("type")))) {
+                advisort_type = "技术案例";
+            } else if ("academic".equals(String.valueOf(map.get("type")))) {
+                advisort_type = "学术论文";
+            } else if ("share".equals(String.valueOf(map.get("type")))) {
+                advisort_type = "经验分享";
+            }
+
+
+            where += " AND classify = '" + advisort_type + "'";
+        }
+
+        String sql = " SELECT  *, (SELECT supply_id from sys_user where user_id =g_advisory.founder_id limit 1 )  supply_id   from g_advisory  where   1 = 1" + where;
+        return supplyDao.QueryPageList(sql, "select count(1) from (" + sql + ") a", baseDto);
+
+    }
+    public boolean GUserinfoUnique(GUserInfo gUserInfo) {
+        // 需求方客户
+        return gUserInfoDao.findAll(Specifications.where(false, (c) -> {
+            c.eq("userId", gUserInfo.getUserId());
+            c.eq("userName", gUserInfo.getUserName());
+            c.eq("userMtel", gUserInfo.getUserMtel());
+        })).size() <= 0;
+
+    }
+	@Override
+	public Result Expertsave(modelVo modelVo) throws Exception {
+        GUserInfo  gUserInfo = modelVo.getgUserInfo();
+
+        if (gUserInfo != null) {
+            G_Expert expert = modelVo.getExpert();
+            Property property = SpringUtil.getBean(Property.class);
+
+            //注册需要同步erp 员工表  e_hr_worker
+                // 验证的关键字段不能重复
+                if (GUserinfoUnique(gUserInfo) ) {
+                    // 用户基础信息表
+                    gUserInfo.setUserType(GabUserTypeEnum.专家团队.getName());
+                    gUserInfo.setDataDate(new Date());
+                    gUserInfo.setDataCorp(property.getBusiness().getDefaultCorp());
+                    gUserInfo.setUserPwd(MD5Util.encode(gUserInfo.getUserPwd()));
+                    gUserInfo.setPlatform(true);
+                    gUserInfo.setFlag("登记");
+                    gUserInfo.setPlatform(true);
+
+                    
+                   if (modelVo.getExpert() != null) {
+                	   expert.setExpertNote(gUserInfo.getUserId());
+                	   expert.setExpertName(gUserInfo.getUserName());
+                	   expert.setExpertType(gUserInfo.getType());
+                	   expert.setRegisterDate(new Date());
+                	   expert.setExpertNote(gUserInfo.getUserId());
+                	   expert.setStatus("登记");
+                	
+                    }
+
+
+                    gUserInfo.Validate();
+                   gUserInfoDao.save(gUserInfo);
+                    expertDao.save(expert);
+                    //添加初始权限
+              /*      Map<String, Object> map = new HashMap<String, Object>();
+        			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        			Map<String, Object> map2 = new HashMap<String, Object>();
+        			map2.put("roleId", "ZJINIT");
+        			list.add(map2);
+        			map.put("userId", gUserInfo.getUserId());
+        			map.put("roleMap", list);
+        			sysuserService.saveUserAuth(map);*/
+                    return Result.resultOk("保存成功");
+
+                } else {
+                    return Result.resultError(300, "该专家的用户账号或用户名或手机号码称已存在");
+                }
+           
+
+        } else {
+            return Result.resultError(300, "新增失败");
+        }
+	}
+
+	@Override
+	public Result getExpetStatus(String expertNote,String status) {
+	String  flag =	expertDao.getExpertStatus(expertNote);
+	if (status.equals(flag)) {
+		return Result.resultOk("操作成功！");
+	}
+	return Result.error("该单不是“" + status + "”状态,或该数据非平台用户添加,不能操作！");
+	
+	}
+
+	@Override
+	public void deleteByExpertNote(String userId) {
+		//删除用户表 的记录
+		gUserInfoDao.deleteById(userId);
+		//删除个人表中的记录
+		expertDao.deleteByExpertIdTrue(userId);
+
+	}
+
+
+}

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产盘点</title>
+    </th:block>
+</head>
+<body>
+
+<!--撑满页面-->
+<div class="mini-fit">
+    <div class="mini-splitter" style="width:100%;height:100%;">
+        <div size="380" showCollapseButton="true">
+            <div class="mini-toolbar" style="padding:2px;border-top:0;border-left:0;border-right:0;">
+                <label class="hmq-label" text="日期">
+                    <input class="mini-datepicker" name="srchRq1" id="srchRq1" showclearbutton="false"  dateFormat="yyyy-MM-dd" width="110"/>
+                </label>
+                <label class="hmq-label" text="至">
+                    <input class="mini-datepicker" name="srchRq2" id="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+                </label>
+                <a class="mini-button" iconCls="icon-search" plain="true" onclick="search_tree()">查找</a>
+            </div>
+            <div class="mini-fit">
+                <ul id="tree1" class="mini-tree" url="/finance/capitalManager/capitalCheck/getJcTree.html" style="width:100%;"
+                    showTreeIcon="true" textField="rq" idField="note" parentField="pid" resultAsTree="false">
+                </ul>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+                <th:block th:fragment="content">
+                    <input class="mini-hidden" id="rq" name="rq"/>
+                    <input class="mini-hidden" id="note" name="note"/>
+                    <label class="hmq-label" text="资产编码">
+                        <input class="mini-textbox" name="fnumber"/>
+                    </label>
+                    <label class="hmq-label" text="资产名称">
+                        <input class="mini-textbox" name="fname"/>
+                    </label>
+                </th:block>
+            </th:block>
+            <div class="mini-fit" >
+                <div id="srch_grid" style="width: 100%; height: 100%;"
+                     idField="ksid" url="/finance/capitalManager/capitalCheck/list.html"
+                     sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" showPageInfo="false" sortField="ksid" allowSort="true"
+                     align="center" class="mini-datagrid" data-pagebuttonbar="true">
+                    <div property="columns">
+                        <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+                        <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "80"  field = "fnumber">资产编码</div>
+                        <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "120"  field = "fname" >资产名称</div>
+                        <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "160"  field = "ftypeid" displayField="ftypeidName">资产类别</div>
+                        <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "80"  field = "useDept" displayField="fdeptidName">使用部门</div>
+                        <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "100%"    ></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var tree = mini.get("tree1");
+    var srch_grid = mini.get("srch_grid");
+    srch_grid.bindSearchForm(form);
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        var node = tree.getSelectedNode();
+        if (node) {
+            srch_grid.load();
+        }else{
+            hmq.tipDanger("请选择结存时间");
+        }
+    }
+
+
+    /**结存*/
+    function jc_option(e){
+        mini.confirm("确定要结存今日资产吗？", "信息", function (action) {
+            if (action == "ok") {
+                $['get']("jcOption.html", function (res) {
+                    if (200 === res.code) {
+                        search_tree();
+                        hmq.tipSuccess("结存完成！");
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        });
+    }
+
+    /**导出*/
+    function export_option(e) {
+        var node = tree.getSelectedNode();
+        if (node) {
+            assembling({
+                grid : srch_grid,
+                form : form, //	/cg/tj/orderStatistics/getSrchTopListExportExcel
+                url :"/finance/capitalManager/capitalCheck/getSrchTopListExportExcel", //"/cg/yw/purchaseFile/purchaseContract/exportExcel",
+                json:['sex']
+            });
+        }else{
+            hmq.tipDanger("请选择结存时间");
+        }
+    }
+
+
+    /**查询树结构*/
+    function search_tree(){
+        tree.load({
+            params : JSON.stringify({
+                srchRq1 : mini.get("srchRq1").getValue(),
+                srchRq2 : mini.get("srchRq2").getValue(),
+            })
+        });
+    }
+
+    tree.on("nodeselect", function (e) {
+        if (e.isLeaf) {
+            form.getField("rq").setValue(e.node.rq);
+            form.getField("note").setValue(e.node.note);
+            debugger;
+            srch_grid.load();
+        } else {
+            srch_grid.setData([]);
+            srch_grid.setTotalCount(0);
+            hmq.tipDanger("请选择子节点");
+        }
+    });
+
+
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if(e.field == "rq"){
+            return record.rq ?mini.formatDate(new Date(record.rq), "yyyy-MM-dd"):'';
+        }
+        if(e.field == "createtime"){
+            return record.createtime ?mini.formatDate(new Date(record.createtime), "yyyy-MM-dd HH:mm"):'';
+        }
+    }
+
+
+</script>
+
+
+</body>
+</html>

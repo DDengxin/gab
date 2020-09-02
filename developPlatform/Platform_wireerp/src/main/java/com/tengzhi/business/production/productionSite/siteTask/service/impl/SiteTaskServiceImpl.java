@@ -1,0 +1,387 @@
+package com.tengzhi.business.production.productionSite.siteTask.service.impl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.extension.SqlUtils;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.sc.task.blcl.service.BlclService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+
+import com.tengzhi.business.production.productionSite.siteTask.Vo.MScGclistSlVo;
+import com.tengzhi.business.production.productionSite.siteTask.Vo.MScGclistVo;
+import com.tengzhi.business.production.productionSite.siteTask.dao.MScGclistDao;
+import com.tengzhi.business.production.productionSite.siteTask.dao.MScGclistSlDao;
+import com.tengzhi.business.production.productionSite.siteTask.model.MScGclist;
+import com.tengzhi.business.production.productionSite.siteTask.service.SiteTaskService;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.sc.task.sctack.dao.MScScrwGxDao;
+import com.tengzhi.business.sc.task.sctack.dao.ScTackDao;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwGx;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+
+
+@Service
+@Transactional
+public class SiteTaskServiceImpl implements SiteTaskService {
+
+	@Autowired
+	private ScTackDao scTackDao;
+
+	@Autowired
+	private MScScrwGxDao mScScrwGxDao;
+	
+	@Autowired
+	private MScGclistDao mScGclistDao;
+	
+	@Autowired
+	private MScGclistSlDao mScGclistSlDao;
+
+	@Autowired
+	private BlclService blclService;
+
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	
+	
+	
+	@Override
+    public BasePage<Map<String, Object>> getTopLeftGridList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser user = SessionUser.SessionUser();
+		String where = SqlJoint.where(c -> {
+			c.eq("a.data_corp", user.getCorpId(),true);
+			c.eq("b.gx_id", map.get("srchGx"));
+			c.contains("b.gx_ct", map.get("srchCt"));
+			c.contains("a.code", map.get("srchCode"));
+			c.contains("a.sc_mo", map.get("srchScmo"));
+		}, true);
+
+ 		
+		String sql="select a.sc_mo||'-'||b.gx_ord||' '||f_getparamname('GETBCPCODENAME',b.tname,'','技术','ZZ','"+   SessionUser.getCurrentCorpId()   +"') as rwmoandcode ,COALESCE(b.gx_name,'')||' '||COALESCE( f_getname('GETJTNAMES', gx_ct, '', ''),'') as gxandct,b.gx_name,b.gx_ct,f_getname('GETJTNAMES', b.gx_ct, '', '') gx_ct_name,gx_sl gxsl,a.sc_mo as scmo,b.gx_id gxid,(select sum(tsl) from m_sc_gclist gc where sc_mo=b.sc_mo and gc.gx=b.gx_id and gc.gc_flag='HG' ) ywsl,(select sum(tsl) from m_sc_gclist gc where sc_mo=b.sc_mo and gc.gx=b.gx_id and gc.gc_flag<>'HG' ) blsl,b.gx_note \"gxNote\" from m_sc_scrw a,m_sc_scrw_gx b "
+				+ where  +"  and a.sc_mo=b.sc_mo and b.tname is not null order by a.sc_mo desc, b.gx_ord asc,a.rq desc  ";
+		return scTackDao.QueryMapPageList(baseDto,sql,false);
+	}
+
+	
+	
+	@Override
+    public BasePage<Map<String, Object>> getTopRightGridList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object scMo=map.get("scMo");
+		Object gxNote=map.get("gxNote");
+		String sql="select    d.sc_gylx  \"gyId\",a.sc_mo as \"scMo\",a.gx_id \"gxId\",a.gx_name \"gxName\",a.gx_cj \"gxCj\",f_getparamname('GETTYPEBYRAMNAME',gx_cj,'生产车间','','','"+   SessionUser.getCurrentCorpId()   +"') \"cjName\",a.gx_ct \"gxCt\",f_getname('GETJTNAMES', gx_ct, '', '') \"ctName\",b.wl_type \"wlType\",f_get_param_name('产品大类',wl_type,'"+   SessionUser.getCurrentCorpId()   +"') \"typeName\",b.wl_code \"wlCode\",b.wl_ph \"wlPh\",b.wl_sl \"wlSl\",f_getparamname('GETBCPCODENAME',c.cpcode_name,'','技术',b.wl_type,'"+   SessionUser.getCurrentCorpId()   +"') \"cpcodeName\",c.cpcode_size   \"cpcodeSize\" "
+				+ " from  m_sc_scrw d, m_sc_scrw_gx a,m_sc_scrw_wl b,e_js_cpcode c where  d.sc_mo=a.sc_mo and a.sc_mo=b.scrw_mo and a.gx_note=b.wl_gxnote and b.wl_code=c.cpcode_id and a.sc_mo='"+scMo+"' and a.gx_note='"+gxNote+"' " ;
+		String countsql="select count(*) cn from ("+sql+") t";
+		baseDto.setSortField("sc_mo");
+		baseDto.setSortOrder("desc");
+		return scTackDao.QueryPageList(sql,countsql,baseDto);
+	}
+	
+	@Override
+    public BasePage<Map<String, Object>> getTopRightGcGridList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object scMo=map.get("scMo");
+		Object gxNote=map.get("gxNote");
+		Object code=map.get("code");
+		String sql="select sgc,f_getparamname('GETBCPCODENAME',wl_name,'','技术',wl_type,'"+   SessionUser.getCurrentCorpId()   +"') \"wlName\",wl_size \"wlSize\",wl_ph \"wlPh\",sgc_sl \"sgcSl\" from m_sc_gclist_sl where scrw_no='"+scMo+"' and gx_note='"+gxNote+"' and  bgc ='N' ";
+		String countsql="select count(*) cn from ("+sql+") t";
+		baseDto.setSortField("scrw_no");
+		baseDto.setSortOrder("desc");
+		return scTackDao.QueryPageList(sql,countsql,baseDto);
+	}
+		
+	
+	@Override
+    public BasePage<Map<String, Object>> getBottomRightGcGridList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object scMo=map.get("scMo");
+		Object gxNote=map.get("gxNote");
+		String sql="select bgc,code,f_getparamname('GETBCPCODENAME',tname,'','技术',b.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') tname,tsize,COALESCE(tph, '')tph,tsl, f_getname('GETJTNAMES', tct, '', '') tct,f_getname('GETGXNAME', gx, '', '') gx,bgc_tl bgctl,bgc_wc bgcwc,bgc_sc sc,f_getname('GETUSERNAME',do_man,'',a.data_corp) doman,f_getname('GETGXNAME', f_getname('GETNEXTGX', sc_mo, gx, ''), '', '') nextgx,a.gc_flag "
+				+ " from  m_sc_gclist a,e_js_cpcode b where a.code=b.cpcode_id and  sc_mo='"+scMo+"' and a.gx_note='"+gxNote+"' " ;
+		String countsql="select count(*) cn from ("+sql+") t";
+		baseDto.setSortField("bgc");
+		baseDto.setSortOrder("desc");
+		return scTackDao.QueryPageList(sql,countsql,baseDto);
+	}
+
+	@Override
+	public  MScScrwGx getByRwGx(String scMo, String gxId) {
+		String sql="select a.sc_mo,a.code,f_getparamname('GETBCPCODENAME',c.cpcode_name,'','技术',c.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,gx_id,gx_name,gx_js,gx_sl,gx_zl,gx_cj,gx_ct,gx_jsyq,gy_jysx "
+				+ " , f_getname('GETJTNAMES', gx_ct, '', '') ctname,gx_sl-COALESCE((select sum(tsl) from m_sc_gclist gc where gc.sc_mo=b.sc_mo and gc.gx_note=b.gx_note and gc.gc_flag='HG'),0) wwsl,(select sum(tsl) from m_sc_gclist gc where gc.sc_mo=b.sc_mo and gc.gx_note=b.gx_note and gc.gc_flag='HG' ) ywsl,(select sum(tsl) from m_sc_gclist gc where gc.sc_mo=b.sc_mo and gc.gx_note=b.gx_note and gc.gc_flag<>'HG' ) blsl "
+				+ " from m_sc_scrw a,m_sc_scrw_gx b,e_js_cpcode c  where  a.sc_mo=b.sc_mo and a.code=c.cpcode_id and  a.sc_mo=?1 and b.gx_note=?2";
+		return mScScrwGxDao.QueryListModel(MScScrwGx.class,sql,scMo,gxId).get(0);
+	}
+
+	@Override
+	public  Result getByTl(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object scMo=map.get("scMo");
+		Object gxNote=map.get("gxNote");
+		Object[] valstr = {scMo,scMo,gxNote};
+		Map<String,Object> rsmap = scTackDao.QueryToFirstMap("select gx_note,gx_id,gx_name,gx_cj,gx_ct,f_getname('GETJTNAMES', gx_ct, '', '') gx_ct_name from m_sc_scrw_gx where sc_mo=?1 and  gx_ord> (select  gx_ord from m_sc_scrw_gx where sc_mo=?2 and gx_note=?3 order by gx_ord limit 1) order by gx_ord asc ",valstr);
+		String xgx = rsmap.get("gxId")!=null?rsmap.get("gxId").toString():"";
+		String xgxnote = rsmap.get("gxNote")!=null?rsmap.get("gxNote").toString():"";
+		String sql="select b.scrw_no \"scMo\",a.tcode code,a.gx_id gx,a.gx_note \"gxNote\",'"+xgxnote+"' \"xgxNote\", '"+xgx+"' xgx,(select sc_gylx from m_sc_scrw where sc_mo=b.scrw_no  ) gy,a.tname ,a.tsize,sum(b.sgc_sl) tsl,sum(b.sgc_js) tjs,( select min(do_date) from m_sc_gclist_sl tc where tc.gx_note=a.gx_note limit 1) \"bgcTl\" ,gx_cj tcj,gx_ct tct,'ZZ' \"wlType\",vnote \"bgcVnote\"  "
+				+ ",c.cpname,c.cpsize from  m_sc_scrw_gx a ,m_sc_gclist_sl b ," +
+				" (select a.sc_mo,b.cpcode_id,f_getparamname('GETBCPCODENAME',b.cpcode_name,'','技术',b.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpname,cpcode_size cpsize  from m_sc_scrw a , e_js_cpcode b where a.code=b.cpcode_id and a.sc_mo=?1) c" +
+				" where a.sc_mo=b.scrw_no and a.sc_mo=c.sc_mo and b.scrw_no=c.sc_mo and a.gx_id=b.bgc_gx and a.gx_note=b.gx_note  and b.scrw_no=?2 and b.gx_note=?3 and b.bgc='N' group by b.scrw_no,a.gx_note ,a.tcode,a. gx_id,a.tname,a.tsize,gx_cj,gx_ct,wl_type,vnote,c.cpname,c.cpsize";
+		Object[] val = {scMo,scMo,gxNote };
+		List<Map> gclsit=scTackDao.QueryListMap(sql,val);
+		if(gclsit.size()>0) {
+			return Result.resultOk(gclsit.get(0));
+		}else {
+			return Result.error("未获取到投料信息，请检查数据！");
+		}
+	}
+
+	@Override
+	public  Result getTlflag(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object scMo=map.get("scMo");
+		Object gxId=map.get("gxId");
+		Object gxCt=map.get("gxCt");
+		Object gxNote=map.get("gxNote");
+		String sql="";
+		//判断该任务单工序有没有为N的投料
+		sql="select count(*) cn from m_sc_gclist_sl where scrw_no =?1  and bgc_gx=?2 and bgc_ct=?3 and gx_note=?4 and bgc='N'";
+		Object[] val = {scMo,gxId,gxCt,gxNote};
+		int cn=Integer.parseInt(scTackDao.getSingleResult(sql, val));
+		if(cn>0) {
+			sql="select COALESCE(sum(sgc_sl),0) sl from m_sc_gclist_sl where scrw_no =?1  and bgc_gx=?2 and bgc_ct=?3  and gx_note=?4 and bgc='N'";
+			String tlyl=scTackDao.getSingleResult(sql, val);
+			return Result.error(tlyl);
+		}else {
+			return Result.resultOk("操作成功！");
+		}
+		
+	}
+	
+
+	@Override
+	public Result getByPack(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object scMo=map.get("scMo");
+		Object action=map.get("action");
+		Object sgc=map.get("sgc");
+		Object gxId=map.get("gxId");
+		Object gxName=map.get("gxName");
+		Object gxCt=map.get("gxCt");
+		Object ctname=map.get("ctname");
+		Object gxnote=map.get("gxNote");
+		Object[] valstr = { scMo,sgc,gxnote};
+		String cn=scTackDao.getSingleResult("select count(*) cn from m_sc_gclist_sl where sgc=?1 ", sgc);
+		if(Integer.parseInt(cn)>0) {
+			return Result.error("该扫描号已投料，请勿重复投料！");
+		}
+		//首先获取下工序信息
+			Map<String,Object> rsmap = scTackDao.QueryToFirstMap("select a.gx_id,a.gx_name,a.gx_cj,a.gx_ct,f_getname('GETJTNAMES', a.gx_ct, '', '') gx_ct_name,a.gx_note from m_sc_scrw_gx a,m_sc_gclist b where  a.sc_mo=b.sc_mo and a.gx_id=b.xgx and a.sc_mo=?1 and  bgc=?2  and b.gx_note=?3 ",valstr);
+			if(rsmap.isEmpty()){
+				//第一道工序不做处理
+				//return Result.error("未获取到扫描号的信息，请检查数据！");
+			}else {
+				gxId = rsmap.get("gxId");
+				gxName = rsmap.get("gxName");
+				gxCt = (rsmap.get("gxCt") != null ? rsmap.get("gxCt") : "");
+				ctname = (rsmap.get("gxCtName") != null ? rsmap.get("gxCtName") : "");
+				gxnote=(rsmap.get("gxNote") != null ? rsmap.get("gxNote") : "");
+
+			}
+		if("包装".equals(gxName.toString())){
+			return Result.error("下道工序为"+gxName+",无需操作");
+		}
+		String sql="select bgc sgc,a.gx_note \"gxNote\",wlcode \"wlCode\",wl_name \"wlName\",f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',wl_type,'"+   SessionUser.getCurrentCorpId()   +"') textname ,wl_size \"wlSize\",'"+action+"' \"gcCl\",gc_qw \"gcQw\",wlph \"wlPh\",js \"sgcJs\",sl \"sgcSl\",zl \"sgcZl\",clprice,vnote,'"+scMo+"' \"scrwNo\",ylpch,gx,rq,czman,flag,wl_type \"wlType\" ,cpcode_size \"cpcodeSize\",f_getparamname('GETBYPARENTID',cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"')  \"cpcodebz\" " +
+				" ,'"+gxId+"' \"bgcGx\",'"+gxName+"' \"gxname\",'"+gxCt+"' \"bgcCt\",'"+ctname+"' \"ctname\",f_get_param_name('产品大类',wl_type,'"+   SessionUser.getCurrentCorpId()   +"') typename "+
+				"from v_sc_gclistview a,e_js_cpcode b where a.wlcode=b.cpcode_id and a.bgc=?1 and a.gx =?2 and a.gx_note=?3 ";
+		Object val[] = { sgc,gxId,gxnote};
+		List<Map> gclsit=scTackDao.QueryListMap(sql,val);
+		if(gclsit.size()>0) {
+			return Result.resultOk(gclsit);
+		}else {
+			return Result.error("该扫描号不符合投料规则或者未获取到扫描号的信息，请检查数据！");
+		}
+		
+	}
+
+	@Override
+	public Result getCount(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object scMo=map.get("scMo");
+		Object gxNote=map.get("gxNote");
+		String sql="select  count(*) cn from m_sc_scrw_wl c left join (select b.*,a.wlcode from v_sc_gclistview a,m_sc_gclist_sl b where a.bgc=b.sgc) d on(c.scrw_mo=d.scrw_no and c.wl_gxnote=d.gx_note and c.wl_code=d.wlcode)  where scrw_mo=?1 and wl_gxnote=?2 and impol='true' and coalesce(sgc_sl,0)>0 ";
+		Object[] val = { scMo,gxNote };
+		String cn=scTackDao.getSingleResult(sql, val);
+		//if(Integer.parseInt(cn)>0) {
+		if(true) {
+			return Result.resultOk();
+		}else {
+			return Result.error("该工序主要用料未投产，不能下料，请检查数据！");
+		}
+		
+	}
+
+
+	@Override
+	public Result tladd(MScGclistSlVo vo) throws Exception {
+		SessionUser securityUser=SessionUser.SessionUser();
+		if(vo.getmScGclistSlList().size()>0) {
+			String sgc=vo.getmScGclistSlList().get(0).getSgc();
+			String cn=scTackDao.getSingleResult("select count(*) cn from m_sc_gclist_sl where sgc=?1 ", sgc);
+			if(Integer.parseInt(cn)>0) {
+				return Result.error("该扫描号已投料，请勿重复投料！");
+			}
+			vo.getmScGclistSlList().forEach(item -> {
+				item.setBgc("N");
+				item.setDoMan(securityUser.getUserId());
+				item.setDataCorp(securityUser.getCorpId());
+				item.setDoDate(new Date());
+				mScGclistSlDao.save(item);
+			});
+		}
+		return Result.resultOk("投料成功！");
+	}
+	
+	@Override
+	public Result gxxl(MScGclistVo vo) throws Exception {
+		String sql="";
+		SessionUser securityUser=SessionUser.SessionUser();
+		//自动生成本工程 编码规则：工序+班别+YYMMDD+0001
+		String prefix=vo.getmScGclist().getGx()+vo.getmScGclist().getTbc();
+		String bgc=sysGenNoteService.getyyMMNote4(MScGclist.class,prefix);
+		String scMo=vo.getmScGclist().getScMo();
+		String gx=vo.getmScGclist().getGx();
+		String gxnote=vo.getmScGclist().getGxNote();
+		//判断是否全部下料
+		sql="select row_number() over(partition by a.wl_code order by do_date )px ,sgc,sgc_js,sgc_sl,sgc_zl,a.wl_code,wl_lib,COALESCE(bl,0) bl,impol from m_sc_gclist_sl a,m_sc_scrw_wl b where a.scrw_no=b.scrw_mo and a.bgc_gx=b.scrw_gx and a.gx_note=b.wl_gxnote and a.wl_code=b.wl_code and  scrw_no=?1  and bgc_gx=?2 and a.gx_note=?3 and bgc='N' order by do_date ";
+		List<Map> mapList=mScGclistDao.QueryListMap(sql,vo.getmScGclist().getScMo(),vo.getmScGclist().getGx(),gxnote);
+
+		//下料数量
+		BigDecimal tsl=vo.getmScGclist().getTsl();
+		//当前投料数量
+		BigDecimal tlyl=vo.getmScGclist().getTlyl();
+		//下料之后余料
+		BigDecimal xlyl= tlyl.subtract(tsl);
+		//比较下料数量和投料数量
+		Integer num = tsl.compareTo(tlyl);
+		/*BigDecimal zbl=new BigDecimal(mScGclistDao.getSingleResult("select sum(bl) from m_sc_scrw_wl where scrw_mo=?1 and scrw_gx=?2",val ));
+		
+		//同材质汇总
+		String sqlcz="select wl_code,sum(sgc_sl) czsl,bl from m_sc_gclist_sl a,m_sc_scrw_wl b where a.scrw_no=b.scrw_mo and a.bgc_gx=b.scrw_gx and a.wl_code=b.wl_code and  scrw_no=?1  and bgc_gx=?2 and bgc='N' group by wl_code,bl  ";
+		List<Map> mapList1=mScGclistDao.QueryListMap(sql,val);
+		for(int i=0;i<mapList1.size();i++) {
+			Map map=mapList.get(i);
+			BigDecimal czsl=new BigDecimal(map.get("czsl").toString());
+			BigDecimal bl=new BigDecimal(map.get("bl").toString());
+			Integer num1 = czsl.compareTo(tsl.multiply(bl.divide(zbl)));//比较下料数量和投料数量
+			if(num1==0) {
+				mScGclistSlDao.updateBgcByCode(bgc,scMo,gx,map.get("wl_code").toString());
+			}
+			
+		}*/
+		
+		
+		if(num==0) {//表示tsl等于tlyl；
+			//更新投料表bgc号
+			mScGclistSlDao.updateBgcAll(scMo,gx,bgc);
+		}else if(num==1) {//表示tsl大于tlyl；
+			return Result.error("下料数量不能超过投料总数！");
+		}else  if(num==-1) {//表示tsl小于tlyl；
+			BigDecimal ys= tsl;//定义一个余数为零的
+			for(int i=0;i<mapList.size();i++) {
+				Map map=mapList.get(i);
+				String sgc=map.get("sgc").toString();
+				String sgcSl=map.get("sgc_sl").toString();
+				String bl=map.get("bl").toString();
+				BigDecimal sSl=new BigDecimal(sgcSl);
+				sSl=sSl.multiply(new BigDecimal(bl));
+				ys = ys.subtract(sSl);
+				if(ys.compareTo(BigDecimal.ZERO)==0) {//等于 0
+					mScGclistSlDao.updateBgc(sgc,bgc);
+					break;
+				}else if(ys.compareTo(BigDecimal.ZERO)==1) {//大于0
+					mScGclistSlDao.updateBgc(sgc,bgc);
+				}else if(ys.compareTo(BigDecimal.ZERO)==-1){//小于 0
+					//新增上料表数据，并更新上料表投料时间
+					mScGclistSlDao.insertTl(bgc,tsl,securityUser.getUserId(),sgc);
+					mScGclistSlDao.updateTslAndTldate(sgc,xlyl);
+				}
+			}
+		}
+		
+		vo.getmScGclist().setBgc(bgc);
+		//vo.getmScGclist().setDoMan(securityUser.getUserId());
+		vo.getmScGclist().setDoDate(new Date());
+		vo.getmScGclist().setDataCorp(securityUser.getCorpId());
+		vo.getmScGclist().setGcCl("SC");
+		mScGclistDao.save(vo.getmScGclist());
+		if("BL".equals(vo.getmScGclist().getGcFlag())){
+			MScGclist mScgc= vo.getmScGclist();
+			blclService.saveDataBl(mScgc);
+		}
+		return Result.resultOk("下料成功！");
+	}
+
+	@Override
+    public Set<SelectVo> getTph(String rwMo, String gxId) {
+        Set<SelectVo> rset = new HashSet<>();
+        Set<String> list = new TreeSet<>();
+    	String sql="select COALESCE(wlph,'') wlph,ylpch from  v_sc_gclistview where  bgc in(select sgc from  m_sc_gclist_sl where scrw_no=?1  and gx_note=?2 and bgc='N' ) ";
+    	List<Map> mapList=mScGclistDao.QueryListMap(sql,rwMo,gxId);
+      	mapList.forEach(Map -> {
+      		rset.add(new SelectVo(Map.get("wlph"),String.valueOf(Map.get("wlph"))));
+      	});
+        return rset;
+    }	
+	 @Override
+    public Set<SelectVo> getTts(String rwMo, String gxId) {
+		 Set<SelectVo> rset = new HashSet<>();
+	        Set<String> list = new TreeSet<>();
+	    	String sql="select wlph,ylpch from  v_sc_gclistview where  bgc in(select sgc from  m_sc_gclist_sl where scrw_no=?1  and  gx_note=?2 and bgc='N' ) ";
+	    	List<Map> mapList=mScGclistDao.QueryListMap(sql,rwMo,gxId);
+	      	mapList.forEach(Map -> {
+	      		rset.add(new SelectVo(Map.get("ylpch"),String.valueOf( Map.get("ylpch"))));
+	      	});
+	        return rset;
+	 }
+
+
+
+	@Override
+	public Set<SelectVo> getGxFlag() {
+		 Set<SelectVo> rset = new HashSet<>();
+		 rset.add(new SelectVo("HG","合格"));
+		 rset.add(new SelectVo("BL","不良"));
+		return rset;
+	}
+
+
+
+	@Override
+	public Result getDataByGch(String gch) throws Exception {
+		String sql=" select * from v_sc_circulation_card where bgc ='"+gch+"'";
+		List<Map> gclsit=scTackDao.QueryListMap(sql);
+		if(gclsit.size()>0) {
+			return Result.resultOk(gclsit);
+		}else {
+			return Result.error("该工程号有误，请检查数据！");
+		}
+	}
+
+
+}

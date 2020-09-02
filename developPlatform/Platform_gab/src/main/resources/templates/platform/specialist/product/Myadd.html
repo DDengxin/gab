@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>产品信息</title>
+    </th:block>
+    <script type="text/javascript" th:src="@{/static/gab/js/formConfig.js}"></script>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="cpcodeType" class="mini-hidden"/>
+        <input name="orgId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>产品编码</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodeId" id="cpcodeId" readOnly="readOnly" emptyText="自动生成"/>
+                </td>
+                <td title for="cpcodeFl">产品分类</td>
+                <td content>
+                    <input class="mini-combobox" required name="cpcodeFl" id="cpcodeFl" popupMaxHeight="200"/>
+                </td>
+                <td title for="cpcodeName">产品名称</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodeName"/>
+                </td>
+            </tr>
+            <tr>
+                <td title for="cpcodeSize">产品规格</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodeSize"/>
+                </td>
+                <td title for="cpcodeSizeEn">产品长度</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodeSizeEn"/>
+                </td>
+
+                <td title for="cpcodeXp">产品标重</td>
+                <td content>
+                    <input class="mini-combobox" id="cpcodeXp" onvaluechanged="config" name="cpcodeXp" allowInput="true" popupMaxHeight="200"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>计量单位</td>
+                <td content>
+                    <input class="mini-combobox" name="cpcodeBz" url="/system/parameter/getParamsSelectList/技术/计量单位" valueFromSelect="true" allowInput="true" popupMaxHeight="160"/>
+                </td>
+                <td title>大包单位</td>
+                <td content>
+                    <input id="cpcodeDunit" name="cpcodeDunit" class="mini-combobox" url="/system/parameter/getParamsSelectList/技术/大包单位" popupMaxHeight="160"/>
+                </td>
+                <td title>大包配比</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodePb"/>
+                </td>
+            </tr>
+            <tr>
+                <td title for="cpcode03">其他参数</td>
+                <td content>
+                    <input class="mini-textbox" id="cpcode03" name="cpcode03"/>
+                </td>
+                <td title>入库方式</td>
+                <td content>
+                    <select id="cpcode01" name="cpcode01" class="mini-combobox" required="true">
+                        <option value="批次">批次</option>
+                        <option value="单件">单件</option>
+                    </select>
+                </td>
+                <td title>核算方式</td>
+                <td content>
+                    <select id="cpcode02" name="cpcode02" class="mini-combobox" required="true">
+                        <option value="数量">数量</option>
+                        <option value="件数">件数</option>
+                        <option value="重量">重量</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>检验分类</td>
+                <td content colspan="3">
+                    <input class="mini-combobox" name="cpcodeCheck" id="cpcodeCheck"/>
+                </td>
+                <td title>状态</td>
+                <td content>
+                    <select id="cpcodeFlag" name="cpcodeFlag" class="mini-combobox" required="true" value="Y">
+                        <option value="Y">启用</option>
+                        <option value="N">禁用</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>是否预警</td>
+                <td content>
+                    <input class="mini-combobox" name="cpcodeStockWarn" value="false" url="/dict/boolean"/>
+                </td>
+                <td title>上限</td>
+                <td content>
+                    <input class="mini-spinner" name="cpcodeLower" value="null" minValue="0" allowNull="true" allowLimitValue="false" decimalPlaces="3" format="#0.000"/>
+                </td>
+                <td title>下限</td>
+                <td content>
+                    <input class="mini-spinner" name="cpcodeUpper" value="null" minValue="0" allowNull="true" allowLimitValue="false" decimalPlaces="3" format="#0.000"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>特殊要求</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="cpcodeSm"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>英文名称</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="cpcodeNameEn">
+                </td>
+
+
+            </tr>
+            <tr>
+                <td title>是否公开</td>
+                <td content>
+                    <input class="mini-combobox" name="openness" value="true" url="/dict/boolean"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>产品单价</td>
+                <td content>
+                    <input class="mini-textbox" vtype="float" required="true" name="cpcodePrice">
+                </td>
+
+            </tr>
+
+            <!--动态追加字段以及后续附件介绍字段-->
+            <tbody id="ConfigForm"></tbody>
+            <tr>
+                <td title>封面图片:</td>
+                <td content colspan="3">
+                    <div id="imgCoverPicture"></div>
+                    <input name="coverPicture" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <!--                <td title>产品介绍:</td>-->
+                <!--                <td content colspan="5">-->
+                <!--                    <script type="text/plain" id="myEditor" style="width: 100%; height: 400px;"></script>-->
+                <!--                    <input id="productDescription" name="productDescription" class="mini-hidden"/>-->
+                <!--                </td>-->
+                <td title>产品介绍:</td>
+                <td content colspan="5">
+                    <input name="productDescription" id="productDescription" class="mini-textarea" height="130" width="1070"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>服务介绍:</td>
+                <td content colspan="5">
+                    <input name="serviceDescription" class="mini-textarea" height="130" width="1070"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>产品方案:</td>
+                <td content colspan="3">
+                    <div id="imgProductProject"></div>
+                    <input name="productProject" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>产品图片:</td>
+                <td content colspan="3">
+                    <div id="imgRoomPicture"></div>
+                    <input name="roomPicture" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>产品附件:</td>
+                <td content colspan="3">
+                    <div id="imgProductPiece"></div>
+                    <input name="productPiece" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    //页面保存标识，CloseWindow会自行判断
+    var PAGE_SAVE_FLAG = false;
+
+    function config() {
+        formConfig({classify: mini.get("cpcodeXp").value, index: 3, show: "backstage"});
+    }
+
+    function SetData(options) {
+        var cpcodeType = options.data.cpcodeType;
+        var row = options.data.row;
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniForm: form,
+            success: function (map, res) {
+                if ('add' == options.action) {
+                    mini.getbyName("action").setValue(options.action);
+                    if (map.cpcodeIsAutomaticCoding) {
+                        //自动编码
+                        form.getField("cpcodeId").setEnabled(false);
+                    } else {
+                        //手动编码
+                        form.getField("cpcodeId").setReadOnly(false);
+                        form.getField("cpcodeId").setEmptyText('请输入');
+                    }
+                    form.getField("cpcodeType").setValue(cpcodeType);
+                    var imgIdCoverPicture = getFileId();
+                    $("[name=coverPicture]").val(imgIdCoverPicture);
+                    $("#imgCoverPicture").filesUpload({//封面图片
+                        pickerid: imgIdCoverPicture,
+                        filecount: 1,
+                    });
+                    var imgIdProductProject = getFileId();
+                    $("[name=productProject]").val(imgIdProductProject);
+                    $("#imgProductProject").filesUpload({//产品方案
+                        pickerid: imgIdProductProject,
+                        filecount: 1,
+                    });
+                    var imgIdRoomPicture = getFileId();
+                    $("[name=roomPicture]").val(imgIdRoomPicture);
+                    $("#imgRoomPicture").filesUpload({//房品图片
+                        pickerid: imgIdRoomPicture,
+                        filecount: 1,
+                    });
+                    var imgIdProductPiece = getFileId();
+                    $("[name=productPiece]").val(imgIdProductPiece);
+                    $("#imgProductPiece").filesUpload({//产品附件
+                        pickerid: imgIdProductPiece,
+                        filecount: 1,
+                    });
+                } else if ('edit' == options.action) {
+                    $.get("/product/cpcode/{0}/{1}".format(row.cpcodeId, row.cpcodeXp), function (res) {
+                        form.getField("cpcodeId").setEnabled(false);
+                        if (200 === res.code) {
+                            form.getField("cpcodeType").setValue(cpcodeType);
+                            form.setData(res.data, true);
+                            setContent();
+                            config();
+                            form.setData(res.data, true);
+                        }
+                    });
+                    var imgIdCoverPicture = row.coverPicture || getFileId();
+                    $("[name=coverPicture]").val(imgIdCoverPicture);
+                    $("#imgCoverPicture").filesUpload({//封面图片
+                        pickerid: imgIdCoverPicture,
+                        filecount: 1,
+                    });
+                    var imgIdProductProject = row.productProject || getFileId();
+                    $("[name=productProject]").val(imgIdProductProject);
+                    $("#imgProductProject").filesUpload({//产品方案
+                        pickerid: imgIdProductProject,
+                        filecount: 1,
+                    });
+                    var imgIdRoomPicture = row.roomPicture || getFileId();
+                    $("[name=]").val(imgIdRoomPicture);
+                    $("#imgRoomPicture").filesUpload({//房品图片
+                        pickerid: imgIdRoomPicture,
+                        filecount: 1,
+                    });
+                    var imgIdProductPiece = row.productPiece || getFileId();
+                    $("[name=productPiece]").val(imgIdProductPiece);
+                    $("#imgProductPiece").filesUpload({//产品附件
+                        pickerid: imgIdProductPiece,
+                        filecount: 1,
+                    });
+                }
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+
+    //修改时给ueditor插入值
+
+    /////////////////////////////////////////////////////////////////////////////////
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var cpcodeStockWarn = form.getField("cpcodeStockWarn").getValue();
+            if (cpcodeStockWarn == "true") {
+                var cpcodeLower = form.getField("cpcodeLower").getValue();
+                var cpcodeUpper = form.getField("cpcodeUpper").getValue();
+                if (isNull(cpcodeLower) || isNull(cpcodeUpper)) {
+                    return hmq.tipDanger('上下限数量不能为空!', {targetWindow: window});
+                }
+                if (parseFloat(cpcodeLower) < 0 || parseFloat(cpcodeUpper) < 0) {
+                    return hmq.tipDanger('上下限数量不能小于0!', {targetWindow: window});
+                }
+                if (parseFloat(cpcodeUpper) <= parseFloat(cpcodeLower)) {
+                    return hmq.tipDanger('上限数量不能小于下限数量！', {targetWindow: window});
+                }
+            }
+            var method = 'add' == mini.getbyName('action').getValue() ? 'post' : 'put';
+            $[method]("/product/cpcode", JSON.stringify({jscpcode: JSON.stringify(form.getData(true)), configForm: JSON.stringify(getFormData("ConfigForm", false))}), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+</script>
+</html>

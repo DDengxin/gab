@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目小组【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <input id="action"  name="action" class="mini-hidden">
+            <input id="action"  name="xzId" class="mini-hidden">
+            <tr>
+                <td title>项目名称：</td>
+                <td content>
+                    <input id="xmId" name="xmId" allowInput="false" class="mini-buttonedit" onbuttonclick="chooseXMDA" required showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>员工工号：</td>
+                <td content>
+                    <input class="mini-buttonedit"
+                           emptyText="请选择" name="workId" id="workId" allowInput="false" required="true" showClose="true" oncloseclick="onCloseClickClearValue"
+                           onbuttonclick="onJobNumberButtonClickHandler"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>员工姓名：</td>
+                <td content>
+                    <input class="mini-textbox"  name="workName" id="workName" allowInput="false"/>
+                </td>
+
+                <td title>项目岗位：</td>
+                <td>
+                    <input class="mini-textbox"  id="xmRole" name="xmRole" />
+                </td>
+            </tr>
+            <tr>
+                <td title>员工手机：</td>
+                <td>
+                    <input class="mini-textbox"  id="workTel" name="workTel" allowInput="false"/>
+                </td>
+                <td title>员工邮箱：</td>
+                <td>
+                    <input class="mini-textbox"  id="workMail" name="workMail" />
+                </td>
+            </tr>
+            <tr>
+                <td title>岗位说明：</td>
+                <td colspan="3">
+                    <input class="mini-textarea"  id="workSm" name="workSm" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    /**
+     * 项目档案单选选择框
+     * @constructor
+     */
+    function chooseXMDA(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/projectTream/xmdaSelectList.html",
+            title: "【项目档案】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.xmId);
+                    btnEdit.setText(data.xmName);
+                }
+            }
+        });
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+
+
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            //普通口径
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+            } else if ('edit' == options.action) {
+                $.get("byXmId/{0}".format(options.data.xzId), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        form.getField("xmId").setText(res.data.xmName);
+                        form.getField("workId").setText(res.data.workId);
+                        $('[name=action]').val(options.action);
+                    }
+                });
+            }
+
+        }
+    }
+
+    function onJobNumberButtonClickHandler(e) {
+                var btnEdit = this;
+                return miniopen({
+                    targetWindow: window.top,
+                    url: "/personnel/eHrWorker/hierarchyWorkerTree.html",
+                    title: "【员工】选择",
+                    width: 750,
+                    data: {},
+                    height: 620,
+                    ondestroy: function (action) {
+                        if (action == "ok") {
+                            var iframe = this.getIFrameEl();
+                            var data = iframe.contentWindow.GetData();
+                            btnEdit.setValue(data.workerId);
+                            btnEdit.setText(data.workerId);
+                            form.getField("workName").setValue(data.workerName);
+                            form.getField("workMail").setValue(data.workerEmail);
+                            form.getField("workTel").setValue(data.workerPhone);
+                        }
+                    }
+                });
+
+
+
+    }
+
+</script>
+</html>

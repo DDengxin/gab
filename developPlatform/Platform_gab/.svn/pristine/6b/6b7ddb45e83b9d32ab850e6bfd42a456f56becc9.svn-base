@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+	<title>参数管理</title>
+</th:block>
+<style type="text/css">
+.hide{
+display: none !important;
+}
+.show{
+display: block !important;
+}
+</style>
+
+</head>
+
+
+<body>
+	<div  >
+
+		<form id="userform" class="supply-center">
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>用户账户:</td>
+					<td content><input class="mini-textbox" name="userId"
+						readonly="readonly"></td>
+					<td title>用户名称:</td>
+					<td content><input class="mini-textbox" name="nickName">
+					</td>
+					<td title>手机号:</td>
+					<td content><input class="mini-textbox" name="mobile"
+						vtype="numberAndLetter" required></td>
+					<td title>邮箱：</td>
+					<td content><input class="mini-textbox" name="email">
+					</td>
+				</tr>
+
+			</table>
+		</form>
+		
+         <!-- 售前专家  -->
+		<form id="beforeExpert" >
+		    <input name="expertType" class="mini-hidden" />
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>专长优势:</td>
+					<td content><input class="mini-textbox" name="strengths"></td>
+					<td title>等级:</td>
+					<td content><input class="mini-textbox" name="level"></td>
+					<td title>主要职业:</td>
+					<td content><input class="mini-textbox" name="mainJob"></td>
+					<td title>销售经验:</td>
+					<td content><input class="mini-textbox" name="saleExperience"></td>
+				</tr>
+				<tr>
+					<td title>最高学历:</td>
+					<td content><input class="mini-textbox" name="education"></td>
+					<td title>特色方言:</td>
+					<td content><input class="mini-textbox" name="dialect"></td>
+					<td title>最熟悉的产品:</td>
+					<td content><input class="mini-textbox" name="knowProduct"></td>
+					<td title>服务半径:</td>
+					<td content><input class="mini-textbox" name="serviceScope"></td>
+				</tr>
+				<tr>
+					<td title>工作年限:</td>
+					<td content><input class="mini-textbox" name="jobAge"></td>
+				</tr>
+				<tr>
+					<td title>用户头像:</td>
+					<td content colspan="3">
+						<div class="saleAfterImg"></div>
+						<input id="headImg" name="headImg" class="mini-hidden"/>
+					</td>
+				</tr>
+
+				<tr>
+					<td title>专长介绍:</td>
+					<td content colspan="7">
+						<input class="mini-textarea"  name="introduce" height="280" />
+					</td>
+				</tr>
+				<tr>
+					<td title>是否接受一周左右的出差:<input class="mini-checkbox" name="isWeekEvection"></td>
+					<td content></td>
+					<td title>是否接受只有邮政到达的偏远地区:<input class="mini-checkbox" name="isRemote"></td>
+					<td content></td>
+					<td title>在生产一线是否工作过 :<input class="mini-checkbox" name=isFrontline></td>
+					<td content></td>
+					<td title>是否可出国出差:<input class="mini-checkbox" name=isGoAbroad></td>
+					<td content></td>
+				</tr>
+            </table>
+		</form>
+		
+		  <!-- 售后专家  -->
+		<form id="afterExpert"  >
+		 <input name="expertType" class="mini-hidden" />
+			<table class="hmq-modify-table">
+
+			<tr>
+				<td title>专长优势:</td>
+				<td content><input class="mini-textbox" name="strengths"></td>
+				<td title>等级:</td>
+				<td content><input class="mini-textbox" name="level"></td>
+				<td title>主要职业:</td>
+				<td content><input class="mini-textbox" name="mainJob"></td>
+				<td title>销售经验:</td>
+				<td content><input class="mini-textbox" name="saleExperience"></td>
+			</tr>
+			<tr>
+				<td title>最高学历:</td>
+				<td content><input class="mini-textbox" name="education"></td>
+				<td title>特色方言:</td>
+				<td content><input class="mini-textbox" name="dialect"></td>
+				<td title>最熟悉的产品:</td>
+				<td content><input class="mini-textbox" name="knowProduct"></td>
+				<td title>服务半径:</td>
+				<td content><input class="mini-textbox" name="serviceScope"></td>
+			</tr>
+			<tr>
+				<td title>工作年限:</td>
+				<td content><input class="mini-textbox" name="jobAge"></td>
+				<td title>动手能力:</td>
+				<td content><input class="mini-textbox" name="doIt"></td>
+			</tr>
+			<tr>
+				<td title>用户头像:</td>
+					 <td content colspan="3">
+					 <div class="saleAfterImg"></div>
+					 <input id="headImg" name="headImg" class="mini-hidden"/>
+				</td>
+			</tr>
+
+            <tr>
+				<td title>自身专长介绍:</td>
+				<td content colspan="7">
+					<input class="mini-textarea"  name="introduce" height="280" />
+				</td>
+            </tr>
+			<tr>
+				<td title>是否接受一周左右的出差:<input class="mini-checkbox" name="isWeekEvection"></td>
+				<td content></td>
+				<td title>是否接受只有邮政到达的偏远地区:<input class="mini-checkbox" name="isRemote"></td>
+				<td content></td>
+				<td title>在生产一线是否工作过 :<input class="mini-checkbox" name=isFrontline></td>
+				<td content></td>
+                <td title>是否可出国出差:<input class="mini-checkbox" name=isGoAbroad></td>
+				<td content></td>
+            </tr>
+            </table>
+		</form>
+
+
+		<!-- 工艺专家 -->
+		<form id="artExpert" >
+		 <input name="expertType" class="mini-hidden" />
+			<table class="hmq-modify-table">
+
+			<tr>
+				<td title>专长优势:</td>
+				<td content><input class="mini-textbox" name="strengths"></td>
+				<td title>等级:</td>
+				<td content><input class="mini-textbox" name="level"></td>
+				<td title>从业年限:</td>
+				<td content><input class="mini-textbox" name="jobAge"></td>
+				<td title>年龄:</td>
+				<td content><input class="mini-textbox" name="age"></td>
+			</tr>
+			<tr>
+				<td title>主要职业:</td>
+				<td content><input class="mini-textbox" name="mainJob"></td>
+				<td title>销售经验:</td>
+				<td content><input class="mini-textbox" name="saleExperience"></td>
+			</tr>
+			<tr>
+				<td title>用户头像:</td>
+				<td content colspan="3">
+					<div class="artImg"></div>
+					<input id="headImg" name="headImg" class="mini-hidden"/>
+				</td>
+			</tr>
+			<tr>
+				<td title>自身专长介绍:</td>
+				<td content colspan="7">
+					<input class="mini-textarea"  name="introduce" height="280" />
+				</td>
+            </tr>
+            </table>
+		</form>
+		
+		
+		
+	</div>
+	<div class=" hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	//售前专家
+	var beforeExpert_form = new mini.Form('beforeExpert');
+	//售后专家
+	var afterExpert_form = new mini.Form('afterExpert');
+	//工艺专家
+	var artExpert_form = new mini.Form('artExpert');
+	//用户基础信息
+	var user_form = new mini.Form('userform');
+	//默认隐藏所有表单
+	$("#saveBtn,#userform,#beforeExpert,#afterExpert,#artExpert").hide();
+	
+	//上传控件初始化
+	function   initUpload(containter,fileId){ 
+		 $("."+containter+":first").resetUploader({
+             pickerid: fileId,
+             filecount: 1,
+             view : "edit", 
+         });
+	}
+	
+	//查询数据
+	function findSingel() {
+		$.get("expertInfo".format(), function(res) {
+			if (200 === res.code) {
+				if(!!res.data == false){
+					hmq.tipDanger( '该账号非专家用户！');
+					return;
+				}
+				
+				user_form.setData(res.data.sysuser);
+				//根据专家类型展示不同的form表单
+				var expert = res.data.expert;
+				//user_form.show();
+				$("#saveBtn,#userform").show();
+				if ( "售前专家" == expert.expertType ) {
+					$("#beforeExpert").show();
+					initUpload(  "saleBeforeImg" ,res.data.expert.headImg);
+					beforeExpert_form.setData(res.data.expert);
+				}else if ("售后专家" == expert.expertType ){
+					$("#afterExpert").show();
+					initUpload(  "saleAfterImg" ,res.data.expert.headImg);
+					afterExpert_form.setData(res.data.expert);
+				}else if( "工艺专家" == expert.expertType  ){
+					$("#artExpert").show();
+					
+					initUpload(  "artImg" ,res.data.expert.headImg);
+
+					artExpert_form.setData(res.data.expert);
+				}else{
+					hmq.tipDanger( '该账号非专家用户！');
+				}
+				
+				
+				
+				
+			}
+		});
+
+	}
+	findSingel();
+
+	/**
+	 * 保存数据
+	 * @constructor
+	 */
+	function SaveData() {
+		if (user_form.validate() && user_form.isValid()) {
+			var method = "put";
+			var data = {};
+			data.sysuser = user_form.getData();
+             data.expert = null;
+             var  before_type = beforeExpert_form.getField("expertType").getValue();
+             var  after_type  = afterExpert_form.getField("expertType").getValue(); 
+             var  art_type = artExpert_form.getField("expertType").getValue(); 
+  			if( !!before_type &&  before_type == "售前专家" ){
+  				data.expert = beforeExpert_form.getData();
+  			}else if(!!after_type &&  after_type == "售后专家"){
+  				data.expert = afterExpert_form.getData();
+  			}else if(!!art_type &&  art_type == "工艺专家"){
+  				data.expert = artExpert_form.getData();
+  			}else {
+  				hmq.tipDanger( '数据格式有误失败');
+  				return ;
+  			}
+			
+			
+			$[method]("expertedit", JSON.stringify(data), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							findSingel();
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+</script>
+</html>

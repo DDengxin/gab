@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>生产入库</title>
+    </th:block>
+    <script type="text/javascript" src="/static/javascript/LodopPrint.js?version=1"></script>
+    <object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="0" height="0">
+        <embed id="LODOP_EM" type="application/x-print-lodop" width="0" height="0"/>
+    </object>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient" id="orient"/>
+        <!--<input class="mini-hidden" name="inType" id="“inType" width="100"/>-->
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        </label>
+        <label class="hmq-label" text="类别">
+            <input class="mini-combobox" id="inType" name="inType" width="70px" url="/system/parameter/getParamsSelectListByValue3/产品大类/库存常用" onvaluechanged="onValueChangeType" value="CP"/>
+        </label>
+        <label class="hmq-label" text="客户">
+            <input name="srchCustomer" emptyText="请选择..."
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="合同单号">
+            <input class="mini-textbox" name="srchContractNote"/>
+        </label>
+        <label class="hmq-label" text="入库单号">
+            <input class="mini-textbox" name="srchInNote"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" idField="inNote" sizeList="[50,100,200]" pageSize="100" onselectionchanged="onSelectionChanged" pager="#pager1"
+                     showPager="false" sortMode="client" ondrawsummarycell="onDrawSummaryCell" showSummaryRow="true">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="inRq" width="100" align="center">日期</div>
+                        <div tz:datagrid="column" field="inNote" width="120" align="center">单号</div>
+                        <div tz:datagrid="column" field="inLib" displayField="inlibname" width="80" align="center">库房</div>
+                        <div tz:datagrid="column" field="inCustomer" displayField="incustomername" width="120" align="center">客户</div>
+                        <div tz:datagrid="column" field="inJs" width="100" align="right" numberFormat="#,0.00" summaryType="sum">件数</div>
+                        <div tz:datagrid="column" field="inSl" width="100" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+                        <div tz:datagrid="column" field="inFlag" width="100" align="center">状态</div>
+                        <div tz:datagrid="column" field="inContract" align="center" width="150">订单</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-toolbar" style="padding: 0px; border-bottom: 1; height: 40px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="white-space: nowrap;">
+                            <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+                        </td>
+                        <td style="white-space: nowrap;" align="right" id="btnbar"/>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="inContract" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                     ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="inCode" sortOrder="asc">
+                    <div property="columns">
+                        <div tz:datagrid="checkcolumn" width="35"></div>
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="inCode" align="center" width="100">编码</div>
+                        <div tz:datagrid="column" field="cpcodeName" name="cpcodeName"  align="left" width="120">名称</div>
+                        <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" align="left" width="120">规格</div>
+                        <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" align="left" width="60">品牌</div>
+                        <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" align="left" width="120">标重</div>
+                        <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" align="left" width="120">大类</div>
+                        <div tz:datagrid="column" field="inJs" align="right" width="80" numberFormat="#,0.00" summaryType="sum">件数</div>
+                        <div tz:datagrid="column" field="inSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+                        <div tz:datagrid="column" field="inPack" width="150" align="left">包装号</div>
+                        <div tz:datagrid="column" field="inBpack" width="150" align="left">大包装号</div>
+                        <div tz:datagrid="column" field="inLuono" width="150" align="left">炉号</div>
+                        <div tz:datagrid="column" field="inPh" width="150" align="left">批号</div>
+                        <div tz:datagrid="column" field="inRemarks" width="150" align="left">备注</div>
+                        <div tz:datagrid="column" field="inXh" width="150" align="left">序号</div>
+                        <div tz:datagrid="column" field="" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/production/productionSite/productInWarehouse";
+    srch_topgrid.setUrl(surl + "/getSrchTopList");
+    srch_bottomgrid.setUrl(surl + "/getSrchBottomList");
+    srch_topgrid.bindSearchForm(form);
+
+    //start
+    var inType = hmq.getQueryString("paramType");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(inType)) {
+        form.getField("inType").setValue(inType);
+
+
+    }
+
+    //onValueChangeType();
+    function onValueChangeType() {
+        var inType = mini.get("inType").getValue();
+        //动态列转换
+        if (hmq.isNotEmpty(inType)) {
+            hmq.business.dynamicProductParams(inType, {
+                miniDataGrid: [srch_topgrid, srch_bottomgrid],
+                miniForm: form,
+                success: function (map, res) {
+                    srch_topgrid.load();
+                    srch_bottomgrid.load();
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }
+        //end
+    }
+
+    //end
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params: mini.encode({
+                    inNote: record.inNote,
+                    inContract: record.inContract,
+                    inFlag: record.inFlag
+                })
+            });
+        }
+    }
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().inNote;
+        }
+    });
+
+    // 页面初始化模块和类型 END
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerName);
+                }
+            }
+        });
+    }
+
+    function search_option() {
+        srch_topgrid.load();
+    }
+
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.inNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function view_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: {row: row, formData: form.getData()}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.inNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要删除吗 ？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("delete/{0}".format(row.inNote), function (res) {
+                                if (200 === res.code) {
+                                    srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.inNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalConfirm({
+                        businessId: row.inNote,  ///Platform_wireerp/src/main/resources/templates/production/productionSite/productInWarehouse/add.html
+                        url: '/production/productionSite/productInWarehouse/add.html',
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $['put']("confirm/{0}".format(row.inNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+
+                    /*  mini.confirm("注意:确定要确认", "删除信息", function (action) {
+                         if (action == "ok") {
+                             $['put']("confirm/{0}".format(row.inNote), function (res) {
+                                 if (200 === res.code) {
+                                     srch_topgrid.reload();
+                                 } else {
+                                     hmq.tipDanger(res.msg);
+                                 }
+                             });
+                         }
+                     }); */
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.inNote, '结算'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalCancel({
+                        businessId: row.inNote,
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $.put("cancel/{0}".format(row.inNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+                    /*        mini.confirm("注意:确定要取消吗 ？", "删除信息", function (action) {
+                               if (action == "ok") {
+                                   $.put("cancel/{0}".format(row.inNote), function (res) {
+                                       if (200 === res.code) {
+                                           srch_topgrid.reload();
+                                       } else {
+                                           hmq.tipDanger(res.msg);
+                                       }
+                                   });
+                               }
+                           }); */
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onDrawSummaryCell(e) {
+        if (e.field == "inRq") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inJs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "inCode") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inJs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    function print_option() {
+
+        var rows = srch_bottomgrid.getSelecteds();
+
+        if (rows.length > 0) {
+            var ids = [];
+            var sid = "";
+            for (var a = 0; a < rows.length; a++) {
+                var row = rows[a];
+                sid = row.inPack;
+                if (sid != undefined) {
+                    ids.push(sid);
+                }
+            }
+            var id = ids.join(',');
+            printLabel(id, "PRINTA", "IN");
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+        /*
+        */
+    }
+
+</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,61 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingNotice.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.personnel.personnelTraining.trainingNotice.dao.TrainingNoticeDao;
+import com.tengzhi.business.personnel.personnelTraining.trainingNotice.model.EHrTrainingNotice;
+import com.tengzhi.business.personnel.personnelTraining.trainingNotice.service.TrainingNoticeService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
+import java.util.Map;
+
+
+@Service
+@Transactional
+public class TrainingNoticeServiceImpl implements TrainingNoticeService {
+    @Autowired
+    private TrainingNoticeDao trainingNoticeDao;
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    /**
+     * 查询
+     * @param baseDto
+     * @return
+     * */
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(c->{
+            c.contains("tz_work_id",map.get("tzWorkId"));
+            c.contains("tz_work_name",map.get("tzWorkName"));
+        });
+        String sql = "select tz_sid,tz_note,tz_training_time,tz_work_id,tz_work_name,tz_work_dept,tz_address,data_man," +
+                "data_corp,data_date from e_hr_training_notice "+where;
+        return trainingNoticeDao.QueryMapPageList(baseDto, sql, true);
+    }
+
+    @Override
+    public Map<String, Object> getById(String tzSid) {
+        return null;
+    }
+
+    @Override
+    public Result update(EHrTrainingNotice eHrTrainingNotice) {
+        return null;
+    }
+
+    @Override
+    public EHrTrainingNotice save(EHrTrainingNotice eHrTrainingNotice) {
+        return null;
+    }
+
+    @Override
+    public void deleteByNote(String tzSid) {
+
+    }
+}

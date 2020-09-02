@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>委外入库打印模板</title>
+</th:block>
+<head>
+<meta charset="UTF-8">
+<style>
+        html,
+        body,
+        ul,
+        li,
+        ol,
+        dl,
+        dd,
+        dt,
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        form,
+        fieldset,
+        legend,
+        img,
+        input,
+        figure,
+        figcaption {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul,
+        ol,
+        li {
+            list-style: none;
+        }
+
+        b,
+        strong {
+            font-weight: normal;
+        }
+
+        em,
+        i {
+            font-style: normal;
+        }
+
+        a,
+        u {
+            text-decoration: none;
+        }
+
+        img {
+            border: 0;
+            display: block;
+        }
+
+        input {
+            outline: none;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .company,
+        .category {
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 15px;
+            color: #000;
+            text-align: center;
+        }
+
+		.font-light{
+			font-size: 12px;
+		}
+		
+		.space{
+			padding-left: 2em;
+		}
+
+        .n {
+            font-weight: normal;
+        }
+
+        .l {
+            text-align: left;
+        }
+        .c {
+            text-align: center;
+        }
+        .r{
+            text-align: right;
+        }
+
+        table {
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+        }
+
+        tbody td {
+            border: 1px solid #000;
+            border-top: none;
+        }
+
+		tfoot{
+			font-weight: 200;
+			font-size: 13px;
+            line-height: 12px;
+		}
+
+        .header td {
+            border: 1px solid #000;
+        }
+
+        table tr {
+            width: 100%;
+        }
+
+        table tr td {
+            padding: 4px;
+            font-size: 13px;
+        }
+
+        table tr .xh {
+            width: 5%;
+        }
+
+        table tr .name {
+           	width: 24%;
+        }
+
+        table tr .num {
+            width: 7%;
+        }
+
+        table tr .dw {
+            width: 6%;
+        }
+
+        table tr .pc {
+            width: 7%;
+        }
+
+        table tr .fl {
+            width: 9%;
+        }
+        
+        table tr .jq {
+          	width: 12%;
+        }
+
+        table tr .sm {
+            width: auto;
+        }
+        .line_top{
+        	line-height: 14px;
+        }
+        .jc{
+        	font-size:12px;
+			font-weight: bold;
+		}
+		.bottom_left{
+			padding-left: 30px;
+		}
+		pre{
+			line-height: 1.6;
+			padding-top:0px;
+			padding-bottom:0px;
+			white-space: pre-wrap;
+		}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <table cellpadding="0" cellspacing="0">
+            <thead>
+                <tr>
+                    <td colspan="8">
+                        <p class="company" th:text="${corpname}"></p>
+                    </td>
+                </tr>
+                <tr class="line_top">
+                    <td colspan="8">
+                        <p class="category">委外入库(<span th:text="${intype}"></span>)</p>
+                    </td>
+                </tr>
+                <tr>
+                	<td colspan="8"></td>
+                </tr>
+                <tr class="line_top">
+                    <td class="l" colspan="8">
+                    	<b class="l" style="margin-left: 2em;">签订日期:<span th:text="${inrq}"></span></b>
+                    	<b class="l" style="margin-left: 6em;">供货单位:<span th:text="${incustomername}"></span></b>
+                        <b class="l" style="margin-left: 6em;">入库单号:<span th:text="${innote}"></span></b>
+                    </td>
+                </tr>
+                <tr class="header">
+                    <td class="xh">序号</td>
+                    <td class="name" colspan="3">名称及规格</td>
+                    <td class="num">数量</td>
+                    <td class="dw">单位</td>
+                    <td class="sm" colspan="2">备注</td>
+                </tr>
+            </thead>
+            
+            <tbody th:each="mx,index:${mx}">
+                <tr>
+                    <td class="xh" th:text="${index.count}"></td>
+                    <td class="name l" colspan="3" th:text="${mx.NameAndSize}"></td>
+                    <td class="num l" th:text="${mx.insl}"></td>
+                    <td class="dw" th:text="${mx.cpcodebz}"></td>
+                    <td class="sm" colspan="2" th:text="${mx.inremarks}"></td>
+                </tr>
+            </tbody>
+            
+            <tbody th:if="${mxCount<8}" th:each="i:${#numbers.sequence(1,8-mxCount)}">
+				<tr>
+					<td class="xh" th:text="${i+mxCount}"></td>
+					<td colspan="3"></td>
+                    <td class="num l"></td>
+                    <td class="dw"></td>
+                    <td class="sm" colspan="2"></td>
+				</tr>
+			</tbody>
+            
+            <tbody>
+           		<tr style="line-height: 25px;">
+                    <td class="jc l" colspan="4">合计</td>
+                    <td class="num l" th:text="${sumsl}"></td>
+                    <td class="dw"></td>
+                    <td class="sm" colspan="2"></td>
+             	</tr>
+            </tbody>
+                
+
+		</table>
+    </div>
+</body>
+<script type="text/javascript">
+
+</script>
+</html>

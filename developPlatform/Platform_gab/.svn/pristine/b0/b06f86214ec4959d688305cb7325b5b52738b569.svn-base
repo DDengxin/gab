@@ -1,0 +1,19 @@
+package com.tengzhi.business.platform.shopping.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.shopping.model.GShopAddr;
+
+public interface AddrService  extends BaseService {
+
+	//查询登录用户的购物地址信息
+	List<Map<String, Object>> findAllByUserId();
+
+	Result saveAddress(GShopAddr gShopAddr);
+
+	Result updateDefault(String addressNote);
+
+}

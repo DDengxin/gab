@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+	<title>企业公告</title>
+</th:block>
+<style>
+h1.title, h3.type {
+	text-align: center;
+}
+
+h3 {
+	font-size: 18px;
+}
+
+pre {
+	white-space: pre-wrap;
+	font-size: 18px;
+}
+
+#iframe {
+	padding-top: 40px;
+	border: 0;
+	width: 100%;
+	height: 580px;
+	display: none;
+	padding-top: 30px;
+}
+
+.content {
+	text-indent: 2em;
+}
+</style>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden">
+		<form id="form1">
+			<table class="hmq-modify-table">
+				<tr>
+					<td content colspan="5">
+						<div id="uploader"></div> <input id="noticeFile" name="noticeFile"
+						class="mini-hidden" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+mini.parse();
+function SetData(options) {
+	var fileId = options.data;
+	$("#uploader").resetUploader({
+		pickerid: fileId,
+		filecount: 50,
+		view:"view",
+		viewdownload:true
+		});
+	}
+</script>
+</html>

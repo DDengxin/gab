@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>收款管理</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="收款日期">
+                <input class="mini-datepicker" name="srchRq1" value="new Date()" width="100"/>至<input class="mini-datepicker" name="srchRq2" value="new Date()" width="100"/>
+            </label>
+            <label class="hmq-label" text="收款单号">
+                <input class="mini-textbox" name="srchNote" width="100"/>
+            </label>
+            <!-- <label class="hmq-label" text="收款方式">
+                <input  class="mini-comboBox" name="srchBz"  width="100"/>
+            </label> -->
+            <label class="hmq-label" text="收款币种">
+                <input class="mini-comboBox" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" name="srchBz" showNullItem="true" nullItemText="全部" width="100"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <!-- <div tz:datagrid="datagrid"  id="srch_grid"  sortField="sfkId" treeColumn="sfk_note" 
+         idField="sfkId"   iconField="rightIconCls"
+         expandOnLoad="0" virtualColumns="true" showPageInfo="false" showTreeLines="false" ShowTreeicon="false" > -->
+    <div tz:datagrid="datagrid" id="srch_grid" style="width: 100%; height: 100%;" idField="sfkNote" sizeList="[50,100,200]" pageSize="100" pager="#pager1" data-pagebuttonbar="true"
+         showPager="true" sortField="fpRq" sortOrder="desc" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false"
+         allowSort="true" align="center" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" field="xh" width="48">序号</div>
+            <div tz:datagrid="column" field="sfkId" name="fpId" align="center" width="80" visible="false">ID</div>
+            <div tz:datagrid="column" field="sfkRq" name="sfkRq" align="center" width="120" dateFormat="yyyy-MM-dd" renderer="onActionRenderer">日期</div>
+            <div tz:datagrid="column" field="sfkNote" name="sfkNote" align="center" width="120">单号</div>
+            <div tz:datagrid="column" field="sfkDw" name="sfkDw" align="left" width="100">单位</div>
+            <div tz:datagrid="column" field="sfkDtype" name="sfkDtype" align="center" width="80" visible="false">收款分类</div>
+            <div tz:datagrid="column" field="sfkType" name="sfkType" align="center" width="100" visible="false">收付款</div>
+            <div tz:datagrid="column" field="sfkShl" name="sfkShl" width="70" align="right">收款汇率</div>
+            <div tz:datagrid="column" field="sfkFkje" name="sfkFkje" width="90" align="right" numberFormat="#,0.00" summaryType="sum">收款金额</div>
+            <div tz:datagrid="column" field="sfkBzje" name="sfkBzje" width="90" align="right" numberFormat="#,0.00" summaryType="sum">实收金额</div>
+            <div tz:datagrid="column" field="sfkYfje" name="sfkYfje" align="right" width="90" numberFormat="#,0.00" summaryType="sum">手续费</div>
+            <div tz:datagrid="column" field="sfkBz" name="sfkBz" align="center" width="70">收款币种</div>
+            <div tz:datagrid="column" field="sfkFkfs" name="sfkFkfs" align="center" width="100">收款方式</div>
+            <div tz:datagrid="column" field="dataCorp" name="dataCorp" align="center" width="120" visible="false">所属公司</div>
+            <div tz:datagrid="column" field="sfkFlag" name="sfkFlag" width="110" align="center">收款状态</div>
+            <div tz:datagrid="column" field="sfkMess" name="sfkMess" align="left" width="160" visible="false">收款信息</div>
+            <div tz:datagrid="column" field="sfkSm" name="sfkSm" align="left" width="160" visible="false">备注</div>
+            <div tz:datagrid="column" field="sfkMonth" name="sfkMonth" align="center" width="120" visible="false">月结状态</div>
+            <div tz:datagrid="column" field="sfkXtype" name="sfkXtype" align="center" width="120" visible="false">收款小类</div>
+            <div tz:datagrid="column" field="dataDate" name="dataDate" align="center" width="120">操作日期</div>
+            <div tz:datagrid="column" field="dataMan" name="dataMan" align="center" width="120">操作人</div>
+            <div tz:datagrid="column" width="100%" field=""></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            e.cellHtml = e.value ? '是' : '否';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, height: '300px'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row, height: '200px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: row, height: '200px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sfkFlag == "登记") {
+                e.sender.miniopen({url: 'confirm.html', action: 'confirm', data: row, height: '200px'});
+            } else {
+                hmq.tipDanger("该状态异常!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要取消吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("cancel/{0}".format(row.htNo), function (res) {
+                        if (200 === res.code) {
+                            srch_topgrid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sfkFlag == "登记") {
+                mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                    if (action == "ok") {
+                        $['delete']("gatheringList.html/{0}".format(row.sfkId), function (res) {
+                            if (200 === res.code) {
+                                grid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            } else {
+                hmq.tipDanger("非登记状态不能删除！");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 仅销售收款用到该函数
+     **/
+    function ok_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sfkFlag == "登记" && row.sfkMonth == "未结") {
+                hmq.business.approvalConfirm({
+                    businessId: row.sfkId,
+                    url: '/finance/gathering/add.html',
+                    title: "收款" + row.sfkNote,
+                    error: function (res) {
+                        if (404 == res.code) {
+                            $.put("ok/{0}".format(row.sfkId), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    }
+                });
+
+            } else {
+                hmq.tipDanger("该状态无法审核！");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 仅销售收款用到该函数
+     **/
+    function qx_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sfkFlag == "确认" && row.sfkMonth == "已结") {
+                hmq.business.approvalCancel({
+                    businessId: row.sfkId,
+                    error: function (res) {
+                        if (404 == res.code) {
+                            $.put("qx/{0}".format(row.sfkId), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    }
+                });
+
+            } else {
+                hmq.tipDanger("该状态无法取消！");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /* 月结操作修改月结状态 */
+    function yok_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sfkMonth == "登记") {
+                mini.confirm("确定要审核吗？", "审核信息", function (action) {
+                    if (action == "ok") {
+                        $.put("yok/{0}".format(row.sfkId), function (res) {
+                            if (200 === res.code) {
+                                grid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            } else {
+                hmq.tipDanger("该状态无法进行月结操作！");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /* 月结取消操作修改月结状态 */
+    function yqx_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sfkMonth == "确认") {
+                mini.confirm("确定要取消月结吗？", "取消月结信息", function (action) {
+                    if (action == "ok") {
+                        $.put("yqx/{0}".format(row.sfkId), function (res) {
+                            if (200 === res.code) {
+                                grid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            } else {
+                hmq.tipDanger("该状态无法进行取消月结操作！");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "sfkRq") {
+            return mini.formatDate(new Date(record.sfkRq), "yyyy-MM-dd");
+        }
+        if (e.field == "dataDate") {
+            return mini.formatDate(new Date(record.dataDate), "yyyy-MM-dd");
+        }
+
+    }
+
+    /**
+     汇总
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "xh") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "sfkBzje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "sfkYfje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "sfkFkje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>公共审批页面</title>
+    </th:block>
+    <link rel="stylesheet" th:href="@{/static/workflow/css/approval.css}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="wrap">
+            <!--左侧区块-->
+            <div class="wrap_right">
+                <div class="wrap_iframe mini-fit">
+                    <iframe name="百度" width="100%" height="100%" frameborder=0 src="https://www.baidu.com/"></iframe>
+                </div>
+                <div class="wrap_flow">
+                    <div class="app_flow_step">
+                        <p>审批流程：</p>
+                        <div class="step_con">
+                            <div class="step_num step_f">登记(张三)</div>
+                            <div class="step_line"></div>
+                            <div class="step_num step_f">确认(张三)</div>
+                            <div class="step_line"></div>
+                            <div class="step_num step_f">主管审核(王五)</div>
+                            <div class="step_line"></div>
+                            <div class="step_num step_f">财务审核(赵六)</div>
+                            <div class="step_line"></div>
+                            <div class="step_num">财务审核(赵六)</div>
+                            <div class="step_line"></div>
+                            <div class="step_num">核准(赵六)</div>
+                        </div>
+                    </div>
+                    <div class="app_flow_content">
+                        <p>审批内容：</p>
+                        <textarea></textarea>
+                        <!-- <input type="text"> -->
+                    </div>
+                    <div class="btn_box">
+                        <div class="btn">
+                            <button>同意</button>
+                            <button>拒绝</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--END 左侧区块-->
+            <!--右侧区块-->
+            <div class="wrap_handle">
+                <div class="handle_head">办理记录</div>
+                <div class="info_flow">
+                </div>
+            </div>
+            <!--END 右侧区块-->
+        </div>
+    </div>
+</body>
+<script>
+    var data = [
+        {
+            businessId: "QJ2006030001",
+            endTime: "2020-06-03 09:29",
+            id: "cfd58fc3b7a4140b861354074e7863e",
+            linkId: "7re5595b4e42c45f7950f764ff4fd96db",
+            linkName: "登记",
+            processId: "b389fcdd020b4d238299556bd40a02e9",
+            startTime: "2020-06-03 09:29",
+            transactor: "李国庆",
+            transactorId: "20160603"
+        },
+        {
+            businessId: "QJ2006030001",
+            endTime: "2020-06-03 09:29",
+            id: "303858fc3b7a4140b861354074e7863e",
+            linkId: "565595b4e42c45f7950f764ff4fd96db",
+            linkName: "确认",
+            opinion: "",
+            processId: "b389fcdd020b4d238299556bd40a02e9",
+            startTime: "2020-06-03 09:29",
+            transactor: "李国庆",
+            transactorId: "20160603"
+        }
+    ];
+
+    var str;
+    for (var i = 0; i < data.length; i++) {
+        str = '<div class="flow_list">' +
+            '<span></span>' +
+            '<div class="flow_list_content">' +
+            '<p><span class="link_name">' + data[i].linkName + '</span>' +
+            '<u><i class="time">' + data[i].endTime + '</i><i class="yes">已通过</i></u></p>' +
+            '<div class="list_content">' +
+            '<p>操作：<i>' + data[i].transactor + '</i></p>' +
+            '<p>意见：<i>' + (data[i].opinion == null || data[i].opinion == '' ? '' : data[i].opinion) + '</i></p></div></div></div>';
+        $('.info_flow').append(str);
+    }
+    $('.info_flow .flow_list:last-child').addClass("change");
+</script>
+
+</html>

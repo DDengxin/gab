@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>业务表单【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>流程表单编码:</td>
+                <td content>
+                    <input class="mini-textbox" id="workflowTableId" name="workflowTableId" required/>
+                </td>
+                <td title>流程表单数据表:</td>
+                <td content>
+                    <input class="mini-combobox" id="workflowTableName" name="workflowTableName" onvaluechanged="tableName" allowInput="true" ajaxType="post" valueField="tabname" textField="tabname" required
+                           url="/codeGeneration/findAllTables" clearOnLoad="true" valueFromSelect="true"
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td title>流程表单名称:</td>
+                <td content>
+                    <input class="mini-textbox" id="workflowTableDescribe" name="workflowTableDescribe" required/>
+                </td>
+                <td title>单号字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="workflowNoteFieldName" name="workflowNoteFieldName" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td title>状态字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="workflowFlagFieldName" name="workflowFlagFieldName" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+                <td title>提交人字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="workflowWorkerIdFieldName" name="workflowWorkerIdFieldName" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td title>单位字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="workflowUnitFieldName" name="workflowUnitFieldName" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function tableName(e) {
+        var table = mini.get("workflowTableName").getValue();
+        if (mini.get("workflowTableDescribe").getValue() == "")
+            mini.get("workflowTableDescribe").setValue(e.selected.comment);
+        mini.get("workflowNoteFieldName").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+        mini.get("workflowFlagFieldName").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+        mini.get("workflowWorkerIdFieldName").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+        mini.get("workflowUnitFieldName").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+    }
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("/system/workflow/linkTable/{0}".format(options.data.workflowTableId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    tableName();
+                    mini.get("workflowTableId").setValue(res.data.workflowTableId);
+                    mini.get("workflowNoteFieldName").setText(res.data.workflowNoteFieldName);
+                    mini.get("workflowFlagFieldName").setValue(res.data.workflowFlagFieldName);
+                    mini.get("workflowWorkerIdFieldName").setText(res.data.workflowWorkerIdFieldName);
+                    mini.get("workflowUnitFieldName").setValue(res.data.workflowUnitFieldName);
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("/system/workflow/linkTable", JSON.stringify(form.getData()), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>系统参数</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient"/>
+        <label class="hmq-label" text="参数模块">
+            <input class="mini-TextBox" name="paramMod" id="paramMod" readonly="readonly"/>
+        </label>
+        <label class="hmq-label" text="参数类型">
+            <input class="mini-TextBox" name="paramType" id="paramType" readonly="readonly"/>
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="paramId"/>
+        </label>
+        <label class="hmq-label" text="名称">
+            <input class="mini-textbox" name="paramName"/>
+        </label>
+        <input class="mini-textbox" name="parentId" id="parentId" visible="false"/>
+        <input class="mini-textbox" name="parentName" id="parentName" visible="false"/>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid" sortField="paramOrd" treeColumn="paramName"
+         idField="paramId" parentField="parentId" resultAsTree="true"
+         expandOnLoad="true" showTreeLines="true" showPageInfo="false" ShowTreeicon="false"
+    >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="paramName" name="paramName" width="350">名称</div>
+            <div tz:datagrid="column" field="paramId" width="90">编码</div>
+            <div tz:datagrid="column" field="paramOrd" width="50" align="center">排序</div>
+            <div header="参数值" align="center" headerAlign="center">
+                <div property="columns">
+                    <div tz:datagrid="column" field="paramValue" width="70">参数值</div>
+                    <div tz:datagrid="column" field="paramValue1" width="70">参数值1</div>
+                    <div tz:datagrid="column" field="paramValue2" width="70">参数值2</div>
+                    <div tz:datagrid="column" field="paramValue3" width="70">参数值3</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" field="paramDetail" width="220">备注</div>
+            <div tz:datagrid="column" field="paramType" width="100" name="paramType" align="left">类型</div>
+            <div tz:datagrid="column" field="paramNameEn" width="100" visible="false">英文名称</div>
+            <div tz:datagrid="column" field="paramMod" width="70" align="center">模块</div>
+            <div tz:datagrid="column" field="paramStatus" width="50" align="center">禁用</div>
+
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    var paramMod = hmq.getQueryString("paramMod");
+    var paramType = hmq.getQueryString("paramType");
+    var parentId = hmq.getQueryString("parentId");
+    var parentName = hmq.getQueryString("parentName");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(paramMod)) {
+        form.getField("paramMod").setValue(paramMod);
+        //form.getField("paramType").setValue(paramType);
+        if (hmq.isNotEmpty(paramType)) {
+            form.getField("paramType").setValue(paramType);
+        }
+        if (hmq.isNotEmpty(parentId)) {
+            form.getField("parentId").setValue(parentId);
+        }
+        if (hmq.isNotEmpty(parentName)) {
+            form.getField("parentName").setValue(parentName);
+        }
+        /* onParamModValueChanged({sender:form.getField("paramMod")},function(){
+            if (hmq.isNotEmpty(paramType)) {
+                form.getField("paramType").setValue(paramType);
+                setIdReadOnly("paramType");
+            }
+        }); */
+        setIdReadOnly("paramMod");
+    }
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "paramStatus") {
+            e.cellHtml = 'true' === e.value ? '是' : '否';
+        }
+    });
+
+    //拦截加载事件，加载树形结构
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗(包括所有下级)？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("currencyList.html", JSON.stringify({paramId: row.paramId, paramStatus: row.paramStatus, list: grid.getChildNodes(row)}), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    }, null, {contentType: 'application/json'});
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function open() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要启动吗(包括所有下级)？", "启动信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("parameter1.html", JSON.stringify({paramId: row.paramId, paramStatus: row.paramStatus, list: grid.getChildNodes(row)}), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess("启动成功");
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger("启动失败");
+                        }
+                    }, null, {contentType: 'application/json'});
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function close() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要禁用吗(包括所有下级)？", "禁用信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("parameter2.html", JSON.stringify({paramId: row.paramId, paramStatus: row.paramStatus, list: grid.getChildNodes(row)}), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess("禁用成功");
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger("禁用失败");
+                        }
+                    }, null, {contentType: 'application/json'});
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onParamModValueChanged(e, callback) {
+        mini.get("paramType").setEnabled(true);
+        if (hmq.isNotEmpty(e.sender.getValue())) {
+            //mini.get("paramType").load("/system/parameter/NodeParams/{0}".format(e.sender.getValue()));
+        } else {
+            mini.get("paramType").setData(null);
+        }
+        if ($.isFunction(callback)) {
+            callback();
+        }
+    }
+
+    /**
+     * @Author: xutao
+     * @description: 打印弹出页面
+     */
+    function print_option(e) {
+        var row = grid.getSelected();
+        /* if (row) {
+            if(row.inFlag=="库审"||row.inFlag=="结算"){ */
+        e.sender.miniopen({url: "print.html", action: 'print', data: row, width: 1150, height: 810});
+        /*  }else{
+             hmq.tipDanger("该状态不可打印");
+         }
+    }else{
+        hmq.tipDanger("请选择一条记录");
+    } */
+    }
+</script>
+
+</body>
+</html>
+
+

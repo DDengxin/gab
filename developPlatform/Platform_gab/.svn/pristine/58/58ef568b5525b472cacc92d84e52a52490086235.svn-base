@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的订单</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/allOrders.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/allOrders.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+</head>
+
+<body>
+
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+    <div class="main w">
+        <div class="main-title">我的订单</div>
+        <div class="main-x">
+            <div class="sp-tab">
+                <table class="js-tab" cellspacing="0" cellpadding="0" id="tab" border="0">
+                    <thead>
+                        <tr>
+                            <td width="150">
+                                <div class="com-sel">
+                                    <select class="com-opt">
+                                        <option value="全部订单">全部订单</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td width="450">订单内容</td>
+
+                            <td width="150">联系人</td>
+                            <td width="150">总金额</td>
+                            <td width="150">
+                                <div class="com-sel">
+                                    <select class="com-opt">
+                                        <option value="全部状态">全部</option>
+                                        <option value="待发货">待发货</option>
+                                        <option value="已发货">已发货</option>
+                                        <option value="已完成">已完成</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td width="150">操作</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="l">
+                                <span>订单编号：123456781234567812345678</span>
+                                <b>浙江高吴五金材料有限公司</b>
+                                <span>2020-07-23 14:36:43</span>
+                            </td>
+                            <td align="center" class="fontColor hover" onclick="deleteOrder(this);">删除</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="l">
+                                <img src="../../static/gab/images/zj1.jpg" alt="">
+                                <span class="name">商品名称商品名称商品名称商品名称商品名称</span>
+                                <b><em>x</em><em>100</em></b>
+                            </td>
+                            <td>郑大成</td>
+                            <td class="fontColor"><em>￥</em><em>35600.00</em></td>
+                            <td>已完成</td>
+                            <td>
+                                <a href="#">售后</a><a href="/gab/comment.html">评价</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="page"></div>
+            </div>
+            <div class="no">还没有订单哦~快去购买你心仪的产品吧</div>
+        </div>
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+    </th:block>
+</body>
+
+</html>

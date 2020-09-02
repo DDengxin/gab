@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售合同</title>
+    </th:block>
+    <script type="text/javascript" th:src="@{/static/javascript/LodopPrint.js?version=4}"></script>
+    <object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="0" height="0">
+        <embed id="LODOP_EM" type="application/x-print-lodop" width="0" height="0"/>
+    </object>
+    <style type="text/css">
+        .button-gx-right {
+            width: 70px;
+            height: 100%;
+            float: right;
+            border: 1px;
+            text-align: center;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+        }
+
+        .button-gx-right > .mini-button {
+            padding: 30% 0px !important;
+        }
+
+        .button-gx-right-wl {
+            width: 70px;
+            height: 100%;
+            float: right;
+            border: 1px;
+            text-align: center;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            border-top: 1px solid #ddd;
+
+        }
+
+        .button-gx-right-wl > .mini-button {
+            padding: 20.9% 0px !important;
+        }
+
+        #btnbar {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            margin-top: -0.8%;
+        }
+    </style>
+</head>
+
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="类别">
+            <input class="mini-combobox" id="htStype" name="htStype" width="70px" url="/system/parameter/getCorpChainOrCorpProduction/SC" onvaluechanged="onValueChangeType" />
+        </label>
+        <label class="hmq-label" text="任务单号">
+            <input class="mini-textbox" name="srchScmo" width="120"/>
+        </label>
+        <label class="hmq-label" text="明细单号">
+            <input class="mini-textbox" name="srchHtmo" width="130"/>
+        </label>
+        <label class="hmq-label" text="工艺路线">
+            <input class="mini-combobox" url="/js/cpgy/scgy/getGyAllSelectList" name="srchScgy" id="srchScgy" emptyText="全部" nullItemText="全部" showNullItem="true" width="130"/>
+        </label>
+
+        <label style="white-space: nowrap;" id="btnbar"></label>
+    </th:block>
+
+</th:block>
+<!--撑满页面-->
+
+        <div class="mini-fit">
+            <div tz:datagrid="datagrid" id="srch_grid" idField="scMo" sortField="rq" sortOrder="desc"
+                 sizeList="[50,100,200]" pageSize="100" allowCellEdit="true" allowCellSelect="true"
+                  sortMode="client" pager="#pager1" showPager="false">
+                <div property="columns">
+                    <div tz:datagrid="indexcolumn" width="35">序号</div>
+                    <div tz:datagrid="column" field="rq" width="90" align="center">日期</div>
+                    <div tz:datagrid="column" field="scMo" width="110" align="center">生产单号</div>
+                    <div tz:datagrid="column" field="htMo" width="130" align="left">明细单号</div>
+                    <div tz:datagrid="column" name="scStype" field="scStype" displayField="stypename"
+                         width="80" align="center">生产方式
+                        <input property="editor" class="mini-combobox"
+                               url="/system/parameter/getParamsSelectListByParentId/生产/SCFS" allowInput="true"/>
+                    </div>
+                    <div tz:datagrid="column" name="gyid" field="scGylx" displayField="gylxname" width="120"
+                         align="left">工艺路线
+                        <input property="editor" class="mini-combobox" url="/js/cpgy/scgy/getGyAllSelectList"
+                               allowInput="true"/>
+                    </div>
+                    <div tz:datagrid="column" field="code" width="100" align="center">编码</div>
+                    <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" align="left" width="120">名称</div>
+                    <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" align="left" width="70">规格</div>
+                    <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" align="left" width="80">大类</div>
+                    <div tz:datagrid="column" field="scsl" width="80" align="right" numberFormat="#,0.0000"
+                         summaryType="sum" dataType="double">生产数量
+                    </div>
+                    <div tz:datagrid="column" field="scflag" width="60" align="center">状态</div>
+                    <div tz:datagrid="column" field="scjq" width="90" align="center">生产交期</div>
+                    <div tz:datagrid="column" field="sczq" width="90" align="center">生产周期</div>
+                    <div tz:datagrid="column" field="sctqq" width="90" align="center">生产提前期</div>
+                    <div tz:datagrid="column" field="scyq" width="220" align="left">生产要求</div>
+                    <div tz:datagrid="column" field="dataRq" name="dataRq" align="center" width="120">操作日期
+                    </div>
+                    <div tz:datagrid="column" field="dataMan" name="dataMan" align="center" width="80">操作人
+                    </div>
+                    <div tz:datagrid="column" width="100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="white-space: nowrap;">
+                        <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false"
+                             showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srchgrid = mini.get("srch_grid");
+    mini.get("htStype").select(0);
+
+    srchgrid.bindSearchForm(form);
+
+    srchgrid.setUrl("/sc/pd/scpd/getSrchTopLeftList");
+
+
+
+
+
+
+    function onValueChangeType() {
+        var htStype = mini.get("htStype").getValue();
+        //动态列转换
+        if (hmq.isNotEmpty(htStype)) {
+            hmq.business.dynamicProductParams(htStype, {
+                miniDataGrid: srchgrid,
+                miniForm: form,
+                formMapping: {
+                    cpcodeFl: 'cpcodeFl',
+                    cpcodeName: 'cpcodeName',
+                    cpcodeSize: 'cpcodeSize'
+                },
+                success: function (map, res) {
+                    srchgrid.load();
+                    srchgrid.load({
+                        "params": mini.encode({
+                            cptype: mini.get("htStype").getValue()
+                        })
+                    });
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }
+        //end
+    }
+
+    //半成品end
+
+    function search_option() {
+        srchgrid.load();
+
+    }
+
+    function cancel_option() {
+        var row = srchgrid.getSelected();
+        if (row) {
+            mini.confirm("是否取消该数据吗？", "提示信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/sc/task/sctask/delete/{0}".format(row.scMo), function (res) {
+                        if (200 === res.code) {
+                            srchgrid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * @Author: zs
+     * @description: 打印弹出页面
+     */
+    function print_option(e) {
+        var row = srch_topleftgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "print.html", action: 'print', data: row, width: 700, height: 570});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+
+</body>
+
+</html>

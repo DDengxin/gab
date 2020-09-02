@@ -1,0 +1,465 @@
+package com.tengzhi.business.production.subcontract.wwkc.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.excel.ExcelUtil;
+import com.tengzhi.base.tools.json.MapperFactory;
+import com.tengzhi.business.base.publicinterfac.IUserConstants;
+import com.tengzhi.business.cg.yw.purchaseReceipt.dao.ECkInDao;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.production.subcontract.wwkc.service.WwkcService;
+import com.tengzhi.business.system.params.service.SysParamService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class WwkcServiceImpl implements WwkcService {
+    @Autowired
+    private ECkInDao eCkInDao;
+    @Autowired
+    private SysParamService sysParamService;
+
+    @Override
+    public BasePage<Map<String, Object>> getSrchTopList(String type, BaseDto baseDto) throws Exception {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        Map<String, String> map = baseDto.getParamsMap();
+        String sql = getWhere(type, map);
+        if ("fl".equals(type)) {
+            baseDto.setSortField("code");
+            baseDto.setSortOrder("ASC");
+            return eCkInDao.QueryPageList(sql, "select count(*) from (" + sql + ") t", baseDto);
+        } else {
+            baseDto.setSortField("in_rq");
+            baseDto.setSortOrder("DESC");
+            return eCkInDao.QueryPageList(sql, "select count(*) from (" + sql + ") t", baseDto);
+        }
+    }
+
+    private String getWhereo(String type, Map<String, String> map) throws IOException {
+        String sql = "select lib ,cpcode_fl cpcodefl,in_kw ,in_contract ,inlibname ,code,cpcode_name cpcode,cpcodename cpcodename,cpcode_size cpcodesize,cpcode_size_en cpcodesizeen,js,sl,in_contract incontract,cpcodebzname cpcodebz,pack,in_rq inrq,in_price inprice,in_customer,incustomername incustomer,cpcodeflname cpcodefl,inactname inact,f_getparamname('GETBYPARENTID', '" + map.get("stype") + "', '产品大类', '技术', '', '') intypename,kwname ,in_ph inPh,cpcode_xp cpcodexp,in_remarks inremarks,in_luono inluono from v_ck_mx  where dtype='" + map.get("stype") + "'";
+        String sqlWhere = "";
+        if ("mx".equals(type)) {
+            Object srchPack = map.get("srchPack");
+            Object srchContract = map.get("srchContract");
+
+            Object srchLib = map.get("srchLib");
+            Object srchCode = map.get("srchCode");
+            Object srchName = map.get("srchName");
+            Object srchSupplier = map.get("srchSupplier");
+            Object srchSize = map.get("srchSize");
+            Object srchCpcodesizeen = map.get("srchCpcodesizeen");
+            Object srchFl = map.get("srchFl");
+            Object srchInPh = map.get("srchInPh");
+            Object srchKw = map.get("srchKw");
+            Object srchRemarks = map.get("srchRemarks");
+            Object stype=map.get("stype");
+
+            if (!StringUtils.isBlank(srchLib.toString())) {
+                srchLib = srchLib.toString().replace(",", "','");
+                sqlWhere += " and lib in ('" + srchLib + "')";
+            }
+            if (!StringUtils.isBlank(srchCode.toString())) {
+                sqlWhere += " and code like '%" + srchCode + "%'";
+            }
+            if (!StringUtils.isBlank(srchName.toString())) {
+                srchName = srchName.toString().replace(",", "','");
+                sqlWhere += " and cpcode_name in ('" + srchName + "')";
+            }
+            if (!StringUtils.isBlank(srchSize.toString())) {
+                sqlWhere += " and cpcode_size like '%" + srchSize + "%'";
+            }
+            if (!StringUtils.isBlank(srchPack.toString())) {
+                sqlWhere += " and pack like '%" + srchPack + "%'";
+            }
+            if (!StringUtils.isBlank(srchContract.toString())) {
+                sqlWhere += " and in_contract like '%" + srchContract + "%'";
+            }
+            if (!StringUtils.isBlank(srchSupplier.toString())) {
+                sqlWhere += " and (in_customer like '%" + srchSupplier + "%' or incustomername like '%" + srchSupplier + "%')";
+            }
+            if (!StringUtils.isBlank(srchCpcodesizeen.toString())) {
+                sqlWhere += " and cpcode_size_en like '%" + srchCpcodesizeen + "%'";
+            }
+            if (!StringUtils.isBlank(srchFl.toString())) {
+                srchFl = srchFl.toString().replace(",", "','");
+                sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+            }
+            if (!StringUtils.isBlank(srchInPh.toString())) {
+                sqlWhere += " and in_ph like'%" + srchInPh + "%'";
+            }
+            if (!StringUtils.isBlank(srchKw.toString())) {
+                sqlWhere += " and f_get_param_name('仓库库位',in_kw,'"+   SessionUser.getCurrentCorpId()   +"','')  like  '%" + srchKw + "%'";
+            }
+            if (!StringUtils.isBlank(srchRemarks.toString())) {
+                sqlWhere += " and in_remarks  like  '%" + srchRemarks + "%'";
+            }
+            if(stype != null && stype.toString().trim().length() > 0) {
+                String parameterId=sysParamService.getParamId(stype.toString(), IUserConstants.wwrk);
+                sqlWhere +=" and in_act='"+parameterId+"' ";
+            }else{
+                List<Map> list = eCkInDao.QueryListMap(" select param_id from Sys_param where param_type='仓库收发' and param_name='"+IUserConstants.wwrk+"'  ");
+                if(list.size() > 0){
+                    String paramIds = "";
+                    for(int i = 0;i<list.size();i++){
+                        Map pmap = list.get(i);
+                        paramIds += pmap.get("param_id").toString();
+                        if(i+1<list.size()){
+                            paramIds += "','";
+                        }
+                    }
+                    sqlWhere +=" and in_act in ('"+paramIds+"')  ";
+                }
+            }
+
+            sql += sqlWhere;
+        } else if ("fl".equals(type)) {
+            Object srchLib = map.get("srchLib");
+            Object srchCode = map.get("srchCode");
+            Object srchName = map.get("srchName");
+            Object srchSize = map.get("srchSize");
+            Object srchFl = map.get("srchFl");
+            Object srchKw = map.get("srchKw");
+            Object srchCpcodesizeen = map.get("srchCpcodesizeen");
+            if (!StringUtils.isBlank(srchLib.toString())) {
+                srchLib = srchLib.toString().replace(",", "','");
+                sqlWhere += " and lib in ('" + srchLib + "')";
+            }
+            if (!StringUtils.isBlank(srchKw.toString())) {
+                sqlWhere += " and f_get_param_name('仓库库位',in_kw,'"+   SessionUser.getCurrentCorpId()   +"','')  like  '%" + srchKw + "%'";
+            }
+            if (!StringUtils.isBlank(srchCode.toString())) {
+                sqlWhere += " and code like '%" + srchCode + "%'";
+            }
+            if (!StringUtils.isBlank(srchSize.toString())) {
+                sqlWhere += " and cpcode_size like '%" + srchSize + "%'";
+            }
+            if (!StringUtils.isBlank(srchName.toString())) {
+                srchName = srchName.toString().replace(",", "','");
+                sqlWhere += " and cpcode_name in ('" + srchName + "')";
+            }
+            if (!StringUtils.isBlank(srchCpcodesizeen.toString())) {
+                sqlWhere += " and cpcode_size_en like '%" + srchCpcodesizeen + "%'";
+            }
+            if (!StringUtils.isBlank(srchFl.toString())) {
+                srchFl = srchFl.toString().replace(",", "','");
+                sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+            }
+            sql = "select inlibname inlib,lib sha1,code,cpcode_name cpcode,cpcodename cpcodename,cpcode_size cpcodesize,cpcode_size_en cpcodesizeen,js,sl,cpcodebzname cpcodebz,cpcode_fl sha21,cpcodeflname cpcodefl,dtype,f_getparamname('GETBYPARENTID', '" + map.get("stype") + "', '产品大类', '技术', '', '') intype from v_ck_fl  where dtype='" + map.get("stype") + "'";
+            sql += sqlWhere;
+        } else if ("kl".equals(type)) {
+            Object srchRq1 = map.get("srchRq1");
+            Object srchRq2 = map.get("srchRq2");
+
+            Object srchLib = map.get("srchLib");
+            Object srchCode = map.get("srchCode");
+            Object srchName = map.get("srchName");
+            Object srchSupplier = map.get("srchSupplier");
+            Object srchSize = map.get("srchSize");
+            Object srchCpcodesizeen = map.get("srchCpcodesizeen");
+            Object srchFl = map.get("srchFl");
+            Object srchKw = map.get("srchKw");
+            if (!StringUtils.isBlank(srchRq1.toString())) {
+                sqlWhere += " and in_rq >='" + srchRq1 + "'";
+            }
+            if (!StringUtils.isBlank(srchRq2.toString())) {
+                sqlWhere += " and in_rq <='" + srchRq2 + "'";
+            }
+            if (!StringUtils.isBlank(srchLib.toString())) {
+                srchLib = srchLib.toString().replace(",", "','");
+                sqlWhere += " and lib in ('" + srchLib + "')";
+            }
+            if (!StringUtils.isBlank(srchKw.toString())) {
+                sqlWhere += " and f_get_param_name('仓库库位',in_kw,'"+   SessionUser.getCurrentCorpId()   +"','')  like  '%" + srchKw + "%'";
+            }
+            if (!StringUtils.isBlank(srchSupplier.toString())) {
+                sqlWhere += " and in_customer ='" + srchSupplier + "'";
+            }
+            if (!StringUtils.isBlank(srchCode.toString())) {
+                sqlWhere += " and code like '%" + srchCode + "%'";
+            }
+            if (!StringUtils.isBlank(srchSize.toString())) {
+                sqlWhere += " and cpcode_size like '%" + srchSize + "%'";
+            }
+            if (!StringUtils.isBlank(srchName.toString())) {
+                srchName = srchName.toString().replace(",", "','");
+                sqlWhere += " and cpcode_name in ('" + srchName + "')";
+            }
+            if (!StringUtils.isBlank(srchCpcodesizeen.toString())) {
+                sqlWhere += " and cpcode_size_en like '%" + srchCpcodesizeen + "%'";
+            }
+            if (!StringUtils.isBlank(srchFl.toString())) {
+                srchFl = srchFl.toString().replace(",", "','");
+                sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+            }
+            sql += sqlWhere;
+        }
+        return sql;
+    }
+
+    @Override
+    public ModelAndView table(String incontract, String pack, String code, String type, ModelAndView mv) {
+        if ("fl".equals(type)) {
+            String sql = "select code incode,cpcodename cpname,cpcode_size cpcodesize,cpcodeflname cpfl from v_ck_fl where code = '" + code + "'";
+            List<Map> table = eCkInDao.QueryListMap(sql);
+            mv.addObject("inCode", table.get(0).get("incode"));
+            mv.addObject("cpName", table.get(0).get("cpname"));
+            mv.addObject("cpcodeSize", table.get(0).get("cpcodesize"));
+            mv.addObject("cpFl", table.get(0).get("cpfl"));
+            String QR = "编码：" + table.get(0).get("incode") + "\n名称：" + table.get(0).get("cpname") + "\n规格：" + table.get(0).get("cpcodesize") + "\n大类：" + table.get(0).get("cpfl");
+            mv.addObject("qr", "getQr?content=" + QR);
+        } else {
+            String sql = "select code incode,cpcodename cpname,cpcode_size cpcodesize,pack inpack,cpcodeflname cpfl from v_ck_mx where in_contract = '" + incontract + "' and pack = '" + pack + "'";
+            List<Map> table = eCkInDao.QueryListMap(sql);
+            mv.addObject("inCode", table.get(0).get("incode"));
+            mv.addObject("cpName", table.get(0).get("cpname"));
+            mv.addObject("cpcodeSize", table.get(0).get("cpcodesize"));
+            mv.addObject("inPack", table.get(0).get("inpack"));
+            mv.addObject("cpFl", table.get(0).get("cpfl"));
+            String QR = table.get(0).get("inpack") + "#" + table.get(0).get("incode") + "#" + table.get(0).get("cpname") + "#" + table.get(0).get("cpcodesize") + "#" + table.get(0).get("cpfl");
+            mv.addObject("qr", "getQr?content=" + QR);
+        }
+        return mv;
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getVStock(BaseDto dto) throws Exception {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        Map<String, String> map = dto.getParamsMap();
+        String where = SqlJoint.start()
+                .eq("ck_mx.corpid", sessionUser.getCorpId(), true)
+                .eq("ck_mx.dtype", map.get("dtype"))
+                .eq("ck_mx.lib", map.get("lib"))
+                .eq("ck_mx.cpcode_fl", map.get("cpcodeFl"))
+                .eq("ck_mx.code", map.get("code"))
+                .eq("ck_mx.cpcode_name", map.get("cpcodeName"))
+                .eq("ck_mx.cpcode_size", map.get("cpcodeSize"))
+
+                .contains("ck_mx.in_contract", map.get("inContract"))
+                .getAndSuffixSqlStr();
+        String sql = " select ck_mx.lib,ck_mx.inlibname, "
+                + " ck_mx.code,ck_mx.cpcode_name, "
+                + " ck_mx.in_customer,ck_mx.incustomername, "
+                + " sum(coalesce(sl,0)) sl,sum(coalesce(zl,0)) zl, "
+                + " ck_mx.in_contract, cpcode.cpcode02, "
+                +"  ck_mx.cpcode_size,ck_mx.dtype,f_get_param_name('产品大类',ck_mx.dtype,'"+   SessionUser.getCurrentCorpId()   +"') dtype_name, "
+                +"  ck_mx.cpcode_bz,ck_mx.cpcodebzname, "
+                +" ck_mx.cpcodeflname cpcode_fl , "
+                + " ck_mx.cpcode_xp "
+                + " from v_ck_mx  ck_mx "
+                + " left join e_js_cpcode cpcode on  ck_mx.code = cpcode.cpcode_id "
+                + " where 1=1 " + where
+                + " group by ck_mx.lib,ck_mx.inlibname, ck_mx.code,ck_mx.cpcode_name, ck_mx.in_customer,ck_mx.incustomername, "
+                + " ck_mx.in_contract, cpcode.cpcode02, "
+                +" ck_mx.cpcode_size, ck_mx.cpcode_bz,ck_mx.cpcodebzname,ck_mx.dtype,ck_mx.cpcodeflname,ck_mx.cpcode_xp ";
+
+        return eCkInDao.QueryMapPageList(dto, sql, true);
+    }
+
+
+
+    @Override
+    public Result exportExcel(HttpServletResponse response, HttpServletRequest request,String type,String parms) throws IOException {
+        Map<String, String> map = MapperFactory.getInstance().Str2Map(parms);
+        //String sql = getWhereo(type, map);
+        String sql = getWhere(type, map);
+        List<Map<String,Object>> list=null;
+        if ("fl".equals(type)) {
+            list=eCkInDao.SelectListMap(sql);
+            ExcelUtil util = ExcelUtil.getInstance();
+            util.ExcelToWeb(request, "分类",response,list);
+        } else if("mx".equals(type)){
+            list=eCkInDao.SelectListMap(sql);
+            ExcelUtil util = ExcelUtil.getInstance();
+            util.ExcelToWeb(request, "明细",response,list);
+        }else if("kl".equals(type)){
+            list=eCkInDao.SelectListMap(sql);
+            ExcelUtil util = ExcelUtil.getInstance();
+            util.ExcelToWeb(request, "库龄",response,list);
+        }
+        return null;
+    }
+
+
+
+    private String getWhere(String type, Map<String, String> map) throws IOException {
+        String sql = "select lib inlib,inlibname,code,cpcode_name cpcode,cpcodename cpcodename,cpcode_size cpcodesize,cpcode_size_en cpcodesizeen,js,sl,cpcodebzname cpcodebz,pack,in_rq inrq,in_price inprice,in_customer,incustomername,in_contract incontract,cpcode_fl cpcodefl,cpcodeflname,in_act inact,inactname actname,f_getparamname('GETBYPARENTID', '" + map.get("stype") + "', '产品大类', '技术', '', '') intypename,in_kw,kwname,in_ph inPh,cpcode_xp cpcodexp,in_remarks inremarks,in_luono inluono from v_ck_mx  where dtype='" + map.get("stype") + "'";
+        String sqlWhere = "";
+        if ("mx".equals(type)) {
+            Object srchPack = map.get("pack");
+            Object srchContract = map.get("inContract");
+
+            Object srchLib = map.get("lib");
+            Object srchCode = map.get("code");
+            Object srchName = map.get("cpcodeName");
+            Object srchSupplier = map.get("inCustomer");
+            Object srchSize = map.get("cpcodeSize");
+            Object srchCpcodesizeen = map.get("cpcodeSizeEn");
+            Object srchFl = map.get("cpcodeFl");
+            Object srchInPh = map.get("inPh");
+            Object srchKw = map.get("inKw");
+            Object srchRemarks = map.get("inRemarks");
+            Object stype = map.get("stype");
+
+            if (!StringUtils.isBlank(srchLib.toString())) {
+                srchLib = srchLib.toString().replace(",", "','");
+                sqlWhere += " and lib in ('" + srchLib + "')";
+            }
+            if (!StringUtils.isBlank(srchCode.toString())) {
+                sqlWhere += " and code like '%" + srchCode + "%'";
+            }
+            if (!StringUtils.isBlank(srchName.toString())) {
+                srchName = srchName.toString().replace(",", "','");
+                sqlWhere += " and cpcode_name in ('" + srchName + "')";
+            }
+            if (!StringUtils.isBlank(srchSize.toString())) {
+                sqlWhere += " and cpcode_size like '%" + srchSize + "%'";
+            }
+            if (!StringUtils.isBlank(srchPack.toString())) {
+                sqlWhere += " and pack like '%" + srchPack + "%'";
+            }
+            if (!StringUtils.isBlank(srchContract.toString())) {
+                sqlWhere += " and in_contract like '%" + srchContract + "%'";
+            }
+            if (!StringUtils.isBlank(srchSupplier.toString())) {
+                sqlWhere += " and (in_customer like '%" + srchSupplier + "%' or incustomername like '%" + srchSupplier + "%')";
+            }
+            if (!StringUtils.isBlank(srchCpcodesizeen.toString())) {
+                sqlWhere += " and cpcode_size_en like '%" + srchCpcodesizeen + "%'";
+            }
+            if (!StringUtils.isBlank(srchFl.toString())) {
+                srchFl = srchFl.toString().replace(",", "','");
+                sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+            }
+            if (!StringUtils.isBlank(srchInPh.toString())) {
+                sqlWhere += " and in_ph = '" + srchInPh + "'";
+            }
+            if (!StringUtils.isBlank(srchKw.toString())) {
+                sqlWhere += " and f_get_param_name('仓库库位',in_kw,'"+   SessionUser.getCurrentCorpId()   +"','')  like  '%" + srchKw + "%'";
+            }
+            if (!StringUtils.isBlank(srchRemarks.toString())) {
+                sqlWhere += " and in_remarks  like  '%" + srchRemarks + "%'";
+            }
+            if(stype != null && stype.toString().trim().length() > 0) {
+                String parameterId=sysParamService.getParamId(stype.toString(), IUserConstants.wwrk);
+                sqlWhere +=" and in_act='"+parameterId+"' ";
+            }else{
+                List<Map> list = eCkInDao.QueryListMap(" select param_id from Sys_param where param_type='仓库收发' and param_name='"+IUserConstants.wwrk+"'  ");
+                if(list.size() > 0){
+                    String paramIds = "";
+                    for(int i = 0;i<list.size();i++){
+                        Map pmap = list.get(i);
+                        paramIds += pmap.get("param_id").toString();
+                        if(i+1<list.size()){
+                            paramIds += "','";
+                        }
+                    }
+                    sqlWhere +=" and in_act in ('"+paramIds+"')  ";
+                }
+            }
+            sql += sqlWhere;
+        } else if ("fl".equals(type)) {
+            Object srchLib = map.get("lib");
+            Object srchCode = map.get("code");
+            Object srchName = map.get("cpcodeName");
+            Object srchSize = map.get("cpcodeSize");
+            Object srchFl = map.get("cpcodeFl");
+            Object srchKw = map.get("inKw");
+            Object srchCpcodesizeen = map.get("cpcodeSizeEn");
+            if (!StringUtils.isBlank(srchLib.toString())) {
+                srchLib = srchLib.toString().replace(",", "','");
+                sqlWhere += " and lib in ('" + srchLib + "')";
+            }
+            if (!StringUtils.isBlank(srchKw.toString())) {
+                sqlWhere += " and f_get_param_name('仓库库位',in_kw,'"+   SessionUser.getCurrentCorpId()   +"','')  like  '%" + srchKw + "%'";
+            }
+            if (!StringUtils.isBlank(srchCode.toString())) {
+                sqlWhere += " and code like '%" + srchCode + "%'";
+            }
+            if (!StringUtils.isBlank(srchSize.toString())) {
+                sqlWhere += " and cpcode_size like '%" + srchSize + "%'";
+            }
+            if (!StringUtils.isBlank(srchName.toString())) {
+                srchName = srchName.toString().replace(",", "','");
+                sqlWhere += " and cpcode_name in ('" + srchName + "')";
+            }
+            if (!StringUtils.isBlank(srchCpcodesizeen.toString())) {
+                sqlWhere += " and cpcode_size_en like '%" + srchCpcodesizeen + "%'";
+            }
+            if (!StringUtils.isBlank(srchFl.toString())) {
+                srchFl = srchFl.toString().replace(",", "','");
+                sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+            }
+            sql = "select lib inlib,inlibname,code,cpcode_name cpcode,cpcodename cpcodename,cpcode_size cpcodesize,cpcode_size_en cpcodesizeen,js,sl,cpcodebzname cpcodebz,cpcode_fl cpcodefl,cpcodeflname,dtype intype,f_getparamname('GETBYPARENTID', '" + map.get("stype") + "', '产品大类', '技术', '', '') intypename from v_ck_fl  where dtype='" + map.get("stype") + "'";
+            sql += sqlWhere;
+        } else if ("kl".equals(type)) {
+            Object srchRq1 = map.get("srchRq1");
+            Object srchRq2 = map.get("srchRq2");
+
+            Object srchLib = map.get("lib");
+            Object srchCode = map.get("code");
+            Object srchName = map.get("cpcodeName");
+            Object srchSupplier = map.get("inCustomer");
+            Object srchSize = map.get("cpcodeSize");
+            Object srchCpcodesizeen = map.get("cpcodeSizeEn");
+            Object srchFl = map.get("cpcodeFl");
+            Object srchKw = map.get("inKw");
+            if (!StringUtils.isBlank(srchRq1.toString())) {
+                sqlWhere += " and in_rq >='" + srchRq1 + "'";
+            }
+            if (!StringUtils.isBlank(srchRq2.toString())) {
+                sqlWhere += " and in_rq <='" + srchRq2 + "'";
+            }
+            if (!StringUtils.isBlank(srchLib.toString())) {
+                srchLib = srchLib.toString().replace(",", "','");
+                sqlWhere += " and lib in ('" + srchLib + "')";
+            }
+            if (!StringUtils.isBlank(srchKw.toString())) {
+                sqlWhere += " and f_get_param_name('仓库库位',in_kw,'"+   SessionUser.getCurrentCorpId()   +"','')  like  '%" + srchKw + "%'";
+            }
+            if (!StringUtils.isBlank(srchSupplier.toString())) {
+                sqlWhere += " and in_customer ='" + srchSupplier + "'";
+            }
+            if (!StringUtils.isBlank(srchCode.toString())) {
+                sqlWhere += " and code like '%" + srchCode + "%'";
+            }
+            if (!StringUtils.isBlank(srchSize.toString())) {
+                sqlWhere += " and cpcode_size like '%" + srchSize + "%'";
+            }
+            if (!StringUtils.isBlank(srchName.toString())) {
+                srchName = srchName.toString().replace(",", "','");
+                sqlWhere += " and cpcode_name in ('" + srchName + "')";
+            }
+            if (!StringUtils.isBlank(srchCpcodesizeen.toString())) {
+                sqlWhere += " and cpcode_size_en like '%" + srchCpcodesizeen + "%'";
+            }
+            if (!StringUtils.isBlank(srchFl.toString())) {
+                srchFl = srchFl.toString().replace(",", "','");
+                sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+            }
+            sql += sqlWhere;
+        }
+        return sql;
+    }
+
+    @Override
+    public Result getPrintPackList(String packs) {
+        List<ECkIn> eCkIns = eCkInDao.QueryListModel(ECkIn.class," select code in_code ,cpcodename cpcode_name,cpcode_size,pack in_pack,cpcodeflname cpcode_fl,sl in_sl,cpcode_xp,f_get_param_name('计量单位',cpcode_bz,'"+   SessionUser.getCurrentCorpId()   +"')cpcode_bz,dtype in_type,in_luono from v_ck_mx where pack in ('"+packs.replace(",", "','")+"') " );
+        return Result.resultOk(eCkIns);
+    }
+
+
+
+}

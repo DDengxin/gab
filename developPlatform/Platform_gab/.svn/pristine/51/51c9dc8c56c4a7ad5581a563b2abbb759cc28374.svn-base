@@ -1,0 +1,484 @@
+.expert_content {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 125px;
+    padding-bottom: 50px;
+}
+
+.expert_content_list {
+    width: 1200px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.expert_content_list h2 {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.expert_content_list h2:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.list_left {
+    float: left;
+    width: 860px;
+    overflow: hidden;
+}
+
+.list_left .left_expert {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 30px;
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.list_left .left_expert p:first-child b {
+    font-size: 30px;
+    color: #333333;
+    margin-right: 20px;
+}
+
+.list_left .left_expert p:first-child i {
+    font-size: 18px;
+    color: #409fff;
+}
+
+.list_left .left_expert p {
+    font-size: 14px;
+    color: #666666;
+    line-height: 2;
+}
+
+.list_left .left_expert .bottom {
+    width: 100%;
+    height: 40px;
+    background: #f4f4f4;
+    margin-top: 20px;
+}
+
+.list_left .left_expert .bottom ul {
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.list_left .left_expert .bottom ul li {
+    display: inline-block;
+    width: auto !important;
+    height: 100%;
+    line-height: 40px;
+    padding: 0 10px;
+    font-size: 14px;
+    color: #333;
+    position: relative;
+    border: none !important;
+    margin: 0 !important;
+}
+
+.list_left .left_expert .bottom ul li:before {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 15px;
+    background: #797979;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -7px;
+}
+
+.list_left .left_expert .bottom ul li:first-child:before {
+    display: none;
+}
+
+.list_left .left_expert .bottom ul li b {
+    color: #e80000;
+}
+
+.collect {
+    width: 122px;
+    height: 38px;
+    line-height: 38px;
+    text-align: center;
+    color: #fff;
+    background: #e80000;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.collect i {
+    margin-right: 3px;
+    font-size: 22px;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.introduce {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.introduce div {
+    padding-top: 30px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.introduce div p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 18px;
+}
+
+.example {
+    width: 100%;
+    overflow: hidden;
+    font-size: 14px;
+    margin-bottom: 35px;
+}
+
+.example ul {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 8px;
+}
+
+.example ul li {
+    width: 100%;
+    overflow: hidden;
+    line-height: 2;
+    color: #666666;
+    padding: 3px 0;
+}
+
+.example ul li a {
+    display: inline-block;
+    max-width: 709px;
+    width: auto;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #666666;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+.example ul li span{
+    display: inline-block;
+    width: 80px;
+    height: 24px;
+    background-color: rgb(65, 160, 254);
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+    line-height: 24px;
+    float: right;
+    border-radius: 5px;
+}
+
+.example ul li a:hover {
+    color: #409fff;
+    text-decoration: underline;
+}
+
+h3 {
+    width: 100%;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 24px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px !important;
+    font-weight: bold !important;
+}
+
+h3:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 30px;
+    vertical-align: middle;
+    margin-right: 10px;
+    margin-top: 2px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+h3 a {
+    font-size: 14px;
+    color: #409fff;
+    float: right;
+    margin-top: 16px;
+}
+h3 a:hover {
+    color: #e80000;
+}
+
+.list_right {
+    float: right;
+    width: 304px;
+    overflow: hidden;
+    padding-top: 40px;
+}
+
+.list_right .people {
+    width: 100%;
+    text-align: center;
+}
+
+.list_right .people img {
+    display: inline-block;
+    width: 190px;
+    height: 250px;
+    margin-bottom: 19px;
+    border: 1px solid #dcdcdc;
+}
+
+.list_right .people .abvalue {
+    width: 152px;
+    height: 35px;
+    background: #e80000;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 18px;
+    position: relative;
+    left: 50%;
+    margin: 0 0 12px -76px;
+    padding-top: 5px;
+    line-height: 22px;
+}
+
+.list_right .people .abvalue b {
+    display: inline-block;
+    vertical-align: baseline;
+    height: 100%;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.peo_rate {
+    display: inline-block;
+    vertical-align: super;
+    margin-bottom: 25px;
+}
+
+.peo_rate li {
+    padding: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    width: 15px !important;
+    height: auto !important;
+}
+
+.peo_rate li i.layui-icon {
+    font-size: 15px !important;
+}
+
+.peo_rate .layui-rate {
+    padding: 0 !important;
+}
+
+.details_content {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #ececec;
+    padding: 20px 20px 0 20px
+}
+
+.details_content h4 {
+    font-size: 18px;
+    color: #409fff;
+    margin-bottom: 20px;
+}
+
+.details_content h4:before {
+    display: inline-block;
+    content: '';
+    width: 3px;
+    height: 22px;
+    background: #409fff;
+    margin-right: 8px;
+    vertical-align: text-bottom;
+}
+
+.details_content .ability {
+    width: 100%;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.details_content .ability ul {
+    width: 100%;
+    overflow: hidden;
+}
+
+.details_content .ability ul li {
+    display: inline-block;
+    height: 35px;
+    padding: 0 15px;
+    border: 1px solid #d1d1d1;
+    margin: 0 15px 10px 0;
+    font-size: 14px;
+    color: #333333;
+    line-height: 33px;
+    text-align: center;
+}
+
+.details_content .askexpert {
+    width: 100%;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.details_content .askexpert p {
+    width: 100%;
+    padding-left: 10px;
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 25px;
+}
+
+.details_content .askexpert ul {
+    width: 100%;
+    overflow: hidden;
+    padding-left: 10px;
+}
+
+.details_content .askexpert ul li {
+    width: 100%;
+    height: 45px;
+    line-height: 45px;
+    background: #409fff;
+    overflow: hidden;
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+.details_content .askexpert ul li:hover {
+    background: #e80000;
+}
+
+.details_content .askexpert ul li a {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+}
+
+.details_content .askexpert ul li a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.details_content .recommend, .details_content .recommend ul {
+    width: 100%;
+    overflow: hidden;
+    padding-bottom: 10px;
+}
+
+.details_content .recommend ul li {
+    width: 100%;
+    height: 110px;
+    overflow: hidden;
+    display: table;
+}
+
+.details_content .recommend ul li:hover a b{
+    color: #e80000;
+}
+
+.details_content .recommend ul li a {
+    display: table-cell;
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.details_content .recommend ul li a img {
+    width: 77px;
+    height: 90px;
+    float: left;
+    margin-right: 17px;
+    border: 1px solid #dcdcdc;
+}
+
+.details_content .recommend ul li a .fr {
+    float: left;
+    padding: 7px 0;
+}
+
+.details_content .recommend ul li a .fr p {
+    font-size: 14px;
+    color: #333333;
+    line-height: 1.7;
+    width: 168px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.details_content .recommend ul li a .fr p b {
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+.details_content .recommend ul li a .fr p span {
+    font-size: 14px;
+    color: #409fff;
+}
+
+.advantage {
+    width: 138px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.layui-layer-hui {
+    background-color: rgb(232, 0, 0) !important;
+}
+
+.layui-laypage {
+    position: static;
+    width: auto;
+    text-align: center;
+    display: block !important;
+}
+
+.layui-laypage .layui-laypage-curr .layui-laypage-em {
+    background-color: rgb(232, 0, 0) !important;
+}
+body .msg-tips {
+    background: red;
+    color: #fff;
+    width: 80px;
+    /* padding: 0 10px; */
+    text-align: center;
+    font-size: 17px !important;
+}

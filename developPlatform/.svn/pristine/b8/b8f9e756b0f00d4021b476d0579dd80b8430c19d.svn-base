@@ -1,0 +1,121 @@
+package com.tengzhi.business.system.pda.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.TierTool;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.base.tools.log.Log;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.pda.dao.SysAppVersionDao;
+import com.tengzhi.business.system.pda.model.SysAppVersion;
+import com.tengzhi.business.system.pda.service.SysAppVersionService;
+import com.tengzhi.business.system.user.model.SysUser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+@Service
+@Transactional
+public class SysAppVersionServiceImpl implements SysAppVersionService {
+    @Autowired
+    private SysAppVersionDao sysAppVersionDao;
+
+    @Override
+    public BasePage<SysAppVersion> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysAppVersionDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.contains("appPackage", map.get("appPackage"));
+            c.contains("platform", map.get("platform"));
+        }));
+    }
+
+    @Override
+    public Set<SelectVo> getPackageSelectList() {
+        Set<SelectVo> rset = new HashSet<>();
+        List<SysAppVersion> sysParams = sysAppVersionDao.QueryListModel(SysAppVersion.class, "select DISTINCT app_package from sys_app_version",null);
+        sysParams.forEach(item -> {
+            rset.add(new SelectVo(null, item.getAppPackage()));
+        });
+        return rset;
+    }
+
+    @Override
+    public Set<SelectVo> getPlatformSelectList() {
+        Set<SelectVo> rset = new HashSet<>();
+        rset.add(new SelectVo(null, "android"));
+        rset.add(new SelectVo(null, "ios"));
+        return rset;
+    }
+
+    @Override
+    public SysAppVersion save(SysAppVersion sysAppVersion) throws Exception {
+        sysAppVersion.setUuid(UUIDUtil.uuid());
+        SecurityUser securityUser= SessionUser.SessionUser();
+        sysAppVersion.setGenUserId(securityUser.getUserId());
+        sysAppVersion.setGenTime(new Date());
+        return sysAppVersionDao.save(sysAppVersion);
+    }
+
+    @Override
+    public SysAppVersion findByUuId(String uuId) {
+        return sysAppVersionDao.findByUuid(uuId);
+    }
+
+    @Override
+    public void update(SysAppVersion sysAppVersion) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        sysAppVersion.setGenUserId(sessionUser.getUserId());
+        sysAppVersion.setUpdateTime(new Date());
+        sysAppVersionDao.update(sysAppVersion);
+    }
+
+    @Override
+    public Result deleteByUuid(String uuid) {
+            sysAppVersionDao.deleteByUuid(uuid);
+            return Result.resultOk("删除成功");
+    }
+
+    /**
+     * 更新app版本信息的状态
+     */
+    @Override
+    public Result updateVersionFlag(String appPackage,String platform) {
+        String sql="update SysAppVersion  set app_flag=false where app_package=?1 and platform=?2";
+        sysAppVersionDao.executeUpdate(sql,appPackage,platform);
+        return  Result.resultOk();
+    }
+
+    @Override
+    public int getCount(String appPackage,String platform,boolean appFlag,Date date){
+        if (appFlag==true){
+            SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
+            String sql="select count(*) FROM sys_app_version where app_package='"+appPackage+"' and platform='"+platform+"' and app_flag='"+appFlag+"' and gen_time='"+simpleDateFormat.format(date)+"'";
+            String singleResult = sysAppVersionDao.getSingleResult(sql);
+            return Integer.parseInt(singleResult);
+        }
+        return 0;
+    }
+
+    /**
+     * 获取app版本信息
+     */
+    @Override
+    public  Map<String, Object> getAppVersionInfo(String appPackage,String platform){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.*,cf.uuid AS fuunid,cf.file_name,cf.file_path,cf.line_primary " +
+                "from sys_app_version s LEFT JOIN com_file cf on s.file_id=cf.line_primary where s.app_package='"+appPackage+"' and s.platform='"+platform+"' and s.app_flag='true'";
+        rmap.put("data", sysAppVersionDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+}

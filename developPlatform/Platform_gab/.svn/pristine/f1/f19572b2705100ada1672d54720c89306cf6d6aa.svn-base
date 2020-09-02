@@ -1,0 +1,60 @@
+<html layout:decorator="system/_main" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<!--/*当前main页面的实际代码在_main页面中（Spring thymeleaf layout），为了方便二次开发和覆写*/-->
+<!--<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+</th:block>-->
+<script layout:fragment="footer-javascript" type="text/javascript">
+   (function(){
+        tabs.on('tabload', function (e) {
+             var  options  = {
+                 targetWindow: window,
+                 url: null,        //页面地址
+                 title: "信息完善",      //标题
+                 width: 900,      //宽度
+                 height: 470,     //高度
+                 allowResize: true,       //允许尺寸调节
+                 allowDrag: true,         //允许拖拽位置
+                 showCloseButton: true,   //显示关闭按钮
+                 showModal: false,         //显示遮罩
+                 loadOnRefresh: false,       //true每次刷新都激发onload事件
+                 onload: function () {       //弹出页面加载完成
+                     var iframe = this.getIFrameEl();
+                     iframe.contentWindow.SetData(this.iframeData);
+
+                 },
+
+
+             }
+                   $['get']("/gab/getUserInfo",function (res) {
+                       if (200 === res.code) {
+                     //判断类型 （专家，供应商，客户）
+                           if(!jQuery.isEmptyObject(res.user) &&  (!!res.user.type) ){
+                               var user  =res.user;
+                               var  userinfo = res.userinfo;
+                               //判断资料是否补充完整
+                               if(userinfo.flag == "登记" ){
+                                   //根据类型打开不同的页面
+                                   var temp =  {
+                                       '专家':{url:"/platform/expert/expertedit.html",expertNote:user["supplyId"]},
+                                       '厂商':{url:"/platform/supplier/supplyedit.html",supplyNote:user["supplyId"],width: 1425,height: 791},
+                                       '客户':{url:"/platform/specialist/need/neededit.html", userId:user["userId"]},
+                                   }[user.type]||'';
+                                   //传递到子页面的参数
+                                   options["iframeData"] = {data:temp, action :"complete"};
+                                   mini.alert("请先完善信息", "提示", function () {
+                                       mini.open($.extend(options, temp));
+                                   })
+
+                               }
+
+                           }
+
+                       }
+                   });
+
+        });
+
+
+
+    })(document);
+</script>
+</html>

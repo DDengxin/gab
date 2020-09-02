@@ -1,0 +1,106 @@
+<html layout:decorator="~{gab/layout/gabPlatformManage}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/corporateCertification.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/webuploader.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/uploadFile.css}" />
+    <script type="text/javascript" th:src="@{/static/script/webuploader/webuploader.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/webuploader/uploadFile.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/plugs/PCASClass.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/manage/corporateCertification.js}"></script>
+</th:block>
+<th:block layout:fragment="right-content">
+    <p class="tip">请完善一下信息，方便我们更好的为您服务</p>
+    <!--资料是否提交过  初始为登记&&未启动  ，提交后驳回   登记 && 驳回   提交审批通过  ： 核准：结束-->
+    <div class="status" th:text="${approve.data}" style="display: none"></div>
+    <div class="pass" th:text="${isapprove.status}" style="display: none"></div>
+
+    <h4>认证资料</h4>
+    <div class="container">
+        <div class="layui-form-item">
+            <label class="layui-form-label">认证类型</label><b>*</b>
+            <div class="layui-input-block">
+                <input type="text" name="type" required lay-verify="required" value="企业认证" autocomplete="off" readonly
+                    disabled class="layui-input">
+            </div>
+        </div>
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">证件号码</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="businessLicenseCode" required lay-verify="required"
+                        placeholder="请输入证件上的统一社会信用代码或注册号或组织机构代码" autocomplete="off" class="layui-input inputWidth">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">营业执照</label><b>*</b>
+                <div class="layui-input-block">
+                    <div id="License" name="uploaderheadImg"></div>
+                    <input id="BusinessLicense" name="supplyImg" type="hidden" />
+                </div>
+                <div class="layui-form-mid layui-word-aux">请上传清晰的营业执照图像，文件大小不超过5M，格式支持.JPG,.JPEG,.BMP,.PNG,.PDF</div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">企业名称</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="supplyName" required lay-verify="required" placeholder="请输入企业名称"
+                        autocomplete="off" class="layui-input inputWidth">
+                </div>
+            </div>
+            <!--            <div class="layui-form-item">-->
+            <!--                <label class="layui-form-label">经营期限至</label><b>*</b>-->
+            <!--                <div class="layui-input-block">-->
+            <!--                    <input type="text" id="operationPeriod" name="effectiveDate"-->
+            <!--                        placeholder="请选择日期" autocomplete="off" class="layui-input">-->
+            <!--                    <input type="checkbox" name="isLongTerm" title="长期" value="true" lay-skin="primary">-->
+            <!--                </div>-->
+            <!--                <div class="layui-form-mid layui-word-aux">经营期限请选择日期或者勾选长期，二者选其一</div>-->
+            <!--            </div>-->
+            <div class="layui-form-item">
+                <label class="layui-form-label">所在地区</label><b>*</b>
+                <div class="layui-input-block">
+                    <select name="province" lay-ignore></select><select name="city" lay-ignore></select><select
+                        name="area" lay-ignore></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">详细地址</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="supplyAddress" required lay-verify="required"
+                           placeholder="请输入您的详细地址，以便在有需要时给您寄送书面文件" autocomplete="off" class="layui-input inputWidth">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">提交审核</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 通过实名认证 -->
+    <div class="notice-success">
+        <p><i class="layui-icon layui-icon-face-smile"></i>恭喜！您已通过哥爱帮实名认证！</p>
+        <ul>
+            <li>认证类型：<b>企业认证</b></li>
+            <li>企业名称：<b>宁波腾智信息技术有限公司</b></li>
+            <li>证件号码：<b>9133*******318B</b></li>
+        </ul>
+    </div>
+
+    <!-- 未通过 -->
+    <div class="notice-fail">
+        <p><i class="layui-icon layui-icon-face-cry"></i>很抱歉！您的资料未审核通过，请重新提交！</p>
+        <p class="submit">重新提交</p>
+    </div>
+
+    <!-- 正在审核中 -->
+    <div class="notice-loading">
+        <p><i class="layui-icon layui-icon-face-smile"></i>您的资料正在审核中，请耐心等待！</p>
+    </div>
+
+
+</th:block>
+<th:block layout:fragment="footer">
+</th:block>
+
+</html>

@@ -1,0 +1,186 @@
+.application_content {
+    width: 100%;
+    overflow: hidden;
+    margin: 125px 0 120px;
+}
+
+.application_content_list {
+    width: 1200px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.application_content_list h2 {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.application_content_list h2:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.application_content_list .tabchange {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 35px;
+}
+
+.application_content_list .tabchange #tablist {
+    width: 100%;
+    overflow: hidden;
+}
+
+.application_content_list .tabchange #tablist li {
+    width: 33.333%;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d0d0d0;
+    text-align: center;
+    font-size: 24px;
+    color: #333333;
+    float: left;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tabin {
+    color: #e80000 !important;
+    border-color: #e80000 !important;
+}
+
+.content-box {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #d0d0d0;
+    position: relative;
+}
+
+.content-box .content {
+    width: 100%;
+    clear: both;
+    color: #333;
+    position: relative;
+    top: 0;
+    left: 0;
+    display: none;
+    padding: 0 20px 25px;
+}
+
+.contentin, .show {
+    display: block !important;
+}
+
+.content form {
+    width: 100%;
+    overflow: hidden;
+}
+
+.content form>div:first-child {
+    width: 70%;
+    height: auto;
+    margin-top: 66px;
+    margin-left: 65px;
+    float: left;
+}
+
+#applicationUser>div:first-child{
+    margin-top: 100px;
+}
+
+.content form .layui-form-label{
+    width: 100px;
+}
+
+.content form .layui-form-label i{
+    color: #e80000;
+}
+
+.content form .layui-input-inline{
+    width: 334px;
+}
+
+.content form input[name="randCode"]{
+    width: 254px;
+}
+
+.content form .layui-btn-danger{
+    padding: 0 5px;
+    margin-left: -212px;
+}
+
+.fr{
+    float: left;
+    width: 214px;
+    height: 375px;
+    margin-top: 40px;
+}
+.fr img{
+    width: 100%;
+    height: 100%;
+}
+
+
+.btn {
+    width: 100% !important;
+    float: left;
+}
+
+.btn .btn_content {
+    position: relative;
+    left: 50%;
+    margin-left: -121px;
+}
+
+.btn input[type="button"] {
+    width: 242px;
+    height: 45px;
+    text-align: center;
+    background: #e80000;
+    color: #fff;
+    font-size: 20px;
+    margin: 60px auto 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn a {
+    color: #e80000;
+}
+
+.btn a:hover {
+    color: #e80000;
+    text-decoration: underline;
+}
+
+.btn strong {
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.layui-form-checked[lay-skin=primary] i {
+    border-color: #e80000!important;
+    background-color: #e80000;
+}
+
+.hidden{
+    display: none !important;
+}
+
+.layui-form-select dl dd.layui-this {
+    background-color: #409fff;
+    color: #fff;
+}

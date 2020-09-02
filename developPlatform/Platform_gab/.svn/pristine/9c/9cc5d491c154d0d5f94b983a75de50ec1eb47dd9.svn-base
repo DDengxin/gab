@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+		<title>供应商</title>
+	</th:block>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/all.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/all.js}"></script>
+	<script id="demo" type="text/html">
+	{{#layui.each(d.list, function(index, item){ }}
+		<li>
+			<a href="/gab/supply.html?supplyNote={{item.supplyNote}}">
+				<img src="{{item.headImg}}" alt="" default-img="/static/gab/images/wt.png">
+				<div class="company">{{item.supplyName}}</div>
+				<div class="describe">{{item.supplyInfo}}</div>
+				<div class="key">
+					<span>关键词：</span>
+						{{# if (item.keyWord != null) { }}
+                         {{#layui.each(item.keyWord, function(gjindex, gjitem){ }}
+    						<b>{{gjitem}}</b>
+						 {{#  }); }}
+    					{{# } else { }}
+							<b>暂无</b>
+						{{# }  }}
+
+				</div>
+			</a>
+		</li>
+  		{{#  });
+	}}
+	{{#  if(d.list.length === 0){ }}
+		<div class="noData"><h1>暂无数据</h1></div>
+	{{#  } }}	
+</script>
+
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+	<div id="content" class="expert_content">
+		<div class="expert_content_list">
+			<p class="changeTitle"></p>
+
+			<div class="screen">
+				<div class="fl">
+					<dl>
+						<dt>热门搜索:</dt>
+						<dd onclick="hotSearch($(this))">气动</dd>
+						<dd onclick="hotSearch($(this))">夹具</dd>
+						<dd onclick="hotSearch($(this))">模型定制</dd>
+					</dl>
+				</div>
+				<div class="fr">
+					<input id="searchContent" type="text" placeholder="请输入搜索内容">
+					<b id="search">搜索</b>
+				</div>
+			</div>
+			<ul id="tablist">
+				<li class="firm liJj">夹具厂商</li>
+				<li class="firm liFj">辅件厂商</li>
+				<li class="firm liHh">整合厂商</li>
+				<li class="firm liTs">特色经贸商</li>
+			</ul>
+			<div class="content-box">
+				<div class="content jzj_content">
+					<ul id="jj">
+					</ul>
+					<div id="page1"></div>
+				</div>
+
+				<div class="content jzj_content">
+					<ul id="fj">
+
+					</ul>
+					<div id="page2"></div>
+				</div>
+
+				<div class="content jzj_content">
+					<ul id="hh">
+
+					</ul>
+					<div id="page3"></div>
+				</div>
+				<div class="content jzj_content">
+					<ul id="ts">
+
+					</ul>
+					<div id="page4"></div>
+				</div>
+				<!-- 专家团队 start -->
+				<div class="content contentin">
+					<ul></ul>
+					<div id="page5"></div>
+				</div>
+				<!-- 专家团队end -->
+			</div>
+		</div>
+		<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+		</th:block>
+		<script>
+
+			var expert_type = "";
+			var teamPage = "team";
+
+
+			var cur = "[[${cur}]]";
+			var pageSize = 8;
+			var pageIndex = 1;
+			var total = 1;
+			var firmPage = "page1";
+			var searchs;
+
+			findSupply();
+
+			function findSupply() {
+				if (cur == "jj") {
+					firmPage = "page1";
+					$('title').text('夹具厂商');
+				} else if (cur == "fj") {
+					firmPage = "page2";
+					$('title').text('辅件厂商');
+				} else if (cur == "hh") {
+					firmPage = "page3";
+					$('title').text('整合厂商');
+				} else if (cur == "ts") {
+					firmPage = "page4";
+					$('title').text('特色经贸商');
+				}
+				$.ajax({
+					url: '/gab/allChange/' + cur + "/" + pageSize + "/" + pageIndex,
+					type: 'GET',
+					async: true,
+					success: function (res) {
+						total = res.total;
+						drawing(res.data);
+						pageView();
+					}
+				});
+			}
+
+			function search() {
+				first = true;
+				searchs = $('#searchContent').val();
+				findSuplyByKeyName();
+			}
+
+			function findSuplyByKeyName() {
+				var layer, index;
+				layui.use(['layer'], function () {
+					layer = layui.layer;
+					index = layer.load();
+				})
+				$.ajax({
+					url: "/gab/searchByName",
+					type: 'POST',
+					async: true,
+					data: {
+						cur: cur,
+						searchs: searchs,
+						pageSize: pageSize,
+						pageIndex: pageIndex
+					},
+					success: function (res) {
+						layer.close(index);
+						total = res.total;
+						drawing(res.data);
+						pageView();
+					}
+				});
+			}
+
+
+
+
+			function pageView() {
+				layui.use('laypage', function () {
+					var laypage = layui.laypage;
+					laypage.render({
+						elem: firmPage,
+						count: total,
+						limit: 8,
+						layout: ['prev', 'page', 'next', 'skip'],
+						jump: function (obj, first) {
+							if (!first) {
+								firmPage = obj.elem;
+								pageIndex = obj.curr;
+								$.ajax({
+									url: '/gab/allChange/' + cur + "/" + pageSize + "/" + pageIndex,
+									type: 'GET',
+									async: true,
+									success: function (res) {
+										total = res.total;
+										drawing(res.data);
+									}
+								});
+							}
+						}
+					});
+				});
+			}
+
+			function drawing(res) {
+				for (var i = 0; i < res.length; i++) {
+					if (res[i].keyWord != null)
+						res[i].keyWord = res[i].keyWord.split(",");
+				}
+				var data = {
+					"list": res
+				};
+				var getTpl = demo.innerHTML, view = document.getElementById(cur);
+				laytpl(getTpl).render(data, function (html) {
+					view.innerHTML = html;
+				});
+			}
+
+			$(".firm").click(function (e) {
+				var layer, index;
+				layui.use(['layer'], function () {
+					layer = layui.layer;
+					index = layer.load();
+				})
+				pageIndex = 1;
+				var text = $(this).text();
+				if (e.currentTarget.innerText == "夹具厂商") {
+					cur = "jj";
+					firmPage = "page1";
+					$('title').text('夹具厂商');
+				} else if (e.currentTarget.innerText == "辅件厂商") {
+					cur = "fj";
+					firmPage = "page2";
+					$('title').text('辅件厂商');
+				} else if (e.currentTarget.innerText == "混合厂商" || e.currentTarget.innerText == "整合厂商") {
+					cur = "hh";
+					firmPage = "page3";
+					$('title').text('整合厂商');
+				} else if (e.currentTarget.innerText == "特色经贸商") {
+					cur = "ts";
+					firmPage = "page4";
+					$('title').text('特色经贸商');
+				}
+				$.ajax({
+					url: '/gab/allChange/' + cur + "/" + pageSize + "/" + pageIndex,
+					type: 'GET',
+					async: true,
+					success: function (res) {
+						layer.close(index);
+						total = res.total;
+						drawing(res.data);
+						pageView();
+					}
+				});
+
+			});
+
+
+
+		</script>
+</body>
+
+</html>

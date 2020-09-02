@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+		<title>专家团队</title>
+	</th:block>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/all.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/expertList.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/expertList.js}"></script>
+
+
+	<script id="teamTemplate" type="text/html">
+	{{#   if(!!d.list == false   ){ return }   layui.each(d.list, function(index, item){ }}
+					<li>
+			<div class="top">
+				<img src="{{item.headimgsrc}}" default-img="/static/gab/images/wt.png"    alt="">
+				<div class="peo_details">
+					<div class="name"> <i>{{item.nick_name}}</i><u>爱帮值：<b>82.6</b></u>
+						<!-- <div class="peo_rate" id="peo8"></div> -->
+					</div>
+					<div class="peo_about">
+						<div>从业年限：<b>{{item.job_age}}年</b></div>
+						<div>资质等级：<b>{{item.level}}</b></div>
+						<div class="job">从事行业：<b>{{item.introduce}}</b></div>
+						<div class="good">
+							专长优势：<b>{{!!item.strengths?item.strengths:''}}</b>
+						</div>
+					</div>
+					<div class="btn">
+						<span><a  href="/gab/expertDetails.html?id={{item.expert_note}}">了解更多</a></span>
+						<span><a href="#">立即咨询</a></span>
+					</div>
+				</div>
+			</div>
+			<div class="bottom">
+				<ul><li>回复速度：<b>快速</b></li>
+					<li>方案交期：<b>3</b>天</li>
+					<li>可靠性：<b>98%</b></li>
+					<li>服务态度：<b>99.8%</b></li>
+				</ul>
+			</div>
+		</li>
+  		{{#  });
+	}}
+	{{#  if(d.list.length === 0 ||   (!!d.list == false )  ){ }}
+		<div class="noData"><h1>暂无数据</h1></div>
+	{{#  } }}
+</script>
+
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+	<div class="expert_content">
+		<div class="expert_content_list">
+			<p class="changeTitle"></p>
+
+			<table border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>从业年限</td>
+					<td>
+						<ul class="conditions">
+							<li class="selected allType">无限制</li>
+							<li class="allType" name="filterAge">0-3年 </li>
+							<li class="allType">3-5年</li>
+							<li class="allType">5-8年</li>
+							<li class="allType">8-15年</li>
+							<li class="allType">15年以上</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>资质等级</td>
+					<td>
+						<ul class="conditions">
+							<li class="filterLevel selected" onclick="findExpertParam('all')">无限制</li>
+							<li class="filterLevel">一级</li>
+							<li class="filterLevel">二级</li>
+							<li class="filterLevel">三级</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td>从事行业</td>
+					<td>
+						<ul class="conditions">
+							<li class="trade selected">无限制</li>
+							<li class="trade">工业设计</li>
+							<li class="trade">智能制造</li>
+							<li class="trade">模具设计与制造</li>
+							<li class="trade">生产制造</li>
+						</ul>
+					</td>
+				</tr>
+			</table>
+			<div class="screen">
+				<div class="fl">
+					<ul>
+						<li class="liin">
+							综合
+							<span>
+								<b id="syn-up" class="layui-icon layui-icon-triangle-d"></b>
+								<b id="syn-down" class="layui-icon layui-icon-triangle-d"></b>
+							</span>
+						</li>
+						<li>
+							爱帮值
+							<span>
+								<b id="time-up" class="layui-icon layui-icon-triangle-d"></b>
+								<b id="time-down" class="layui-icon layui-icon-triangle-d"></b>
+							</span>
+						</li>
+						<li>
+							从业年限
+							<span>
+								<b id="money-up" class="layui-icon layui-icon-triangle-d"></b>
+								<b id="money-down" class="layui-icon layui-icon-triangle-d"></b>
+							</span>
+						</li>
+					</ul>
+				</div>
+				<div class="fr">
+					<input id="searchContent" type="text" placeholder="请输入搜索内容">
+					<b id="search">搜索</b>
+				</div>
+			</div>
+
+			<!-- <ul id="tablist">
+				<li class="tabin">工艺专家</li>
+				<li>售前专家</li>
+				<li>售后专家</li>
+			</ul> -->
+			<div class="content-box">
+				<!-- 专家团队start -->
+				<div class="content contentin">
+					<ul id="expertWrapper">
+
+					</ul>
+
+					<div id="page1"></div>
+				</div>
+				<!--专家团队end  -->
+			</div>
+		</div>
+	</div>
+
+
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+
+</body>
+<script>
+	//定义前台参数变量映射
+	var expert_arr = [{
+		'text': '工艺专家',
+		'value': 'artTeam'
+	}, {
+		'text': '售后专家',
+		'value': 'saleAfterTeam'
+	}, {
+		'text': '售前专家',
+		'value': 'saleBeforeTeam'
+	}];
+
+	//获取url地址栏中的参数
+	function GetQueryValue(queryName) {
+		var query = decodeURI(window.location.search.substring(1));
+		var vars = query.split("&");
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split("=");
+			if (pair[0] == queryName) {
+				return pair[1];
+			}
+		}
+		return null;
+	}
+	//默认加载所有的工艺专家数据
+	$(function () {
+		var layer, index;
+
+		var cur = "artTeam";//专家类型
+		var pageIndex = 1;//分页页码
+		var pageSize = 8;
+		if (!!GetQueryValue("type") == false) {
+			cur = "artTeam";//专家类型
+		} else {
+			cur = GetQueryValue("type");//专家类型
+		}
+		layui.use(['layer'], function () {
+			layer = layui.layer;
+			index = layer.load();
+			$.ajax({
+				url: '/gab/getSrchExpertTeam/' + cur + "/" + pageSize + "/"
+					+ pageIndex,
+				type: 'GET',
+				async: false,
+				success: function (res) {
+					layer.close(index);
+					total = res.total;
+					Rendering(res.data);
+					pageView("artTeam", total);
+				}
+			});
+		})
+
+		$('.conditions li').click(function () {
+			$(this).addClass('selected');
+			$(this).siblings().removeClass('selected');
+			findExpertParam($(".selected"))
+		});
+
+		$('.fl ul li').mouseenter(function () {
+			$(this).addClass('liin');
+			$(this).siblings().removeClass('liin');
+
+			// 综合上箭头点击事件
+			$(this).find('#syn-up').click(function () {
+				params.rank = "ASC";
+				params.rankType = "data_date,end_time";
+				getNeedsList(16, pageIndex);
+			});
+			// 综合下箭头点击事件
+			$(this).find('#syn-down').click(function () {
+				params.rank = "DESC";
+				params.rankType = "data_date,end_time";
+				getNeedsList(16, pageIndex);
+			});
+
+			// 发布时间上箭头点击事件
+			$(this).find('#time-up').click(function () {
+				params.rank = "ASC";
+				params.rankType = "data_date";
+				getNeedsList(16, pageIndex);
+			});
+			// 发布时间下箭头点击事件
+			$(this).find('#time-down').click(function () {
+				params.rank = "DESC";
+				params.rankType = "data_date";
+				getNeedsList(16, pageIndex);
+			});
+
+			// 订单金额上箭头点击事件
+			$(this).find('#money-up').click(function () {
+			});
+			// 订单金额下箭头点击事件
+			$(this).find('#money-down').click(function () {
+			});
+
+			// 截止时间上箭头点击事件
+			$(this).find('#end-up').click(function () {
+				params.rank = "ASC";
+				params.rankType = "end_time";
+				getNeedsList(16, pageIndex);
+			});
+			// 截止时间下箭头点击事件
+			$(this).find('#end-down').click(function () {
+				params.rank = "DESC";
+				params.rankType = "end_time";
+				getNeedsList(16, pageIndex);
+			})
+
+		});
+
+		// 搜索的点击事件
+		$('#search').click(function () {
+			var keyWords = $('#searchContent').val();
+			findExpertByWords(keyWords)
+		});
+		$('#searchContent').keypress(function (evt) {
+			var e = evt || window.event;
+			if (e.keyCode == 13) {
+				var keyWords = $('#searchContent').val();
+				findExpertByWords(keyWords)
+			}
+		})
+
+	});
+
+	//修改标题(changeTitle字段的文本内容)
+	// function setTitle() {
+	// 	$("#tablist li").each(function (index) {
+	// 		if ($(this).is('.tabin')) {
+	// 			$('.changeTitle').text($(this).text())
+	// 			$('title').text($(this).text())
+	// 		}
+	// 	})
+	// }
+	// setTitle();
+	var tabcur = GetQueryValue("type");
+	// $("#tablist li").each(function (index) {
+	// 	var text = $(this).text();
+	// 	var show = "工艺专家";
+		if (tabcur == "artTeam") {
+			$('title').text('工艺专家');
+		} else if (tabcur == "saleBeforeTeam") {
+			$('title').text('售前专家');
+		} else if (tabcur == "saleAfterTeam") {
+			$('title').text('售后专家');
+		}
+
+	// 	if (text == show) {
+	// 		$(".tabin").removeClass("tabin");
+	// 		$(this).addClass("tabin");
+	// 		setTitle();
+	// 	}
+	// });
+
+	// //点击tab页或头部的专家类型，动态切换专家类型数据
+	// $("ul#entrust,ul#tablist").on("click", "li", function (e) {
+	// 	var target = $(e.target);
+	// 	//为选择的li 添加高亮的类样式
+	// 	$(target).addClass('tabin').siblings().removeClass('tabin').end();
+	// 	// $(target).addClass("tabin");
+	// 	var type = e.target.innerHTML;
+	// 	var pageSize = 8;
+	// 	var pageIndex = 1;
+	// 	if (type == "工艺专家") {
+	// 		findExpert("artTeam", pageSize, pageIndex);
+	// 	} else if (type == "售前专家") {
+	// 		findExpert("saleBeforeTeam", pageSize, pageIndex);
+	// 	} else if (type == "售后专家") {
+	// 		findExpert("saleAfterTeam", pageSize, pageIndex);
+	// 	} else {
+
+	// 	}
+	// 	setTitle();
+	// });
+
+	//获取后台数据
+	function findExpert(cur, pageSize, pageIndex) {
+		var layer, index;
+		layui.use(['layer'], function () {
+			layer = layui.layer;
+			index = layer.load();
+		})
+		$.ajax({
+			url: '/gab/getSrchExpertTeam/' + cur + "/" + pageSize + "/"
+				+ pageIndex,
+			type: 'get',
+			async: true,
+			success: function (res) {
+				layer.close(index);
+				total = res.total;
+				Rendering(res.data);
+				pageView(cur, total);
+			}
+		});
+	}
+
+	//分页
+	function pageView(exType, total) {
+		layui.use('laypage', function () {
+			var laypage = layui.laypage;
+			laypage.render({
+				elem: 'page1',
+				count: total,
+				limit: 8,
+				layout: ['prev', 'page', 'next', 'skip'],
+				jump: function (obj, first) {
+					//首次不执行
+					if (!first) {
+						//firmPage = obj.elem;
+						pageIndex = obj.curr;
+						var pageSize = 8;
+						$.ajax({
+							url: '/gab/getSrchExpertTeam/' + exType + "/"
+								+ pageSize + "/" + pageIndex,
+							type: 'GET',
+							async: true,
+							success: function (res) {
+								total = res.total;
+								Rendering(res.data);
+							}
+						});
+					}
+				}
+			});
+		});
+	}
+
+	//动态渲染后台数据
+	function Rendering(res) {
+
+		var data = {
+			"list": res
+		};
+		var getTpl = teamTemplate.innerHTML, view = document
+			.getElementById("expertWrapper");
+		laytpl(getTpl).render(data, function (html) {
+			view.innerHTML = html;
+		});
+	}
+</script>
+
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>发票管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <form id="form1">
+        <input name="orient" id="orient" class="mini-textBox" visible="fasle"/>
+        <input name="action" id="action" class="mini-textBox" visible="false"/>
+        <!-- <input  name="fpCgtype" class="mini-TextBox"  id="fpCgtype" visible="fasle"/> -->
+        <input name="cwStype" class="mini-textbox" id="cwStype" visible="fasle"/>
+        <input name="fpDtype" class="mini-textbox" id="fpDtype" visible="fasle"/>
+        <table style="padding:2px;border-bottom:0; table-layout:fixed;">
+            <tr>
+                <td align="right" width="70px" height="40">开票日期:</td>
+                <td>
+                    <input class="mini-datepicker" format="yyyy-MM-dd" value="new Date()" required name="fpRq" id="fpRq" width="120px"/>
+                </td>
+                <td align="right" width="70px">发票号码:</td>
+                <td>
+                    <input class="mini-TextBox"
+                           emptyText="自动生成" allowInput="false" name="fpId" visible="false" required="false"/>
+                    <input class="mini-TextBox"
+                           allowInput="true" name="fpNote" required width="120px"/>
+                </td>
+                <td align="right" width="70px">供货单位:</td>
+                <td>
+                    <input class="mini-buttonedit" onbuttonclick="onSupplierClick"
+                           emptyText="请选择..." allowInput="false" id="fpDw" name="fpDw" required width="120px"/>
+
+                </td>
+                <td align="right" width="70px">发票类型:</td>
+                <td>
+                    <input class="mini-comboBox" name="fpType" url="/finance/invoice/getHtFplx" value="ZCZP" required width="120px"/>
+                </td>
+                <td align="right" width="70px">发票税率:</td>
+                <td>
+                    <input class="mini-comboBox" name="fpSl" id="fpSl" url="/finance/invoice/getHtFpsl" textField="text" valueField="id" value="0.13" required width="120px"/>
+                </td>
+                <td align="right" width="70px">交易币种:</td>
+                <td>
+                    <input class="mini-comboBox" name="fpBz" id="fpBz" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" textField="text" valueField="id" value="RMB" required width="120px"/>
+                </td>
+            </tr>
+            <tr>
+                <!-- <td align="right" width="80" height="40">发票分类:</td> -->
+                <td align="right" width="70px" height="40">含税金额:</td>
+                <td>
+                    <input class="mini-TextBox" required name="fpSje" id="fpSje" textField="texts" valueField="id" width="120px" readonly="readonly" vtype="float"/>
+                </td>
+                <td align="right" width="70px" height="40">未税金额:</td>
+                <td>
+                    <input class="mini-TextBox" required name="fpSe" id="fpSe" width="120px" vtype="float" readonly="readonly"/>
+                </td>
+                <td align="right" width="70px" height="40">发票税额:</td>
+                <td>
+                    <input class="mini-TextBox" required name="fpJe" id="fpJe" width="120px" vtype="float" readonly="readonly"/>
+                </td>
+                <td align="right" width="70px">发票备注:</td>
+                <td colspan="5">
+                    <input class="mini-TextBox" name="fpSm" style="width: 100%;"/>
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="70px" height="40">开票日期:</td>
+                <td>
+                    <input class="mini-datepicker" format="yyyy-MM-dd" id="srchRq1" name="srchRq1" width="120px"/>
+                </td>
+                <td align="center" width="70px">至</td>
+                <td>
+                    <input class="mini-datepicker" format="yyyy-MM-dd" id="srchRq2" name="srchRq2" width="120px"/>
+                </td>
+                <td align="right" width="70px" height="40">产品类型：</td>
+                <td>
+                    <input class="mini-comboBox" name="fpCgtype" id="fpCgtype" url="/finance/invoice/getCplx" value="WL" textField="text" valueField="id" required width="120px"
+                           onvaluechanged="onFpCgTypeValueChanged"/>
+                </td>
+                <td align="right"><a class="mini-button" onclick="search" iconCls="icon-search" id="searchBtn">查询</a></td>
+            </tr>
+
+        </table>
+
+
+    </form>
+
+
+    <fieldset style="width:800px;">
+        <div class="fieldset-body">
+            <div tz:datagrid="datagrid" id="button-grid" idField="cwNote" sortField="cwNote" sortOrder="asc" style="width:100%;height:280px;"
+                 url="/finance/invoice/addinvoiceList" alwaysShowEmptyText="true" ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true"
+                 allowCellEdit="true" allowCellSelect="true" multiSelect="true" virtualColumns="true" showEmptyText="false" onSelect="onSelect"
+                 onSelectionchanged="onSelect" showPager="false" allowCellValid="true" showColumnsMenu="true">
+                <div property="columns">
+                    <div tz:datagrid="checkcolumn"></div>
+                    <div tz:datagrid="indexcolumn" width="38" align="right">序号</div>
+                    <div tz:datagrid="column" field="cwRq" name="cwRq" align="center" width="80" dateFormat="yyyy-MM-dd" renderer="onActionRenderer">日期</div>
+                    <div tz:datagrid="column" field="cwAct" name="cwAct" displayField="cwActName" align="left" width="80">口径</div>
+                    <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" displayField="cwCodeName" align="left" width="100">品名</div>
+                    <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" align="left" width="100">规格</div>
+                    <div tz:datagrid="column" field="cwSl" name="cwSl" width="60" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+                    <div tz:datagrid="column" field="cwZl" name="cwZl" width="60" align="right" numberFormat="#,0.0000" summaryType="sum" >重量</div>
+                    <div tz:datagrid="column" field="cwPrice" name="cwPrice" width="80" numberFormat="#,0.0000" align="right">含税单价</div>
+                    <div tz:datagrid="column" field="cwSje" name="cwSje" align="right" width="80" numberFormat="#,0.00" summaryType="sum">含税金额</div>
+                    <div tz:datagrid="column" field="cwWse" name="cwWse" align="right" width="80" numberFormat="#,0.00" summaryType="sum">未税金额</div>
+                    <div tz:datagrid="column" field="cwSe" name="cwSe" align="right" width="80" numberFormat="#,0.00" summaryType="sum">发票税额</div>
+                    <div tz:datagrid="column" field="cwShl" name="cwShl" align="right" width="60" renderer="onActionRenderer">税率</div>
+                    <div tz:datagrid="column" field="cwBz" name="cwBz" displayField="cwBzName" width="60" align="center">币种</div>
+                    <div tz:datagrid="column" field="cwFlag" name="cwFlag" align="right" width="60" visible="false">结算状态</div>
+                    <div tz:datagrid="column" field="cwItem" name="cwItem" align="center" width="120">订单编号</div>
+                    <div tz:datagrid="column" field="cwNote" name="cwNote" align="center" width="120">单号</div>
+                    <div tz:datagrid="column" field="cwCode" name="cwCode" align="center" width="100">产品编号</div>
+                    <div tz:datagrid="column" field="" width="100%"></div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get("button-grid");
+    var vurl = "/finance/invoice/addinvoiceList"
+    grid.bindSearchForm(form);
+
+    mini.get("srchRq1").setValue(mini.formatDate(new Date(), "yyyy/MM/01"));
+    mini.get("srchRq2").setValue(mini.formatDate(new Date(), "yyyy/MM/dd"));
+    grid.on("load", function (e) {
+        var rows = grid.findRows(function (row) {
+            if (row.cwFlag === "确认") return true;
+        })
+        grid.selects(rows);
+    })
+
+    function onSelect() {
+        var dataRows = grid.getSelecteds();
+        var cwSje = 0;
+        var cwSe = 0;
+        var cwWse = 0;
+        if (dataRows.length > 0) {
+            for (var i = 0; i < dataRows.length; i++) {
+                var dataRow = dataRows[i];
+                cwSje += dataRow.cwSje;
+                cwSe += dataRow.cwSe;
+
+            }
+            cwWse = cwSje - cwSe;
+        }
+        mini.get("fpSje").setValue(parseFloat(cwSje).toFixed(2));
+        mini.get("fpJe").setValue(parseFloat(cwSe).toFixed(2));
+        mini.get("fpSe").setValue(parseFloat(cwWse).toFixed(2));
+    }
+
+    /**
+     汇总
+     */
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "cwRq") {
+
+            var s = "<span style='color:Brown;'>";
+            s += "小计:</span>";
+            e.cellHtml = s;
+        } else if (e.field == "cwSje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "cwWse") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "cwSe") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "cwSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "cwZl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+
+    }
+
+    function SetData(options) {
+        var formData = options.data.formData;
+        var row = options.data.row;
+        mini.get("action").setValue(options.action);
+        mini.get("orient").setValue(formData.orient);
+        mini.get("fpSje").disable();
+        mini.get("fpSe").disable();
+        mini.get("fpJe").disable();
+        if (formData.fpCgtype != "ALL") {
+            mini.get("fpCgtype").setValue(formData.fpCgtype);
+            mini.get("fpCgtype").disable();
+        }
+
+        if ('add' == options.action) {
+            mini.get("fpRq").setValue(new Date());
+            grid.clearData();
+            $('[name=action]').val(options.action);
+            if ("true" == formData.orient) {
+                mini.get("cwStype").setValue(formData.cwStype);
+                mini.get("fpDtype").setValue(formData.fpDtype);
+                if (formData.fpCgtype != "ALL") {
+                    mini.get("fpCgtype").setValue(formData.fpCgtype);
+                    mini.get("fpCgtype").disable();
+                }
+            }
+        } else if ('edit' == options.action) {
+            $.get("invoiceList.html/{0}".format(row.fpId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("action").setValue(options.action);
+                    mini.get("fpDw").setText(res.data.fpdws);
+                    mini.get("fpDw").setValue(res.data.fpDw);
+                    mini.get("fpDw").disable();
+                    mini.get("fpSl").disable();
+                    mini.get("fpBz").disable();
+                    if ("true" == formData.orient) {
+                        mini.get("cwStype").setValue(formData.cwStype);
+                        mini.get("fpDtype").setValue(formData.fpDtype);
+
+                    }
+                }
+                grid.load();
+            });
+
+        } else if (options.action == "view") {
+            $.get("invoiceList.html/{0}".format(row.fpId), function (res) {
+                form.setEnabled(false);
+                grid.setAllowRowSelect(false);
+                mini.get('searchBtn').setVisible(false);
+                mini.get('saveBtn').setVisible(false);
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("fpDw").setText(res.data.fpdws);
+                    mini.get("fpDw").setValue(res.data.fpDw);
+                    grid.load();
+                }
+            });
+
+        }
+    }
+
+    /* 
+    失焦方法结算含税金额
+    */
+    function onblur() {
+        var fpSje = mini.get("fpSje").getValue();
+        var fpSe = mini.get("fpSe").getValue();
+        if (fpSje == null || fpSje == "") {
+            fpSje = 0;
+        } else if (fpSe == null || fpSe == "") {
+            fpSe = 0;
+        }
+        mini.get("fpJe").setValue(parseFloat(fpSje) + parseFloat(fpSe));
+    }
+
+    function search() {
+        var sl = parseFloat(mini.get("fpSl").getValue()).toFixed(2);
+        var dw = mini.get("fpDw").getValue();
+        var bz = mini.get("fpBz").getValue();
+        if (dw == "" || dw == null) {
+            hmq.tipDanger('请先选择供货单位！');
+            return false;
+        } else if (sl == "" || sl == null) {
+            mini.alert(sl);
+            hmq.tipDanger('请先选择发票税率！');
+            return false;
+        } else if (bz == "" || bz == null) {
+            hmq.tipDanger('请先选择交易币种！');
+            return false;
+        } else {
+            grid.load();
+        }
+
+    }
+
+
+    /**
+     *
+     **/
+    function SaveData() {
+        var row = grid.getSelecteds();
+        if (row != "" && row != null) {
+            if (form.validate() && form.isValid()) {
+                var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+                var formData = form.getData();
+                var zje = Math.round(parseFloat(formData.fpJe) + parseFloat(formData.fpSe), 2);
+
+                if (zje != Math.round(formData.fpSje, 2)) {
+                    mini.confirm("发票税额不对请问还需继续？", "请求信息", function (action) {
+                        if (action == "ok") {
+                            $[method]("add.html", JSON.stringify({
+                                    invoice: form.getData(true),
+                                    eCgContractDetailed: grid.getSelecteds(),
+
+                                }),
+                                function (res) {
+                                    if (200 === res.code) {
+                                        hmq.tipSuccess(res.msg || '保存成功', {
+                                            exec: function () {
+                                                CloseWindow('refresh');
+                                            }
+                                        });
+                                    } else {
+                                        hmq.tipDanger(res.msg || '保存失败');
+                                    }
+                                }, null, {
+                                    contentType: 'application/json'
+                                });
+                        }
+                    });
+
+                } else {
+                    $[method]("add.html", JSON.stringify({
+                            invoice: form.getData(true),
+                            eCgContractDetailed: grid.getSelecteds(),
+
+                        }),
+                        function (res) {
+                            if (200 === res.code) {
+                                hmq.tipSuccess(res.msg || '保存成功', {
+                                    exec: function () {
+                                        CloseWindow('refresh');
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg || '保存失败');
+                            }
+                        }, null, {
+                            contentType: 'application/json'
+                        });
+                }
+
+            }
+        } else {
+            hmq.tipDanger('请选择行!');
+        }
+    }
+
+    /**
+     * 行业类型改变
+     **/
+    function onFpCgTypeValueChanged(e) {
+        /*var value = e.sender.getValue();
+        if ('ALL' == value) {
+            grid.updateColumn("cpcodeName", {header: '品名' });
+            grid.updateColumn("cpcodeSize", {header: '规格' });
+        } else {
+            hmq.business.dynamicProductParams(e.sender.getValue(), {
+                miniDataGrid: grid,
+                success: function (map, res) {
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }*/
+        grid.load();
+    }
+
+
+    /**
+     *  机构选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/org/hierarchyOrgTree.html",
+            title: "【机构】选择",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.orgName);
+                }
+            }
+        });
+    }
+
+    /**
+     * @Author: gxl
+     * @description: 供货单位选择页面
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "cwRq") {
+            return mini.formatDate(new Date(record.cwRq), "yyyy-MM-dd");
+        }
+        if (e.field == "cwShl") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+
+    }
+
+
+</script>
+</html>

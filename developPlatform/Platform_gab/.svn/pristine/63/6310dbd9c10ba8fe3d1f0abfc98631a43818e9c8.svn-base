@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+	<title>服务管理【审批】</title>
+</th:block>
+<script type="text/javascript" th:src="@{/static/gab/js/formConfig.js}"></script>
+</head>
+<body>
+<div class="mini-fit">
+	    <input name="action" class="mini-hidden"/>
+	    <form id="form1">
+	        <input name="articleId" class="mini-hidden"/>
+	        <input name="functionalMark" value="2" class="mini-hidden"/>
+	        <table class="hmq-modify-table">
+	         <tr>
+	            <td title>服务主题:</td>
+	                <td content>
+	                    <input name="serviceTitle" class="mini-textbox" required/>
+	                      <input name="serviceNote" class="mini-hidden"/>
+	                </td>   
+	                <td title>服务编码:</td>
+	                <td content>
+	                    <input name="serviceCode" class="mini-textbox" required/>
+	                </td>
+	                      <td title>服务产品:</td>
+	                <td content>
+	                    <input name="serviceProduct" class="mini-textbox" required/>
+	                </td>  
+	                  <td title>服务结果:</td>
+	                  <td content >
+	                    <input id="serviceResult" name="serviceResult" class="mini-combobox" onvaluechanged="config" url="/system/parameter/getParamsSelectListByParentId/平台参数/表单配置/FWXQ" textField="text" valueField="id" required/>
+	                </td>  
+	            </tr>
+	            <tbody id="ConfigForm">
+		        
+		        </tbody>
+	            <tr>
+	            	<td title>服务类型:</td>            
+	                <td content colspan="1">
+	                    <select name="serviceType" class="mini-combobox" required>
+	                        <option value="免费">免费</option>
+	                        <option value="付费">付费</option>
+	                    </select>
+	                </td> 
+	            </tr>
+	            <tr>
+	                <td title>产品图片:</td>
+	                <td content colspan="7" >
+	                    <div id="productImg"></div>
+	                    <input  name="productImg" class="mini-hidden"/>
+	                </td>
+	            </tr>
+	            <tr>
+	             <td title>产品图纸:</td>
+	                <td content colspan="7" >
+	                    <div id="productImgPaper"></div>
+	                    <input id="annex" name="productImgPaper" class="mini-hidden"/>
+	                </td>
+	            </tr> 
+	              <tr>
+	               <td title>产品文件:</td>
+	                <td content colspan="7" >
+	                    <div id="productFile"></div>
+	                    <input  name="productFile" class="mini-hidden"/>
+	                </td>
+	              </tr>
+	        </table>
+	    </form>
+	</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+mini.parse();
+var form = new mini.Form("form1");
+mini.getChildControls($('.hmq-modify-table')[0]).forEach(function(control) {
+	control.setReadOnly(true);
+})
+
+function SetData(options) {
+	if ('sh' == options.action) {
+		$.get("examination/{0}".format(options.data.businessId), function(res) {
+            if (200 === res.code) {
+            	formConfig({classify:res.data.serviceResult,index:4});
+                form.setData(res.data);
+                editUpload(res.data.status);
+            }
+        });
+	} else if ('view' == options.action) {
+		$.get("examination/{0}".format(options.data.businessId), function(res) {
+            if (200 === res.code) {
+            	formConfig({classify:res.data.serviceResult,index:4});
+                form.setData(res.data);
+                editUpload(res.data.status);
+            }
+        });
+	}
+}
+
+function editUpload(status){
+	_init_upload(["productImg","productImgPaper","productFile"],true);
+}
+
+//初始化上传控件
+function _init_upload(arr,data) {
+	if( $.isArray(arr) && arr.length >0 && (!!data == false )){
+		$.each(arr,function(_index,value){
+			var fild_id = getFileId();
+			form.getField(value).setValue(fild_id);
+	        $("#"+value).filesUpload({
+	            pickerid: fild_id,
+	            filecount: 1
+	        });
+		});
+	}else{
+		$.each(arr,function(_index,value){  		   
+		    var  temp = form.getField(value).getValue();
+		 		$("#"+value).filesUpload({
+           		pickerid: temp,
+            	filecount: 1,
+         		viewdownload : true
+        	});    
+			});
+	}
+}
+</script>
+</html>

@@ -1,0 +1,167 @@
+package com.tengzhi.business.platform.specialist.chamberactivities.service.impl;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.business.platform.specialist.chamberactivities.dao.chamberActivitiesDao;
+import com.tengzhi.business.platform.specialist.chamberactivities.model.chamberActivities;
+import com.tengzhi.business.platform.specialist.chamberactivities.service.chamberActivitiesService;
+
+/**
+ * @author 王翔
+ * @create 2020-04-12
+ */
+@Service
+@Transactional
+public class ChamberActivitiesServiceImpl implements chamberActivitiesService {
+
+    @Autowired
+    private chamberActivitiesDao  chamberActivitiesDao;
+
+    @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto baseDto) throws Exception {
+        Map<String, String> map = baseDto.getParamsMap();
+    	String where = "where 1=1 ";
+		if (map.get("title") != null && map.get("title").toString().trim().length() > 0) {
+			where += " and title like '%" + map.get("title") + "%' ";
+		}
+		if (map.get("srchClassify") != null && map.get("srchClassify").toString().trim().length() > 0) {
+			where += " and classifylike '%" + map.get("srchClassify") + "%' ";
+		}
+		if (map.get("srchFlag") != null && map.get("srchFlag").toString().trim().length() > 0) {
+			if(map.get("srchFlag").equals("已结束")) {
+				where += " and status = '核准'   and  event_date_end < NOW() ";	
+			}else if(map.get("srchFlag").equals("进行中")) {
+				where += " and status = '核准'  and  event_date_start < NOW()  and    NOW() < event_date_end   ";		
+			}else if(map.get("srchFlag").equals("未启动")) {
+				where += " and status <> '核准'    ";	
+			}else  if (map.get("srchFlag").equals("未开始")) {
+		     	where += " and  status = '核准' and  event_date_start > NOW()   ";	
+			}
+			
+		}
+		
+		if (map.get("srchStatus") != null && map.get("srchStatus").toString().trim().length() > 0) {
+			where += " and status =  '" + map.get("srchStatus") + "' ";
+		}
+        
+		
+        
+        
+        String  sql   = "select  ( case    when status = '核准' and  event_date_start < NOW()  and    NOW() < event_date_end    then  '进行中'   when status = '核准' and  event_date_start > NOW()  then  '未开始' "
+        		+ "  when   status = '核准' and  event_date_end < NOW()  then  '已结束' else  '未启动'   end   ) flag, *  from  g_chamber_activities "+where;
+  
+        
+        
+        
+        
+        return    chamberActivitiesDao.QueryMapPageList(baseDto, sql, true);
+
+   /*     return chamberActivitiesDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.contains("title", map.get("title"));
+            c.contains("classify", map.get("srchClassify"));
+        }));*/
+    }
+
+    @Override
+    public chamberActivities findById(String Id) {
+        return chamberActivitiesDao.findByActivitiesId(Id);
+    }
+
+    @Override
+    public chamberActivities save(chamberActivities chamberActivities) {
+        SecurityUser securityUser=(SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        chamberActivities.setActivitiesId(UUIDUtil.uuid());
+        chamberActivities.setFounder(securityUser.getUsername());
+        chamberActivities.setFounderId(securityUser.getUserId());
+        chamberActivities.setFounderSCompany(securityUser.getCorpId());
+        chamberActivities.setHomeShow(false);
+        chamberActivities.setStatus("登记");
+        return chamberActivitiesDao.save(chamberActivities);
+    }
+
+    @Override
+    public void update(chamberActivities chamberActivities) {
+        chamberActivitiesDao.dynamicSave(chamberActivities, chamberActivitiesDao.findByActivitiesId(chamberActivities.getActivitiesId()));
+    }
+
+    @Override
+    public void deleteById(String Id) {
+         chamberActivitiesDao.deleteById(Id);
+    }
+
+    @Override
+    public void showById(String Id) {
+        chamberActivitiesDao.setShowUpdateModifyNo(Id);
+        chamberActivitiesDao.setShowUpdate(Id);
+    }
+
+    @Override
+    public boolean judgeUnique(chamberActivities chamberActivities) {
+        return false;
+    }
+    
+    /**
+     *	 首页活动数据获取
+     * @return
+     */
+    @Override
+    public List<Map<String,Object>> getgChamberActivities() {
+    	Map<String,Object> rmap = new HashMap<String, Object>();
+    	String sql = "select activities_id \"activitiesId\",title,classify,to_char(event_date_start,'yyyy-MM-dd') \"eventDateStart\",('/system/setting/image?line_primary='||image) \"imageSrc\",brief_introduction \"briefIntroduction\",content,status,founder,founder_id \"founderId\",founder_s_company \"founderSCompany\",annex,home_show \"homeShow\",to_char(event_date_end,'yyyy-MM-dd') \"eventDateEnd\" from g_chamber_activities where home_show = true limit 1";
+        List<Map<String, Object>> maps = chamberActivitiesDao.SelectListMap(sql);
+        if (maps.size()==0){
+            String sql1 = "select activities_id \"activitiesId\",title,classify,to_char(event_date_start,'yyyy-MM-dd') \"eventDateStart\",('/system/setting/image?line_primary='||image) \"imageSrc\",brief_introduction \"briefIntroduction\",content,status,founder,founder_id \"founderId\",founder_s_company \"founderSCompany\",annex,home_show \"homeShow\",to_char(event_date_end,'yyyy-MM-dd') \"eventDateEnd\" from g_chamber_activities order by event_date_end desc limit 1 " ;
+            return chamberActivitiesDao.SelectListMap(sql1);
+        }else {
+            return maps;
+        }
+    }
+    
+    /**
+     *	 商会活动分页数据
+     */
+    @Override
+    public Map<String,Object> getChamberActivities(String pageSize, String pageIndex) {
+    	Map<String,Object> rmap = new HashMap<String, Object>();
+    	String status = "'核准'";
+    	String sql = " select activities_id \"activitiesId\",title,classify,to_char(event_date_start,'yyyy-MM-dd') \"eventDateStart\",('/system/setting/image?line_primary='||image) \"imageSrc\",brief_introduction \"briefIntroduction\",content,status,founder,founder_id \"founderId\",founder_s_company \"founderSCompany\",annex,home_show \"homeShow\",to_char(event_date_end,'yyyy-MM-dd') \"eventDateEnd\" from g_chamber_activities ";
+    	String where = " where status="+status+" limit " + pageSize + " offset (" + pageIndex + " -1 ) * " + pageSize;
+    	rmap.put("data", chamberActivitiesDao.SelectListMap(sql+where));
+    	rmap.put("total", chamberActivitiesDao.SelectListMap(sql).size());
+    	return rmap;
+    }
+    
+    /**
+     *	 knowledge.html数据
+     */
+    @Override
+    public Map<String,Object> getOne(String article_id) {
+    	String sql = "select activities_id \"activitiesId\",title,classify,to_char(event_date_start,'yyyy-MM-dd') \"eventDateStart\",('/system/setting/image?line_primary='||image) \"imageSrc\",brief_introduction \"briefIntroduction\",content,status,founder,founder_id \"founderId\",founder_s_company \"founderSCompany\",annex,home_show \"homeShow\",to_char(event_date_end,'yyyy-MM-dd') \"eventDateEnd\" from g_chamber_activities where activities_id = '"+article_id+"'";
+    	return chamberActivitiesDao.SelectListMap(sql).get(0);
+    }
+    
+    @Override
+    public List<Map<String,Object>> getLimit(String limit) {
+    	String sql = "select activities_id \"activitiesId\",title,classify,to_char(event_date_start,'yyyy-MM-dd') \"eventDateStart\",('/system/setting/image?line_primary='||image) \"imageSrc\",brief_introduction \"briefIntroduction\",content,status,founder,founder_id \"founderId\",founder_s_company \"founderSCompany\",annex,home_show \"homeShow\",to_char(event_date_end,'yyyy-MM-dd') \"eventDateEnd\" from g_chamber_activities order by event_date_start desc limit "+limit+"";
+    	return chamberActivitiesDao.SelectListMap(sql);
+    }
+
+
+
+}
+

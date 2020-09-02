@@ -1,0 +1,123 @@
+package com.tengzhi.business.system.role.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.business.system.role.dao.SysRoleDao;
+import com.tengzhi.business.system.role.model.SysRole;
+import com.tengzhi.business.system.role.service.SysRoleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class SysRoleServiceImpl implements SysRoleService {
+    @Autowired
+    private SysRoleDao sysRoleDao;
+    @Override
+    public BasePage<SysRole> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysRoleDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.contains("roleId", map.get("roleId"));
+            c.contains("roleName", map.get("roleName"));
+            c.eqbool("isForbidden",map.get("isForbidden"));
+        }));
+    }
+
+    @Override
+    public SysRole findByRoleId(String roleId) {
+        return sysRoleDao.findByRoleId(roleId);
+    }
+
+
+    @Override
+    public SysRole save(SysRole sysRole) throws Exception {
+        if (judgeUnique(sysRole)) {
+            sysRole.setGenTime(new Date());
+            sysRole.setModifyTime(new Date());
+            sysRole.Validate();
+            return sysRoleDao.save(sysRole);
+        } else {
+            throw new Exception("名称已存在");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void AuthSave(Map<String,Object> map){
+        String rid=map.get("roleId").toString();
+        String rightModule=map.get("rightModule").toString();
+        sysRoleDao.authDelete(rid,rightModule);
+        List<Map<String,Object>> rightMap=(List<Map<String,Object>>) map.get("rightMap");
+        rightMap.forEach(item->{
+            sysRoleDao.authAdd(UUIDUtil.uuid(),rid,item.get("right_id").toString(),rightModule);
+        });
+    }
+
+
+    @Override
+    public void update(SysRole sysRole){
+        sysRole.setModifyTime(new Date());
+        sysRoleDao.dynamicSave(sysRole,sysRoleDao.findByRoleId(sysRole.getRoleId()));
+    }
+
+    @Override
+    public void deleteByRoleId (String roleId){
+        sysRoleDao.deleteById(roleId);
+    }
+
+    @Override
+    public boolean judgeUnique(SysRole sysRole) {
+        return sysRoleDao.findAll(Specifications.where((c) -> {
+            c.eq("roleName", sysRole.getRoleName());
+        })).size() <= 0;
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> findSysRightAll(BaseDto baseDto)throws IOException{
+
+        Map<String, String> map = baseDto.getParamsMap();
+        String rightName="";
+        if(ObjectUtil.isNotEmpty(map.get("rightName"))){
+            rightName=" where  right_name like '"+ map.get("rightName") +"%' ";
+        }
+        String rightModule="";
+        if(ObjectUtil.isNotEmpty(map.get("rightModule"))){
+            rightModule=" where right_module='"+ map.get("rightModule") +"' and x.right_id in(select r.right_id from r)  ";
+        }
+
+        String sql="WITH RECURSIVE r AS ( \n" +
+                "       SELECT * FROM sys_right "+rightName+" \n" +
+                "     union   ALL \n" +
+                "       SELECT place.* FROM sys_right place, r WHERE place.parent_id = r.right_id \n" +
+                "     ) \n" +
+                "SELECT * FROM sys_right x  \n" +
+                "LEFT JOIN (SELECT id,right_Id validation from sys_role_r_right where role_id='"+map.get("roleId")+"' ) b \n" +
+                "on x.right_id = b.validation "+rightModule+" ORDER BY right_ord ASC";
+
+        return sysRoleDao.QueryNOPageList(sql);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+

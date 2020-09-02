@@ -1,0 +1,119 @@
+package com.tengzhi.business.xt.telbook.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.xt.telbook.dao.TelBookDao;
+import com.tengzhi.business.xt.telbook.model.TelBook;
+import com.tengzhi.business.xt.telbook.service.TelBookService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class TelBookServiceImpl implements TelBookService {
+
+    @Autowired
+    private TelBookDao telBookDao;
+
+    @Override
+    public BasePage<TelBook> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        String sqlshere = " where 1=1 and worker_flag = '启用'";
+
+        //默认当前公司账套
+        if ("true".equalsIgnoreCase(String.valueOf(map.get("currentOrgId")))) {
+            sqlshere += " and worker_corpid = '" + SessionUser.SessionUser().getCorpId() + "'";
+        }
+
+        if (StringUtils.isNotEmpty(map.get("workCorpid"))) {
+            sqlshere += " and worker_corpid = '" + map.get("workCorpid") + "'";
+        }
+
+        if (StringUtils.isNotEmpty(map.get("workerId"))) {
+            sqlshere += " and worker_id like '%" + map.get("workerId") + "%'";
+        }
+        if (StringUtils.isNotEmpty(map.get("workerName"))) {
+            sqlshere += " and worker_name like '%" + map.get("workerName") + "%'";
+        }
+        if (StringUtils.isNotEmpty(map.get("workerDept"))) {
+            sqlshere += " and worker_dept = '" + map.get("workerDept") + "'";
+        }
+        if (StringUtils.isNotEmpty(map.get("workerType"))) {
+            sqlshere += " and worker_type = '" + map.get("workerType") + "'";
+        }
+        if (StringUtils.isNotEmpty(map.get("workerPost"))) {
+            sqlshere += " and worker_post = '" + map.get("workerPost") + "'";
+        }
+
+        String sql = "select worker_id,worker_name,worker_sex,worker_dept,worker_duty,worker_post,worker_phone,worker_email,worker_corpid,worker_flag,worker_time,worker_operator,worker_territory,worker_address,"
+                + "worker_race,worker_insurance,worker_registered,worker_background,f_getname('GETDEPTNAME',worker_dept,'',worker_corpid) worker_dept_name,f_get_param_name('学历类型',worker_background,'"+   SessionUser.getCurrentCorpId()   +"','') worker_xl_name, "
+                + " f_get_param_name('职务级别',worker_duty,'"+   SessionUser.getCurrentCorpId()   +"','') worker_duty_name, f_get_param_name('工作岗位',worker_post,'"+   SessionUser.getCurrentCorpId()   +"','') worker_post_name,f_get_param_name('保险类型',worker_insurance,'"+   SessionUser.getCurrentCorpId()   +"','') worker_insurance_name "
+                + " ,worker_type, f_get_param_name('人事参数',worker_type,'"+   SessionUser.getCurrentCorpId()   +"','') worker_type_name "
+                + " , f_getname('GETCORPEXP', null, null,worker_corpid) worker_corp_name "
+                + "from e_hr_worker" + sqlshere;
+        return telBookDao.QueryPageLists(baseDto, sql);
+    }
+
+    @Override
+    public List<Map<Object, String>> selectDept() {
+
+        return telBookDao.selectDept();
+    }
+
+    @Override
+    public List<SelectVo> getDeptWorker(String deptId) {
+        List<SelectVo> voList = new ArrayList<SelectVo>();
+        String sql = "select worker_id, worker_name  from e_hr_worker where  worker_dept in (select dept_id from sys_dept  where dept_id='" + deptId + "')";
+        List<Map> mapList = telBookDao.QueryListMap(sql);
+        mapList.forEach(Map -> {
+            voList.add(new SelectVo(Map.get("worker_id"), String.valueOf(Map.get("worker_name"))));
+        });
+        return voList;
+    }
+
+    /* 学历 */
+    public List<SelectVo> getXl(String trueText, String falseText) {
+        return comboParam("人事", "XLLX");
+    }
+
+    /* 员工类型 */
+    public List<SelectVo> getYglx(String trueText, String falseText) {
+        return comboParam("人事", "YGLX");
+    }
+
+    /* 工作岗位 */
+    public List<SelectVo> getGzgw(String trueText, String falseText) {
+        return comboParam("人事", "GZGW");
+    }
+
+    /* 职务 */
+    public List<SelectVo> getGzzw(String trueText, String falseText) {
+        return comboParam("人事", "ZWLX");
+    }
+
+    /* 保险 */
+    public List<SelectVo> getGzbx(String trueText, String falseText) {
+        return comboParam("人事", "BXLX");
+    }
+
+
+    public List<SelectVo> comboParam(String mod, String pareatId) {
+        List<SelectVo> voList = new ArrayList<SelectVo>();
+        String[] val = {mod, pareatId};
+        String sql = "select param_id,param_name from sys_param  where param_status='true' and param_mod=?  and parent_id=? order by  param_ord ";
+        List<Map> mapList = telBookDao.QueryListMap(sql, val);
+        mapList.forEach(Map -> {
+            voList.add(new SelectVo(Map.get("param_id"), String.valueOf(Map.get("param_name"))));
+        });
+        return voList;
+    }
+}

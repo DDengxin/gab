@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>公司管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="orgId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr colspan="3">
+                <td title>公司代码:</td>
+                <td content>
+                    <input class="mini-textbox" id="orgId" name="orgId" required vtype="numberAndUpper"/>
+                </td>
+               <!-- <td title>公司简码:</td>
+                <td content><input class="mini-textbox" name="corpJm"/></td>-->
+            </tr>
+            <tr>
+                <td title>公司全称:</td>
+                <td content colspan="3">
+                    <input class="mini-textbox" required name="orgName"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>英文名称:</td>
+                <td content colspan="3"><input class="mini-textbox" name="corpNameEn"/></td>
+            </tr>
+            <tr>
+                <td title>公司简称:</td>
+                <td content><input class="mini-textbox" name="corpExp"/></td>
+                <td title>父级公司:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+                           emptyText="请选择..." allowInput="false" id="parentId" name="parentId" value="ROOT" text="无" textName="parentName"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>公司电话:</td>
+                <td content><input class="mini-textbox" name="corpTel"/></td>
+                <td title>公司传真:</td>
+                <td content><input class="mini-textbox" name="corpFax"/></td>
+            </tr>
+            <tr>
+                <td title>公司地址:</td>
+                <td content colspan="3"><input class="mini-textbox"
+                                               name="corpAdd"/></td>
+            </tr>
+            <tr>
+                <td title>公司网站:</td>
+                <td content><input class="mini-textbox" name="corpWeb"/></td>
+                <td title>公司邮箱:</td>
+                <td content><input class="mini-textbox" name="corpMail"/></td>
+            </tr>
+
+            <tr>
+                <td title>开票资料:</td>
+                <td content colspan="3"><input class="mini-textarea" name="corpTax" height="100"/></td>
+            </tr>
+            <tr>
+                <td title>关联行政:</td>
+                <td content>
+                    <input class="mini-combobox"   emptyText="请选择..." required  value="N"   data="[{id:'Y',text:'是'},{id:'N',text:'否'}]"  
+                           allowInput="true" name="corpAdministration" textName="corpAdministration"/>
+                </td>
+                <td title>关联人事:</td>
+                <td content>
+                    <input class="mini-combobox"  emptyText="请选择..." required   value="N" data="[{id:'Y',text:'是'},{id:'N',text:'否'}]" 
+                           allowInput="false"   name="corpPersonner" textName="corpPersonner"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>供应链:</td>
+                <td content>
+                	<div id="corpSupplyChain" name="corpSupplyChain" class="mini-combobox" multiSelect="true" textField="text" valueField="id"
+                     showClose="true" oncloseclick="onCloseClickClearValue" popupMaxHeight="500" url="/system/org/combobox/getIndustyList"
+                     showHGridLines="false" showVGridLines="false"  emptyText="请选择..." required  allowInput="false" style="width:170px;" value="N" >
+    					<div property="columns">
+        					<div header="全部" field="text"></div>
+    					</div>
+    				</div>
+                </td>
+            	<td title>生产:</td>
+                <td content>
+                    <div id="corpProduction" name="corpProduction" class="mini-combobox" multiSelect="true" textField="text" valueField="id"
+                     showClose="true" oncloseclick="onCloseClickClearValue" popupMaxHeight="500" url="/system/org/combobox/getIndustyList"
+                     showHGridLines="false" showVGridLines="false"  emptyText="请选择..." required  allowInput="false" style="width:170px;" value="N" >
+    					<div property="columns">
+        					<div header="全部" field="text"></div>
+    					</div>
+    				</div>
+                </td>
+            </tr>
+            <tr>
+                <td title>备注</td>
+                <td content colspan="3">
+                    <input class="mini-textbox" name="remark"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>启用状态:</td>
+                <td content>
+                    <input class="mini-combobox" required name="state" value="true" url="/dict/boolean"/>
+                </td>
+                <td title>排序:</td>
+                <td content>
+                    <input class="mini-spinner" maxValue="1000" value="1" name="rank"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            if (!$.isEmptyObject(options.data.orgId)) {
+                form.getField('parentId').setText(options.data.corpExp);
+                form.getField('parentId').setValue(options.data.orgId);
+            }
+        } else if (!!~['view','edit'].indexOf(options.action)) {
+            mini.get("parentId").setEnabled(false);
+            mini.get("orgId").setEnabled(false);
+            $.get("org.html/{0}".format(options.data.orgId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            });
+            if('view' == options.action){
+                form.setEnabled(false);
+                mini.get("saveBtn").setVisible(false);
+            }
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /**
+     *  公司选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/org/hierarchyOrgTree.html",
+            title: "【公司】选择",
+            width: 500,
+            height: 620,
+            data:{ 	
+            	state:true,
+                showNullNode:true,
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.corpExp);
+                }
+            }
+        });
+    }
+
+
+</script>
+</html>

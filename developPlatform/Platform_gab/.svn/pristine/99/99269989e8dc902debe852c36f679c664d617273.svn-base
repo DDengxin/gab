@@ -1,0 +1,14 @@
+package com.tengzhi.business.platform.common.service;
+
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.enroll.model.G_Expert;
+
+public interface OperatorService extends BaseService  {
+	BasePage<G_Expert> getAllExpert(BaseDto baseDto) throws Exception;
+
+	Map<String, Object> getAcademic(String reqId, String type);
+}

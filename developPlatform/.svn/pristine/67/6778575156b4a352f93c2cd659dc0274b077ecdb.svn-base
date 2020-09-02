@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>工序报工</title>
+	</th:block>
+	<script type="text/javascript" th:src="@{/static/javascript/LodopPrint.js?version=4}"></script>
+	<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="0" height="0">
+		<embed id="LODOP_EM" type="application/x-print-lodop" width="0" height="0"/>
+	</object>
+</head>
+<body>
+	<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+			<input class="mini-hidden" name="orient" id="orient" />
+				<input class="mini-hidden" name="htStype" id="htStype" width="100"/>	
+				<input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>	
+				<label class="hmq-label" text="日期">
+					<input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				<label class="hmq-label" text="至">
+					<input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				<label class="hmq-label" text="工程号">
+					<input class="mini-textbox" name="srchBgc" width="120" />
+				</label>
+            
+				<label class="hmq-label" text="品号">
+					<input class="mini-textbox" name="srchCode" width="110" />
+				</label>
+				
+				<label class="hmq-label" text="品名">
+					<input class="mini-textbox" name="srchName" width="110" />
+				</label>
+				<label class="hmq-label" text="规格">
+					<input class="mini-textbox" name="srchSize" width="110" />
+				</label>
+				
+		</th:block>
+	</th:block>
+	<!--撑满页面-->
+<div class="mini-fit" style="height: 100%;clear: both;margin-bottom: 0px;padding-bottom: 0px;">
+	<div tz:datagrid="datagrid" id="srch_top_grid"  pager="#pager1" pageSize="100" showPager="false" sortMode="client" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell" >
+		<div property="columns">
+				<div tz:datagrid="indexcolumn" width="35">序号</div>
+				<div tz:datagrid="column" field="rq" width="90" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd">日期</div>
+                <div tz:datagrid="column" field="bgc" width="150" align="left">本工程</div>
+				<div tz:datagrid="column" field="sc_mo" width="120" align="center">任务单</div>
+				<div tz:datagrid="column" field="gx" displayField="gxname" align="left" width="80">工序</div>
+				<div tz:datagrid="column" field="code" width="90" align="left">品号</div>
+				<div tz:datagrid="column" field="tname" displayField="zzpname" width="120" align="left">品名</div>
+				<div tz:datagrid="column" field="tsize"   width="80" align="left">规格</div>
+				<div tz:datagrid="column" field="tph"   width="100" align="left">牌号</div>
+				<div tz:datagrid="column" field="tts" width="150" align="left">批次号</div>
+				<div tz:datagrid="column" field="tsl" width="100" align="right"  numberFormat="#,0.0000" summaryType="sum" dataType="double">数量</div>
+				<div tz:datagrid="column" field="gc_flag" width="80" align="center" renderer="onActionRenderer" >状态</div>
+				<div tz:datagrid="column" field="bgc_tl" width="130" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">开始时间</div>
+				<div tz:datagrid="column" field="bgc_wc" width="130" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">完成时间</div>
+				<div tz:datagrid="column" field="bgc_sc" width="80" align="right" dataType="double">时长</div>
+       		 	<div tz:datagrid="column" field="tcj" displayField="cjname" align="left" width="120">车间</div>
+       		 	<div tz:datagrid="column" field="tct" displayField="ctname" align="left" width="130">车台</div>
+       		 	<div tz:datagrid="column" field="tbc" displayField="tbcname"  width="80" align="center">生产班次</div>
+				<div tz:datagrid="column" field="do_man" displayField="manname"  width="80" align="center">生产人员</div>
+				<div tz:datagrid="column" width="100%"></div>
+		</div>
+	</div>
+</div>
+ <div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+     <table style="width: 100%;">
+         <tr>
+             <td style="white-space: nowrap;">
+                 <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+             </td>
+             <td style="white-space: nowrap;" align="right" id="btnbar"/>
+         </tr>
+     </table>
+</div>	
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form("form1");
+	var grid = mini.get("srch_top_grid");
+	var surl = "/sc/task/ykbg";
+	grid.setUrl(surl + "/getSrchGridList");
+	grid.bindSearchForm(form);
+
+	//查询
+	function search_option() {
+		grid.load();
+	}
+	//报工
+	function add_option(e){
+	     e.sender.miniopen({url: "add.html", action: 'add', data:'' , width: 679, height: 500});
+	}
+
+	//标签
+	function print_option(e) {
+		var row = grid.getSelected();
+		if (row) {
+			printGyk(row.bgc, "PREVIEW");
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+
+	/**
+	 汇总
+	 */
+	 function onDrawSummaryCell(e) {
+			if (e.field == "sc_mo") {
+				var s = "<span style='color:Brown;'>";
+				s += "合计:</span>";
+				e.cellHtml = s;
+			}
+			if (e.field == "tsl") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+				e.cellHtml = s;
+			}
+			
+		}
+	    
+	    /**
+	     渲染方法
+	     */
+	    function onActionRenderer(e) {
+	        var record = e.record;
+	        if (e.field == "rq"&& record.rq!=null) {
+	            return mini.formatDate(new Date(record.rq), "yyyy-MM-dd");
+	        }
+	        
+	        if (e.field == "bgc_tl"&& record.bgc_tl!=null) {
+	            return mini.formatDate(new Date(record.bgc_tl), "yyyy-MM-dd HH:mm");
+	        }
+	        
+	        if (e.field == "bgc_wc"&& record.bgc_wc!=null) {
+	            return mini.formatDate(new Date(record.bgc_wc), "yyyy-MM-dd HH:mm");
+	        }
+	        if(e.field == "gc_flag"&& record.gc_flag!=null){
+	        	if(record.gc_flag=="HG"){
+	        		return "合格";
+	        	}else{
+	        		return "不良";
+	        	}
+	        }
+	    }
+	    
+</script>
+</html>

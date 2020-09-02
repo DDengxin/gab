@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>明细账</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient"/>
+        <label>会计期间: </label>
+        <input id="srchRq1" name="srchRq1" class="mini-datepicker" style="width:100px;" showClearButton="false" />
+        <label>至: </label>
+        <input id="srchRq2" name="srchRq2" class="mini-datepicker" style="width:100px;" showClearButton="false" />
+        <label>科目:</label>
+        <input id="Level" name="Level" class="mini-treeselect" style="width:200px;" multiSelect="false" valueFromSelect="false" textField="fnumbername" valueField="faccountid" parentField="fparentid"
+               allowInput="true" showRadioButton="false" showFolderCheckBox="false" nullitemtext="请选择..." shownullitem="true" emptytext="请选择..." />
+        <input id="fnumbertemp" name="fnumbertemp" class="mini-hidden" readonly="readonly" />
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid" sortField="paramOrd" treeColumn="paramName"
+         idField="paramId" parentField="parentId" resultAsTree="true"
+         expandOnLoad="true" showTreeLines="true" showPageInfo="false" ShowTreeicon="false"
+    >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="rq"  width="90">日期</div>
+            <div field="fvoucherid" width="100" align="center" allowSort="true" headerAlign="center" visible="false"></div>
+            <div field="fvoucherno" width="100" align="center" allowSort="true" headerAlign="center" renderer="onActionRenderer">凭证字号</div>
+            <div tz:datagrid="column" field="paramOrd" width="220" align="center">摘要</div>
+            <div tz:datagrid="column" field="paramDetail" width="100">借方</div>
+            <div tz:datagrid="column" field="paramType" width="100" name="paramType" align="left">贷方</div>
+            <div tz:datagrid="column" field="paramNameEn" width="100" visible="false">余额</div>
+
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    var paramMod = hmq.getQueryString("paramMod");
+    var paramType = hmq.getQueryString("paramType");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(paramMod)) {
+        form.getField("paramMod").setValue(paramMod);
+        if (hmq.isNotEmpty(paramType)) {
+            form.getField("paramType").setValue(paramType);
+        }
+        if (hmq.isNotEmpty(parentId)) {
+            form.getField("parentId").setValue(parentId);
+        }
+        setIdReadOnly("paramMod");
+    }
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+</script>
+</body>
+</html>
+
+

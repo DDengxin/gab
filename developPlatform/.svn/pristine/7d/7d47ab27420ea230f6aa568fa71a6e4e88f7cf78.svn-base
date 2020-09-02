@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+		<title>用户管理</title>
+	</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input id="action" name="action" class="mini-hidden" type="hidden" />
+		<form id="form1" method="post">
+
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>单号:</td>
+					<td content><input id="note" name="note" class="mini-textbox"
+						emptyText="自动生成" readonly="readonly" /></td>
+					<td title>类型:</td>
+					<td content><input id="type" name="type" allowInput="false"
+						class="mini-combobox" valueField="combid" textField="combtext"
+						vtype="required;" emptyText="请选择类型" /></td>
+					<td title>部门:</td>
+					<td content><input id="dept" name="dept" class="mini-combobox"
+						allowInput="false" valueFromSelect="true" textField="combtext"
+						valueField="combid" vtype="required;" emptyText="请选择"
+						popupHeight="110" /></td>
+				</tr>
+				<tr>
+					<td title>公告标题:</td>
+					<td content colspan="5"><input id="title" name="title"
+						class="mini-textbox" vtype="required;" emptyText="请输入公告标题" /></td>
+				</tr>
+				<tr>
+					<td title>内容:</td>
+					<td content colspan="5"><input id="content" name="content"
+						class="mini-textarea" /></td>
+				</tr>
+				<tr>
+					<td title>附件:</td>
+					<td content colspan="5">
+						<div id="uploader"></div> <input id="file_id" name="file_id"
+						class="mini-hidden" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" id="save" iconCls="icon-save"
+			onclick="SaveData();">保存</a> <a class="mini-button" id="close"
+			iconCls="icon-close" onclick="onCancel">关闭</a>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form1");
+		//附件
+		var fileId = "";
+		fileId = getFileId()
+		mini.get("file_id").setValue('2222222');
+		$("#uploader").filesUpload({
+			pickerid : "2222222",
+			filecount : 50,
+		});
+		form.setChanged(false);
+
+		/*function SetData(data) {
+			 mini.get("action").setValue(data.action );
+			data.action = "add";
+			if (data.action == "edit" || data.action == "view") {
+			    data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+			    $.ajax({
+			    	loading:true,
+			        url: "../../qygl/qygw/qygg/getBillData.do",
+			        type: 'post',
+			        data: {
+			            parms: data.sid,
+			            stime: (new Date()).getTime()
+			        },
+			        cache: false,
+			        success: function (text) {
+			            if (text.status) {
+			                var billdata = mini.decode(text.data);
+			                form.setData(billdata);
+			               // setIdDisable("note");
+			                if (isNull(billdata.type)) {
+			                    mini.get("type").select(0);
+			                }
+			                if (data.action == "view") {
+
+			                	var fileId = billdata.file_id;
+			                    $("#uploader").resetUploader({
+			                        pickerid: fileId,
+			                        filecount: 50,
+			                        view:"view"
+
+			                    });
+			                     setIdReadOnly("dept,type,title,content");
+			                   // mini.get("annex").disable();
+			                   //  mini.get("fildupload").disable();
+			                   // mini.get("fileremove").disable();
+			                   $(".webuploadDelbtn").css('display','none');
+			                  $(".webuploadDownload").css('display','none');
+			                    mini.get("save").hide();
+			                } else {
+			                    //附件
+			                    var fileId = billdata.file_id;
+			                    $("#uploader").resetUploader({
+			                        pickerid: fileId,
+			                        filecount: 50,
+			                    });
+			                }
+			                form.setChanged(false);
+			            } else {
+			                mini.alert(text.message);
+			            }
+			        },
+			        error: function () {
+			            mini.alert("网络请求失败!");
+			        }
+			    });
+			}
+			if (data.action == "add") {
+			data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+			//mini.get("fileremove").disable();
+			mini.get("type").select(0);
+			//附件
+			var fileId = getFileId();
+			mini.get("file_id").setValue(fileId);
+			$("#uploader").filesUpload({
+				pickerid : fileId,
+				filecount : 50,
+			});
+			form.setChanged(false);
+			/* }
+		}*/
+	</script>
+</body>
+</html>

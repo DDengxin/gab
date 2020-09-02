@@ -1,0 +1,107 @@
+package com.tengzhi.business.sc.pd.scrw.controller;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+
+import com.tengzhi.business.sc.pd.scrw.service.ScrwpdService;
+import com.tengzhi.business.sc.task.sctack.model.MScScrw;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+
+@RestController
+@RequestMapping("/sc/pd/scrw")
+public class ScrwpdController {
+	
+	@Autowired
+	private ScrwpdService scrwService;
+	
+	@GetMapping(value="/*.html")
+	public ModelAndView pageForward(ModelAndView mv) {
+		return mv;
+	}
+	
+
+
+
+	/**
+	 * 
+	 * 
+	 * @param paramType(CP,YL,WL)
+	 * @param paramMod 模块
+	 * @param request
+	 * @param rt
+	 * @param mv
+	 * @return
+	 */
+	@GetMapping(value = {"{paramType}/{paramMod}/scddlist.html"})
+	public ModelAndView ddtj(@PathVariable String paramType, @PathVariable String paramMod, 
+			HttpServletRequest request, RedirectAttributes rt,ModelAndView mv) {
+		String servletPath = request.getServletPath();
+		servletPath = servletPath.substring(servletPath.lastIndexOf("/")+1);
+		System.out.println(":::"+servletPath);
+		mv.setView(new RedirectView(String.format("/sc/pd/scrw/%s",servletPath)));
+		request.getParameterMap().forEach((key,value) ->{
+		    mv.addObject(key,value);
+		});
+		mv.addObject("paramType",paramType);
+		mv.addObject("paramMod",paramMod);
+		//是否定向
+		mv.addObject("orient",true);
+		return mv;
+	}
+	/**
+	 * 	查询数据列表
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	@PostMapping(value = "/scddlist.html")
+	public Result getScddList(BaseDto baseDto) throws IOException {
+		return scrwService.getScddList(baseDto).getResult();
+	}
+
+
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "/getSrchBottomList")
+	public Result getSrchBottomList(BaseDto baseDto) throws IOException {
+		return scrwService.getSrchBottomList(baseDto).getResult();
+	}
+
+	
+    @GetMapping(value = "/getBySplitId/{htMo}")
+    public Result getBySplitId(@PathVariable(value = "htMo") String htMo) {
+        return Result.resultOk(scrwService.getBySplitId(htMo));
+    }
+    
+    @GetMapping(value = "/getByHpId/{htMo}")
+    public Result getByHpId(@PathVariable(value = "htMo") String htMo) {
+        return Result.resultOk(scrwService.getByHpId(htMo));
+    }
+
+	@PostMapping(value = "/xsddSplit")
+	public Result xsddSplit(@RequestBody MScScrw model) throws Exception {
+		return scrwService.xsddSplit(model);
+	}
+
+	@PostMapping(value = "/xsddHp")
+	public Result xsddHp(@RequestBody MScScrw model) throws Exception {
+		return scrwService.xsddHp(model);
+	}
+
+	@PutMapping(value = "/getFlag/{htNo}/{flag}")
+	public Result getFlag(@PathVariable(value = "htNo") String htNo,@PathVariable(value = "flag") String flag) throws Exception {
+		return scrwService.getFlag(htNo,flag);
+	}
+}

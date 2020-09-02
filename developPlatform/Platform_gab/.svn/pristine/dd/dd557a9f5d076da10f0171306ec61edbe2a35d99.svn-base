@@ -1,0 +1,15 @@
+package com.tengzhi.business.platform.enroll.dao;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.enroll.model.G_personal;
+
+public interface PersonalDao  extends BasedaoRepository<G_personal,String> {
+	
+	
+	@Query(value = "SELECT  status  from  g_personal   where  person_note =:person_note   and is_platform =true  ", nativeQuery = true)
+	String getPersonalStatus(@Param("person_note") String person_note);
+
+}

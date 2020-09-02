@@ -1,0 +1,257 @@
+.aca_content {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 103px;
+}
+
+.aca_content_list {
+    width: 100%;
+    overflow: hidden;
+    margin: 0 auto;
+    position: relative;
+}
+
+.aca-fl {
+    width: 855px;
+    overflow: hidden;
+    float: left;
+    padding-bottom: 92px;
+    min-height: 400px;
+}
+
+.aca-fl .title {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 30px;
+}
+
+.aca-fl .title h2 {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    color: #409fff;
+    margin-bottom: 19px;
+    font-weight: bold;
+}
+
+.aca-fl .title p {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    color: #409fff;
+    margin-bottom: 19px;
+}
+
+.aca-fl_details {
+    width: 100%;
+    overflow: hidden;
+}
+
+.aca-fl_details div {
+    width: 100%;
+    margin-bottom: 40px;
+    font-size: 14px;
+    color: #666666;
+    overflow: hidden;
+}
+
+.aca-fl_details div p {
+    width: 100%;
+    margin-bottom: 15px;
+    line-height: 1.7;
+}
+
+.pay {
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    font-size: 14px;
+    color: #666666;
+    border-top: 1px solid #ececec;
+    padding-top: 22px;
+}
+
+.pay p {
+    margin-bottom: 10px;
+}
+
+.pay button {
+    width: 135px;
+    height: 40px;
+    background: #ec0a0a;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    line-height: 40px;
+    border: none;
+    cursor: pointer;
+}
+
+.pay button i {
+    margin-right: 5px;
+    font-size: 18px;
+}
+
+.aca-fr {
+    width: 305px;
+    overflow: hidden;
+    float: right;
+    margin-top: 35px;
+    border: 1px solid #ececec;
+    padding: 20px;
+}
+
+.aca-fr .author {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.aca-fr .author>div {
+    width: 100%;
+    overflow: hidden;
+}
+
+.aca-fr .author>div img {
+    width: 90px;
+    height: 105px;
+    float: left;
+    margin-right: 5px;
+    border: 1px solid #dcdcdc;
+}
+
+.intro {
+    float: left;
+    font-size: 14px;
+    color: #666666;
+}
+
+.intro p {
+    margin-bottom: 6px;
+    width: 168px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.intro b {
+    color: #409fff;
+}
+
+.intro .name {
+    font-size: 24px;
+    color: #333333;
+}
+
+.aca-fr .author>p {
+    line-height: 1.7;
+    font-size: 14px;
+    color: #666666;
+}
+
+.aca-fr .author>div+p {
+    color: #409fff;
+}
+
+.aca-fr dl {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.aca-fr dl dt {
+    font-size: 18px;
+    color: #409fff;
+    margin-bottom: 12px;
+}
+
+.aca-fr dl dt:before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 20px;
+    background: #409fff;
+    vertical-align: text-top;
+    margin-right: 10px;
+}
+
+.aca-fr dl dd {
+    font-size: 14px;
+    line-height: 2;
+}
+
+.aca-fr dl dd a {
+    display: block;
+    color: #666;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.aca-fr dl dd a:hover {
+    color: #ec0a0a;
+    text-decoration: underline;
+}
+
+#signUp{
+    border-radius: 5px;
+    margin-top: 50px;
+    position: relative;
+    bottom: 0px;
+    left: 50%;
+    margin-left: -47px;
+}
+
+.notice {
+    font-size: 14px;
+    color: #999999;
+}
+
+.layui-btn-primary:hover {
+    border-color: #409fff !important;
+    color: #409fff !important;
+}
+
+.layui-layer-setwin .layui-layer-close1 {
+    background-position: -187px -38px !important;
+    cursor: pointer;
+  }
+
+  .layui-layer-title {
+    color: #fff !important;
+    background-color: rgb(46,141,237) !important;
+}
+
+/* 附件样式 */
+.annex{
+    width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+    z-index: 999;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin-left: -600px;
+}
+.annex span{
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    background: #409fff;
+    color: #fff;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 5px;
+}
+.annex>div{
+    color: #409fff;
+    display: inline;
+    margin-left: 10px;
+}
+.annex>div a{
+    color: #409fff;
+}
+.annex>div a:hover{
+    color: #e80000;
+}

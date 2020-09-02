@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>短信记录</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="数据表类型">
+                <input class="mini-combobox" name="tableNameType"
+                data="[{id:'SYS_',text:'系统表'},[]]"/>
+            </label>
+
+            <label class="hmq-label" text="数据表名">
+                <input class="mini-textbox" name="tableName"/>
+            </label>
+            <label class="hmq-label" text="前缀">
+                <input class="mini-textbox" name="prefix"/>
+            </label>
+            <label class="hmq-label" text="日期格式">
+                <input class="mini-textbox" name="dateFormat"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="corpId" sortField="corpId,prefix,dateFormat,increment"
+         url="/system/core/gennote/list">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="corpId" align="center" width="60">账套</div>
+            <div tz:datagrid="column" field="tableName">数据表名</div>
+            <div tz:datagrid="column" field="prefix" width="60" >前缀</div>
+            <div tz:datagrid="column" field="dateFormat" width="80">日期格式</div>
+            <div tz:datagrid="column" field="length" width="80">长度</div>
+            <div tz:datagrid="column" field="increment"  align="right" width="80">增量</div>
+            <div tz:datagrid="column" field="date"  width="100">日期</div>
+            <div tz:datagrid="column" field="example" width="180">示例</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    //渲染行
+    grid.on('drawcell', function (e) {
+        switch (e.field) {
+            case 'example':
+                var json = {
+                    corpId: e.record.corpId,
+                    prefix: e.record.prefix,
+                    date: e.record.date || '',
+                    incrementValue: ('000000000' + e.record.increment).slice(-1 * e.record.length)
+                };
+                var value = "{corpId}{prefix}{date}{incrementValue}".format(json);
+                e.cellHtml = value;
+                break;
+            default:
+                break;
+        }
+    });
+</script>
+</body>
+</html>

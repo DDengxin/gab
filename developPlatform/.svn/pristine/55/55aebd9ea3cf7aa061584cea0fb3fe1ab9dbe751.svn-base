@@ -1,0 +1,57 @@
+package com.tengzhi.business.system.modification.enums;
+
+
+/**
+ * 数据修改枚举类型
+ *
+ * @author: gaodu
+ * @date: 2020/7/10 10:39
+ **/
+public enum SysDataModificationTableEnum {
+    //行业 - 》 e_cg_contract.cg_stype  单号 - 》 e_cg_contract.ht_no
+    //查询e_cg_contract_detail(e_cg_contract.ht_no = e_cg_contract_detail.ht_no )
+    CONTRACT_PURCHASE("采购合同", "e_cg_contract"),
+    //行业 - 》 e_xs_contract.ht_stype  单号 - 》 e_xs_contract.ht_no
+    //查询 e_xs_contract_detail(e_xs_contract.ht_no = e_xs_contract_detail.ht_no )
+    CONTRACT_SALE("销售合同", "e_xs_contract"),
+    //行业 - 》 e_out_in.out_stype  单号 - 》 e_out_in.out_note
+    //查询 e_out_in
+    WAREHOUSE_OUT("出库", "e_ck_out"),
+    //行业 - 》 e_ck_in.in_stype  单号 - 》 e_ck_in.in_note
+    //查询 e_ck_in
+    WAREHOUSE_IN("入库", "e_ck_in");
+
+    private String name;
+    private String tableName;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    SysDataModificationTableEnum(String name, String tableName) {
+        setName(name);
+        setTableName(tableName);
+    }
+    public static SysDataModificationTableEnum valueOfName(String name){
+        for(SysDataModificationTableEnum sysDataModificationTableEnum : SysDataModificationTableEnum.values()){
+            if(sysDataModificationTableEnum.getName().equals(name)){
+                return sysDataModificationTableEnum;
+            }
+        }
+        return null;
+    }
+
+
+}

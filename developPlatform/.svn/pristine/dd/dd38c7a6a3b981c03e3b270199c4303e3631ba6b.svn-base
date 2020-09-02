@@ -1,0 +1,182 @@
+package com.tengzhi.business.system.org.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.TierTool;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.dept.dao.SysDeptDao;
+import com.tengzhi.business.system.org.dao.SysOrgDao;
+import com.tengzhi.business.system.org.model.SysOrg;
+import com.tengzhi.business.system.org.service.SysOrgService;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * @author 王翔
+ * @create 2020-04-12
+ */
+@Service
+@Transactional
+public class SysOrgServiceImpl implements SysOrgService {
+
+    @Autowired
+    private SysOrgDao sysOrgDao;
+    @Autowired
+    private SysDeptDao sysDeptDao;
+    
+    @Autowired
+    private SysParamDao sysParamDao;
+
+    @Override
+    public BasePage<SysOrg> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysOrgDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.contains("orgName", map.get("orgName"));
+            c.eqbool("state", map.get("state"));
+            c.eq("deleteLogo", false);
+            //当前公司账套下单数据
+            if ("true".equalsIgnoreCase(String.valueOf(map.get("currentOrgId")))) {
+                c.eq("orgId", SessionUser.SessionUser().getCorpId());
+            }
+        }));
+    }
+
+    @Override
+    public List<SysOrg> findAllEnableBean(String orgIds) {
+        return sysOrgDao.findAll(Specifications.where((c) -> {
+            c.eq("deleteLogo", false);
+            if (StringUtils.isNotEmpty(orgIds)) {
+                c.in("orgId", StringUtils.split(orgIds, ","));
+            }
+        }));
+    }
+
+
+    @Override
+    public SysOrg findByOrgId(String orgId) {
+        return sysOrgDao.findByOrgId(orgId);
+    }
+
+
+    @Override
+    public SysOrg save(SysOrg sysOrg) throws Exception {
+        if (StringUtils.isNotBlank(sysOrg.getOrgId())) {
+            sysOrg.setOrgId(sysOrg.getOrgId().trim().toUpperCase());
+        } else {
+            throw new Exception("机构ID不得为空");
+        }
+        if (judgeUnique(sysOrg)) {
+            SessionUser sessionUser = SessionUser.SessionUser();
+            sysOrg.setDeleteLogo(false);
+            sysOrg.setCreatorId(sessionUser.getUserId());
+            sysOrg.setModifierId(sessionUser.getUserId());
+            sysOrg.setCreator(sessionUser.getRealName());
+            sysOrg.setModifier(sessionUser.getRealName());
+            sysOrg.setCreationTime(new Date());
+            sysOrg.setModifierTime(new Date());
+            if(StringUtils.isBlank(sysOrg.getCorpSupplyChain())) {
+            	sysOrg.setCorpSupplyChain("N");
+            }
+            if(StringUtils.isBlank(sysOrg.getCorpProduction())) {
+            	sysOrg.setCorpProduction("N");
+            }
+            if ("ROOT".equalsIgnoreCase(sysOrg.getParentId())) {
+                sysOrg.setParentId("ROOT");
+                sysOrg.setParentName("无");
+                sysOrg.setTierId(TierTool.join(sysOrg.getOrgId()));
+            } else {
+                sysOrg.setParentName(sysOrgDao.findByOrgId(sysOrg.getParentId()).getOrgName());
+                //层级码UUID(父机构+子机构) 有父机构
+                sysOrg.setTierId(TierTool.join(sysOrgDao.findByOrgId(sysOrg.getParentId()).getTierId(), sysOrg.getOrgId()));
+            }
+            sysOrg.Validate();
+            return sysOrgDao.save(sysOrg);
+        } else {
+            throw new Exception("机构名称已存在");
+        }
+    }
+
+    @Override
+    public void update(SysOrg sysOrg) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        sysOrg.setModifierId(sessionUser.getUserId());
+        sysOrg.setModifier(sessionUser.getRealName());
+        sysOrg.setModifierTime(new Timestamp(System.currentTimeMillis()));
+        if(StringUtils.isBlank(sysOrg.getCorpSupplyChain())) {
+        	sysOrg.setCorpSupplyChain("N");
+        }
+        if(StringUtils.isBlank(sysOrg.getCorpProduction())) {
+        	sysOrg.setCorpProduction("N");
+        }
+        if ("ROOT".equalsIgnoreCase(sysOrg.getParentId())) {
+            sysOrg.setParentId("ROOT");
+            sysOrg.setParentName("无");
+            sysOrg.setTierId(TierTool.join(sysOrg.getOrgId()));
+        } else {
+            sysOrg.setParentName(sysOrgDao.findByOrgId(sysOrg.getParentId()).getOrgName());
+            //层级码UUID(父机构+子机构) 有父机构
+            sysOrg.setTierId(TierTool.join(sysOrgDao.findByOrgId(sysOrg.getParentId()).getTierId(), sysOrg.getOrgId()));
+        }
+        sysOrgDao.dynamicSave(sysOrg, sysOrgDao.findByOrgId(sysOrg.getOrgId()));
+    }
+
+
+    @Override
+    public Result deleteByTireId(String tireId) {
+        if (sysDeptDao.countByTierIdLikeAndState(tireId + "%", true) == 0) {
+            if (sysOrgDao.countByTierIdLikeAndState(tireId + "%", true) == 0) {
+                if (sysDeptDao.countByTierIdLikeAndDeleteLogo(tireId + "%", true) == 0) {
+                    sysOrgDao.delLogByTierId(tireId + "%");
+                    return Result.resultOk("删除成功");
+                } else {
+                    return Result.error("(公司或子公司)下挂有部门不能删除");
+                }
+            } else {
+                return Result.error("公司或者子公司已经启用不能删除");
+            }
+        } else {
+            return Result.error("公司已经启用不能删除");
+        }
+
+
+    }
+
+
+    @Override
+    public boolean judgeUnique(SysOrg sysOrg) {
+        return sysOrgDao.findAll(Specifications.where((c) -> {
+            c.eq("parentId", sysOrg.getParentId());
+            c.eq("orgName", sysOrg.getOrgName());
+            c.eq("deleteLogo", false);
+        })).size() <= 0;
+    }
+    
+    @Override
+    public List<SelectVo> getIndustyList() {
+        String sql = " 	select * from ("
+        		+ "	select  param_ord,param_id,param_name   from sys_param where   param_type = '行业分类'   and param_mod='技术'  and param_id not in('ZZ') " 
+        		/*+ "	union all " 
+        		+ "	select  -1,'N','无'"*/
+        		+ ") hy   order by param_ord ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql);
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+
+}
+

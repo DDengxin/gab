@@ -1,0 +1,118 @@
+$(function () {
+    $('.fl dl dd').click(function () {
+        $(this).addClass('liin');
+        $(this).siblings().removeClass('liin');
+    });
+
+    //获取url地址栏中的参数
+    function GetQueryValue(queryName) {
+        var query = decodeURI(window.location.search.substring(1));
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == queryName) {
+                return pair[1];
+            }
+        }
+        return null;
+    }
+
+    // 搜索的点击事件
+    $('#search').click(function () {
+        search();
+    });
+    $('#searchContent').keypress(function (evt) {
+        var e = evt || window.event;
+        if (e.keyCode == 13) {
+            search();
+        }
+    })
+
+
+    var tabcur = GetQueryValue("cur");
+
+    $("#tablist li").each(function (index) {
+        var text = $(this).text();
+        var show = "夹具厂商";
+        if (tabcur == "jj") {
+            show = "夹具厂商"
+        } else if (tabcur == "fj") {
+            show = "辅件厂商"
+        } else if (tabcur == "hh") {
+            show = "整合厂商"
+        } else if (tabcur == "ts") {
+            show = "特色经贸商"
+        }
+        if (text == show) {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+        }
+
+        $(this).click(function () {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+            setTitle();
+        });
+    });
+
+    setTitle();
+
+    function setTitle() {
+
+        $("#tablist li").each(function (index) {
+            if ($(this).is('.tabin')) {
+                $('.changeTitle').text($(this).text())
+            }
+        })
+    }
+
+    $('.expert_content .jzj_content ul li').each(function (index) {
+        if ((index + 1) % 4 == 0) {
+            $(this).css('margin-right', '0px');
+        }
+    });
+
+
+    // layui.use('rate', function () {
+    //     var rate = layui.rate; //评分
+    //     $('.peo_rate').each(function (index) {
+    //         rate.render({
+    //             elem: '#peo' + (index + 1)
+    //             , value: 3
+    //             , theme: '#FE0000' //自定义主题色
+    //             , readonly: true
+    //         });
+    //     })
+    // });
+    findSupply();
+});
+
+function hotSearch(hotWords) {
+    var layer, index;
+    layui.use(['layer'], function () {
+        layer = layui.layer;
+        index = layer.load();
+    });
+    $.ajax({
+        url: "/gab/searchByHotWords",
+        type: 'POST',
+        async: true,
+        data: {
+            cur: cur,
+            hotWords: hotWords.html(),
+            pageSize: pageSize,
+            pageIndex: pageIndex
+        },
+        success: function (res) {
+            total = res.total;
+            drawing(res.data);
+            pageView();
+        },complete:function(){
+            layer.close(index);
+        }
+    });
+}

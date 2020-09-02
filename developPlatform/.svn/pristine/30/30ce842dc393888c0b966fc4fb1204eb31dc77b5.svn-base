@@ -1,0 +1,22 @@
+/**
+ * @Author: 王翔
+ * @Date: 2020/4/9 10:30
+ * @description: Grid渲染(转换数据) 支持可变参数
+ */
+if (typeof (mini) !== "undefined") {
+    mini.DataGrid.prototype.GridRenderer = mini.DataGrid.prototype.GridRenderer || function () {
+
+        arguments[0].on("DrawCell", function (e) {
+            for (var i = 0; i < arguments.length; i++) {
+                alert(arguments[i]);
+                if (e.field == arguments[i]) {
+                    if (e.record.arguments[i] == 'true') {
+                        e.cellHtml = '男';
+                    } else if (e.record.arguments[i] == 'false') {
+                        e.cellHtml = '女';
+                    }
+                }
+            }
+        });
+    };
+}

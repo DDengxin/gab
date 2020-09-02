@@ -1,0 +1,173 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingPlan.model;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tengzhi.base.jpa.model.BaseModel;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Entity
+@Table(name = "e_hr_training_plan")
+public class EHrTrainingPlan extends BaseModel {
+
+    @Id
+    private String jhNote;
+
+    private String jhNy,jhTitle,jhType,jhFrom,jhObject,jhDept,jhTrainingContent,
+            jhTrainingLevel,jhTrainingAddress,jhFlag,dataMan,dataCorp;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private Date jhTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private Date dataDate;
+    private BigDecimal jhCourseLength,jhEstimatedCost;
+    private Integer jhTrainingOrder;
+
+    public EHrTrainingPlan() {
+    }
+    public String getJhNote() {
+        return jhNote;
+    }
+
+    public void setJhNote(String jhNote) {
+        this.jhNote = jhNote;
+    }
+
+    public String getJhNy() {
+        return jhNy;
+    }
+
+    public void setJhNy(String jhNy) {
+        this.jhNy = jhNy;
+    }
+
+    public String getJhTitle() {
+        return jhTitle;
+    }
+
+    public void setJhTitle(String jhTitle) {
+        this.jhTitle = jhTitle;
+    }
+
+    public String getJhType() {
+        return jhType;
+    }
+
+    public void setJhType(String jhType) {
+        this.jhType = jhType;
+    }
+
+    public String getJhFrom() {
+        return jhFrom;
+    }
+
+    public void setJhFrom(String jhFrom) {
+        this.jhFrom = jhFrom;
+    }
+
+    public String getJhObject() {
+        return jhObject;
+    }
+
+    public void setJhObject(String jhObject) {
+        this.jhObject = jhObject;
+    }
+
+    public String getJhDept() {
+        return jhDept;
+    }
+
+    public void setJhDept(String jhDept) {
+        this.jhDept = jhDept;
+    }
+
+    public String getJhTrainingContent() {
+        return jhTrainingContent;
+    }
+
+    public void setJhTrainingContent(String jhTrainingContent) {
+        this.jhTrainingContent = jhTrainingContent;
+    }
+
+    public String getJhTrainingLevel() {
+        return jhTrainingLevel;
+    }
+
+    public void setJhTrainingLevel(String jhTrainingLevel) {
+        this.jhTrainingLevel = jhTrainingLevel;
+    }
+
+    public String getJhTrainingAddress() {
+        return jhTrainingAddress;
+    }
+
+    public void setJhTrainingAddress(String jhTrainingAddress) {
+        this.jhTrainingAddress = jhTrainingAddress;
+    }
+
+    public String getJhFlag() {
+        return jhFlag;
+    }
+
+    public void setJhFlag(String jhFlag) {
+        this.jhFlag = jhFlag;
+    }
+
+    public String getDataMan() {
+        return dataMan;
+    }
+
+    public void setDataMan(String dataMan) {
+        this.dataMan = dataMan;
+    }
+
+    public String getDataCorp() {
+        return dataCorp;
+    }
+
+    public void setDataCorp(String dataCorp) {
+        this.dataCorp = dataCorp;
+    }
+
+    public Date getJhTime() {
+        return jhTime;
+    }
+
+    public void setJhTime(Date jhTime) {
+        this.jhTime = jhTime;
+    }
+
+    public Date getDataDate() {
+        return dataDate;
+    }
+
+    public void setDataDate(Date dataDate) {
+        this.dataDate = dataDate;
+    }
+
+    public BigDecimal getJhCourseLength() {
+        return jhCourseLength;
+    }
+
+    public void setJhCourseLength(BigDecimal jhCourseLength) {
+        this.jhCourseLength = jhCourseLength;
+    }
+
+    public Integer getJhTrainingOrder() {
+        return jhTrainingOrder;
+    }
+
+    public void setJhTrainingOrder(Integer jhTrainingOrder) {
+        this.jhTrainingOrder = jhTrainingOrder;
+    }
+
+    public BigDecimal getJhEstimatedCost() {
+        return jhEstimatedCost;
+    }
+
+    public void setJhEstimatedCost(BigDecimal jhEstimatedCost) {
+        this.jhEstimatedCost = jhEstimatedCost;
+    }
+}

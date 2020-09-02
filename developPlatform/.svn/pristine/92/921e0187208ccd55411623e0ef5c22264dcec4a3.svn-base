@@ -1,0 +1,382 @@
+package com.tengzhi.business.system.params.controller;
+
+import com.tengzhi.annotations.Log;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.annotations.Anonymous;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.params.service.SysParamService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/system/parameter/")
+public class SysParameterController { 
+    @Autowired
+    private SysParamService sysUserService;
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    /**
+     * 区分模块的参数入口路径
+     *
+     * @param paramMod
+     * @param paramType
+     * @param request
+     * @param mv
+     * @return
+     */
+    @GetMapping(value = "/{paramMod}/parameter.html")
+    public ModelAndView toPage(@PathVariable String paramMod, @RequestParam(required = false) String paramType, HttpServletRequest request, RedirectAttributes rt, ModelAndView mv) {
+        String servletPath = request.getServletPath();
+        servletPath = servletPath.substring(servletPath.lastIndexOf("/") + 1);
+        mv.setView(new RedirectView(String.format("/system/parameter/%s", servletPath)));
+        request.getParameterMap().forEach((key, value) -> {
+            mv.addObject(key, value);
+        });
+        mv.addObject("paramMod", paramMod);
+        mv.addObject("paramType", paramType);
+        // 是否定向
+        mv.addObject("orient", true);
+        return mv;
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @return
+     */
+    @Log("查询参数信息")
+    @PostMapping(value = "parameter.html")
+    public Result getList(BaseDto baseDto) throws IOException {
+        return sysUserService.getList(baseDto).getResult();
+    }
+
+    /**
+     * 通过ID获取对象
+     *
+     * @param baseDto
+     * @return
+     * @throws IOException
+     */
+    @PostMapping(value = "getById")
+    public Result getById(@RequestBody BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return Result.resultOk(sysUserService.findByParameterId(map.get("paramId"), map.get("paramType")));
+    }
+
+    /**
+     * 新增
+     *
+     * @return
+     */
+    @Log("新增参数")
+    @PostMapping("add.html")
+    public Result add(@RequestBody SysParams sysParams) throws Exception {
+        sysParams = sysUserService.save(sysParams);
+        return Result.resultOk(sysParams.getParamId());
+    }
+
+    /**
+     * 修改
+     *
+     * @return
+     */
+    @Log("修改参数")
+    @PutMapping("add.html")
+    public Result modify(@RequestBody SysParams sysParams) {
+        System.out.println("modify");
+        sysUserService.update(sysParams);
+        return Result.resultOk(sysParams.getParamId());
+    }
+
+    /**
+     * 删除数据
+     *
+     * @return
+     */
+    @Log("删除参数")
+    @DeleteMapping(value = "/parameter.html")
+    public Result delete(@RequestBody Map<String, Object> map) throws Exception {
+        return sysUserService.deleteByParameterId(map);
+    }
+
+
+    @DeleteMapping(value = "/parameter1.html")
+    public Result delete1(@RequestBody Map<String, Object> map) throws Exception {
+        return sysUserService.deleteByParameterId1(map);
+    }
+
+    @DeleteMapping(value = "/parameter2.html")
+    public Result delete2(@RequestBody Map<String, Object> map) throws Exception {
+        return sysUserService.deleteByParameterId2(map);
+    }
+
+    /**
+     * 参数类型下拉框
+     *
+     * @param paramMod
+     * @param paramXtype 菜单类型
+     * @return
+     */
+    @GetMapping("/NodeParams/{paramMod}/{paramXtype}")
+    public List<SelectVo> getNodeParams(@PathVariable(name = "paramMod") String paramMod, @PathVariable(name = "paramXtype") String paramXtype) {
+        return sysUserService.getTypeParams(paramMod, paramXtype);
+    }
+
+    @GetMapping("/TypeParams/{paramMod}/{paramXtype}")
+    public List<SelectVo> getTypeParams(@PathVariable(name = "paramMod") String paramMod, @PathVariable(name = "paramXtype") String paramXtype) {
+        return sysUserService.getTypeParams(paramMod, paramXtype);
+    }
+
+    @GetMapping("/MainParams")
+    public List<SelectVo> getMainParams() {
+        return sysUserService.getMainParams();
+    }
+
+    /**
+     * 该请求存在问题，请不要使用，因为其使用了like查询
+     * @param paramMod
+     * @param paramType
+     * @return
+     */
+    @Anonymous
+    @GetMapping("/ParamsAll/{f}/{k}")
+    public List<SelectVo> ParamsAll(@PathVariable(name = "f") String paramMod, @PathVariable(name = "k") String paramType) {
+        return sysUserService.ParamsAll(paramMod, paramType);
+    }
+
+    @Anonymous
+    @GetMapping("/getParams/{f}/{k}")
+    public List<SysParams> getParams(@PathVariable(name = "f") String id, @PathVariable(name = "k") String paramType ) {
+        return sysUserService.getParams(id, paramType);
+    }
+
+
+    /**
+     * 下拉框
+     *
+     * @param parentId 父级id
+     * @return List<SelectVo>
+     */
+    @GetMapping(value = "combobox/params")
+
+    public List<SelectVo> ComboboxParams(String parentId) {
+        return sysUserService.findComboboxParams(parentId).stream().map(row -> new SelectVo(row.getParamId(), row.getParamName())).collect(Collectors.toList());
+    }
+
+    /**
+     * 状态调整
+     *
+     * @param map
+     * @return
+     * @throws Exception
+     */
+    @PutMapping(value = "/parameter.html")
+    public Result updateStatus(@RequestBody Map<String, Object> map) throws Exception {
+        return sysUserService.updateStatus(map);
+    }
+
+
+    /**
+     * 获取指定行业类型的动态参数配置
+     * @param cpcodeType 行业分类(配置在技术-》行业参数下 exp:YL,WL,JG,XC...)
+     * @return
+     */
+    @GetMapping("/getByAddName/{cpcodeType}")
+    public Result getByAddName(@PathVariable(name = "cpcodeType") String cpcodeType) {
+        return sysUserService.getByAddName(cpcodeType);
+    }
+
+    /**
+     * 通过参数模块和参数类型获取参数列表
+     *
+     * @param paramMod  参数模块
+     * @param paramType 参数类型
+	 * @param relatedBusiness 是否关联业务以过滤部分数据(仅对于取业务人员有效)
+     * @return
+     */
+    @GetMapping("/getParamsSelectList/{paramMod}/{paramType}")
+    public List<SelectVo> getParamsSelectList(@PathVariable(name = "paramMod") String paramMod,
+                                              @PathVariable(name = "paramType") String paramType,
+                                              @RequestParam(name = "relatedBusiness",required = false,defaultValue = "true") Boolean relatedBusiness) {
+        return sysUserService.getParamsSelectList(paramMod, paramType,relatedBusiness);
+    }
+    /**
+     * 通过参数模块、参数类型获取参数列表(树形结构)
+     *
+     * @param paramMod 参数模块
+     * @param paramType 参数类型
+     * @return
+     */
+    @PostMapping(value = "/getIndustryDynamicFieldParameters/{paramMod}/{paramType}")
+    public List<SelectVo> getParamsTreeListByParamModAndParamType(@PathVariable(name = "paramMod") String paramMod,
+                                                                  @PathVariable(name = "paramType") String paramType){
+        return sysUserService.getParamsTreeListByParamModAndParamType(paramMod, paramType);
+    }
+
+
+
+
+    /**
+     * 通过参数模块、参数类型、父级ID获取参数列表
+     *
+     * @param paramMod  参数模块
+     * @param paramType 参数类型
+     * @param parentId  父级ID
+     * @return
+     */
+    @GetMapping("/getParamsSelectListByParentId/{paramMod}/{paramType}/{parentId}")
+    @Anonymous
+    public List<SelectVo> getParamsSelectListByParentId(@PathVariable(name = "paramMod") String paramMod, @PathVariable(name = "paramType") String paramType, @PathVariable(name = "parentId") String parentId) {
+        return sysUserService.getParamsSelectListByParentId(paramMod, paramType, parentId);
+    }
+
+    /**
+     * 通过参数模块、参数类型、父级ID获取参数列表
+     *
+     * @param paramType 参数类型
+     * @param parentId  父级ID
+     * @return
+     */
+    @GetMapping("/getParamsSelectListByTypeParent/{paramType}/{parentId}")
+    @Anonymous
+    public List<SelectVo> getParamsSelectListByTypeParent( @PathVariable(name = "paramType") String paramType, @PathVariable(name = "parentId") String parentId) {
+        return sysUserService.getParamsSelectListByTypeParent(paramType, parentId);
+    }
+    
+    /**
+     * 通过参数模块、父级ID获取参数列表
+     *
+     * @param paramMod 参数模块
+     * @param parentId 父级ID
+     * @return
+     */
+    @GetMapping("/getParamsSelectListByParentId/{paramMod}/{parentId}")
+    public List<SelectVo> getParamsSelectListByParentId(@PathVariable(name = "paramMod") String paramMod, @PathVariable(name = "parentId") String parentId) {
+        return sysUserService.getParamsSelectListByParentId(paramMod, parentId);
+    }
+
+    /**
+     * 通过参数模块、父级ID获取参数列表(树形结构)
+     *
+     * @param paramMod 参数模块
+     * @param parentId 父级ID
+     * @return
+     */
+    @PostMapping(value = "/getParamsTreeList/{paramMod}/{parentId}")
+    public List<Map> getParamsTreeList(@PathVariable(name = "paramMod") String paramMod, @PathVariable(name = "parentId") String parentId) throws IOException {
+        return sysUserService.getParamsTreeList(paramMod, parentId);
+    }
+
+    /**
+     *
+     */
+    @GetMapping(value = "getParamValue/{paramType}/{paramId}")
+    public Result getParamValue(@PathVariable(value = "paramType") String paramType, @PathVariable(value = "paramId") String paramId) throws IOException {
+        return Result.resultOk(sysUserService.getParamValue(paramType, paramId));
+    }
+
+
+
+
+
+
+
+    /**
+     * 通过参数类型和paramid获取paramvalue1
+     */
+    @GetMapping(value = "getParamValue1/{paramType}/{paramId}")
+    public Result getParamValue1(@PathVariable(value = "paramType") String paramType, @PathVariable(value = "paramId") String paramId) throws IOException {
+        return Result.resultOk(sysUserService.getParamValue1(paramType, paramId));
+    }
+
+    /**
+     * 通过参数类型和paramid获取paramvalue2
+     */
+    @GetMapping(value = "getParamValue2/{paramType}/{paramId}")
+    public Result getParamValue2(@PathVariable(value = "paramType") String paramType, @PathVariable(value = "paramId") String paramId) throws IOException {
+        return Result.resultOk(sysUserService.getParamValue2(paramType, paramId));
+    }
+
+    /**
+     * 通过参数类型和paramid获取paramvalue3
+     */
+    @GetMapping(value = "getParamValue3/{paramType}/{paramId}")
+    public Result getParamValue3(@PathVariable(value = "paramType") String paramType, @PathVariable(value = "paramId") String paramId) throws IOException {
+        return Result.resultOk(sysUserService.getParamValue3(paramType, paramId));
+    }
+
+    @GetMapping(value = "getParamSecondLevelList/{paramMod}")
+    public Result getParamSecondLevelList(@PathVariable(value = "paramMod") String paramMod) throws IOException {
+        return Result.resultOk(sysUserService.getParamSecondLevelList(paramMod));
+    }
+
+    /**
+     * @param paramType   参数类型
+     * @param paramValue3 参数值3
+     * @return
+     */
+    @GetMapping("/getParamsSelectListByValue3/{paramType}/{paramValue3}")
+    public List<SelectVo> getParamsSelectListByValue3(@PathVariable(name = "paramType") String paramType, @PathVariable(name = "paramValue3") String paramValue3) {
+        return sysUserService.getParamsSelectListByValue3(paramType, paramValue3);
+    }
+
+    /**
+     * @param paramType   参数类型
+     * @param paramValue2 参数值2
+     * @return
+     */
+    @GetMapping("/getParamsSelectListByValue2/{paramType}/{paramValue2}")
+    public List<SelectVo> getParamsSelectListByValue2(@PathVariable(name = "paramType") String paramType, @PathVariable(name = "paramValue2") String paramValue2) {
+        return sysUserService.getParamsSelectListByValue2(paramType, paramValue2);
+    }
+
+    @PostMapping(value = "/getKwTreeList/{paramValue1}")
+    public List<Map> getKwTreeList(@PathVariable(name = "paramValue1") String paramValue1) throws IOException {
+        return sysUserService.getKwTreeList(paramValue1);
+    }
+
+    @GetMapping("/getParamByParentAndLevel/{paramXtype}/{parentId}/{level}")
+    public List<SelectVo> getParamByParentAndLevel(@PathVariable(name = "paramXtype") String paramXtype, @PathVariable(name = "parentId") String parentId, @PathVariable(name = "level") String level) {
+        return sysUserService.getParamByParentAndLevel(paramXtype, parentId, level);
+    }
+    
+    @GetMapping("getTreeList/{paramMod}/{paramType}")
+    public List<SelectVo> getTreeList(@PathVariable(name = "paramMod") String paramMod,@PathVariable(name = "paramType") String paramType) {
+        return sysUserService.treeList(paramMod, paramType);
+    }
+
+
+    @GetMapping("getParamsSelectListByValue2AndValue3/{paramType}/{paramValue1}/{paramValue3}")
+    public List<SelectVo> getParamsSelectListByValue1AndValue3(@PathVariable(name = "paramType") String paramType,@PathVariable(name = "paramValue1") String paramValue1,@PathVariable(name = "paramValue3") String paramValue3) {
+        return sysUserService.getParamsSelectListByValue1AndValue3(paramType, paramValue1,paramValue3);
+    }
+
+
+    @GetMapping("/getCorpChainOrCorpProduction/{stype}")
+    public List<SelectVo> getCorpChainOrCorpProduction(@PathVariable(name = "stype") String stype) {
+        return sysUserService.getCorpChainOrCorpProduction(stype);
+    }
+
+    @GetMapping("/getParamValue2SelectList/{paramMod}/{paramType}")
+    @Anonymous
+    public List<SelectVo> getParamValue2SelectList(@PathVariable(name = "paramMod") String paramMod, @PathVariable(name = "paramType") String paramType) {
+        return sysUserService.getParamValue2SelectList(paramMod, paramType);
+    }
+}

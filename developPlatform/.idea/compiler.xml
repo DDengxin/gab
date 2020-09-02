@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="Platform_wireerp" />
+        <module name="loggingPlatform" />
+        <module name="Platform_gab" />
+        <module name="commonPlatform" />
+        <module name="workflowPlatform" />
+        <module name="Platform_IM" />
+        <module name="basicsPlatform" />
+        <module name="securityPlatform" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="basicsPlatform" target="1.8" />
+      <module name="commonPlatform" target="1.8" />
+      <module name="developPlatform" target="1.8" />
+      <module name="loggingPlatform" target="1.8" />
+      <module name="Platform_gab" target="1.8" />
+      <module name="Platform_IM" target="1.8" />
+      <module name="Platform_wireerp" target="1.8" />
+      <module name="securityPlatform" target="1.8" />
+      <module name="workflowPlatform" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

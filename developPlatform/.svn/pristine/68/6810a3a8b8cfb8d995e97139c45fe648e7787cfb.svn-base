@@ -1,0 +1,71 @@
+package com.tengzhi.business.sale.saleProduct.saleReturn.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.mesGz.gzck.vo.ECKOutVo;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut.ECkOut_PK;
+import com.tengzhi.business.resouces.vo.SelectVo;
+
+public interface SaleReturnService extends BaseService<EckOut, ECkOut_PK> {
+
+	/**
+	 * 查询销售退回
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<EckOut> getList(BaseDto baseDto) throws IOException;
+	
+	/**
+	 * 销售退回明细
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<EckOut> getDetailList(BaseDto baseDto) throws IOException;
+	
+	
+	/**
+	 * 客诉订单下拉框
+	 * @param outCustomer
+	 * @param complain
+	 * @return
+	 */
+	List<SelectVo> getComplainContractList(String outCustomer,String complain);
+	
+	/**
+	 * 新增，修改表头
+	 * @param outNote
+	 * @return
+	 */
+	EckOut findHeadData(String outNote);
+	
+	
+	/**
+	 * 保存
+	 * @param eCkOutVo
+	 * @return
+	 * @throws Exception
+	 */
+	Result save(ECKOutVo eCkOutVo) throws Exception;
+	
+	/**
+	 * 更新
+	 * @param eCkOutVo
+	 * @return
+	 * @throws Exception
+	 */
+	
+	Result update(ECKOutVo eCkOutVo) throws Exception;
+
+	List<Map> getItemSelectList(String customer, String outType);
+	
+	
+}

@@ -1,0 +1,61 @@
+package com.tengzhi.business.finance.capitalManager.capitalRegister.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.capitalManager.capitalRegister.dao.CapitalRegisterDao;
+import com.tengzhi.business.finance.capitalManager.capitalRegister.model.EFVoucherCapitalRegister;
+import com.tengzhi.business.finance.capitalManager.capitalRegister.service.CapitalRegisterService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+@Transactional
+public class CapitalRegisterServiceImpl implements CapitalRegisterService {
+
+    @Autowired
+    private CapitalRegisterDao dao;
+
+    @Override
+    public EFVoucherCapitalRegister save(EFVoucherCapitalRegister model) throws Exception {
+        model.setDataCorp(SessionUser.SessionUser().getCorpId());
+        model.setFcardid(UUID.randomUUID().toString());
+        model.setMan(SessionUser.SessionUser().getUserId());
+        model.setCreatetime(new Date());
+        return dao.save(model);
+    }
+
+    @Override
+    public BasePage<EFVoucherCapitalRegister> getList(BaseDto baseDto) throws IOException {
+        Map<String,String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(item->{
+            item.eq("data_corp",SessionUser.SessionUser().getCorpId());
+            item.contains("code",map.get("code"));
+            item.contains("name",map.get("name"));
+        });
+        String sql = " select * from e_f_voucher_capital_register "+where;
+        return dao.QueryPageLists(baseDto , sql );
+    }
+
+    @Override
+    public EFVoucherCapitalRegister findById(String sid) {
+        return dao.QueryToFirstBean(" select * from e_f_voucher_capitaltype where sid='"+sid+"' ");
+    }
+
+    @Override
+    public void update(EFVoucherCapitalRegister model) {
+//        EFVoucherCapitalRegister dbModel = dao.findById(model.getSid()).orElse(null);
+//        dao.dynamicSave(model, dbModel);
+    }
+
+    @Override
+    public void deleteByNote(String cId) {
+        dao.deleteById(cId);
+    }
+}

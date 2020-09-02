@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>数据图表【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr colspan="3">
+                <td title>图表编号:</td>
+                <td content>
+                    <input class="mini-textbox" id="datachartId" name="datachartId" required/>
+                </td>
+                <td title>图表名称:</td>
+                <td content>
+                     <input class="mini-textbox" id="datachartName" name="datachartName" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>图表模块:</td>
+                <td content colspan="1">
+                    <input class="mini-textbox" id="datachartModule" name="datachartModule" required/>
+                </td>
+                <td title>启用状态:</td>
+                <td content>
+                    <input class="mini-combobox" required id="datachartFlag" name="datachartFlag" value="true" url="/dict/boolean"/>
+                </td>
+            </tr>
+            <tr>
+             <td title>图表文件:</td>
+                <td content colspan="3">
+                  <!-- <input class="mini-textbox" id="datachartFile" name="datachartFile" required/>-->
+                    <input class="mini-buttonedit" onbuttonclick="onRightLikeClickHander" emptyText="请选择..." required
+                           allowInput="true" id="datachartFile" name="datachartFile" textName="datachartFile"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>图表说明</td>
+                <td content colspan="3">
+                    <input class="mini-textarea" id="datachartSm" name="datachartSm" height="260"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+    	 if ('add' == options.action) {
+             $.get("setDatachartId", function (res) {
+                 mini.get("datachartId").setText(res.data);
+                 mini.get("datachartId").setReadOnly(true);
+             });
+             form.setChanged(false);
+         }else if (!!~['edit'].indexOf(options.action)) {
+        	  var row = options.data;
+            mini.get("datachartId").setEnabled(false);
+            $.get("add.html/{0}".format(row.datachartId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh', false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /**
+     *  资源文件选择
+     * */
+    function onRightLikeClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/resouces/templateFile.html",
+            title: "【资源文件】选择",
+            width: 980,
+            height: 720,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.uri.replace(/\\/g, "/"));
+                    btnEdit.setText(data.uri.replace(/\\/g, "/"));
+                }
+            }
+        });
+    }
+</script>
+</html>

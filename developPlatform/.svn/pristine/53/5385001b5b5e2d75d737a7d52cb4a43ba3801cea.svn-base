@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>权限管理【新增】</title>
+    </th:block>
+    <style type="text/css">
+        /*grid操作图标样式调整*/
+        .mini-grid-cell-inner{
+            padding-top:0px;
+        }
+        .mini-grid-cell-inner .iconfont{
+            line-height: 1;
+            padding-top: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <!--<input name="rightId" class="mini-hidden"/>-->
+        <input class="mini-hidden" required name="rightTrigger" value="GET" enabled="false"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>模块:</td>
+                <td content>
+                    <input class="mini-combobox" name="rightModule" allowInput="false" required
+                           url="./combobox/rightModule" valueFromSelect="true"/>
+                </td>
+                <td title>父级菜单:</td>
+                <td content>
+                    <input required name="parentId" textName="parentName" emptyText="请选择..." value="ROOT" text="无"
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onMenuClickHander"/>
+                </td>
+                <td title>菜单编码:</td>
+                <td content>
+                    <input class="mini-textbox" required name="rightId"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>菜单名称:</td>
+                <td content>
+                    <input class="mini-textbox" required name="rightName"/>
+                </td>
+                <td title>菜单排序:</td>
+                <td content>
+                    <input class="mini-spinner" maxValue="1000" value="1" name="rightOrd"/>
+                </td>
+                <td title>启用状态:</td>
+                <td content>
+                    <input class="mini-combobox" required value="false" url="encodeURI('/dict/boolean?t=禁用&f=启用')" name="isForbidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>权限链接:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onRightLikeClickHander" emptyText="请选择..." required
+                           allowInput="true" name="rightLink" textName="rightLink"/>
+                </td>
+                <td title>菜单图标:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onMenuIconclsClickHander" emptyText="请选择..." required
+                           allowInput="false" onvaluechanged="onValueChangedHandler" name="rightIconCls" textName="rightIconCls"/>
+                </td>
+                <td title>预览图标:</td>
+                <td>
+                    <i id="icon-preview" title="预览图标"></i>
+                </td>
+            </tr>
+            <tr>
+                <td title>菜单描述:</td>
+                <td content colspan="5">
+                    <input name="description" class="mini-textbox"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div tz:datagrid="datagrid" id="button-grid" idField="rightId"
+         sortField="rightOrd" sortOrder="asc"
+         style="width:100%;height:250px;" url="right.html"
+         showEmptyText="true" alwaysShowEmptyText="true"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+         editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+         showPager="false" allowSortColumn="flase"
+    >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" field="rightOrd" width="50" headerAlign="center">序号</div>
+
+            <div tz:datagrid="column" field="rightName" align="center" width="90">按钮名称
+                <!--<input property="editor" class="mini-textbox"/>-->
+                <input property="editor" class="mini-combobox" textField="rightName" valueField="rightName" allowInput="true" data="defaultRows" onvaluechanged="onRightNameChangeHandler" />
+            </div>
+            <div tz:datagrid="column" field="rightIconCls" width="100" align="center" renderer="onActionRenderer">图标
+                <input property="editor" class="mini-buttonedit" onbuttonclick="onButtonIconclsClickHander" allowInput="true"/>
+            </div>
+            <div tz:datagrid="column" field="rightTrigger" width="128">触发方法
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="rightResource" type="comboboxcolumn" align="center" width="100">请求方式
+                <input property="editor" class="mini-combobox" url="/dict/requestMethod" emptyText="可选" popupMaxHeight="140px"/>
+            </div>
+            <div tz:datagrid="column" field="rightLink" width="200">链接
+                <input property="editor" class="mini-buttonedit" onbuttonclick="onRightLikeClickHander" allowInput="true" emptyText="可选"/>
+            </div>
+            <div tz:datagrid=="combobox" type="comboboxcolumn" field="isForbidden" required headerAlign="center" align="center" width="100"> 启用状态
+                <input property="editor" class="mini-combobox" url="encodeURI('/dict/boolean?t=禁用&f=启用')"/>
+            </div>
+            <div tz:datagrid="column" field="action" width="160" align="center" renderer="onActionRenderer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="closeWindow('close');" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    button_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:modifyRow(\'add\', null)">增加一条</a>');
+
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            button_grid.clearData();
+            mini.getByName('action').setValue(options.action);
+            if (null != options.data && !$.isEmptyObject(options.data.rightId)) {
+                form.getField('parentId').setText(options.data.rightName);
+                form.getField('parentId').setValue(options.data.rightId);
+                form.getField('rightModule').setValue(options.data.rightModule);
+
+            }
+            fillDefaultRow();
+        } else if ('edit' == options.action) {
+            form.getField("rightId").setEnabled(false);
+            $.get("right.html/{0}".format(options.data.rightId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    if (null != res.data.rightModule && "" != res.data.rightModule) {
+                        form.getField('rightModule').setEnabled(false);
+                    }
+                    form.getField('rightIconCls').doValueChanged();
+                    button_grid.load({
+                        params: JSON.stringify({rightType: 'BUTTON', parentId: form.getField('rightId').getValue()})
+                    });
+                }
+                setTimeout(function () {
+                    AutoResizePopupWindow(window.self, true, true)
+                }, 500);
+            });
+        }
+    }
+
+
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var buttons = button_grid.getData();
+            var deletedList = button_grid.getChanges('removed', false);
+            $(buttons).each(function (index) {
+                buttons[index].rightOrd = index;
+                buttons[index]._state = buttons[index]._state || 'modified';
+            });
+            var method = 'add' == mini.getByName('action').getValue() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                menu: form.getData(),
+                buttons: buttons,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            closeWindow('sava');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                loading:true,
+                contentType: 'application/json'
+            });
+        }
+
+
+    }
+    //监听失去焦点事件,去除前后空格，防止误操作
+    $(form.getFields('rightId,rightLink,rightName')).each(function(index,control){
+        control.on('blur',function (e) {
+            if(null != '' != e.sender.getValue() && '' != e.sender.getValue()){
+                e.sender.setValue($.trim(e.sender.getValue()));
+                if($.isFunction(e.sender.setText)){
+                    e.sender.setValue($.trim($.isFunction(e.sender.getText) ? e.sender.getText() :e.sender.getValue() ));
+                }
+            }
+        });
+    });
+
+    /**
+     * @Param:
+     * @return:
+     * @Author: 王翔
+     * @Date: 2020/4/15 11:19
+     * @description: 菜单选择器
+     */
+    function onMenuClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "right/hierarchyMenuTree.html",
+            title: "【菜单】选择",
+            width: 500,
+            height: 620,
+            action: mini.getByName("action").getValue(),
+            data: {
+                rightModule: form.getData().rightModule,
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    if (data.rightId == form.getField("rightId").getValue()) {
+                        hmq.tipDanger("不能选择自身作为父级菜单");
+                    } else {
+                        btnEdit.setValue(data.rightId);
+                        btnEdit.setText(data.rightName);
+
+                        form.getField('rightModule').setEnabled("ROOT" == data.rightId);
+                        if ("ROOT" != data.rightId) {
+                            form.getField("rightModule").setValue(data.rightModule);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     *  资源文件选择
+     * */
+    function onRightLikeClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/resouces/templateFile.html",
+            title: "【资源文件】选择",
+            width: 980,
+            height: 720,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.uri.replace(/\\/g, "/"));
+                    btnEdit.setText(data.uri.replace(/\\/g, "/"));
+                }
+            }
+        });
+    }
+
+    /**
+     * 图标选择器选择 菜单
+     */
+    function onMenuIconclsClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/resouces/fontAwesome.html",
+            title: "【图标】选择",
+            width: 980,
+            height: 720,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    var iconCls = 'iconfont icon-' + data.iconCls;
+                    btnEdit.setValue(iconCls);
+                    btnEdit.setText(iconCls);
+                    onValueChangedHandler(e);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * 图标选择器选择  按钮
+     */
+    function onButtonIconclsClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/resouces/fontAwesome.html",
+            title: "【Font Awesome】选择",
+            width: 980,
+            height: 720,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    var iconCls = 'fa fa-fw fa-' + data.iconCls;
+                    btnEdit.setValue(iconCls);
+                    btnEdit.setText(iconCls);
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * 渲染行
+     **/
+    function onActionRenderer(e) {
+        if ('action' == e.field) {
+            return '<span class="fa fa-fw fa-2x iconfont icon-tianjia3 hmq-success" title="新增" onclick="modifyRow(\'add\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-shanchu2 hmq-danger"  title="删除" onclick="modifyRow(\'remove\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-xiangshang1 hmq-success" title="上移" onclick="modifyRow(\'up\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-xiangxia1 hmq-success" title="下移" onclick="modifyRow(\'down\',\'{_uid}\')"></span>'.format(e.record);
+        } else if ('rightIconCls' === e.field) {
+            return '<div style="with:100%;height:32px;"><span class="mini-button-icon mini-icon mini-iconfont {0}"></span></div>'.format(e.value);
+        }
+    }
+
+    function modifyRow(action, row_uid) {
+        var grid = button_grid;
+        switch (action) {
+            case 'add':
+                var index = grid.getSelected() ? grid.indexOf(grid.getSelected()) + 1 : 0
+                grid.addRow({isForbidden: false}, index);
+                grid.cancelEdit();
+                grid.beginEditRow(row);
+                break;
+            case 'remove':
+                var row = grid.getRowByUID(row_uid);
+                grid.removeRow(row, true);
+                break;
+            case 'up':
+                grid.moveUp(grid.getSelecteds());
+                break;
+            case 'down':
+                grid.moveDown(grid.getSelecteds());
+                break;
+        }
+    }
+
+    /**
+     * 预览图标
+     * @param e
+     */
+    function onValueChangedHandler(e) {
+        var cls = ' fa ' + e.sender.getValue() + ' fa-2x';
+        $("#icon-preview").attr('class', cls);
+    }
+
+
+
+
+    var defaultRows = [
+        {rightName: '查询', rightIconCls: "icon-search", rightTrigger: "search_option", rightResource: "POST", isForbidden: false},
+        {rightName: '查阅', rightIconCls: "icon-find", rightTrigger: "view_option", rightResource: "GET", isForbidden: false},
+        {rightName: '新增', rightIconCls: "icon-add", rightTrigger: "add_option", rightResource: "POST", isForbidden: false},
+        {rightName: '修改', rightIconCls: "icon-edit", rightTrigger: "edit_option", rightResource: "PUT", isForbidden: false},
+        {rightName: '删除', rightIconCls: "icon-remove", rightTrigger: "delete_option", rightResource: "DELETE", isForbidden: false},
+        {rightName: '确认', rightIconCls: "icon-ok", rightTrigger: "confirm_option", rightResource: "PATCH", isForbidden: false},
+        {rightName: '取消', rightIconCls: "icon-no", rightTrigger: "cancel_option", rightResource: "PATCH", isForbidden: false},
+        {rightName: '打印', rightIconCls: "icon-print", rightTrigger: "print_option", rightResource: "POST", isForbidden: false},
+        {rightName: '下载', rightIconCls: "icon-download", rightTrigger: "download_option", rightResource: "POST", isForbidden: false},
+    ];
+
+    /**
+     * 填充默认按钮
+     * @param e
+     */
+    function fillDefaultRow(e) {
+        button_grid.addRows($(defaultRows).filter(function (index, row) {
+            return !!~['查询', '新增', '修改', '删除'].indexOf(row.rightName);
+        }).toArray(), 0);
+    }
+    function onRightNameChangeHandler(e){
+        for (var i = 0, max = defaultRows.length; i < max; i += 1) {
+            if (null != e.value && defaultRows[i].rightName === e.value.trim()) {
+                //为了触发cellendedit事件
+                button_grid.commitEdit();
+                button_grid.beginEditCell();
+                break;
+            }
+        }
+    }
+    button_grid.on("cellendedit", function (e) {
+        if (e.field == 'rightName') {
+            for (var i = 0, max = defaultRows.length; i < max; i += 1) {
+                if (null != e.value && defaultRows[i].rightName === e.value.trim()) {
+                    setTimeout(function () {
+                        //必须使用clone，否则会导致编辑不了，因为对象引用问题导致
+                        button_grid.updateRow(e.row, mini.clone(defaultRows[i]), false);
+                    }, 100);
+                    break;
+                }
+            }
+        }
+    });
+
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+
+</script>
+</html>

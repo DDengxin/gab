@@ -1,0 +1,85 @@
+package com.tengzhi.business.xt.receive.jdap.controller;
+
+import cn.hutool.http.server.HttpServerRequest;
+import cn.hutool.http.server.HttpServerResponse;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.xt.receive.jdap.model.QyJdJdsq;
+import com.tengzhi.business.xt.receive.jdap.service.JdapService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.HttpRequestHandler;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@RestController
+@RequestMapping("/xt/receive/jdap")
+public class JdapController {
+    @Autowired
+    private JdapService jdapService;
+
+    @GetMapping("/*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    /**
+     * 查询
+     * @param baseDto
+     * @return
+     */
+    @PostMapping("/getList")
+    public Result getList(BaseDto baseDto){
+        return jdapService.getList(baseDto).getResult();
+    }
+
+    /**
+     * 新增
+     * @param qyJdJdsq
+     * @return
+     */
+    @PostMapping("/add")
+    public Result add(@RequestBody QyJdJdsq qyJdJdsq){
+        QyJdJdsq jdbq=jdapService.add(qyJdJdsq);
+        return Result.resultOk(jdbq.getNote());
+    }
+
+    @GetMapping("/byNote/{note}")
+    public Result byNote(@PathVariable String note){
+        return Result.resultOk(jdapService.getByNote(note));
+    }
+    @PutMapping("/add")
+    public Result edit(@RequestBody QyJdJdsq qyJdJdsq){
+        QyJdJdsq qyJdJdsq1=jdapService.edit(qyJdJdsq);
+        return Result.resultOk(qyJdJdsq1.getNote());
+    }
+    @DeleteMapping("/delete/{note}")
+    public Result delete(@PathVariable String note){
+        jdapService.deleteByNote(note);
+        return Result.resultOkMsg("删除成功");
+    }
+    @PutMapping("/ok/{note}")
+    public Result getChange(@PathVariable String note){
+        jdapService.change(note);
+        return Result.resultOkMsg("操作成功");
+    }
+    @PutMapping("/ok/{note}/{state}")
+    public Result getChangeFlage(@PathVariable String note,@PathVariable String state){
+        jdapService.changeFlage(note,state);
+        return  Result.resultOkMsg("操作成功");
+    }
+    @PutMapping("/getFlag/{note}/{state}")
+    public Result getFlage(@PathVariable String note,@PathVariable String state){
+        jdapService.getFalge(note,state);
+        return Result.resultOk();
+    }
+    @PostMapping("/exportExcel")
+    public void getExcle(HttpServletResponse response, HttpServletRequest request){
+        jdapService.getExcle(response,request);
+    }
+
+
+}

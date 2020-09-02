@@ -1,0 +1,363 @@
+package com.tengzhi.business.sale.saleProduct.saleReturn.service.impl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.base.security.common.model.SessionUser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.base.common.WarehouseActionCaliber;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.mesGz.gzck.vo.ECKOutVo;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut.ECkOut_PK;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.sale.saleProduct.saleContract.dao.EXsContractDao;
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContract;
+import com.tengzhi.business.sale.saleProduct.saleDelivery.dao.SaleDeliveryDao;
+import com.tengzhi.business.sale.saleProduct.saleReturn.service.SaleReturnService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.params.service.SysParamService;
+
+import cn.hutool.core.util.ObjectUtil;
+@Service
+@Transactional
+public class SaleReturnServiceImpl implements SaleReturnService {
+
+	
+	@Autowired
+	private SaleDeliveryDao saleDeliveryDao;
+	
+	@Autowired
+	private EXsContractDao eXsContractDao;
+	
+	@Autowired
+	private SysParamService sysParamService;
+	
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private ECkOutDao eCkOutDao ;
+	
+	@Override
+	public BasePage<EckOut> getList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sqlWhere = " where out_act in (select param_id from sys_param where param_name ='"+ WarehouseActionCaliber.xsth+"' )   ";
+		//String sqlWhere = "where  1=1";
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+            sqlWhere+=" and a.out_flag = '"+map.get("srchFlag")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            sqlWhere+=" and a.out_rq >='"+map.get("srchRq1")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            sqlWhere+=" and a.out_rq <='"+map.get("srchRq2")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchNote"))) {
+            sqlWhere+=" and a.out_note like '%"+map.get("srchNote")+"%'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchCustomer"))) {
+            sqlWhere+=" and a.out_customer = '"+map.get("srchCustomer")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+            sqlWhere+=" and a.out_flag = '"+map.get("srchFlag")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("outType"))) {
+            sqlWhere+=" and a.out_type = '"+map.get("outType")+"'";
+        }
+		String sql = "select f_getname('GETDWEXP',out_customer,'',data_corp)out_customer,out_rq ,out_note  ,f_get_param_name('库房档案',out_lib,'"+   SessionUser.getCurrentCorpId()   +"','cn')out_lib,"
+				+ "out_act ,abs(sum(out_js)) out_js ,abs(sum(out_sl)) out_sl,abs(sum(out_zl)) out_zl,out_flag ,f_getname('GETUSERNAME',data_man,'',data_corp)data_man ,MAX(data_date) data_date,data_corp  "
+				+ " from  e_ck_out a " + sqlWhere
+				+ "  group by out_rq,out_note,out_customer,out_act,out_flag,data_man,data_corp,out_lib  ";
+		return saleDeliveryDao.QueryPageLists(baseDto,sql);
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getDetailList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sqlWhere = "   ";
+		if(ObjectUtil.isNotEmpty(map.get("outNote"))) {
+            sqlWhere+=" and out_note = '"+map.get("outNote")+"'";
+        }
+		String sql = "select out_contract  ,"
+				+ "out_code,cpcode_name,cpcode_size,cpcode_size_en,"
+				+ "f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',out_type,'"+   SessionUser.getCurrentCorpId()   +"')  cpcode_name_name,"
+				+ "f_getparamname('GETCPCODESIZE',cpcode_size,'','技术',out_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_size_name, "
+				+ "f_getparamname('GETCPCODESIZEEN',cpcode_size_en,'','技术',out_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_size_en_name,"
+				+ "f_getparamname('GETCPCODEXP',cpcode_xp,'','技术',out_type,'"+   SessionUser.getCurrentCorpId()   +"')  cpcode_xp_name,"
+				+ "abs(out_js) out_js,abs(out_sl) out_sl,abs(out_zl) out_zl,out_pack,out_bpack,out_hs, out_price, out_bz, out_tax,"
+				+ "f_getparamname('GETBYCPCODEFL',b.cpcode_fl,'','技术',out_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_fl,"
+				+ "out_ph,out_remarks from e_ck_out a ,e_js_cpcode b  where a.out_code=b.cpcode_id  "+ sqlWhere ;
+		//String sql = "select out_contract outContract ,out_code outCode,cpcode_name cpcodeName,cpcode_size cpcodeSize,out_js outJs,out_sl outSl,out_pack outPack,out_bpack outBpack from e_ck_out a,e_js_cpcode b where a.out_code=b.cpcode_id"+ sqlWhere ;
+		//return saleDeliveryDao.QueryPageLists(baseDto,sql );
+		return saleDeliveryDao.QueryMapPageList(baseDto, sql, true);
+	}
+
+	@Override
+	public List<SelectVo> getComplainContractList(String outCustomer, String complain) {
+		List<SelectVo> list = new ArrayList<SelectVo>();
+        List<EXsContract>  contracts= eXsContractDao.QueryListModel(EXsContract.class, "select * from e_xs_contract where ht_customer='"+outCustomer+"'  and ht_flag='核准' order by  ht_date,ht_no  ");
+        contracts.forEach(model -> {
+        	list.add(new SelectVo(model.getHtNo(),model.getHtNo()));
+        });
+        return list;	}
+
+	@Override
+	public EckOut findHeadData(String outNote) {
+		EckOut eckOut=new EckOut();
+		String sqlString=" select  distinct a.out_note,a.out_customer,a.out_lib,a.out_rq,f_getname('GETDWEXP',a.out_customer,'',a.data_corp)customer,out_type,  "
+				+ " complaint_note from e_ck_out a where   out_note ='"+outNote+"' ";
+		BasePage<EckOut> list=saleDeliveryDao.QueryNoPageLists(sqlString);
+		if(list.getContent().size()>0) { 
+			eckOut=list.getContent().get(0);
+		} 
+		return eckOut;
+	}
+
+	@Override
+	public Result save(ECKOutVo eCkOutVo) throws Exception {
+		List<EckOut> addECkOuts = new ArrayList<EckOut>();
+		List<EckOut> modifyedECkOuts = new ArrayList<EckOut>();
+		BigDecimal initBigDecimal=new BigDecimal("0");
+		SessionUser securityUser = SessionUser.SessionUser();
+		String parameterId = eCkOutDao.getSingleResult("select f_get_in_out_act('GETACT',?1,?2,?3) "
+				, WarehouseActionCaliber.xsth,eCkOutVo.geteCkOut().getOutType(),securityUser.getCorpId());
+		SysParams  sysParams=sysParamService.findByParameterId(parameterId, "仓库收发");
+		String note = sysGenNoteService.getInOutNote(ECkIn.class,eCkOutVo.geteCkOut().getOutType(), WarehouseActionCaliber.xsth,securityUser.getCorpId());
+		eCkOutVo.geteCkOut().setOutNote(note);
+		eCkOutVo.geteCkOut().setOutFlag("登记");
+		eCkOutVo.geteCkOut().setDataMan(securityUser.getUserId());
+		eCkOutVo.geteCkOut().setDataDate(new Date());
+		eCkOutVo.geteCkOut().setDataCorp(securityUser.getCorpId());
+		eCkOutVo.geteCkOut().setOutAct(parameterId);
+		
+		for (int i = 0; i < eCkOutVo.getAddedList().size(); i++) {
+			EckOut model = eCkOutVo.getAddedList().get(i);
+			model.setOutNote(note);
+			model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+			model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+			model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+			model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+			model.setDataMan(securityUser.getUsername());
+			model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+			model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+			model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+			model.setOutKfcode(model.getOutCode());
+			model.setOutType(eCkOutVo.geteCkOut().getOutType());
+			//数量，重量，件数*paramvalue
+			model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+			model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+			model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+			//如果为空自动生成包装号
+			if (model.getOutPack() == null) {
+				try {
+					String pack = sysGenNoteService.getyyyyMMddNote4(ECkIn.class, "P");
+					model.setOutPack(pack);
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+			}else {
+				//判断保存的包装号有没有重复
+				if(checkExists(model,eCkOutVo.getAddedList())) {
+					return 	Result.error("第"+(i+1)+"行包装号重复，不能保存！");
+				}
+				//判断数据库有没有该包装号
+				int count=eCkOutDao.getAddOutPack(model.getOutPack());
+				if(count==1) {
+					return 	Result.error("包装号：“"+model.getOutPack()+"”在数据库中已存在，保存失败！");
+				}
+			}
+			// 默认大包装号和包装号相等，后续可能需要根据产品规则生成
+			model.setOutBpack(model.getOutPack());
+			
+			
+			addECkOuts.add(model);
+		}
+		
+		// 修改
+		if (!eCkOutVo.getModifyedList().isEmpty()) {
+			for (int i = 0; i < eCkOutVo.getModifyedList().size(); i++) {
+				EckOut model = eCkOutVo.getModifyedList().get(i);
+				model.setOutNote(note);
+				model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+				model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+				model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+				model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+				model.setDataMan(securityUser.getUsername());
+				model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+				model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+				model.setOutKfcode(model.getOutCode());
+				model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+				model.setOutType(eCkOutVo.geteCkOut().getOutType());
+				//数量，重量，件数*paramvalue
+				model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+				model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+				model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+				
+				model.setOutBpack(model.getOutPack());
+				modifyedECkOuts.add(model);
+			}
+		} 
+		//退货总数量不能大于销售数量
+		
+		
+		// 业务逻辑判断end 
+		//开始保存到数据库
+		if (!addECkOuts.isEmpty()){
+			addECkOuts.forEach(model -> {
+				saleDeliveryDao.save(model);
+			});
+		}
+		if (!modifyedECkOuts.isEmpty()) {
+			modifyedECkOuts.forEach(model -> {
+				saleDeliveryDao.dynamicSave(model, saleDeliveryDao.findById(new ECkOut_PK(note, model.getOutPack())).orElse(null));
+			});
+		}
+		if (!eCkOutVo.getDeletedList().isEmpty()) {
+			eCkOutVo.getDeletedList().forEach(model -> {
+				ECkOut_PK pk = new ECkOut_PK(eCkOutVo.geteCkOut().getOutNote(), model.getOutPack());
+				saleDeliveryDao.deleteById(pk);
+			});
+		} 
+		// end
+		return Result.resultOk(eCkOutVo.geteCkOut());
+	}
+
+	@Override
+	public Result update(ECKOutVo eCkOutVo) throws Exception {
+		BigDecimal initBigDecimal=new BigDecimal("0");
+		List<EckOut> addECkOut = new ArrayList<EckOut>();
+		List<EckOut> modifyedECkOuts = new ArrayList<EckOut>();
+		SessionUser securityUser = SessionUser.SessionUser();
+		String parameterId = eCkOutDao.getSingleResult("select f_get_in_out_act('GETACT',?1,?2,?3) "
+				, WarehouseActionCaliber.xsth,eCkOutVo.geteCkOut().getOutType(),securityUser.getCorpId());
+		SysParams  sysParams=sysParamService.findByParameterId(parameterId, "仓库收发");
+		eCkOutVo.geteCkOut().setDataMan(securityUser.getUserId());
+		eCkOutVo.geteCkOut().setDataDate(new Date());
+		eCkOutVo.geteCkOut().setDataCorp(securityUser.getCorpId());
+		eCkOutVo.geteCkOut().setOutFlag("登记");
+		eCkOutVo.geteCkOut().setOutAct(parameterId);
+		// 业务逻辑判断start
+		// 新增
+		for (int i = 0; i < eCkOutVo.getAddedList().size(); i++) {
+			EckOut model = eCkOutVo.getAddedList().get(i);
+			model.setOutNote(eCkOutVo.geteCkOut().getOutNote());
+			model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+			model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+			model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+			model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+			model.setDataMan(securityUser.getUserId());
+			model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+			model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+			model.setOutKfcode(model.getOutCode());
+			model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+			model.setOutType(eCkOutVo.geteCkOut().getOutType());
+			//数量，重量，件数*paramvalue
+			model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+			model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+			model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+			//如果为空自动生成包装号
+			if (model.getOutPack() == null) {
+				try {
+					String pack = sysGenNoteService.getyyyyMMddNote4(ECkIn.class, "P");
+					model.setOutPack(pack);
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+			}else {
+				//判断保存的包装号有没有重复
+				if(checkExists(model,eCkOutVo.getAddedList())) {
+					return 	Result.error("第"+(i+1)+"行包装号重复，不能保存！");
+				}
+				//判断数据库有没有该包装号
+				int count=eCkOutDao.getAddOutPack(model.getOutPack());
+				if(count==1) {
+					return 	Result.error("包装号：“"+model.getOutPack()+"”在数据库中已存在，保存失败！");
+				}
+			}
+			// 默认大包装号和包装号相等，后续可能需要根据产品规则生成
+			model.setOutBpack(model.getOutPack());
+			addECkOut.add(model);
+		}
+		// 修改
+		if (!eCkOutVo.getModifyedList().isEmpty()) {
+			for (int i = 0; i < eCkOutVo.getModifyedList().size(); i++) {
+				EckOut model = eCkOutVo.getModifyedList().get(i);
+				model.setOutNote(eCkOutVo.geteCkOut().getOutNote());
+				model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+				model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+				model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+				model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+				model.setDataMan(securityUser.getUserId());
+				model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+				model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+				model.setOutKfcode(model.getOutCode());
+				model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+				model.setOutType(eCkOutVo.geteCkOut().getOutType());
+				//数量，重量，件数*paramvalue
+				model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+				model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+				model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+				
+				modifyedECkOuts.add(model);
+			}
+		}
+		// 业务逻辑判断end
+		// 开始保存到数据库
+		if (!addECkOut.isEmpty()) {
+			addECkOut.forEach(model -> {
+				saleDeliveryDao.save(model);
+			});
+		}
+
+		if (!modifyedECkOuts.isEmpty()) {
+			System.out.println(1111);
+			modifyedECkOuts.forEach(model -> {
+				saleDeliveryDao.dynamicSave(model, saleDeliveryDao
+						.findById(new ECkOut_PK(eCkOutVo.geteCkOut().getOutNote(), model.getOutPack())).orElse(null));
+			});
+		}
+
+		if (!eCkOutVo.getDeletedList().isEmpty()) {
+			eCkOutVo.getDeletedList().forEach(model -> {
+				ECkOut_PK pk = new ECkOut_PK(eCkOutVo.geteCkOut().getOutNote(), model.getOutPack());
+				saleDeliveryDao.deleteById(pk);
+			});
+		}
+		
+		return Result.resultOkMsg("修改成功");
+	}
+	private boolean checkExists(EckOut model, List<EckOut> eCkOuts) {
+		boolean isflag = false;
+		for (int i = 0; i < eCkOuts.size(); i++) {
+			EckOut indexrow = eCkOuts.get(i);
+			if (!indexrow.getId().equals(model.getId())) {
+				if (indexrow.getOutPack().equals(model.getOutPack())) {
+					isflag = true;
+					break;
+				}
+			}
+		}
+		return isflag;
+	}
+	@Override
+	public List<Map> getItemSelectList(String customer ,String outType ) {
+		String sqlString="select  distinct a.ht_no combid,a.ht_no combtext  from e_xs_contract a where    a.ht_customer ='"+customer+"'and a.ht_stype = '"+outType+"' and a.ht_flag in('核准','核销') ";
+		return saleDeliveryDao.QueryListMap(sqlString);
+	}
+}

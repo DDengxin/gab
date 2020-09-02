@@ -1,0 +1,131 @@
+package com.tengzhi.app.daily.controller;
+
+import com.tengzhi.app.daily.service.impl.DailyServiceImpl;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.xt.dailyRoutine.workPlan.model.EXtWorkplan;
+import com.tengzhi.business.xt.dailyRoutine.workPlan.service.WorkplanService;
+import com.tengzhi.tools.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+
+@RestController
+@RequestMapping("/app/daily")
+public class DailyController {
+
+    @Autowired
+    private DailyServiceImpl dailyService;
+    @Autowired
+    private WorkplanService workplanService;
+
+    /**
+     *  查询今日快讯
+     */
+    @PostMapping(value = "getTodayNews")
+    public Result getTodayNews(BaseDto baseDto) throws IOException {
+        return dailyService.getTodayNews(baseDto).getResult();
+    }
+
+    /**
+     *  查询工作安排
+     */
+    @PostMapping(value = "getWorkPlan")
+    public Result getWorkPlan(BaseDto baseDto) throws IOException {
+        return dailyService.getWorkPlan(baseDto).getResult();
+    }
+
+    /**
+     *  查询外出申请
+     */
+    @PostMapping(value = "getGoOutApply")
+    public Result getGoOutApply(BaseDto baseDto) throws IOException {
+        return dailyService.getGoOutApply(baseDto).getResult();
+    }
+
+    /**
+     * 获取一条工作安排
+     * @param note
+     * @return
+     */
+    @PostMapping("getWorkPlanNote")
+    public Result getWorkPlanNote(String note){
+        return Result.resultOk(workplanService.findByNote(note));
+    }
+
+    /**
+     * 工作安排删除
+     * @param note
+     * @return
+     */
+    @PostMapping("workPlanDelete")
+    public  Result workPlanDelete(String note){
+        workplanService.deleteByNote(note);
+        return Result.resultOkMsg("删除成功");
+    }
+
+    /**
+     * 工作安排新增
+     */
+    @PostMapping("workPlanAdd")
+    public Result workPlanAdd(String workPlan) throws Exception{
+        JSONObject jsonObject=new JSONObject(workPlan);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        //起始日期
+        String start=jsonObject.optString("start");
+        //结束日期
+        String end=jsonObject.optString("end");
+        //提醒日期
+        String date=jsonObject.optString("date");
+        //工作内容
+        String content=jsonObject.optString("content");
+        //工作类型
+        String type=jsonObject.optString("type");
+        //工作地点
+        String address=jsonObject.optString("address");
+        EXtWorkplan eXtWorkplan=new EXtWorkplan();
+        eXtWorkplan.setGzAddress(address);
+        eXtWorkplan.setGzType(type);
+        eXtWorkplan.setGzRemarks(content);
+        eXtWorkplan.setStartRq(simpleDateFormat.parse(start));
+        eXtWorkplan.setEndRq(simpleDateFormat.parse(end));
+        eXtWorkplan.setGzRemind(simpleDateFormat.parse(date));
+        eXtWorkplan = workplanService.save(eXtWorkplan);
+        return Result.resultOk(eXtWorkplan.getNote());
+    }
+
+    /**
+     * 工作安排编辑
+     */
+    @PostMapping("workPlanEdit")
+    public Result workPlanEdit(String workPlan)  throws Exception{
+        JSONObject jsonObject=new JSONObject(workPlan);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        //起始日期
+        String start=jsonObject.optString("start");
+        //结束日期
+        String end=jsonObject.optString("end");
+        //提醒日期
+        String date=jsonObject.optString("date");
+        //工作内容
+        String content=jsonObject.optString("content");
+        //工作类型
+        String type=jsonObject.optString("type");
+        //工作地点
+        String address=jsonObject.optString("address");
+        //单号
+        String note=jsonObject.optString("note");
+        EXtWorkplan eXtWorkplan=new EXtWorkplan();
+        eXtWorkplan.setGzAddress(address);
+        eXtWorkplan.setGzType(type);
+        eXtWorkplan.setGzRemarks(content);
+        eXtWorkplan.setStartRq(simpleDateFormat.parse(start));
+        eXtWorkplan.setEndRq(simpleDateFormat.parse(end));
+        eXtWorkplan.setGzRemind(simpleDateFormat.parse(date));
+        eXtWorkplan.setNote(note);
+        workplanService.update(eXtWorkplan);
+        return Result.resultOkMsg("修改成功");
+    }
+}

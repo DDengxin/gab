@@ -1,0 +1,149 @@
+$(document).ready(function () {
+    total();
+});
+
+function selectAll(chk) {
+    // $("#tab tr").each(function (i) {
+    //     var tr = this;
+    //     if (i > 0) {
+    //         $(tr).find("input[type='checkbox']").each(function () {
+    //             this.checked = chk;
+    //         });
+    //     }
+    // });
+    $("input[type='checkbox']").each(function () {
+        this.checked = chk;
+    });
+    total();
+}
+
+function selectP(chk) {
+    var oIn = $(chk).parent().parent().parent().parent().find("tr").find("td:eq(0)>div>input[type='checkbox']");
+    // if ($(chk).prop("checked")) {
+        $.each(oIn,function (i,e) {
+            e.checked = $(chk).prop("checked");
+        });
+    // }
+    total();
+}
+
+var i = 0;//计算选中的checkbox的个数
+function selectC(chk) {
+    var oIn = $(chk).parent().parent().parent().parent().find('.goodsList');
+    console.log(oIn);
+
+    total();
+}
+
+function removeSelect() {
+    $("#tab tr").each(function (i) {
+        var tr = this;
+        if (i > 0) {
+            if ($(tr).find("td").length > 1) {
+                $(tr).find("td:eq(0)>div>input[type='checkbox']").each(function () {
+                    if (this.checked) {
+                        $(tr).hide();
+                    }
+                });
+            }
+        } else {
+            alert("请勾选需要删除的商品！");
+            return false;
+        }
+    });
+}
+
+function clickNumber(obj, n) {
+    var old = $(obj).parent().find("input[type='text']");
+    old.val(parseInt(old.val()) + n);
+    if (old.val() <= 0) {
+        old.val(1);
+    }
+    total();
+}
+
+function changeNumber(obj) {
+    var reg = /^\d+$/;
+    if (!(reg.test(obj.value)) || obj.value == 0) {
+        obj.value = 1;
+        return false;
+    }
+    total();
+}
+
+function total() {
+    var total = new Number(0);
+    $("#tab tr").each(function (i) {
+        if (i > 0) {
+            if ($(this).find("td").length == 1) {
+                return;
+            } else {
+                var price = parseFloat($(this).find("td:eq(2)>span>em:eq(1)").html()).toFixed(2);
+                var number = parseInt($(this).find("td:eq(3)>div>input[type='text']").val());
+                var towTotal = (price * number).toFixed(2);
+                if (towTotal == 'NaN') {
+                    towTotal = 0;
+                }
+                $(this).find("td:eq(4)>span>em:eq(1)").html(towTotal);
+                if ($(this).find("td:first input[type='checkbox']").prop("checked")) {
+                    total = (parseFloat(total) + parseFloat(towTotal)).toFixed(2);
+                }
+
+            }
+        }
+    });
+    if (total > 0) {
+        $(".cart-div>span>em:eq(1)").html(total);
+    } else {
+        $(".cart-div>span>em:eq(1)").html("0.00");
+    }
+
+}
+
+function saveCart() {
+    var ids = "";
+    var companyid = 0;
+    var reg = /^\d+$/;
+    $("#tab tr").each(function (i) {
+        var tr = this;
+        if (i > 0) {
+            if ($(tr).find("td").length > 1) {
+                $(tr).find("td:eq(0)>div>input[type='checkbox']:checked").each(function () {
+                    var td = $(this).parent().parent().parent().find("td");
+                    var number = td.eq(3).find("div>input[type='text']");
+                    if (reg.test(number.val())) {
+                        if (companyid != 0 && companyid != this.value) {
+                            alert("商品不属于同一家店铺，请分开付款！");
+                            ids = "BHH";
+                            return false;
+                        } else {
+                            companyid = this.value;
+                            var td = $(this).parent().parent().parent().find("td");
+                            var number = td.eq(3).find("div>input[type='text']");
+                            if (!reg.test(number.val()) || parseInt(number.val()) <= 0) {
+                                alert("数量不合法！");
+                                ids = "BHH";
+                                return false;
+                            } else {
+                                if (ids != "") { ids += ","; }
+                                ids += td.eq(5).find("a>input[type='hidden']").val() + "_" + number.val();
+                            }
+
+                        }
+                    }
+
+                });
+            }
+        }
+    });
+    if (ids == "") {
+        alert("请勾选记录结算！");
+        return false;
+    }
+    if (ids == "BHH") {
+        return false;
+    }
+    $("#ids").val(ids);
+    // $("#cartform").attr("action", "/buy/hygl/cart/purchases.do");
+    // $("#cartform").submit();
+}

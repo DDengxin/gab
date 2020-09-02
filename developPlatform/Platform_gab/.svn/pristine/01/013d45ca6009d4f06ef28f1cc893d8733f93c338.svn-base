@@ -1,0 +1,75 @@
+
+package com.tengzhi.business.system.user.service.Impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import com.tengzhi.base.security.common.enums.AuthorityRoleEnum;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.enroll.dao.GUserInfoDao;
+import com.tengzhi.business.platform.enroll.model.GUserInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Primary
+@Service
+public class GabUserDetailServiceImpl extends UserDetailServiceImpl implements UserDetailsService {
+    @Autowired
+    private GUserInfoDao gUserInfoDao;
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        //
+        SessionUser employee = null;
+        try {
+            employee = (SessionUser) super.loadUserByUsername(username);
+            ArrayList<GrantedAuthority> simpleGrantedAuthoritieList = new ArrayList<>();
+            employee.getAuthorities().iterator().forEachRemaining(row ->{
+                simpleGrantedAuthoritieList.add(row);
+            });
+            simpleGrantedAuthoritieList.add(AuthorityRoleEnum.GAB_USER.toSimpleGrantedAuthority());
+            SessionUser em = new SessionUser(employee.getUsername(), employee.getPassword(), simpleGrantedAuthoritieList);
+            BeanUtil.copyProperties(employee,em,"authorities");
+            return em;
+        } catch (UsernameNotFoundException e) {
+            GUserInfo gUserInfo = gUserInfoDao.findByUserMtel(username);
+            if (null == gUserInfo) {
+                gUserInfo = gUserInfoDao.findByUserId(username);
+            }
+            if (gUserInfo != null) {
+                grantedAuthorities.add(AuthorityRoleEnum.GAB_USER.toSimpleGrantedAuthority());
+                // 扩展自定义用户类
+                employee = new SessionUser(gUserInfo.getUserId(), gUserInfo.getUserPwd(), grantedAuthorities);
+                employee.setUserId(gUserInfo.getUserId());
+                employee.setJobNumber(gUserInfo.getUserId());
+                employee.setNickName(gUserInfo.getUserTname());
+                employee.setMobile(gUserInfo.getUserMtel());
+                employee.setBusinessPersonnelIds(null);
+                //设置用户档案所在账套
+                employee.setOriginalCorpId(gUserInfo.getErpCorp());
+                //默认账套
+                employee.setCorpId(gUserInfo.getErpCorp());
+
+                employee.setEmail(gUserInfo.getUserEmail());
+                employee.setGenTime(gUserInfo.getDataDate());
+                //employee.setGender(null);
+                employee.setRealName(gUserInfo.getUserName());
+                employee.setOrgName(null);
+                employee.setSysUser(null);
+                return employee;
+            } else {
+                throw new UsernameNotFoundException("用户不存在");
+            }
+        }
+    }
+}

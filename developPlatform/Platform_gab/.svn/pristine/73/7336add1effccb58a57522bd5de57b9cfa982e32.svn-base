@@ -1,0 +1,44 @@
+package com.tengzhi.business.platform.shopping.controller;
+
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.shopping.model.ShoppingCart;
+import com.tengzhi.business.platform.shopping.service.ShoppingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("platform/shopping")
+public class ShoppingController {
+
+    @Autowired
+    ShoppingService shoppingService;
+
+    @GetMapping("getShoppingCart")
+    public Result getShoppingCart() {
+        return null;
+    }
+
+    @PostMapping("addShoppingCart")
+    public Result addShoppingCart(@RequestParam("dataMan") String dataMan, @RequestParam("productNum") String productNum) throws Exception {
+        return shoppingService.addShoppingCart(dataMan, productNum);
+    }
+
+    @DeleteMapping("delShoppingCart")
+    public Result delShoppingCart(@RequestParam("productId") String productId) {
+        return shoppingService.deleteByPId(productId);
+    }
+
+    @PutMapping("putShoppingCart")
+    public Result putShoppingCart(@RequestBody ShoppingCart shoppingCart){
+        return shoppingService.update(shoppingCart);
+
+    }
+
+    @PutMapping("putShoppingCartCount")
+    public Result putShoppingCartCount(@RequestParam("productId") String productId, @RequestParam("count") String count) {
+        return shoppingService.updateByPId(productId,count);
+    }
+}

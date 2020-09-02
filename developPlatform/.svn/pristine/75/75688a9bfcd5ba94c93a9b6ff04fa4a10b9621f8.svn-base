@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>权限管理</title>
+    </th:block>
+    <style type="text/css">
+        .mini-tree .mini-tree-icon{
+            line-height:25px;
+        }
+    </style>
+</head>
+<body autoload="false">
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="系统">
+            <input class="mini-combobox" name="rightModule" url="./combobox/rightModule"/>
+        </label>
+        <label class="hmq-label" text="模块">
+            <input class="mini-combobox" name="parentId0" popupMaxHeight="300px" nullItemText="全部" showNullItem="true" />
+        </label>
+        <label class="hmq-label" text="功能">
+            <input class="mini-combobox" name="parentId1" url="./combobox/rightModule" popupMaxHeight="300px" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="菜单名称">
+            <input class="mini-textbox" name="rightName"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input class="mini-combobox" name="isForbidden" url="encodeURI('/dict/boolean?t=禁用&f=启用')" nullItemText="全部" showNullItem="true"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <!--菜单信息Grid-->
+    <div tz:datagrid="treegrid" id="srch-grid" idField="rightId" sortField="rightOrd"
+         treeColumn="rightName" parentField="parentId" resultAsTree="true" showTreeLines="true"
+         iconField="rightIconCls" expandOnLoad="0" showPager="true" showExpandButtons="true" expandOnDblClick="true"
+         showPageIndex="false" showPageSize="false" showPageInfo="false" showPagerButtonIcon="false"
+    >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48" headerAlign="center">序号</div>
+            <div tz:datagrid="column" field="rightName" name="rightName" width="300">功能模块</div>
+            <div tz:datagrid="column" field="rightId" width="300">编码</div>
+            <div tz:datagrid="column" field="rightResource" width="40" visible="false" align="center">请求方式</div>
+            <div tz:datagrid="column" field="rightOrd" width="50" align="center">排序</div>
+            <div tz:datagrid="column" field="isForbidden" width="70" align="center">启用状态</div>
+            <div tz:datagrid="column" field="description" width="200">描述</div>
+            <div tz:datagrid="column" field="rightLink" visible="false">权限链接</div>
+            <div tz:datagrid="column" field="rightButtons" width="100%">按钮组</div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch-grid");
+
+    grid.bindSearchForm(form);
+
+    mini.getByName("rightModule").on("valuechanged", function (e) {
+        var rightModule = e.sender.value;
+        mini.getByName("parentId0").setUrl("./combobox/menu/{0}/ROOT".format(rightModule));
+        mini.getByName("parentId0").doValueChanged();
+        search_option();
+    });
+    mini.getByName("parentId0").on("valuechanged", function (e) {
+        var rightModule = mini.getByName("rightModule").getValue();
+        var value = e.sender.value;
+        if ("" == value) {
+            mini.getByName("parentId1").setData(null)
+        } else {
+            mini.getByName("parentId1").setUrl("./combobox/menu/{0}/{1}".format(rightModule, value));
+        }
+    });
+    mini.getByName("rightModule").select(0);
+    mini.getByName("rightModule").doValueChanged();
+
+    /**
+     * @Param:
+     * @Author: 王翔
+     * @Date: 2020/4/15 10:46
+     * @description: Grid表格渲染事件
+     */
+    grid.on("DrawCell", function (e) {
+        if ('isForbidden' === e.field) {
+            e.cellHtml = e.value ? '禁用' : '启用';
+        } else if ('rightButtons' === e.field) {
+            var html = [];
+            var tmp = new mini.Button();
+            $(e.record.children).each(function (index, row) {
+                if ('BUTTON' == row.rightType) {
+                    tmp.set({
+                        iconCls: row.rightIconCls,
+                        text: row.rightName,
+                        href: "javascript:button_option('{0}')".format(row.rightId)
+                    });
+                    html.push(tmp.el.outerHTML);
+                }
+            });
+            tmp.destroy();
+            e.cellHtml = html.join("");
+        }
+    });
+
+
+    grid.on('load', function (e) {
+        var tree = new mini.DataTree();
+        tree.setExpandOnLoad(grid.getExpandOnLoad());
+        tree.setSortOrder(grid.getSortField());
+        tree.setCheckSelectOnLoad(grid.getCheckSelectOnLoad());
+        tree.setMultiSelect(grid.setMultiSelect());
+        tree.setData(mini.listToTree(JSON.parse(e.text).data, grid.getNodesField(), grid.getIdField(), grid.getParentField()));
+        //过滤菜单类型
+        var parentId = mini.getByName("parentId1").getValue() || mini.getByName("parentId0").getValue();
+        if (parentId) {
+            var parentNodes = tree.getAllChildNodes().filter(function (node) {
+                return node.rightId === parentId;
+            });
+            tree.filter(function (node) {
+                for (var i = 0, max = parentNodes.length; i < max; i += 1) {
+                    if (parentNodes[i].rightId === node.rightId || tree.isAncestor(parentNodes[i], node)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+        grid.loadList(tree.getDataView());
+        //销毁控件，释放内存
+        tree.destroy();
+
+        //只显示菜单节点
+        grid.filter(function (node) {
+            return 'MENU' === node.rightType;
+        });
+    });
+
+    function search_option() {
+        grid.load();
+    };
+
+    /**
+     * @Param:
+     * @Author: 王翔
+     * @Date: 2020/4/15 10:48
+     * @description:常规新增函数
+     */
+    function add_option(e) {
+        var node = grid.getSelectedNode();
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 998, height: 380,
+            ondestroy:function (action) {
+                if (action == "sava"){
+                    grid.load();
+                    if (node) {
+                        grid.selectNode(node);
+                        grid.scrollIntoView (grid.getSelectedNode())
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * @Param:
+     * @Author: 王翔
+     * @Date: 2020/4/15 10:48
+     * @description:常规修改函数
+     */
+    function edit_option(e) {
+        var node = grid.getSelectedNode();
+        var row = grid.getSelected();
+        if (row) {
+            if ('MENU' !== row.rightType) {
+                hmq.tipDanger('请选择一个菜单节点');
+            } else {
+                e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: 998, height: 380,
+                    ondestroy:function (action) {
+                        if (action == "sava"){
+                            grid.load();
+                            if (node) {
+                                grid.selectNode(node);
+                                grid.scrollIntoView (grid.getSelectedNode())
+                            }
+                        }
+                    }
+                });
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * @Param:
+     * @Author: 王翔
+     * @Date: 2020/4/15 10:47
+     * @description: 常规删除函数
+     */
+    function remove_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗(包括所有下级)？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("right.html", JSON.stringify({rightId: row.rightId,rightModule:row.rightModule,list: grid.getChildNodes(row)}), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    }, null, {contentType: 'application/json'});
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * @Param:
+     * @return:
+     * @Author: 王翔
+     * @Date: 2020/4/15 10:45
+     * @description: 打开按钮操作管理页面
+     */
+    function button_option(rightId) {
+
+        var node = grid.getSelectedNode();
+        if (!$.isEmptyObject(rightId)) {
+            miniopen({url: 'buttonAdd.html', title: "【按钮管理】修改", action: 'edit', data: {rightId: rightId}, width: 550, height: 300,
+            ondestroy:function (action) {
+                if (action == "sava"){
+                    grid.load();
+                    if (node) {
+                        grid.selectNode(node);
+                        grid.scrollIntoView (grid.getSelectedNode())
+                    }
+                }
+            }
+            });
+        } else {
+            hmq.tipDanger("请选中一条记录！");
+        }
+    }
+
+</script>
+</html>

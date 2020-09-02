@@ -1,0 +1,64 @@
+$(function () {
+    _init_upload(['#cardZImg', '#idZCard', '#cardFImg', '#idFCard']);
+    
+    $('.sidebar').css('height', $('.right').height() + 'px');
+    
+    // 认证状态
+    $('.notice-success').hide();
+    $('.notice-fail').hide();
+    $('.notice-loading').hide();
+
+    layui.use(['form', 'laydate','layer'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#effectiveDate' //指定元素
+        });
+
+        // 身份证验证
+        form.verify({
+            idCard:[
+                /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
+                '身份证号码格式不正确'
+            ]
+          });   
+
+        //监听提交
+        form.on('submit()', function (data) {
+            var jsonData = {};
+
+            jsonData.gUserInfo= {userName: data.field.userName};
+            jsonData.expert = data.field;
+            jsonData.selectType = 'complete';
+            var index = layer.load(); //加载load提示
+            
+            $.ajax({
+                url: '/platform/expert/gab/authExpertSave',
+                dataType: 'json',
+                type: 'post',
+                data: JSON.stringify(jsonData),
+                contentType: "application/json",
+                success: function (res) {
+                    console.log(res);
+                    if (res.code == '200') {
+                        layer.msg(res.msg, { icon: 1 });
+                        window.setTimeout(function () {
+                            $('.notice-loading').show();
+                            $('.container').css('display', 'none');
+                        }, 3000);
+                    }
+                },
+                error: function () {
+                    layer.msg('请求有错误', { icon: 5 })
+                },
+                complete: function () {
+                    layer.close(index);
+                }
+            })
+            return false;
+        });
+    });
+
+})

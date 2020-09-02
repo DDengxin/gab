@@ -1,0 +1,161 @@
+package com.tengzhi.business.sc.capacity.specification.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity(name="m_sc_ggcl")
+public class MScGgcl {
+
+  @Id
+  private String clId;
+  private String clCj;
+  private String clCode;
+  private String ggclSize;
+  private String sizeMin;
+  private String sizeMax;
+  private String clBcl;
+  private long clRbs;
+  private String clRcl;
+  private String clYts;
+  private String clYcl;
+  private java.sql.Date dataDate;
+  private String dataMan;
+  private String dataCorp;
+  private String clType;
+
+
+  public String getClId() {
+    return clId;
+  }
+
+  public void setClId(String clId) {
+    this.clId = clId;
+  }
+
+
+  public String getClCj() {
+    return clCj;
+  }
+
+  public void setClCj(String clCj) {
+    this.clCj = clCj;
+  }
+
+
+  public String getClCode() {
+    return clCode;
+  }
+
+  public void setClCode(String clCode) {
+    this.clCode = clCode;
+  }
+
+
+  public String getGgclSize() {
+    return ggclSize;
+  }
+
+  public void setGgclSize(String ggclSize) {
+    this.ggclSize = ggclSize;
+  }
+
+
+  public String getSizeMin() {
+    return sizeMin;
+  }
+
+  public void setSizeMin(String sizeMin) {
+    this.sizeMin = sizeMin;
+  }
+
+
+  public String getSizeMax() {
+    return sizeMax;
+  }
+
+  public void setSizeMax(String sizeMax) {
+    this.sizeMax = sizeMax;
+  }
+
+
+  public String getClBcl() {
+    return clBcl;
+  }
+
+  public void setClBcl(String clBcl) {
+    this.clBcl = clBcl;
+  }
+
+
+  public long getClRbs() {
+    return clRbs;
+  }
+
+  public void setClRbs(long clRbs) {
+    this.clRbs = clRbs;
+  }
+
+
+  public String getClRcl() {
+    return clRcl;
+  }
+
+  public void setClRcl(String clRcl) {
+    this.clRcl = clRcl;
+  }
+
+
+  public String getClYts() {
+    return clYts;
+  }
+
+  public void setClYts(String clYts) {
+    this.clYts = clYts;
+  }
+
+
+  public String getClYcl() {
+    return clYcl;
+  }
+
+  public void setClYcl(String clYcl) {
+    this.clYcl = clYcl;
+  }
+
+
+  public java.sql.Date getDataDate() {
+    return dataDate;
+  }
+
+  public void setDataDate(java.sql.Date dataDate) {
+    this.dataDate = dataDate;
+  }
+
+
+  public String getDataMan() {
+    return dataMan;
+  }
+
+  public void setDataMan(String dataMan) {
+    this.dataMan = dataMan;
+  }
+
+
+  public String getDataCorp() {
+    return dataCorp;
+  }
+
+  public void setDataCorp(String dataCorp) {
+    this.dataCorp = dataCorp;
+  }
+
+
+  public String getClType() {
+    return clType;
+  }
+
+  public void setClType(String clType) {
+    this.clType = clType;
+  }
+
+}

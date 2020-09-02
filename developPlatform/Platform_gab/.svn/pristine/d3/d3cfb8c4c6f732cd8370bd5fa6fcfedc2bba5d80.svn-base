@@ -1,0 +1,84 @@
+$(function () {
+    // 上传文件的控件初始化
+    _init_upload(['#License', '#BusinessLicense']);
+
+    // 省市联动
+    // new PCAS("province", "city");
+
+    // $('.sidebar').css('height', $('.right').height() + 'px');
+    // $('.sidebar').css('height', '1938px');
+    // console.log($('.right').height());
+
+    layui.use(['form', 'layer', 'layedit'], function () {
+        var form = layui.form;
+        var layedit = layui.layedit;
+
+        layedit.build('company'); //建立编辑器
+
+        // 供应商类型下拉框
+        var firmValue = '';
+        form.on('select(type)', function (data) {
+            // console.log(data.value); //得到被选中的值
+            firmValue = data.value;
+            if (firmValue == "夹具厂商") {
+                _vendorShow(JjBussinessMsg);
+                // 关键字
+                $.FreeTags('jjTags');
+                console.log($('.right').height());
+                $('.sidebar').css('height', $('.right').height() + 'px');
+            }
+            if (firmValue == "辅件厂商") {
+                _vendorShow(FjBussinessMsg);
+                // 关键字
+                $.FreeTags('jjTags');
+                console.log($('.right').height());
+                $('.sidebar').css('height', $('.right').height() + 'px');
+            }
+            if (firmValue == "整合厂商") {
+                _vendorShow(ZhBussinessMsg);
+                // 关键字
+                $.FreeTags('jjTags');
+                console.log($('.right').height());
+                $('.sidebar').css('height', $('.right').height() + 'px');
+            }
+            if (firmValue == "特色经贸商") {
+                _vendorShow(TsBussinessMsg);
+                // 关键字
+                $.FreeTags('jjTags');
+                console.log($('.right').height());
+                $('.sidebar').css('height', $('.right').height() + 'px');
+            }
+        });
+
+        // form.on('submit()', function (data) {})
+    });
+
+    // 根据厂商类型的下拉选择的值，渲染不同的模板
+    _vendorInit();
+
+})
+
+// 厂商切换展示
+function _vendorShow(Template) {
+    _pageShow(Template, "container");
+}
+
+// 根据不同的厂商渲染不同的模板
+function _pageShow(Template, name) {
+    var getTpl = Template.innerHTML, view = document.getElementById(name);
+    laytpl(getTpl).render({}, function (html) {
+        view.innerHTML = html;
+        layui.use('form', function () {
+            var form = layui.form;
+            form.render();
+        })
+    });
+}
+
+// 厂商初始化
+function _vendorInit() {
+    _vendorShow(JjBussinessMsg);
+    // 关键字
+    $.FreeTags('jjTags');
+    $('.sidebar').css('height', '1938px');
+}

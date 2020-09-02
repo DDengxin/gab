@@ -1,0 +1,196 @@
+.share_content {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 103px;
+}
+
+.share_content_list {
+    width: 100%;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.showContent {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.showContent:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.tabContainer {
+    width: 100%;
+    height: 88px;
+    background: #409fff;
+    position: fixed;
+    z-index: 80;
+}
+
+#tablist {
+    width: 1200px;
+    height: 100%;
+    margin: 0 auto;
+    line-height: 88px;
+}
+
+ #tablist .changeTitle {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 30px;
+    color: #fff;
+    font-weight: bold;
+    margin-right: 75px;
+}
+
+#tablist li {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 20px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 18px;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+}
+#tablist li a{
+    color: #fff;
+}
+
+#tablist li:hover {
+    background: #ec0a0a;
+}
+
+#tablist .tabin {
+    background: #ec0a0a;
+}
+
+.content-box {
+    width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    top: 30px;
+    left: 0;
+    padding: 88px 0 120px;
+}
+
+.content-box .content {
+    width: 100%;
+    clear: both;
+    position: relative;
+    top: 0;
+    left: 0;
+    display: none;
+    overflow: hidden;
+}
+
+.contentin {
+    display: block !important;
+}
+
+
+/* 工艺知识主页 */
+
+.content-box .content ul {
+    width: 100%;
+    overflow: hidden;
+}
+
+ .content-box .content ul li {
+    width: 100%;
+    height: 220px;
+    border-top: 1px solid #efefef;
+    padding: 20px 0;
+}
+
+ .content-box .content ul li a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+ .content-box .content ul li:hover a .title {
+    color: #ec0a0a;
+    text-decoration: underline;
+}
+
+ .content-box .content ul li:hover a img {
+    opacity: 0.6;
+    filter: "alpha(opacity=60)";
+    /* IE 8 */
+    zoom: 1;
+}
+
+ .content-box .content ul li a img {
+    width: 330px;
+    height: 178px;
+    float: left;
+    border: 1px solid #dcdcdc;
+}
+
+ .content-box .content ul li a div {
+    width: 830px;
+    overflow: hidden;
+    float: right;
+    padding: 30px 0 0;
+    font-size: 14px;
+    color: #666666;
+}
+
+ .content-box .content ul li a div .title {
+    font-size: 18px;
+    color: #409fff;
+    font-weight: bold;
+    margin-bottom: 17px;
+}
+
+ .content-box .content ul li a div .time {
+    margin-bottom: 17px;
+}
+
+ .content-box .content ul li a div .time i {
+    color: #ec0a0a;
+}
+
+ .content-box .content ul li a div .zy {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+#page1, #page2, #page3, #page4, #page5, #page6 {
+    position: relative;
+    height: 30px;
+    margin-top: 30px;
+}
+
+.layui-laypage {
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0 !important;
+}
+
+.layui-laypage .layui-laypage-curr .layui-laypage-em {
+    background-color: rgb(232, 0, 0) !important;
+}

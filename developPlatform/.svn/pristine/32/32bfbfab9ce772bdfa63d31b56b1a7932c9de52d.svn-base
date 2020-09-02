@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>产品信息</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden" />
+		<form id="form1">
+			<input name="orgId" class="mini-hidden" />
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>产品编码</td>
+					<td content>
+						<input class="mini-textbox" required name="cpcodeId" id="cpcodeId"/>
+					</td>
+					<td title>产品名称</td>
+					<td content style="width:160px;">
+						<input class="mini-combobox" required name="cpcodeName" id="cpcodeName" allowInput="true"  url="/system/parameter/TypeParams/技术/物料名称"  >
+					</td>
+					<td title>产品规格</td>
+					<td content>
+						<input class="mini-textbox" required name="cpcodeSize" />
+					</td>
+				</tr>
+				
+				<tr>
+					<td title>产品长度</td>
+					<td content>
+						<input class="mini-textbox"  name="cpcodeSizeEn" />
+					</td>
+					<td title>产品标重</td>
+					<td content>
+						<input class="mini-textbox"  name="cpcodeXp" />
+					</td>
+					<td title>产品单位</td>
+					<td content>
+						<input class="mini-combobox"  name="cpcodeBz" url="/js/addType" textField="param_name" valueField="param_name"/>
+					</td>			
+				</tr>
+				
+				<tr>
+					<td title>大包单位</td>
+					<td content>
+						<input class="mini-textbox"  name="cpcodeDunit" />
+					</td>
+					<td title>大包配比</td>
+					<td content>
+						<input class="mini-textbox"  name="cpcodePb" />
+					</td>
+					<td title>产品分类</td>
+					<td content>
+						<input class="mini-combobox" required name="cpcodeFl" id="cpcodeFl" url="/cg/da/materialArchives/type/checklist" textField="combtext" valueField="combid" >
+					</td>
+				</tr>
+				
+				<tr>
+					<td title>其他参数</td>
+					<td content>
+						<input class="mini-textbox"  name="cpcode03" />
+					</td>
+					<td title>入库方式</td>
+					<td content>
+						<select id="cpcode01" name="cpcode01" class="mini-combobox" required="true">
+							<option value="批次">批次</option>
+							<option value="单件">单件</option>
+						</select>
+					</td>
+					<td title>核算方式</td>
+					<td content>
+						<select id="cpcode02" name="cpcode02" class="mini-combobox" required="true">
+							<option value="数量">数量</option>
+							<option value="件数">件数</option>
+							<option value="重量">重量</option>
+						</select>
+					</td>	
+				</tr>
+				
+				<tr>
+				<td title>检验分类</td>
+					<td content>
+						<input class="mini-combobox" required name="cpcodeCheck" id="cpcodeCheck" url="/system/parameter/TypeParams/技术/检验档案" >
+					</td>
+					<td title>特殊要求</td>
+					<td content>
+						<input class="mini-textbox"  name="cpcodeSm" />
+					</td>
+					<td title>状态</td>
+					<td content>
+						<select id="cpcodeFlag" name="cpcodeFlag" class="mini-combobox" required="true" value="Y">
+							<option value="Y">启用</option>
+							<option value="N">禁用</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td title >上限</td>
+					<td content>
+						<input class="mini-spinner" name="cpcodeLower" value="null" minValue="0" allowNull="true" allowLimitValue="false" decimalPlaces="3" format="#0.000"/>
+					</td>
+					<td title>下限</td>
+					<td content>
+						<input class="mini-spinner" name="cpcodeUpper" value="null"  minValue="0" allowNull="true" allowLimitValue="false" decimalPlaces="3"  format="#0.000"/>
+					</td>
+					<td title>是否预警</td>
+					<td content>
+						<input class="mini-combobox" name="cpcodeStockWarn" value="false" url="/dict/boolean"/>
+					</td>
+				</tr>
+				<tr>
+				<td title>英文名称</td>
+					<td content colspan="5">
+						<input class="mini-textbox"  name="cpcodeNameEn">
+					</td>
+				
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form('form1');
+
+	function SetData(options) {
+		if ('add' == options.action) {
+			$('[name=action]').val(options.action);
+		} else if ('edit' == options.action) {
+			$.get("/js/cpcode/{0}".format(options.data.cpcodeId), function(res) {
+				mini.get("cpcodeId").setEnabled(false)
+				if (200 === res.code) {
+					form.setData(res.data);
+				}
+			});
+		}
+	}
+
+	/**
+	 *
+	 **/
+	function SaveData() {
+		if (form.validate() && form.isValid()) {
+			var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+			$[method]("/js/cpcode", JSON.stringify(form.getData()), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+</script>
+</html>

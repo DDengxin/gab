@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员档案选择页面</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="公司">
+            <input class="mini-combobox" id="orgId" name="orgId" width="100"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input id="workerDept" name="workerDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                   popupWidth="240" popupHeight="180"
+                   showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="工号">
+            <input class="mini-textbox" id="workerId" name="workerId"/>
+        </label>
+        <label class="hmq-label" text="姓名">
+            <input class="mini-textbox" name="workerName"/>
+        </label>
+    </th:block>
+</th:block>
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" style="width:100%;height:50%;" idField="workerId"
+         sizeList="[50,100,200]" pageSize="100" url="/personnel/eHrWorker/eHrWorkerList.html"
+         cc
+         pager="#pager1" showPager="false" sortField="workerId" sortOrder="desc">
+        <div property="columns">
+            <div name="xh" type="indexcolumn" width="60" align="center" headerAlign="center">序号</div>
+            <div field="optionrow" width="60" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+            <div field="workerCorpName" align="center" width="80" sortField="workerCorpName" displayField="workerCorpName" headerAlign="center" allowSort="true">公司</div>
+            <div field="workerDeptName" align="center" width="80" sortField="workerDeptName" displayField="workerDeptName" headerAlign="center" allowSort="true">部门</div>
+            <div tz:datagrid="column" name="workerId" field="workerId" align="center" width="80">工号</div>
+            <div tz:datagrid="column" name="workerName" field="workerName" align="center" width="80">姓名</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+    <div class="mini-toolbar hmq-toolbar">
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </div>
+    <div id="return_grid" class="mini-datagrid" sortMode="client"  multiSelect="true" style="width:100%;height:40%;" showColumnsMenu="true" showPager="false"></div>
+</div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    initOrg();
+    mini.get("workerDept").load("/system/dept/combobox/getDeptTreeList");
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    var return_grid = mini.get("return_grid");
+    var columns = grid.getColumns();
+    return_grid.set({
+        columns : columns
+    });
+
+    function initOrg() {
+        $.ajax({
+            loading: true,
+            url: '/system/user/userCorpInfo',
+            method: 'GET',
+            success: function (res) {
+                if (200 == res.code) {
+                    form.getField('orgId').setUrl('/system/org/combobox/getOrgList?ids={0}'.format(res.data.orgIds));
+                    form.getField("orgId").select(0);
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            }, error: function () {
+                // hmq.tipDanger("网络请求错误!");
+            }
+        });
+    }
+
+    function SetData(options) {
+        search_option();
+    }
+    function onActionRenderer(e){
+        var grid_id = e.sender.id;
+        var s = "";
+        if(grid_id == "srch_grid"){
+            s = '<a class="mini-button" style="width:40px;color:green;" href="javascript:addRow()">+</a>'
+        }
+        if(grid_id == "return_grid"){
+            s = '<a class="mini-button" style="width:40px;color:green;" href="javascript:removeRow()">-</a>'
+        }
+        return s;
+    }
+
+    function confirm() {
+        form.validate();
+        if (form.isValid() == false)
+            return;
+        CloseWindow("ok");
+    }
+    function addRow() {
+        var row = grid.getSelected();
+        row = mini.clone(row);
+        grid.removeRow(grid.getSelected());
+        return_grid.addRow(row);
+    }
+
+    function search_option() {
+        grid.load();
+    }
+
+
+    function removeRow(rowdata) {
+        var items = return_grid.getSelecteds();
+        return_grid.removeRows(items);
+        grid.addRows(items);
+    }
+    function onRowDblClick(e){
+        addRow();
+    }
+    function GetMutiData() {
+        var rows = return_grid.getData();
+        return rows;
+    }
+
+    function GetData() {
+        var row = grid.getSelected();
+        return row;
+    }
+
+    function GetFormData() {
+        var data = form.getData();
+        return data;
+    }
+    function onRowDblClick(e){
+        addRow();
+    }
+
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+
+</script>
+</body>
+</html>

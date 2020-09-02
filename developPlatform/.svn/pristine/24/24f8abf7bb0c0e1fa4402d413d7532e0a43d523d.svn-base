@@ -1,0 +1,48 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingNotice.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.personnel.personnelTraining.trainingNotice.model.EHrTrainingNotice;
+import java.util.Map;
+
+public interface TrainingNoticeService extends BaseService {
+
+    /**
+     * 查询
+    * @param baseDto
+     * @return
+    * */
+    BasePage<Map<String,Object>> getList(BaseDto baseDto);
+
+    /**
+     * 根据Id获取数据
+     * @param Sid
+     * */
+    Map<String,Object> getById(String tzSid);
+
+     /**
+     * 修改
+     * @param eHrTrainingNotice
+     * @return
+     * */
+    Result update(EHrTrainingNotice eHrTrainingNotice);
+
+    /**
+     * 保存
+     * @param eHrTrainingNotice
+     * @return
+     * */
+
+    EHrTrainingNotice save(EHrTrainingNotice eHrTrainingNotice);
+
+    /**
+     * 删除
+     * @param Sid
+     * @return
+     * */
+
+    void deleteByNote(String tzSid);
+
+}

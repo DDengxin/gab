@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>单位选择页面</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="单位类型">
+            <input class="mini-combobox" id="customerType" name="customerType" data="[{id:'C',text:'客户'},{id:'S',text:'供应商'},{id:'DEPT',text:'部门'}]"  value="C"/>
+        </label>
+        <label class="hmq-label" text="单位编号">
+            <input class="mini-textbox" name="customerId"/>
+        </label>
+        <label class="hmq-label" text="单位名称">
+            <input class="mini-textbox" id="customerName" name="customerName"/>
+        </label>
+        <label class="hmq-label" text="单位简称">
+            <input class="mini-textbox" id="customerExp" name="customerExp" />
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="srch_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+</th:block>
+
+
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid" style="width:100%;height:100%;"
+         treeColumn="customerId" idField="customerId" parentField="customerUid"
+         resultAsTree="true" showTreeLines="true" ShowTreeicon="false"
+         showPageInfo="false"
+         pageSize="500" url="/ck/yw/warehouseKc/getUnitList"
+         onrowdblclick="onRowDblClick"
+         showPager="false" sortField="customerId" sortOrder="desc">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn"></div>
+            <div tz:datagrid="column" field="customerId" name="customerId" align="center" width="120">单位编码</div>
+            <div tz:datagrid="column" field="customerName" align="left" width="180">单位名称</div>
+            <div tz:datagrid="column" field="customerExp" align="left" width="140">单位简称</div>
+            <div tz:datagrid="column" field="stype" displayField="stypename" align="left" width="130">单位类型</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });
+
+    function SetData(data) {
+        data = mini.clone(data.data);//跨页面传递的数据对象，克隆后才可以安全使用
+        mini.get("customerType").setValue(data.customerType);
+        if(data.customerTypeFlag=="true"){
+        	mini.get("customerType").eable();
+        }else{
+        	mini.get("customerType").disable();
+        }
+        if (data.root != null) {
+            grid.on('update', function (e) {
+                grid.addNode({customerId: "无"}, "before", grid.getRow(0));
+            });
+        }
+        srch_option();
+    }
+
+
+    function srch_option() {
+        grid.load();
+    }
+
+    function confirm(e) {
+        if (grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选择一条数据');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+
+    function GetData() {
+        return grid.getSelected();
+    }
+
+
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

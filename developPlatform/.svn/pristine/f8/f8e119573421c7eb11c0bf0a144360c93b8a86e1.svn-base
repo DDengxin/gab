@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>巡检记录【新增】</title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-fit">
+    <input   id="machineNo" name="machineNo" class="mini-hidden"  />
+    <input   id="action" name="action" class="mini-hidden"  />
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号：</td>
+                <td content>
+                    <input class="mini-textbox" emptyText="单号自动生产" id="inspectionNote" name="inspectionNote"/>
+                </td>
+                <td title>巡检设备：</td>
+                <td content>
+                    <input class="mini-buttonedit" id="inspectionMachine" name="inspectionMachine" onbuttonclick="onPersonClick"/>
+                </td>
+                <td title>巡检项目：</td>
+                <td content>
+                    <input class="mini-combobox" required name="inspectionProject" id="inspectionProject"
+                           url="/system/parameter/getParamsSelectListByParentId/设备/巡检项目/XJXM"  onvaluechanged="onValueChanged"/>
+                </td>
+            </tr>
+            </tr>
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="srch_grid" allowMoveColumn="false" showPager="false"
+             allowSortColumn="flase" allowCellEdit="true"
+             editNextOnEnterKey="true" editNextRowCell="true"
+             allowCeldatagridlEdit="true" allowCellSelect="true" oncellvalidation="onCellValidation">
+            <div property="columns">
+                <div tz:datagrid="indexcolumn" width="30">序号</div>
+                <div tz:datagrid="column" field="inspectionSid"  width="50" align="center" visible="false">sid</div>
+                <div tz:datagrid="column" field="inspectionCode" displayField="codeName"  width="50" align="center">巡检项目编码
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="inspectionValue"  width="50" align="center">巡检项目值
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get("srch_grid");
+    grid.setUrl("/mSbJt/inspectionRecord/getAddGrid");
+    /*  巡检项目编码选择 */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/mSbJt/inspectionRecord/xjbm.html",
+            title: "【巡检项目编码】选择页面",
+            width: 750,
+            data: {
+             machineName : mini.get("inspectionMachine").getValue()
+            },
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                  var iframe = this.getIFrameEl();
+                  var data = iframe.contentWindow.GetData();
+                  btnEdit.setValue(data.machineId);
+                  btnEdit.setText(data.machineName);
+                  mini.get("inspectionProject").setValue(data.machineInspection);
+                  mini.get("inspectionProject").setText(data.inspectionname);
+                  onValueChanged();
+                }
+            }
+        });
+    }
+
+    function onValueChanged(){
+        var inspectionProject = mini.get("inspectionProject").getValue();
+        var inspectionNote = mini.get("inspectionNote").getValue();
+        grid.load({
+            params: mini.encode({
+                inspectionProject :inspectionProject,
+                inspectionNote :inspectionNote
+            })
+        })
+    }
+
+    /**
+     * 页面修改
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.inspectionSid), function (res) {
+                if (200 === res.code) {
+                    setIdDisable("inspectionProject");
+                    form.setData(res.data);
+                    var data =res.data;
+                    mini.get("inspectionMachine").setText(data.inspectionMachine);
+                    onValueChanged();
+
+                }
+            });
+        }
+    }
+
+
+    /**
+     * 保存数据
+     * @constructor
+     */
+    function SaveData() {
+        var buttons = grid.getChanges();
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var buttons = grid.getChanges();
+            if (buttons == "") {
+                buttons = grid.getData();
+            }
+
+            $(buttons).each(function (index) {
+                buttons[index]._state = buttons[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                headdata: form.getData(true),
+                entitydata: buttons,
+
+            }), function (res) {
+                if (200 === res.code) {
+
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     * 单元格验证
+     * @param e
+     * @returns {*}
+     */
+    function onCellValidation(e) {
+        if (e.field == "paramValue") {
+            if (e.value == "" || isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "Grid表格不能为空！";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+    }
+</script>
+</html>

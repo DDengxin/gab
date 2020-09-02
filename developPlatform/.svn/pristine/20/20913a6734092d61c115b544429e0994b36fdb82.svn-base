@@ -1,0 +1,556 @@
+package com.tengzhi.app.ck.service.impl;
+
+
+import com.tengzhi.app.ck.dao.CKDao;
+import com.tengzhi.app.ck.dao.CKFlagDao;
+import com.tengzhi.app.ck.model.EckOutLs;
+import com.tengzhi.app.ck.model.EckOutLsFlag;
+import com.tengzhi.app.ck.service.CKService;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.common.WarehouseActionCaliber;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.sale.saleProduct.saleDeliveryNotice.dao.SaleDeliveryNoticeDao;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.tools.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+@Transactional
+public class CKServiceImpl implements CKService {
+    @Autowired
+    CKDao ckDao;
+
+    @Autowired
+    ECkOutDao eCkOutDao;
+    
+    @Autowired
+    CKFlagDao  cKFlagDao;
+
+    @Autowired
+    SaleDeliveryNoticeDao saleDeliveryNoticeDao;
+    /**
+     * 查询成品出库的出库方式
+     * @return
+     */
+    @Override
+    public List<SysParams> selectWarehouseWay(String paramId,String paramType, String paramValue3) {
+        return ckDao.selectWarehouseWay(paramId,paramType,paramValue3);
+    }
+    /**
+     * 根据产品类型查询产品的口径和产品的库房
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectAct(String paramType,String parentId,String parentName,String actType) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "";
+        if (!StringUtils.isBlank(actType)) {
+            sqlWhere += " and param_value2='" + actType + "'";
+        }
+        if (!StringUtils.isBlank(parentName)) {
+            sqlWhere += " and s.param_name='" + parentName + "'  ";
+        }
+        /*String sql="select s.param_id,s.parent_id,s.param_name,s.param_type,s.param_value1,s.param_value2,s.param_value3 ,s.param_value from sys_param s " +
+                " WHERE s.param_type='"+paramType+"' and s.parent_id='"+parentId+"' "+sqlWhere + " order by param_id ";*/
+        String sql="select s.param_id,s.parent_id,s.param_name,s.param_type,s.param_value1,s.param_value2,s.param_value3 ,s.param_value from sys_param s " +
+                " WHERE s.param_type='"+paramType+"' and param_value3 ='' "+sqlWhere + " order by param_id ";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    @Override
+    public Map<String, Object> selectLib(String paramType,String parentId,String parentName) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "";
+        if (!StringUtils.isBlank(parentName)) {
+            sqlWhere += " and s.param_name='" + parentName + "'";
+        }
+        
+        String sql="select s.param_id,s.parent_id,s.param_name,s.param_type from sys_param s " +
+                " WHERE s.param_type='"+paramType+"' and s.parent_id='"+parentId+"'"+sqlWhere+" order by param_ord,param_id ";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+
+    /**
+     * 查询产品大类
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectProductCategory(String parentId,String paramId,String parentName) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.param_id,s.parent_id,s.param_name,s.param_type from sys_param s" +
+                " WHERE s.parent_id='"+parentId+"' and s.param_id!='"+paramId+"' order by s.param_name='"+parentName+"' DESC";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+    /**
+     * 查询成品出库的出库单号
+     * @return
+     */
+    @Override
+    public BasePage<ECkOut> selectWarehouseSingleNumber(String outAct, String outFlag)  {
+        /*String sql = "select out_rq,out_note,out_customer,out_act,out_code,out_js,out_sl,out_zl,out_pack, out_bpack, out_price, out_contract,out_kfcontract,out_kfcode," +
+                "out_lib,out_checkflag,out_month,out_type,out_luono,out_vnote,out_flag,data_man," +
+                " data_date,data_corp,out_bz,out_tax,out_rate,out_hs,out_cklib,out_lyr,brand,out_man,out_date from e_ck_out  " +
+                "where out_act='"+outAct+"'"+"and out_flag='"+ outFlag +"'";*/
+    	String sql = "select distinct out_note from e_ck_out  " +
+                "where out_act='"+outAct+"'"+"and out_flag='"+ outFlag +"'";
+        return eCkOutDao.QueryNoPageLists(sql);
+    }
+    /**
+     * 根据成品出库的包装号扫描信息
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectPackingNumberInfo(String pack,String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "";
+        if (!StringUtils.isEmpty(pack)) {
+            sqlWhere += " s.out_pack ='" + pack + "'";
+        }
+        if (!StringUtils.isEmpty(bpack)) {
+            sqlWhere += " s.out_bpack ='" + bpack + "'";
+        }
+
+        String sql="select s.out_rq,s.out_note,s.out_customer,s.out_act,s.out_code,s.out_js,s.out_sl," +
+                "s.out_zl,s.out_pack,s.out_bpack,s.out_price,s.out_contract,s.out_kfcontract,s.out_kfcode," +
+                "s.out_lib,s.out_checkflag,s.out_month,s.out_type,s.out_luono,s.out_vnote,s.out_flag," +
+                "s.data_man,s.data_date,s.data_corp,s.out_bz,s.out_tax,s.out_rate,s.out_hs," +
+                "s.out_cklib,s.out_lyr,s.brand,s.out_man,s.out_date," +
+                "a.cpcode_id,f_getparamname('GETBCPCODENAME',a.cpcode_name,'','技术',out_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,a.cpcode_name_en,a.cpcode_size,a.cpcode_size_en " +
+                "FROM e_ck_out s LEFT JOIN e_js_cpcode a ON s.out_code=a.cpcode_id WHERE "+sqlWhere;
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 根据单号查询扫描信息
+     * 根据单号查询该包装号的所有信息(点货出库)
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectRKNoteInfoDH(String note) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.out_rq,s.out_note,s.out_customer,s.out_act,s.out_code,s.out_js,s.out_sl," +
+                "s.out_zl,s.out_pack,s.out_bpack,s.out_price,s.out_contract,s.out_kfcontract,s.out_kfcode," +
+                "s.out_lib,s.out_checkflag,s.out_month,s.out_type,s.out_luono,s.out_vnote,s.out_flag," +
+                "s.data_man,s.data_date,s.data_corp,s.out_bz,s.out_tax,s.out_rate,s.out_hs," +
+                "s.out_cklib,s.out_lyr,s.brand,s.out_man,s.out_date," +
+                "a.cpcode_id,a.cpcode_name,a.cpcode_name_en,a.cpcode_size,a.cpcode_size_en " +
+                "FROM e_ck_out_ls s LEFT JOIN e_js_cpcode a ON s.out_code=a.cpcode_id WHERE s.out_note='"+note+"' and  data_act='P1004' and out_flag='登记' ";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 查询是否有单号下的包装号
+     */
+    @Override
+    public Map<String, Object> selectPackNumber(String out_note,String out_pack,String out_bpack){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "";
+        if (!StringUtils.isBlank(out_pack)) {
+            sqlWhere += " s.out_pack ='" + out_pack + "'";
+        }
+        if (!StringUtils.isBlank(out_bpack)) {
+            sqlWhere += " s.out_bpack ='" + out_bpack + "'";
+        }
+
+        String sqlWhere1 = "";
+        if (!StringUtils.isBlank(out_pack)) {
+            sqlWhere1 += " os.out_pack ='" + out_pack + "'";
+        }
+        if (!StringUtils.isBlank(out_bpack)) {
+            sqlWhere1 += " os.out_bpack ='" + out_bpack + "'";
+        }
+        String sql="SELECT COUNT(s.out_pack) AS out_count "
+                +"FROM e_ck_out s "+
+                "  WHERE s.out_note='"+out_note+"' and "+sqlWhere+" and s.out_flag='结算'";
+
+        String sql1="SELECT COUNT(os.out_pack) AS el_count "
+                +"FROM e_ck_out_ls os "+
+                "  WHERE os.out_note='"+out_note+"' and "+sqlWhere1+" and data_act='P1004' and out_flag='登记'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("datals", eCkOutDao.QueryListMap(sql1));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 查询出库明细视图中是否有这个包装号
+     */
+    @Override
+    public Map<String, Object> selectCKDetailsPackNumber(String lib,String code,String in_act,String in_contract,String pack,String bpack,String dataAct){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "";
+        if (!StringUtils.isBlank(pack)) {
+            sqlWhere += " and pack ='" + pack + "'";
+        }
+        if (!StringUtils.isBlank(bpack)) {
+            sqlWhere += " and in_bpack ='" + bpack + "'";
+        }
+
+        String sql1Where = "";
+        if (!StringUtils.isBlank(pack)) {
+            sql1Where += " and out_pack ='" + pack + "'";
+        }
+        if (!StringUtils.isBlank(bpack)) {
+            sql1Where += " and out_bpack ='" + bpack + "'";
+        }
+        
+        if("0".equals(eCkOutDao.getSingleResult("select count(pack) from v_ck_mx where lib ='"+lib+"'"+sqlWhere))) {
+        	rmap.put("message","该包装号不存在!");
+        	rmap.put("status", false);
+        }else if(!"0".equals(eCkOutDao.getSingleResult("select count(out_pack) from e_ck_out_ls where out_flag='登记' and  out_act='"+in_act+"' and data_act ='"+dataAct+"' and out_lib='"+lib+"' "+sql1Where ))) {
+        	rmap.put("message","该包装号已扫描!");
+        	rmap.put("status", false);
+        }else if("0".equals(eCkOutDao.getSingleResult(" select count(pack) from v_ck_mx where lib ='"+lib+"' and code ='"+code+"' "+sqlWhere))){
+        	rmap.put("message","扫描包装与该通知单不匹配，请检查!");
+        	rmap.put("status", false);
+        }else {
+        	rmap.put("status", true);
+        }
+        /*String sql="SELECT COUNT(s.pack) AS ck_count "
+                +"FROM v_ck_mx s "+
+                "  WHERE s.lib='"+lib+"' and s.code='"+code+"'   "+sqlWhere;//and s.in_act='"+in_act+"' and s.in_contract='"+in_contract+"'
+        String sql1="SELECT COUNT(os.out_pack) AS el_count "
+                +"FROM e_ck_out_ls os "+
+                "  WHERE os.out_lib='"+lib+"' and os.out_code='"+code+"' and os.out_act='"+in_act+"' "+sql1Where;//and os.out_contract='"+in_contract+"'
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("datals", eCkOutDao.QueryListMap(sql1, null));*/
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 从库存信息里查询该包装号的详细信息
+     */
+    @Override
+    public Map<String, Object> selectCKPackInfo(String note,String lib,String code,String in_act,String in_contract,String pack,String bpack){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "";
+        if (!StringUtils.isBlank(pack)) {
+            sqlWhere += " and a.pack ='" + pack + "'";
+        }
+        if (!StringUtils.isBlank(bpack)) {
+            sqlWhere += " and  a.in_bpack ='" + bpack + "'";
+        }
+        String sql = " select current_date out_rq,fh_note out_note,fh_customer out_customer,'"+in_act+"' out_act," + 
+        		" code out_code,js out_js,sl out_sl,pack out_pack,in_bpack out_bpack,fh_price out_price,fh_contract out_contract," + 
+        		" lib out_lib,dtype out_type,in_luono out_luono, fh_tax out_tax,fh_bz out_bz,fh_hs out_hs,cpcode_name,cpcode_size,in_kw out_kw,in_ph out_ph  " + 
+        		" from v_ck_mx a,e_ck_delivery_notice b  where a.code=b.fh_code and  b.fh_note ='"+note+"' and a.lib='"+lib+"' and a.code='"+code+"' and b.fh_contract = '"+in_contract+"'  "+sqlWhere ;//and a.in_contract =fh_contract 
+        //判断是否已经发货
+        String count = eCkOutDao.getSingleResult("select count(out_pack ) from ("
+        										+ " select out_pack from e_ck_out where out_pack='"+pack+"' and out_sl>0  and out_act not in (select param_id from sys_param where param_name in('调拨出库','调拨入库'))"
+        										+ " union all "
+        										+ " select out_pack from e_ck_out_ls where out_pack ='"+pack+"' and out_sl>0 and data_act='P1003' and out_flag='登记'"
+        										+ ")a");
+        if(!"0".equals(count)) {
+        	rmap.put("code", 200);
+        	rmap.put("status",false);
+        	rmap.put("message","该包装号已出库");
+        }else {
+        	SessionUser securityUser=SessionUser.SessionUser();
+        	List<EckOutLsFlag> ckList = cKFlagDao.QueryListModel(EckOutLsFlag.class,sql);
+        	ckList.forEach(item ->{
+                item.setOutFlag("登记");
+                item.setDataAct("P1003");
+                item.setDataDate(new Date());
+                item.setDataMan(securityUser.getUserId());
+                item.setDataCorp(securityUser.getCorpId());
+                cKFlagDao.store(item);
+            });
+        	rmap.put("status",true);
+        	rmap.put("data", eCkOutDao.QueryListMap(sql));
+            rmap.put("code", 200);
+            
+        }
+        return rmap;
+        
+        //判断发货数量
+        /*String sql = " select lib, code ,sl  from v_ck_mx where pack ='"+pack+"' "
+        		+ " select sum(out_sl) from e_ck_out_ls where out_flag ='登记' and out_note='"+note+"' and out_code =''"
+        		+ " ";*/
+        /*String sql="SELECT '"+note+"' note, "
+                +"FROM v_ck_mx s "+
+                "  WHERE s.lib='"+lib+"' and s.code='"+code+"' and s.in_contract='"+in_contract+"' and "+sqlWhere;*///and s.in_act='"+in_act+"' 
+        
+    }
+
+    /**
+     * 根据单号查询该临时表信息
+     */
+    @Override
+    public Map<String, Object> selectCKNoteInfo(String note,String dataAct){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        /*String sql="SELECT * "
+                +"FROM v_ck_mx s "+
+                "  WHERE s.in_note='"+note+"'";*/
+        String sql = " select cpcode_size,cpcode_name,a.out_sl ,a.out_pack from e_ck_out_ls a, e_js_cpcode b where a.out_code=b.cpcode_id and  out_note = '"+note+"' and  data_act ='"+dataAct+"' and out_flag='登记'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 出库判断是否件数一样
+     */
+    @Override
+    public Map<String, Object> selectPackPieces(String out_note){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select sum(s.out_js) AS js " +
+                "from e_ck_out s " +
+                "  WHERE s.out_note='"+out_note+"'";
+        String sql1="select sum(os.out_js) AS js_ls " +
+                "from e_ck_out_ls os " +
+                " WHERE os.out_note='"+out_note+"' and data_act='P1004'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("datals", eCkOutDao.QueryListMap(sql1));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 库审判断数量是否大于最小数量范围
+     */
+    @Override
+    public Map<String, Object> selectPackQuantity(String note,String dataAct){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        /*String sql="select sum(s.out_sl) AS sl " +
+                "from e_ck_out_ls s " +
+                "  WHERE s.out_lib='"+lib+"' and s.out_code='"+code+"' and s.out_act='"+in_act+"' and s.out_contract='"+in_contract+"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql));*/
+        String sql =" select f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',fh_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcodename from ("
+        		+ " select cp.cpcode_name,a.fh_code,a.fh_sl+fh_ceiling slmax,a.fh_sl+fh_lower slmin,coalesce(sum(out_sl),0) sl,a.fh_type from  e_js_cpcode cp,e_ck_delivery_notice a "
+        		+ " left join e_ck_out_ls b on a.fh_note = b.out_note and a.fh_contract = b.out_contract and a.fh_code = b.out_code and b.data_act='"+dataAct+"' and b.out_flag='登记' "
+        		+ " where a.fh_note='"+note+"' and cp.cpcode_id = a.fh_code "
+        		+ " group by a.fh_note,a.fh_contract,a.fh_code,a.fh_sl,a.fh_ceiling ,a.fh_lower,a.fh_type,cp.cpcode_name "
+        		+ " )fh  where fh.slmax<fh.sl or fh.slmin>fh.sl ";
+        List<Map> cpcodenameList = eCkOutDao.QueryListMap(sql);
+        if(cpcodenameList.size()>0) {
+        	rmap.put("status",false);
+        	rmap.put("message", cpcodenameList.get(0).get("cpcodename")+"发货数量不符合要求");
+        }else {
+        	rmap.put("status",true);
+        }
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 交货查询
+     */
+    @Override
+    public  Map<String, Object> selectDelivery(String fhNote){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "where fh_flag in ('确认') ";
+        if (!StringUtils.isBlank(fhNote)) {
+            sqlWhere += "and fh_note ='" + fhNote + "'";
+        }
+        String sql="select  s.fh_note,s.fh_customer,s.fh_lib,s.fh_contract,s.fh_code,s.fh_sl," +
+                "s.fh_ceiling,s.fh_lower,s.data_man,s.data_corp,s.data_rq,s.fh_rq,s.fh_act,s.fh_type,s.fh_flag, " +
+                "a.cpcode_id,a.cpcode_name,a.cpcode_name_en,a.cpcode_size,a.cpcode_size_en " +
+                "from e_ck_delivery_notice s LEFT JOIN e_js_cpcode a ON s.fh_code=a.cpcode_id "
+                +sqlWhere;
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 交货单号查询
+     */
+    @Override
+    public  Map<String, Object> selectDeliverySingleNumber(String rqOne,String rqTwo,String fhType,String fhAct,String fhLib){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sqlWhere = "where fh_flag = '确认'";
+        if (!StringUtils.isBlank(rqOne)) {
+            sqlWhere += " and fh_rq >='" + rqOne + "'";
+        }
+        if (!StringUtils.isBlank(rqTwo)) {
+            sqlWhere += " and fh_rq <='" + rqTwo + "'";
+        }
+        if (!StringUtils.isBlank(fhType)) {
+            sqlWhere += " and fh_type ='" + fhType + "'";
+        }
+        if (!StringUtils.isBlank(fhAct)) {
+            sqlWhere += " and fh_act ='" + fhAct + "'";
+        }
+        if (!StringUtils.isBlank(fhLib)) {
+            sqlWhere += " and fh_lib ='" + fhLib + "'";
+        }
+        String sql="select DISTINCT fh_note " +
+                "from e_ck_delivery_notice "
+                +sqlWhere;
+        rmap.put("data", eCkOutDao.QueryListMap(sql));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 新增出库信息到临时表
+     */
+    @Override
+    public void insert(String outString) {
+        if (outString != null) {
+             EckOutLs eckOut = new EckOutLs();
+            JSONObject jsonObject = new JSONObject(outString);
+            //登记日期
+            if (jsonObject.opt("out_rq")!=null){
+                SimpleDateFormat simpleDateFormat;
+                if ((jsonObject.opt("out_rq")+"").contains("/")){
+                     simpleDateFormat=new SimpleDateFormat("yyyy/MM/dd");
+                }else {
+                     simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
+                }
+                try {
+                    long out_rq = simpleDateFormat.parse(jsonObject.opt("out_rq") + "").getTime();
+                    System.out.println(out_rq);
+                    eckOut.setOutRq(simpleDateFormat.parse(jsonObject.opt("out_rq")+""));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            //出库状态
+            eckOut.setOutFlag("登记");
+            //产品编码
+            eckOut.setOutCode(jsonObject.optString("out_code"));
+            if(jsonObject.opt("out_js")!=null){
+                //产品件数
+                eckOut.setOutJs(BigDecimal.valueOf(jsonObject.optDouble("out_js")));
+            }
+            //核算(件数/数量)
+            eckOut.setOutHs(jsonObject.optString("out_hs"));
+            //合同编号
+            eckOut.setOutContract(jsonObject.optString("out_contract"));
+            //所属公司
+            eckOut.setDataCorp(jsonObject.optString("data_corp"));
+            //大批包装
+            eckOut.setOutBpack(jsonObject.optString("out_bpack"));
+            //批次包装
+            eckOut.setOutPack(jsonObject.optString("out_pack"));
+            //出库库房
+            eckOut.setOutLib(jsonObject.optString("out_lib"));
+            //操作人员
+            eckOut.setDataMan(jsonObject.optString("data_man"));
+            //入库业务
+            eckOut.setOutAct(jsonObject.optString("out_act"));
+            //操作日期
+            if (jsonObject.opt("data_date")!=null){
+                SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                try {
+                    eckOut.setDataDate(simpleDateFormat.parse(jsonObject.opt("data_date")+""));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(jsonObject.opt("out_tax")!=null){
+                //发票税率
+                eckOut.setOutTax(BigDecimal.valueOf(jsonObject.optDouble("out_tax")));
+            }
+            //入库单位
+            eckOut.setOutCustomer(jsonObject.optString("out_customer"));
+            //入库大类
+            eckOut.setOutType(jsonObject.optString("out_type"));
+            //币种
+            eckOut.setOutBz(jsonObject.optString("out_bz"));
+            if(jsonObject.opt("out_sl")!=null){
+                //产品数量
+                eckOut.setOutSl(BigDecimal.valueOf(jsonObject.optDouble("out_sl")));
+            }
+            if(jsonObject.opt("out_price")!=null){
+                //产品价格
+                eckOut.setOutPrice(BigDecimal.valueOf(jsonObject.optDouble("out_price")));
+            }
+            //入库单号
+            eckOut.setOutNote(jsonObject.optString("out_note"));
+            //领用库房
+            eckOut.setOutCklib(jsonObject.optString("out_cklib"));
+            if(jsonObject.opt("out_rate")!=null){
+                //发票汇率
+                eckOut.setOutRate(BigDecimal.valueOf(jsonObject.optDouble("out_rate")));
+            }
+            //入库单号
+            eckOut.setOutVnote(jsonObject.optString("out_vnote"));
+            //领用人
+            eckOut.setOutLyr(jsonObject.optString("out_lyr"));
+            //品牌
+            eckOut.setBrand(jsonObject.optString("out_note"));
+            //原料炉号
+            eckOut.setOutLuono(jsonObject.optString("out_luono"));
+            //记账月结
+            eckOut.setOutMonth(jsonObject.optString("out_month"));
+            //出库检验
+            eckOut.setOutCheckflag(jsonObject.optString("out_checkflag"));
+            //采购编码
+            eckOut.setOutKfcode(jsonObject.optString("out_kfcode"));
+            //客户合同
+            eckOut.setOutKfcontract(jsonObject.optString("out_kfcontract"));
+            if(jsonObject.opt("out_zl")!=null){
+                //产品重量
+                eckOut.setOutZl(BigDecimal.valueOf(jsonObject.optDouble("out_zl")));
+            }
+            //库审人
+            eckOut.setOutMan(jsonObject.optString("out_man"));
+            //库审时间
+            eckOut.setOutDate(new Date(System.currentTimeMillis()));
+            eckOut.setDataAct(jsonObject.optString("data_act"));
+            eCkOutDao.store(eckOut);
+        }
+    }
+    /**
+     * 批量保存到out表
+     */
+    @Override
+    public void batchInsert(String note,String lib, String in_act,String dataAct) {
+    	String sql="select * " +
+                "from e_ck_out_ls s " +
+                "  WHERE s.out_note = '"+note+"' and s.out_lib='"+lib+"'  and s.out_act='"+in_act+"' and data_act ='"+dataAct+"' and out_flag='登记' ";//and s.out_code='"+code+"' and s.out_contract='\"+in_contract+\"'\"
+        List<ECkOut> eCkOuts = eCkOutDao.QueryListModel(ECkOut.class, sql);
+        SessionUser securityUser=SessionUser.SessionUser();
+        //生产领用，通知完直接出库
+        if(WarehouseActionCaliber.scly.equals(saleDeliveryNoticeDao.getSingleResult(" select param_name from sys_param where param_id ='"+in_act+"' and param_type='仓库收发'"))) {
+        	eCkOuts.forEach(item ->{
+            	item.setOutFlag("库审");
+            	item.setDataMan(securityUser.getUserId());
+            	item.setDataDate(new Date());
+            	item.setOutMan(securityUser.getUserId());
+            	item.setOutDate(new Date());
+                eCkOutDao.store(item);
+            });
+        }else {
+        	eCkOuts.forEach(item ->{
+        		item.setOutFlag("确认");
+            	item.setDataMan(securityUser.getUserId());
+            	item.setDataDate(new Date());
+                eCkOutDao.store(item);
+            });
+        }
+        saleDeliveryNoticeDao.setFlag(note, "扫描");
+    }
+
+
+
+}

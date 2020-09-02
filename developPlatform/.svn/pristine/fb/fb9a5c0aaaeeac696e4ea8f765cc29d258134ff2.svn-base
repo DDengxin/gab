@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>按钮管理【修改】</title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-fit">
+    <form id="form1">
+        <input name="rightId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>所属菜单:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onMenuClickHander" required
+                           emptyText="请选择..." allowInput="false" name="parentId" textName="parentName" />
+                </td>
+                <td title>按钮名称:</td>
+                <td content>
+                    <input class="mini-textbox" required  name="rightName" />
+                </td>
+            </tr>
+            <tr>
+                <td title>权限链接:</td>
+                <td content>
+                    <input name="rightLink" textName="rightLink" required class="mini-buttonedit" onbuttonclick="onRightLikeClickHander" allowInput="true" />
+                </td>
+                <td title>按钮排序:</td>
+                <td content>
+                    <input class="mini-spinner" required maxValue="1000"  name="rightOrd"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>按钮图标:</td>
+                <td content >
+                    <input class="mini-buttonedit" required onbuttonclick="onMeunIconclsClickHander"
+                           emptyText="请选择..." allowInput="false" onvaluechanged="onValueChangedHandler" name="rightIconCls" textName="rightIconCls"/>
+                </td>
+                <td title>预览图标:</td>
+                <td >
+                    <i id="icon-preview" title="预览图标"></i>
+                </td>
+            </tr>
+            <tr>
+                <td title>请求方式:</td>
+                <td content>
+                    <input name="rightResource" required class="mini-combobox"  url="/dict/requestMethod"/>
+                </td>
+                <td title>是否禁用:</td>
+                <td content>
+                    <input name="isForbidden" required value="false" class="mini-combobox" url="/dict/boolean"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>按钮描述:</td>
+                <td content colspan="3">
+                    <input name="description" class="mini-textbox" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="remove_option" iconCls="icon-save" id="RemoveBtn">删除</a>
+    <a class="mini-button" onclick="closeWindow('close');" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    form.getField("parentId").setEnabled(false);
+
+    /** 
+    * @Param:
+    * @return:  
+    * @Author: 王翔
+    * @Date: 2020/4/15 11:16 
+    * @description: 页面加载时渲染数据函数
+    */ 
+    function SetData(options) {
+        $.get("right.html/{0}".format(options.data.rightId), function (res) {
+            if (200 === res.code) {
+                form.setData(res.data);
+                form.getField('rightIconCls').doValueChanged();
+            }
+        });
+    }
+
+    /** 
+    * @Param:
+    * @return:  
+    * @Author: 王翔
+    * @Date: 2020/4/15 11:18 
+    * @description: 保存与修改通用函数
+    */ 
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            $.put("buttonAdd.html",JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                closeWindow('sava');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /**
+     * @Param:
+     * @Author: 王翔
+     * @Date: 2020/4/15 10:47
+     * @description: 常规删除函数
+     */
+    function remove_option() {
+        mini.confirm("确定要删除吗？", "删除信息", function (action) {
+            if (action == "ok") {
+                $['delete']("right.html/{0}".format($("[name=rightId]").val()), function(res){
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        });
+    }
+
+
+
+    /**
+    * @Param:
+    * @return:
+    * @Author: 王翔
+    * @Date: 2020/4/15 11:19
+    * @description: 菜单选择器
+    */
+    function onMenuClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "right/hierarchyMenuTree.html",
+            title: "【菜单】选择",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.rightId);
+                    btnEdit.setText(data.rightName);
+                }
+            }
+        });
+    }
+
+
+    /** 
+    * @Param:
+    * @return:  
+    * @Author: 王翔
+    * @Date: 2020/4/15 13:35 
+    * @description: 预览图标
+    */ 
+    function onValueChangedHandler(e) {
+        var cls = ' fa ' + e.sender.getValue() + ' fa-2x';
+        $("#icon-preview").attr('class', cls);
+    }
+
+
+    /**
+     * @Param:
+     * @return:
+     * @Author: 王翔
+     * @Date: 2020/4/15 13:35
+     * @description: 图标选择器选择
+     */
+    function onMeunIconclsClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/resouces/fontAwesome.html",
+            title: "【Font Awesome】选择",
+            width: 980,
+            height: 720,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    var iconCls = 'fa fa-fw fa-' + data.iconCls;
+                    btnEdit.setValue(iconCls);
+                    btnEdit.setText(iconCls);
+                    onValueChangedHandler(e);
+                }
+            }
+        });
+    }
+
+    /**
+    * @Param:
+    * @return:
+    * @Author: 王翔
+    * @Date: 2020/4/15 13:46
+    * @description:  资源文件选择
+    */
+    function onRightLikeClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/resouces/templateFile.html",
+            title: "【资源文件】选择",
+            width: 980,
+            height: 720,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.uri.replace(/\\/g,"/"));
+                    btnEdit.setText(data.uri.replace(/\\/g,"/"));
+                }
+            }
+        });
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else{
+            window.close();
+        }
+    }
+
+</script>
+</html>

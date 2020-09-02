@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>产品选择页面</title>
+    </th:block>
+    <style type="text/css">
+        .New_Button, .Edit_Button, .Delete_Button, .Update_Button, .Cancel_Button {
+            font-size: 11px;
+            color: #1B3F91;
+            font-family: Verdana;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="mjAct"/>
+        <label class="hmq-label" text="模具编码">
+            <input class="mini-textbox" name="mjCpcode" width="120px"/>
+        </label>
+        <label class="hmq-label" text="产品名称">
+            <input class="mini-textbox" name="cpcodeName" width="120px"/>
+        </label>
+        <label class="hmq-label" text="产品规格">
+            <input class="mini-textbox" name="mjKsize" width="120px"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick" style="width:100%;height:70%;"
+         idField="cpcodeId" selectOnLoad="true" multiSelect="true"
+         sizeList="[50,100,200]" pageSize="100" url="/tooling/grantandrecover/queryAllOutboundStorage"
+    >
+        <div property="columns">
+            <div tz:datagrid="column" width="45" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+            <div tz:datagrid="column" field="mjCpcode" displayField="mjCode" align="center"width="128">模具编码</div>
+            <div tz:datagrid="column" field="cpcodeName" align="left" width="120">产品名称</div>
+            <div tz:datagrid="column" field="mjKsize" align="left"width="120">模具规格</div>
+            <div tz:datagrid="column" field="cpcodeFl" width="100" align="center">产品分类</div>
+            <div tz:datagrid="column" field="mjKid" width="100" align="center" visible="false">
+                所有退回使用领用的唯一UUID确保核销数据 一出一进 核销产生一双UUID 确保数据已退回
+            </div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+    <div tz:datagrid="datagrid" id="return_grid" style="width:100%;height:30%;" sizeList="[50,100,200]" pageSize="100"
+         multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var return_grid = mini.get("return_grid");
+    var form = new mini.Form("form1");
+
+    grid.bindSearchForm(form);
+    var columns = grid.getColumns();
+    return_grid.set({
+        columns: columns
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function onActionRenderer(e) {
+        var grid_id = e.sender.id;
+        var s = "";
+        if (grid_id == "srch_grid") {
+            s = ' <a class="mini-button"  style="width:30px;color:red;" href="javascript:addRow()">' + "+" + '</a>';
+        }
+        if (grid_id == "return_grid") {
+            s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">' + "-" + '</a>';
+        }
+        return s;
+    }
+
+    function addRow() {
+        var row = grid.getSelected();
+        var data = return_grid.getData();
+        row = mini.clone(row); //必须
+        grid.removeRow(grid.getSelected());
+        return_grid.addRow(row, 0);
+    }
+
+    function removeRow() {
+        var row = return_grid.getSelected();
+        return_grid.removeRow(row);
+        grid.addRow(row, 0);
+    }
+
+    function SetData(data) {
+        $("[name=mjAct]").val(data.mjAct);
+        search_option();
+    }
+
+    function confirm() {
+        CloseWindow("ok");
+    }
+
+    function GetData() {
+        var row = grid.getSelected();
+        return row;
+    }
+
+    function GetMutiData() {
+        var rows = return_grid.getData();
+        return rows;
+    }
+
+    function onRowDblClick(e) {
+        addRow();
+    }
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

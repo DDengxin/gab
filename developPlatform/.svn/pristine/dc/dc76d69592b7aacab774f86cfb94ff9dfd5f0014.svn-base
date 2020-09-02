@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>外出申请</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+<!--        <label class="hmq-label" text="公司">
+            <input class="mini-combobox" id="srchCorp" name="srchCorp" url="" showNullItem="true"
+                   nullItemText="全部" emptyText="全部" popupMaxHeight="120"/>
+        </label>-->
+        <label class="hmq-label" text="部门">
+            <input name="srchDept" popupMaxHeight="240px" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList"
+                   showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="外出人">
+            <input id="srchMan" name="srchMan" allowInput="true" class="mini-buttonedit" onbuttonclick="onButtonEditMan"/>
+        </label>
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="wcRq" url="/xt/dailyRoutine/wcsq/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="wcRq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="note" width="140" align="center">单号</div>
+            <div tz:datagrid="column" field="wcType" width="100" align="center">外出类型</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="corpexp" width="100" align="center">所属公司</div>
+            <div tz:datagrid="column" field="wcDept" displayField="deptName" width="100" align="left">部门</div>
+            <div tz:datagrid="column" field="wcMan" displayField="manName" width="100" align="center">外出人</div>
+            <div tz:datagrid="column" field="wcAdd" width="200" align="left">地点</div>
+            <div tz:datagrid="column" field="wcTcrq" width="140" align="center">预计出厂时间</div>
+            <div tz:datagrid="column" field="wcThrq" width="140" align="center">预计回厂时间</div>
+            <div tz:datagrid="column" field="wcYc" width="100" align="center">是否用车</div>
+            <div tz:datagrid="column" field="wcIszc" width="100" align="center">是否租车</div>
+            <div tz:datagrid="column" field="dataMan" displayField="dataManName" width="100" align="center">申请人</div>
+            <div tz:datagrid="column" field="wcFlag" width="60" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("srchMan").setValue(data.workerId);
+                    mini.get("srchMan").setText(data.workerName);
+                }
+            }
+        });
+    }
+    /**
+     * 查询
+     */
+    function search_option(){
+        grid.load();
+    }
+
+    /**
+     * 新增
+     * @param e
+     */
+    function add_option(e){
+        var row = grid.getSelected();
+        e.sender.miniopen({url : 'wcsqAdd.html',action : 'add',data: {row: row, formData: form.getData()},width : 600,height : 360});
+    }
+
+    /**
+     * 编辑
+     * @param e
+     */
+    function edit_option(e){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,'登记'),function(res){
+                if(200==res.code){
+                    e.sender.miniopen({url : 'wcsqAdd.html', action : 'edit', data: {row: row, formData: form.getData()}, width : 600, height : 360});
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+            /*if(row.wcFlag!="登记"){
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return;
+            }else{
+                e.sender.miniopen({url : 'add.html', action : 'edit', data : row, width : 900, height : 550});
+            }*/
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option(){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,'登记'),function(res){
+               if(200==res.code){
+                   mini.confirm("注意：确定要删除吗？","删除信息",function(action){
+                       if(action=="ok"){
+                           $['delete']("delete/{0}".format(row.note), function (res) {
+                               if (200 === res.code) {
+                                   grid.reload();
+                               } else {
+                                   hmq.tipDanger(res.msg);
+                               }
+                           });
+                       }
+                   });
+               }
+            });
+        }else{
+            hmq.tipDanger("请选择一条记录!");
+        }
+    }
+
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.note,'登记'),function(res){
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要确认吗 ？", "确认信息", function (action) {
+                        if (action == "ok") {
+                            $.put("confirm/{0}".format(row.note), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+            /*if ('登记' != row.wcFlag) {
+                hmq.tipDanger("当前状态不允许操作");
+            } else {
+                $['put']("getWcFlag", JSON.stringify({"params": mini.encode({note: row.note})}),
+                    function (res) {
+                        hmq.business.approvalConfirm({
+                            //  title: "项目核准",
+                            businessId: row.note,///Platform_wireerp/src/main/resources/templates/cg/yw/purchaseFile/purchaseRequisition/add.html
+                            url: "/xt/dailyRoutine/wcsq/add.html",
+                            error: function (res) {
+                                if (res.code == 404) {
+                                    $['put']("ok/{0}".format(row.note), function (res) {
+                                        if (200 === res.code) {
+                                            grid.reload();
+                                        } else {
+                                            hmq.tipDanger(res.msg);
+                                        }
+                                    });
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            }
+                        });
+                    }, null, {
+                        contentType: 'application/json'
+                    });
+            }*/
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.note,'确认'),function(res){
+                if(200==res.code){
+                    mini.confirm("注意：确定要取消确认吗？","取消确认",function(action){
+                        if(action=="ok"){
+                            $['put']("cancle/{0}".format(row.note),function(res){
+                                if(200==res.code){
+                                    grid.reload();
+                                }else{
+                                    hmq.tipDanger(res.msg)
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+
+    }
+
+</script>
+</html>

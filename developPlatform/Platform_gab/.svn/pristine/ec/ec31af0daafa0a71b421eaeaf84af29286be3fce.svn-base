@@ -1,0 +1,369 @@
+package com.tengzhi.business.platform.quotation.dao.impl;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.platform.quotation.dao.QuotationDao;
+import com.tengzhi.business.platform.quotation.model.Quotation;
+
+public class QuotationDaoImpl implements QuotationDao{
+
+	@Override
+	public BasePage<Quotation> QueryPageLists(String sql, String countSql, BaseDto dto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Quotation> QueryPageLists(String sql, String countSql, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Quotation> QueryPageLists(BaseDto dto, String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Map<String, Object>> QueryhumpMap(String sql, Object... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Quotation> QueryPageLists(Pageable pageable, String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> QueryPageList(String sql, String countSql, BaseDto dto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> QueryPageList(String sql, String countSql, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<?> QueryPageList(Class<?> vo, BaseDto dto, String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> QueryMapPageList(BaseDto dto, String sql, boolean humpConversion) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Quotation> QueryPageList(int pageNum, int pageSize, String sort, String sorting,
+			Specification<Quotation> spec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Quotation> QueryPageList(BaseDto dto, Specification<Quotation> spec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Quotation> QueryNOPageList(BaseDto dto, Specification<Quotation> spec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> QueryNOPageList(String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Map> QueryListMap(String sql, Object... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Map> QueryListMap(String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Map<String, Object>> SelectListMap(String Sql, Object... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Quotation> QueryListModel(Class<Quotation> resultClass, String Sql, Object... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<?> QueryListVO(Class<?> VO, String Sql, Object... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSingleResult(String Sql, Object... params) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void store(Object... obj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void update(Object... obj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateAll(Iterable<Quotation> obj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int executeUpdate(String qlsql, Object... values) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int executeUpdateSql(String qlsql, Object... values) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int executeUpdate(String qlsql, Map<String, Object> params) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int executeUpdate(String qlsql, List<Object> values) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public BasePage<Quotation> QueryNoPageLists(String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Quotation dynamicSave(Quotation newEntity, Quotation oldEntity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Quotation> findAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Quotation> findAll(Sort sort) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Quotation> findAllById(Iterable<String> ids) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <S extends Quotation> List<S> saveAll(Iterable<S> entities) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void flush() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public <S extends Quotation> S saveAndFlush(S entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteInBatch(Iterable<Quotation> entities) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteAllInBatch() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Quotation getOne(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <S extends Quotation> List<S> findAll(Example<S> example) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <S extends Quotation> List<S> findAll(Example<S> example, Sort sort) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Page<Quotation> findAll(Pageable pageable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <S extends Quotation> S save(S entity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Optional<Quotation> findById(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean existsById(String id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public long count() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void deleteById(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void delete(Quotation entity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteAll(Iterable<? extends Quotation> entities) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteAll() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public <S extends Quotation> Optional<S> findOne(Example<S> example) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <S extends Quotation> Page<S> findAll(Example<S> example, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <S extends Quotation> long count(Example<S> example) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public <S extends Quotation> boolean exists(Example<S> example) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Optional<Quotation> findOne(Specification<Quotation> spec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Quotation> findAll(Specification<Quotation> spec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Page<Quotation> findAll(Specification<Quotation> spec, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Quotation> findAll(Specification<Quotation> spec, Sort sort) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long count(Specification<Quotation> spec) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Quotation findQuotation(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

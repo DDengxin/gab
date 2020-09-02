@@ -1,0 +1,54 @@
+$(function () {
+    var getHref = window.location.href;
+    var getA = $('.sidebar dl').find('dd>a');
+    $.each(getA, function (i, e) {
+        var href = $(e).attr('href');
+        if (getHref.indexOf(href) > -1) {
+            $(e).addClass('selected');
+            $("h3").text($(e).text());
+        }
+    });
+
+    //富文本编辑器处理
+    var ue = UE.getEditor('myEditor', {
+        // 		toolbars : [ [ 'fullscreen', 'undo', 'redo' ] ],
+        maximumWords: 99999999999,
+        wordCount: false,
+        elementPathEnabled: false,
+        autoFloatEnabled: false
+    });
+    UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
+    UE.Editor.prototype.getActionUrl = function (action) {
+        if (action == 'uploadimage' || action == 'uploadfile' || action == 'uploadvideo') {
+            return '/ueditor/upload';
+        } else {
+            return this._bkGetActionUrl.call(this, action);
+        }
+    };
+
+})
+
+function get(obj, arr) {
+    if (obj.currentStyle) {
+        return obj.currentStyle[arr];
+    }
+    else {
+        return getComputedStyle(obj)[arr];
+    }
+}
+
+
+//初始化上传控件
+function _init_upload(arr) {
+    if ($.isArray(arr) && arr.length > 0) {
+        $.each(arr, function (_index, value) {
+            var fild_id = getFileId();
+            $(value + "+input").val(fild_id);
+            $(value).filesUpload({
+                pickerid: fild_id,
+                filecount: 1
+            });
+        });
+
+    }
+}

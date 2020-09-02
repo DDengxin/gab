@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>入库统计</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient" id="orient"/>
+        <input class="mini-hidden" name="inType" id="inType" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <input class="mini-combobox" name="srchRqFlag" id="srchRqFlag" textField="text" valueField="id" popupHeight="200" width="100px"
+               data="[{id:'登记时间',text:'登记时间'},{id:'库审时间',text:'库审时间'}]" value="登记时间"/>
+        <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="inNote" width="120"/>
+        </label>
+        <label class="hmq-label" text="单位">
+            <input name="inCustomer" emptyText="全部"
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue" width="140"/>
+        </label>
+        <label class="hmq-label" text="库房">
+            <div id="inLib" name="inLib" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:150px;" emptyText="全部">
+                <div property="columns">
+                    <div header="全部" field="text"></div>
+                </div>
+            </div>
+        </label>
+        <label class="hmq-label" text="口径">
+            <div id="inAct" name="inAct" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" popupMaxHeight="400"
+                 emptyText="全部">
+                <div property="columns">
+                    <div header="全部" field="text"></div>
+                </div>
+            </div>
+        </label>
+
+        <label class="hmq-label" text="包装号">
+            <input class="mini-textbox" name="inPack" width="110"/>
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="inCode" width="110"/>
+        </label>
+        <label class="hmq-label" for="cpcodeName" text="名称">
+            <input id="cpcodeName" name="cpcodeName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid" parentField="pid" value="无"
+                   onbeforenodeselect="disableParentSelection"
+                   popupWidth="240" popupHeight="180" emptyText="全部" showNullItem="true" nullItemText="全部" allowInput="true"/>
+        </label>
+        <label class="hmq-label" for="cpcodeSize" text="规格">
+            <input class="mini-textbox" id="cpcodeSize" name="cpcodeSize" width="110"/>
+        </label>
+        <label class="hmq-label" for="cpcodeFl" text="分类">
+            <div id="cpcodeFl" name="cpcodeFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" popupMaxHeight="400"
+                 emptyText="全部">
+                <div property="columns">
+                    <div header="全部" field="text"></div>
+                </div>
+            </div>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_top_grid" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell"
+         sortField="in_rq" sortOrder="desc" sizeList="[100,500,1000,2000]" pageSize="100">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="inRq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="inNote" widhtDateth="120" align="center">单号</div>
+            <div tz:datagrid="column" field="inLib" displayField="inLibName" width="120" align="center">库房</div>
+            <div tz:datagrid="column" field=inKw displayField="inKwName" width="90" align="center">库位</div>
+            <div tz:datagrid="column" field="inAct" displayField="actName" width="90" align="center">口径</div>
+            <div tz:datagrid="column" field="inCustomer" displayField="inCustomerName" width="120" align="left">客户</div>
+            <div tz:datagrid="column" field="inCode" width="100" align="center">编码</div>
+            <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" displayField="cpcodeNameName" align="left" width="120">名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" displayField="cpcodeSizeName" align="left" width="100">规格</div>
+            <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" displayField="cpcodeXpName" align="left" width="100">标重</div>
+            <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" displayField="cpcodeSizeEnName" align="left" width="100">品牌</div>
+            <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" displayField="cpcodeFlName" align="left" width="80">大类</div>
+            <div tz:datagrid="column" field="inJs" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">件数</div>
+            <div tz:datagrid="column" field="inSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">数量</div>
+            <div tz:datagrid="column" field="inPh" name="inPh" width="200" align="right" visible="false">批号</div>
+            <div tz:datagrid="column" field="inLuono" name="inLuono" width="200" align="right" visible="false">炉号</div>
+            <div tz:datagrid="column" field="inPack" width="130" align="center">包装号</div>
+            <div tz:datagrid="column" field=inBpack width="130" align="center">大包装号</div>
+            <div tz:datagrid="column" field="inManName" width="100" align="center">库审人</div>
+            <div tz:datagrid="column" field="inDate" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm" width="140" align="center">库审时间</div>
+            <div tz:datagrid="column" field="htCustomerAssociatedRemarks" width="150">客户关联合同备注</div>
+            <div tz:datagrid="column" field="inContract" width="120" align="center">合同</div>
+            <!--             <div tz:datagrid="column" field="in_remarks" width="250" align="left">说明</div>
+             -->
+            <div tz:datagrid="column" field="inFlag" width="80" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_top_grid");
+    var surl = "/ck/yw/warehouseInfo";
+    grid.setUrl(surl + "/getSrchTopList");
+    grid.bindSearchForm(form);
+    grid.frozenColumns(0, 5);
+    //start
+    var inType = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(inType)) {
+        form.getField("inType").setValue(inType);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("inType,paramMod");
+
+        mini.get("inAct").setUrl("/ck/yw/warehouseInfo/getActSelectList/仓库收发/01/{0}".format(inType));
+        mini.get("inLib").setUrl("/system/parameter/getParamsSelectListByParentId/仓库/{0}".format(inType));
+        if (inType == "CP") {
+            grid.showColumn("inPh");
+        } else if (inType == "YL") {
+            grid.showColumn("inLuono");
+        }
+        //动态列转换
+        hmq.business.dynamicProductParams(inType, {
+            miniDataGrid: grid,
+            miniForm: form,
+            success: function (map, res) {
+
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+
+    //end
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     * 汇总
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "inRq") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        } else if (e.field == "inSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    /**
+     * 销售客户选择
+     **/
+    /*function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }*/
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/ck/yw/warehouseKc/treeUnit.html",
+            title: "【单位】选择页面",
+            width: 750,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = {
+                    customerType: "C",
+                    customerTypeFlag: "true"//单位类型启用
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "inRq" && record.inRq != null) {
+            return mini.formatDate(new Date(record.inRq), "yyyy-MM-dd");
+        } else if (e.field == "inDate") {
+            return mini.formatDate(new Date(record.inDate), "yyyy-MM-dd HH:mm");
+        }
+
+    }
+
+    function export_option(e) {
+        assembling({
+            grid: grid,
+            form: form,
+            url: surl + "/exportExcelIn",
+            json: ["inPh", "inLuono"]
+        });
+    }
+
+</script>
+</html>

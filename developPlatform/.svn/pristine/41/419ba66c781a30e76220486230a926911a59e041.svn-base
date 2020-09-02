@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>炉号成分</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="产品类型">
+            <input class="mini-combobox" name="codeType" onvaluechanged="onCodeTypeChangedHandler" required
+                   data="[{'id':'YL',text:'原料'},{'id':'WL',text:'物料'},{'id':'CP',text:'成品'},{'id':'ZZP',text:'半成品'}]"/>
+        </label>
+        <label class="hmq-label" text="牌号类型">
+            <input class="mini-combobox" name="phType" required emptyText="请选择"/>
+        </label>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="批次号">
+            <input class="mini-textbox" name="pch"/>
+        </label>
+    </th:block>
+</th:block>
+
+
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid"></div>
+</div>
+<script type="text/javascript">
+
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+
+    mini.getByName('codeType').select(0);
+    mini.getByName('codeType').doValueChanged();
+
+    mini.getByName("phType").on("valuechanged", function (e) {
+        var phType = e.sender.value;
+        if ('' == phType) {
+            refreshGridColumns(null);
+        }else{
+            $.post("all/{0}".format(phType),
+                function (res) {
+                    if (200 === res.code) {
+                        refreshGridColumns(res.data);
+                        search_option();
+                    }
+                });
+        }
+    });
+
+
+    /**
+     * 加载到grid之前拦截，整理数据
+     */
+    grid.on('preload', function (e) {
+        var res = JSON.parse(e.text);
+        if (Array.isArray(res.detail)) {
+            var list = $(res.data).each(function (index, row, item) {
+                $(res.detail).each(function (iindex, rrow) {
+                    if(row.pch ==  res.detail[iindex].pch ){
+                        res.data[index][rrow.xmCode] = rrow.xmValue;
+                    }
+                });
+            }).toArray();
+            e.data = list;
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function refreshGridColumns(laydata) {
+        var codeType = mini.getByName("codeType").getValue;
+        var pchText = {'YL': '包装号', 'WL': '批次号', 'CP': '工程号', 'ZZ': '半成品'}[codeType] || '工程号';
+        var tphText = {'YL': '炉号', 'WL': '牌号', 'CP': '牌号', 'ZZ': '牌号'}[codeType] || '牌号';
+        //列数据
+        var cols = [
+            {type: "indexcolumn", headerAlign: "center", align: "center", width: 50, header: "序号"},
+            {field: "rq", width: 90, headerAlign: "center", allowSort: true, header: "登记日期"},
+            {field: "pch", width: 120, headerAlign: "center", allowSort: true, header: pchText},
+            {field: "scNo", width: 90, headerAlign: "center", allowSort: true, header: "生产任务号"},
+            {field: "tph", width: 90, headerAlign: "center", allowSort: true, header: tphText},
+            {field: "codeType", width: 90, headerAlign: "center", allowSort: true, header: "检验类型"}
+        ]
+        if (laydata != null) {
+            for (var i = 0; i < laydata.length; i++) {
+                cols.push({
+                    field: laydata[i].paramId,
+                    width: 90,
+                    headerAlign: "center",
+                    align: 'right',
+                    allowSort: true,
+                    header: laydata[i].paramName
+                })
+            }
+        }
+        grid.set({columns: cols});
+    }
+
+
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', data: {formData: form.getData()}, width: 850, height: 630});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: {formData: form.getData(), row: row}, width: 850, height: 630});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("constituent.html/{0}".format(row.pch), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onCodeTypeChangedHandler(e) {
+        if ('' == e.sender.getValue()) {
+            form.getField('phType').setData(null);
+        } else {
+            form.getField('phType').setUrl('/finance/constituent/combobox/PH/{0}'.format(e.sender.getValue()));
+        }
+        mini.getByName("phType").select(0);
+        mini.getByName("phType").doValueChanged();
+    }
+
+
+</script>
+
+</body>
+</html>

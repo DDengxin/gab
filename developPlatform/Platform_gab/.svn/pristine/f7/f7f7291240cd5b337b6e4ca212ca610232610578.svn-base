@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+        <title>活动报名</title>
+    </th:block>
+    <style type="text/css">
+        .layui-form-item {
+            margin: 21px 0 0 !important;
+            clear: both;
+            *zoom: 1;
+        }
+
+        .layui-input-block {
+            margin-top: 15px !important;
+        }
+
+        .needs_content {
+            width: 350px;
+            height: 160px;
+            margin: auto;
+        }
+
+        .layui-input,
+        .layui-textarea {
+            display: block;
+            width: 76%;
+            padding-left: 10px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .layui-layer-setwin .layui-layer-close1 {
+            background-position: -187px -38px !important;
+            cursor: pointer;
+        }
+
+        .layui-btn {
+            background-color: rgb(46, 141, 237) !important;
+        }
+
+        .layui-btn-primary {
+            border: none;
+            color: #fff;
+        }
+
+        .layui-btn-primary:hover {
+            color: #fff;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="needs_content">
+        <form class="layui-form" action="">
+
+            <div>
+                <label class="layui-form-label">用户名</label>
+                <input type="text" name="chamberName" required lay-verify="required" placeholder="请输入用户名"
+                    autocomplete="off" class="layui-input">
+            </div>
+            <div>
+                <label class="layui-form-label">手机号</label>
+                <input type="text" name="chamberMobile" required lay-verify="phone" placeholder="请输入联系方式"
+                    autocomplete="off" class="layui-input">
+            </div>
+
+
+
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <div class="layui-btn" id="subimit">立即报名</div>
+                    <div type="reset" class="layui-btn layui-btn-primary">重置</div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+
+</body>
+<script type="text/javascript">
+    //获取地址栏url中的参数
+
+
+    var layer;
+    layui.use(['layer', 'form'], function () {
+        layer = layui.layer;
+        var form = layui.form;
+    });
+
+
+    $(document).on('click', '#subimit', function () {
+        // 获取form表单数据
+        var t = $('.layui-form').serializeArray();
+        var obj = {};
+        $.each(t, function () {
+            obj[this.name] = this.value;
+        });
+
+        layer.msg('活动已结束', { skin: 'msg-tips', time: 3000 });
+
+
+
+
+    })
+
+
+
+
+
+
+
+</script>
+
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>线材种类</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="产能编码">
+            <input class="mini-textbox" name="clId"/>
+        </label>
+        <label class="hmq-label" text="事业部">
+            <input class="mini-combobox" name="clCj" url="/sc/capacity/specification/findCj" textField="param_name" valueField="param_id" emptyText="全部" nullItemText="全部" showNullItem="true"  width="120"/>
+        </label>
+        <label class="hmq-label" for="ggclSize" text="代表规格">
+            <input class="mini-textbox" name="ggclSize" id="ggclSize" width="100"/>
+        </label>
+        <label class="hmq-label"  text="分类">
+            <input  id="clCode" name="clCode" class="mini-treeselect" multiSelect="false" url="/system/parameter/getParamsTreeList/技术/XCZL" textField="combtext" valueField="combid"
+                    parentField="pid" value="无" onbeforenodeselect="disableParentSelection" popupWidth="240" popupHeight="180" allowInput="true" valueFromSelect="true"/>
+       </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="cl_id" url="/sc/pd/jdcn/findAll" showPageInfo="false" >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn">序号</div>
+            <div tz:datagrid="column" field="paramId" width="120">线材种类</div>
+            <div tz:datagrid="column" name="paramName" field="paramName"  width="120">种类名称</div>
+            <div tz:datagrid="column" name="paramNameEn" field="paramNameEn"  width="70">英文名称</div>
+            <div tz:datagrid="column" name="paramValue2" field="paramValue2"  width="120">业务归类</div>
+            <div tz:datagrid="column" name="paramValue3" field="paramValue3"  width="120">生产归类</div>
+            <div tz:datagrid="column" name="cpcodeFl" field="cpcodeFl" displayField="cpcodeFlName" width="80">分类</div>
+        </div>
+        <div tz:datagrid="column" width="100%"></div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    var cntype = hmq.getQueryString("stype");
+    var cpcodeType = hmq.getQueryString("cpcodeType");
+    mini.get("cpcodeType").setValue(cpcodeType);
+    mini.get("cnStype").setValue(cntype);
+
+    grid.bindSearchForm(form);
+
+    // 页面初始化模块和类型 START
+    if (hmq.isNotEmpty(cpcodeType)) {
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniForm: form,
+            miniDataGrid: grid,
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+    }
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        e.sender.miniopen({url: "/sc/pd/jdcn/add.html", width:950,height:600,action: 'add', data:
+                {cpcodeType: cpcodeType,cntype:cntype}});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "/sc/pd/jdcn/add.html",width:950,height:600, action: 'edit', data: {row:
+                    row, cpcodeType: cpcodeType,cntype:cntype}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/sc/capacity/specification/deleteById/{0}".format(row.clId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

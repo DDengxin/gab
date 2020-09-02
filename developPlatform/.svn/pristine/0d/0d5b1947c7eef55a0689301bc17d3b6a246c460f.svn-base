@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1" enctype="multipart/form-data">
+        <input name="userId" class="mini-hidden">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>用户类型:</td>
+                <td content>
+                    <input class="mini-combobox" required name="userLinkWorker" id="userLinkWorker" emptyText="请选择"
+                           url="encodeURI('/dict/boolean?t=员工用户&f=临时用户')" onvaluechanged="onUserLinkWorkerChanged"/>
+                </td>
+                <td title>工号:</td>
+                <td content>
+                    <input class="mini-buttonedit"
+                           emptyText="请选择" allowInput="true" name="jobNumber" required="true"
+                           onbuttonclick="onJobNumberButtonClickHandler"
+                    />
+                </td>
+                <td title>员工姓名:</td>
+                <td content>
+                    <input class="mini-textbox" required name="realName"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>所属公司:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+                           emptyText="请选择..." allowInput="false" name="orgId" required/>
+                </td>
+                <td title>所属部门:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onDeptClickHander"
+                           emptyText="请选择..." allowInput="false" name="deptId"/>
+                </td>
+                <td colspan="2" rowspan="5" class="hmq-text-center">
+                    <label for="SYS">
+                        <input type="hidden" class="mini-hidden" name="face"/>
+                        <img class="hmq-img-responsive hmq-img-thumbnail" style="height:144px;" id="sys_img" name="sys_img"   alt="头像" src="/static/img/common/default-face.jpg"/>
+                    </label>
+                    <input type="file" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" style="display: none;" id="SYS" name="SYS">
+                </td>
+            </tr>
+            <tr>
+                <td title>所属岗位:</td>
+                <td content>
+                    <input class="mini-comboBox" required name="positionId" url="/personnel/eHrWorker/selectGzgw"/>
+                </td>
+                <td title>用户排序:</td>
+                <td content>
+                    <input class="mini-spinner" maxValue="1000" value="1" name="userOrd"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>昵称:</td>
+                <td content>
+                    <input class="mini-textbox" required name="nickName"/>
+                </td>
+                <td title>密码:</td>
+                <td content>
+                    <input class="mini-password" required name="password"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>性别:</td>
+                <td content>
+                    <input class="mini-combobox" required name="gender" value="true" url="encodeURI('/dict/boolean?t=男&f=女')"/>
+                </td>
+                <td title>手机号码:</td>
+                <td content>
+                    <input class="mini-textbox" name="mobile" vtype="mobile"/>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>邮箱:</td>
+                <td content>
+                    <input class="mini-textbox" name="email" vtype="email"/>
+                </td>
+                <td title>启用状态:</td>
+                <td content>
+                    <input class="mini-combobox" required name="isForbidden" value="false" url="encodeURI('/dict/boolean?t=否&f=是')"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>查询账套:</td>
+                <td content>
+                    <input class="mini-combobox" required name="orgIds" multiSelect="true" url="/system/org/combobox/getOrgList"  />
+                </td>
+                <td title>默认账套:</td>
+                <td content>
+                    <input class="mini-combobox" required name="defaultOrgId" url="/system/org/combobox/getOrgList" />
+                </td>
+                <td title>业务权限:</td>
+                <td content>
+                    <input class="mini-combobox" name="businessPersonnelIds" url="encodeURI('/system/parameter/getParamsSelectList/销售/业务员?relatedBusiness=false')"
+                           multiSelect="true" emptyText="请选择" showNullItem="true" nullItemText="仅本人" popupMaxHeight="240px"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>签名:</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="sign" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

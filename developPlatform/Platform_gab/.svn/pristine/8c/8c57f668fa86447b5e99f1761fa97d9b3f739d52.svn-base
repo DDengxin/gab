@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>员工请假管理</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block
+            th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="用户ID"> <input class="mini-textbox"  name="id" />
+            </label>
+
+
+            <label class="hmq-label" text="用户名称">
+                <input  id="workerId"  name="name"  class="mini-textbox" />
+            </label>
+
+
+
+
+        </th:block>
+    </th:block>
+</form>
+
+<!--铺满页面-->
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="jbqjId"  showPageInfo="false">
+        <div property="columns">
+<!--            <div tz:datagrid="indexcolumn"></div>-->
+            <div tz:datagrid="column" field="id" align="center" width="120">用户ID</div>
+
+            <div tz:datagrid="column" field="name" width="120">用户姓名</div>
+
+            <div tz:datagrid="column" field="age" align="center" width="70">用户年龄</div>
+
+            <div tz:datagrid="column" field="sex"align="center" width="65" >用户性别</div>
+
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    //grid.frozenColumns ( 1, 6 );
+    //拦截加载事件，加载树形结构
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            if (e.value) {
+                e.cellHtml = '是';
+            } else {
+                e.cellHtml = '是';
+            }
+        }
+        if (e.field == "workerSex") {
+            if (e.value == 'true') {
+                e.cellHtml = '男';
+            } else {
+                e.cellHtml = '女';
+
+            }
+
+
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row ,width:600 ,height:400});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row,width:600 ,height:400});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("del.html/{0}".format(row.id), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /*  员工选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url:"/personnel/checkWorkAttendance/leave/worker.html",
+            title: "【请假员工】选择页面",
+            width: 750,
+            data:{},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+
+
+</script>
+
+
+
+
+
+</body>
+</html>

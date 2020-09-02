@@ -1,0 +1,29 @@
+package com.tengzhi.business.test.personnelfile.service;
+
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.test.personnelfile.model.PersonnelFile;
+
+import java.util.List;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/7/30 0030 16:17
+ * @Description:
+ */
+
+public interface PersonnelFileService {
+
+    String savePerson(PersonnelFile person);
+
+    String deleteByRy_id(String id);
+
+    String updateByRy_Id(PersonnelFile personnelFile);
+
+    PersonnelFile findPersonById(String id);
+
+    List<PersonnelFile> findPersonnelFileAll();
+
+    List<SelectVo> findAllNotion();
+
+
+}

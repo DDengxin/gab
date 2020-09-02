@@ -1,0 +1,60 @@
+package com.tengzhi.business.platform.enroll.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.common.vo.ExpertVo;
+import com.tengzhi.business.platform.enroll.vo.modelVo;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.user.model.SysUser;
+import com.tengzhi.business.system.workflow.vo.Examine;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@SuppressWarnings("rawtypes")
+public interface SupplyService  extends BaseService{
+	
+	//保存
+	Result  save(modelVo modelVo) throws Exception;
+	 //验证：判断字段值不重复
+	 boolean judgeUnique(SysUser sysUser);
+	 //根据userid获取一条记录
+	 modelVo findById();//
+	void update(modelVo vo);
+	//获取数据
+	Map<String,Object> getAll(String cur,String pageSize,String pageIndex,String searchType,String ... keyWords);
+	
+	//获取专家团队数据
+	Map<String,Object> getSrchExpertTeam(String cur,String pageSize,String pageIndex);
+	//根据id获取专家个人数据
+	Map<String,Object>	getByidExpert(String id);
+	//随机获取专家数据		
+	Map<String,Object> getRandomExpert();
+	//首页获取厂商数据
+	List<Map<String, Object>> getSupply(String supplyType);
+     //获取供应商数据
+	Result getAllsupply();
+	//分页查询供应商
+	BasePage<Map<String, Object>> getSrchGridList(BaseDto baseDto) throws IOException;
+	Result getSupplyByNote(String needNote);
+	//审核通过授权
+	Result agree (Examine examine)  throws Exception;
+	//获取注册验证码
+	Result getCode( SysUser sysuser);
+	//根据id获取供应商数据
+	Map<String,Object> getSupplyById(String supplyId);
+
+	List<SelectVo> getAllsupplyxxx();
+
+	//根据导航栏查询专家团队
+	Map<String,Object> getExpertTeamByParam(List<ExpertVo> expertVos);
+
+	//根据搜索框关键字查询专家团队
+	Map<String,Object> getExpertTeamBykeyWords(String keyWords);
+
+	//获取客户案例
+	Map<String,Object> getAdvisory(String supplyUid);
+}

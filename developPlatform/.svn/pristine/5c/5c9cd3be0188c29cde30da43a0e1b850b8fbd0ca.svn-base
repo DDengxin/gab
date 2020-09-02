@@ -1,0 +1,260 @@
+package com.tengzhi.business.sc.da.cardAbnormal.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.mSbJt.model.MSbJt;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.sc.da.cardAbnormal.dao.EHrAttendanceAbnormalDao;
+import com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormal;
+import com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormalVo;
+import com.tengzhi.business.sc.da.cardAbnormal.service.EHrAttendanceAbnormalService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.mail.Session;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/5 0005 11:33
+ * @Description:
+ */
+
+@Service
+public class EHrAttendanceAbnormalServiceImpl implements EHrAttendanceAbnormalService {
+
+    @Autowired
+    private EHrAttendanceAbnormalDao eHrAttendanceAbnormalDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String sqlWhere=" 1=1 ";
+        if(StringUtils.isNotEmpty(map.get("workerId"))) {//工号条件
+            sqlWhere += " and a.work_id like '%"+map.get("workerId")+"%' ";
+        }
+        if(StringUtils.isNotEmpty(map.get("note"))) {//工号条件
+            sqlWhere += " and a.note like '%"+map.get("note")+"%' ";
+        }
+        if(StringUtils.isNotEmpty(map.get("workerName"))) {//性名条件
+            sqlWhere += " and a.work_name like '%"+map.get("workerName")+"%' ";
+        }
+        if(StringUtils.isNotEmpty(map.get("srchRq1"))) {//日期条件1
+            sqlWhere += " and to_char(a.rq,'yyyy-mm-dd') >='"+map.get("srchRq1")+"'";
+        }
+        if(StringUtils.isNotEmpty(map.get("srchRq2"))) {//日期条件2
+            sqlWhere += " and to_char(a.rq,'yyyy-mm-dd') <='"+map.get("srchRq2")+"'";
+        }
+        if(StringUtils.isNotEmpty(map.get("srchWorkerDept"))) {//部门条件
+            sqlWhere += " and a.work_dept = '"+map.get("srchWorkerDept")+"'";
+        }
+
+        String sql ="select a.sid,a.flag,a.work_id,a.rq,a.note,a.work_name,f_getname('GETDWNAME',a.work_dept,'',a.data_corp) " +
+                "work_dept,a" +
+                ".kq_sj,f_get_param_name('生产参数',a.kq_yy,data_corp,'') kq_yy_name"
+                + ",f_get_param_name('生产参数',a.kq_type,data_corp,'') kq_type_name,a.kq_sm from " +
+                "e_hr_attendance_abnormal a where"+sqlWhere+"and a.work_dept in (select dept_id from" +
+                " sys_dept where parent_id " +
+                "in (select dept_id from sys_dept where dept_name = '生产部'))";
+
+        return eHrAttendanceAbnormalDao.QueryToMapPage(baseDto,sql);
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 9:33
+     *@Param:       []
+     *@return:      java.util.List<com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormal>
+     *@Description: 获取所有考勤类别：将类别放进EHrAttendanceAbnormal对象集合
+     **/
+    @Override
+    public List<SelectVo> findByKqTypeParam() {
+        List<Map<Object, String>> byKqTypeParam = eHrAttendanceAbnormalDao.findByKqTypeParam();
+        List<SelectVo> collect = byKqTypeParam.stream().map((k) -> {
+            return new SelectVo(k.get("param_id"), k.get("param_name"));
+        }).collect(Collectors.toList());
+        return collect;
+    }
+
+    @Override
+    public Result getFlag(long sid,String flag) {
+        EHrAttendanceAbnormal eHrAttendanceAbnormal =  eHrAttendanceAbnormalDao.findFlag(sid);
+        if (!flag.isEmpty()){
+            if (flag.equals(eHrAttendanceAbnormal.getFlag())){
+                Result result = Result.resultOk("操作成功！");
+                return result;
+            }
+        }else{
+            Result result = Result.resultOk("状态数据不存在");
+            return result;
+        }
+        return Result.error("该单不是“"+flag+"”状态,不能操作！");
+    }
+
+    @Override
+    public Result updateFlag(long sid,String flag) {
+        Result resultMsg = new Result();
+        if ("确认".equals(flag)){//值为确认改为登记
+            int i = eHrAttendanceAbnormalDao.updateFlag("登记",sid);
+            if (i==1){
+                resultMsg.putMsg("msg","取消成功");
+            }else
+                resultMsg.putMsg("msg","取消失败");
+        }
+        if ("登记".equals(flag)){//值为登记则改为确认
+            int i = eHrAttendanceAbnormalDao.updateFlag("确认",sid);
+            if (i==1){
+                resultMsg.putMsg("msg","确认成功");
+            }else
+                resultMsg.putMsg("msg","确认失败");
+        }
+        return resultMsg;
+    }
+
+    @Override
+    public Result addUpdateEHrAttendanceAbnormal(EHrAttendanceAbnormalVo vo){
+        int len = vo.getEntitydata().size();
+        for (int i = 0; i < len; i++) {
+            String state = vo.getEntitydata().get(i).get_state();
+            if("added".equals(state)){
+                addEHrAttendanceAbnormal(i,vo);
+            }else if("modified".equals(state)){
+                updateEHrAttendanceAbnormal(i,vo);
+            }else if("removed".equals(state)){
+                deleteBySid(vo.getEntitydata().get(i).getSid());
+            }
+        }
+        return Result.resultOkMsg("保存成功");
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 19:51
+     *@Param:       [vo]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 添加一行或多行数据
+     **/
+    @Override
+    public Result addEHrAttendanceAbnormal(int i,EHrAttendanceAbnormalVo vo) {
+        SessionUser securityUser= SessionUser.SessionUser();
+        String note = sysGenNoteService.getNote(EHrAttendanceAbnormal.class, "JD", "yyyyMMdd", 3);
+        long maxSid = getMaxSid();
+        EHrAttendanceAbnormal eHrAttendanceAbnormal = vo.setAttributeAdd(securityUser,i,maxSid,sysGenNoteService);
+        eHrAttendanceAbnormal.setNote(note);
+        eHrAttendanceAbnormalDao.save(eHrAttendanceAbnormal);
+        return Result.resultOkMsg("保存成功");
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/7 0007 8:50
+     *@Param:       [vo]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 修改一行或多行数据
+     **/
+    @Override
+    public Result updateEHrAttendanceAbnormal(int i,EHrAttendanceAbnormalVo vo) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        long sid = vo.getEntitydata().get(i).getSid();
+        EHrAttendanceAbnormal newEh = vo.setAttributeUpdate(sessionUser, i, sysGenNoteService);
+        EHrAttendanceAbnormal oldEh = eHrAttendanceAbnormalDao.findEHrAttendanceAbnormalById(sid);
+        newEh.setSid(oldEh.getSid());
+        newEh.setNote(oldEh.getNote());
+        eHrAttendanceAbnormalDao.deleteById(sid);
+        eHrAttendanceAbnormalDao.save(newEh);
+        return Result.resultOkMsg("修改成功");
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 14:00
+     *@Param:       []
+     *@return:      java.lang.Integer
+     *@Description: 配置sid主键
+     **/
+    public Long getMaxSid() {
+        Long maxSid = eHrAttendanceAbnormalDao.getMaxSid();
+        if (maxSid!=null){
+            return ++maxSid;
+        }
+        return Long.valueOf(1);
+    }
+
+    @Override
+    public Result findEHrAttendanceAbnormalById(long sid) {
+        EHrAttendanceAbnormal eHrAttendanceAbnormal = eHrAttendanceAbnormalDao.findEHrAttendanceAbnormalById(sid);
+        return Result.resultOk(eHrAttendanceAbnormal);
+    }
+
+    @Override
+    public List<SelectVo> findByKqyyParam() {
+        List<Map<Object, String>> byKqyyParam = eHrAttendanceAbnormalDao.findByKqyyParam();
+        List<SelectVo> collect =
+                byKqyyParam.stream().map(item -> new SelectVo(item.get("param_id"), item.get("param_name"))).collect(Collectors.toList());
+        return collect;
+    }
+
+    @Override
+    public Result deleteByNote(String note) {
+        int i = eHrAttendanceAbnormalDao.deleteByNote(note);
+        if (i>0){
+            return Result.resultOkMsg("删除成功");
+        }
+        return Result.resultOkMsg("删除失败");
+    }
+
+    @Override
+    public void deleteBySid(long sid) {
+        eHrAttendanceAbnormalDao.deleteById(sid);
+    }
+
+    @Override
+    public Result save(EHrAttendanceAbnormal eh) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        Long maxSid = getMaxSid();
+        eh.setSid(maxSid);
+        eh.setNote(sysGenNoteService.getNote(EHrAttendanceAbnormal.class, "JD", "yyyyMMdd", 3));
+        eh.setDataMan(sessionUser.getUsername());
+        eh.setDataCorp(sessionUser.getCorpId());
+        eh.setDataDate(new Date());
+        eh.setFlag("登记");
+        EHrAttendanceAbnormal save = eHrAttendanceAbnormalDao.save(eh);
+            Result result = new Result();
+        if (save!=null){
+            result.putMsg("msg","保存成功");
+        }else
+            result.putMsg("msg","保存失败");
+        return result;
+    }
+
+    @Override
+    public Result update(EHrAttendanceAbnormal eh) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        eHrAttendanceAbnormalDao.findEHrAttendanceAbnormalById(eh.getSid());
+        deleteBySid(eh.getSid());
+        eh.setDataMan(sessionUser.getUsername());
+        eh.setDataCorp(sessionUser.getCorpId());
+        eh.setDataDate(new Date());
+        eh.setFlag("登记");
+        save(eh);
+        Result result = new Result();
+        return result.putMsg("msg","保存成功");
+    }
+
+}

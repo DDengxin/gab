@@ -1,0 +1,35 @@
+.container{
+    padding-left: 40px;
+}
+.container form{
+    padding: 0 !important;
+}
+.container>.layui-form-item input {
+    background: rgb(246, 246, 246);
+}
+input{
+    color: rgb(103,103,103) !important;
+}
+.notice-success,
+.notice-fail,
+.notice-loading{
+    color: #409fff;
+    font-size: 16px;
+    margin-left: 250px;
+    margin-top: 100px;
+}
+.notice-success p,
+.notice-fail p,
+.notice-loading p{
+    font-size: 24px;
+    /* font-weight: bold; */
+    margin-bottom: 32px;
+}.notice-success p i,
+.notice-fail p i,
+.notice-loading p i{
+    font-size: 25px;
+    margin-right: 12px;
+}
+.notice-success ul li{
+    margin-bottom: 32px;
+}

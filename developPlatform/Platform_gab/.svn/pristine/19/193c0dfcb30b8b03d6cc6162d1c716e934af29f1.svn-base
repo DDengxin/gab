@@ -1,0 +1,11 @@
+package com.tengzhi.business.platform.shopping.dao;
+
+import org.springframework.stereotype.Repository;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.shopping.model.G_EXsContractDetailed;
+
+@Repository
+public interface ContractDetailedDao extends BasedaoRepository<G_EXsContractDetailed,String> {
+	
+}

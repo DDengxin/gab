@@ -1,0 +1,23 @@
+package com.tengzhi.business.platform.shopping.dao.impl;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.business.platform.shopping.dao.ShoppingCartDao;
+import com.tengzhi.business.platform.shopping.dao.ShoppingCartSqlDao;
+import com.tengzhi.business.platform.shopping.model.ShoppingCart;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public class ShoppingCartDaoSqlImpl extends BasicsDaoImpl<ShoppingCart, String> implements ShoppingCartSqlDao {
+    @Autowired
+    ShoppingCartDao shoppingCartDao;
+
+    @Override
+    public List<Map<String, Object>> getMyShoppingCart(String owner) {
+        String sql = "select *,f_getname('COVERPICTURE', product_num, '', operator_company) AS coverPicture,f_getname('CPCODENAME', product_num, '', operator_company) as cpcodeName,f_getname('GETSUPPLYNAME', product_company, '', '') as productCompany from g_shopping where owner="+owner+"";
+        return shoppingCartDao.QueryhumpMap(sql);
+    }
+}

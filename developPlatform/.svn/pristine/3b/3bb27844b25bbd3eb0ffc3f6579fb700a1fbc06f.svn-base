@@ -1,0 +1,34 @@
+#【【【开发环境基础配置】】】
+server:
+  port: 8080
+  servlet:
+    session:
+      timeout: 600000
+spring:
+  profiles:
+    active: jdbc,thymeleaf,devtools,logging
+  main:
+    allow-bean-definition-overriding: true #同名bean，后定义的bean会覆盖之前定义的相同名称的bean
+  mvc:
+    static-path-pattern: /static/**
+  mail:
+    host: smtp.qq.com
+  datasource:
+    url: jdbc:postgresql://121.36.157.210:5432/TZDB?currentSchema=tzerp #部署数据库连接
+    password: kfyh #密码
+    username: kfyh #账号
+
+kkfileview:
+  ip: 127.0.0.1
+  port: 8012
+
+tengzhi:
+  security:
+    browser:
+      maxSessions: 1 #同一个账号最多允许多少个session
+      cache: false # 禁用spring.security的缓存管理，因为默认的缓存管理会在http头追加参数，使得请求无法被缓存
+
+collocate:
+  business:
+    userName: 1001 #超级用户
+    defaultCorp: JD

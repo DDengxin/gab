@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>咨询发布</title>
+    </th:block>
+</head>
+<body>
+<form id="form">
+    <label class="hmq-label" text="名称">
+        <input class="mini-textbox" name="srch_name"/>
+    </label>
+	<label class="hmq-label" text="分类">
+		<input id="srch_type" name="srch_type" class="mini-combobox" url="/system/parameter/getParamsSelectListByParentId/平台参数/表单配置/BJGL" textField="text" valueField="id" showNullItem="true" nullItemText="全部" emptyText="全部"/>
+	</label>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="finalGrid" idField="pc_note" url="/platform/priceconfigure/getSrch" sortField="pc_sort" sortOrder="asc">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="18">序号</div>
+             <div tz:datagrid="column" field="pc_note" width="50" align="center">单号</div>           
+            <div tz:datagrid="column" field="pc_corp" displayField="corpName" width="40"  align="center">部门</div>
+            <div tz:datagrid="column" field="pc_name" width="80" align="center">名称</div>
+            <div tz:datagrid="column" field="pc_type" displayField="typeName" width="30" align="center">类型</div>
+            <div tz:datagrid="column" field="start_time" displayField="startChar" width="30" align="center">发布日期</div>
+            <div tz:datagrid="column" field="pc_sort" width="30" align="center">排序</div>
+            <div style="width: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form");
+    var grid = mini.get("finalGrid");
+
+    function search_option() {
+        grid.load({params: JSON.stringify(form.getData(true))});
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "priceConfigureAdd.html", action: 'add', data: row, width: 600, height: 250});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'priceConfigureAdd.html', action: 'edit', data: row, width: 600, height: 250});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $.delete("/platform/priceconfigure/delete/{0}".format(row.pc_note), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+ 
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>明细账</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient"/>
+        <label>会计期间: </label>
+        <input id="srch_period1" name="srch_period1" class="mini-combobox" style="width:140px;" textField="combtext"
+               valueField="combid"
+               url="" emptyText="请选择.." showNullItem="true" nullItemText="全部"/>
+        <label>至: </label>
+        <input id="srch_period2" name="srch_period2" class="mini-combobox" style="width:140px;" textField="combtext"
+               valueField="combid"
+               url="" emptyText="请选择.." showNullItem="true" nullItemText="全部"/>
+        <label>科目:</label>
+        <input id="Level" name="Level" class="mini-treeselect" style="width:200px;" multiSelect="false"
+               valueFromSelect="false" textField="fnumbername" valueField="faccountid" parentField="fparentid"
+               allowInput="true" showRadioButton="false" showFolderCheckBox="false" nullitemtext="请选择..."
+               shownullitem="true" emptytext="请选择..."/>
+        <input id="fnumbertemp" name="fnumbertemp" class="mini-hidden" readonly="readonly"/>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" sortField="paramOrd" treeColumn="paramName"
+         idField="paramId" parentField="parentId" resultAsTree="true"
+         expandOnLoad="0" showTreeLines="true" ShowTreeicon="false" pageSize="10000"
+         showPageInfo="false" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true"
+         style="width:100%;height:100%;" allowSort="true" align="center" class="mini-treegrid"
+         data-pagebuttonbar="true">
+        <div property="columns">
+            <div type="indexcolumn" width="30px" headerAlign="center"></div>
+            <div field="rq" name="rq" width="120" sortField="rq" displayField="rq" headerAlign="center" allowSort="true"
+                 align="left">日期
+            </div>
+            <div field="fvoucherid" width="120" align="center" allowSort="true" headerAlign="center"
+                 visible="false"></div>
+            <div field="fvoucherno" width="120" align="center" allowSort="true" headerAlign="center"
+                 renderer="onActionRenderer">凭证字号
+            </div>
+            <div field="fexplanation" name="fexplanation" width="120" headerAlign="center" allowSort="true"
+                 align="left">摘要
+            </div>
+            <div field="debtor" name="debtor" width="120" headerAlign="center" allowSort="true" align="left">借方</div>
+            <div field="credit" name="credit" width="120" headerAlign="center" allowSort="true" align="left">贷方</div>
+            <div field="balance" name="balance" width="120" headerAlign="center" allowSort="true" align="left">余额</div>
+            <div></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    var paramMod = hmq.getQueryString("paramMod");
+    var paramType = hmq.getQueryString("paramType");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(paramMod)) {
+        form.getField("paramMod").setValue(paramMod);
+        if (hmq.isNotEmpty(paramType)) {
+            form.getField("paramType").setValue(paramType);
+        }
+        if (hmq.isNotEmpty(parentId)) {
+            form.getField("parentId").setValue(parentId);
+        }
+        setIdReadOnly("paramMod");
+    }
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,271 @@
+.w {
+    width: 1200px;
+    margin: 0 auto;
+}
+
+.main {
+    overflow: hidden;
+    margin-top: 125px;
+}
+
+.main-title {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.main-title:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.content {
+    width: 100%;
+    overflow: hidden;
+    margin: 35px 0 100px;
+    background: rgb(245, 245, 245);
+    border: 1px solid #d7d7d7;
+}
+
+.content .common_star {
+    width: 100%;
+    overflow: hidden;
+    background: #fff;
+}
+
+.content .common_star dl {
+    width: 100%;
+    height: 110px;
+}
+
+.content .common_star dl dt, .content .common_star dl dd {
+    /* height: 100%; */
+    float: left;
+}
+
+.content .common_star dl dt {
+    width: 315px;
+    text-align: center;
+    /* line-height: 110px; */
+    border-right: 1px solid rgb(244, 244, 244);
+}
+
+.content .common_star dl dt i {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgb(242, 242, 242);
+    margin-right: 15px;
+    float: left;
+    text-align: center;
+    line-height: 60px;
+    font-size: 25px;
+    color: rgb(149, 149, 149);
+    margin-top: 27px;
+    margin-left: 25px;
+}
+
+.content .common_star dl dt div {
+    display: inline-block;
+    text-align: left;
+    font-size: 12px;
+    color: rgb(151, 151, 151);
+}
+
+.content .common_star dl dt div b {
+    font-weight: bold;
+    color: #333;
+    display: inline-block;
+    width: 100%;
+    height: 55px;
+    line-height: 8;
+}
+
+.content .common_star dl dt div span {
+    display: inline-block;
+    width: 100%;
+    height: 55px;
+    line-height: 2;
+}
+
+.content .common_star dl dd {
+    margin-left: 40px;
+    color: rgb(99, 99, 99);
+    font-size: 15px;
+}
+
+.content .common_star dl dd div {
+    display: inline-block;
+    vertical-align: middle;
+    height: 39px;
+    margin-top: 40px;
+}
+
+.content .common_star dl dd div:first-child {
+    line-height: 39px;
+}
+
+.layui-rate li i.layui-icon {
+    color: #e80000 !important;
+    font-size: 18px !important;
+    margin-right: 0 !important;
+}
+
+.details {
+    width: 100%;
+    overflow: hidden;
+    margin: 10px 0;
+    background: #fff;
+}
+
+.details>div {
+    float: left;
+}
+
+.goods_details {
+    width: 315px;
+    border-right: 1px solid rgb(244, 244, 244);
+    text-align: center;
+    padding: 0 50px;
+    display: table;
+    height: 345px;
+}
+
+.goods_details .goods_details_content {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.goods_details img {
+    width: 98px;
+    height: 98px;
+    border: 1px solid #d7d7d7;
+    margin: 0 auto 10px;
+}
+
+.goods_details .goods_name {
+    font-size: 12px;
+    color: #666;
+    line-height: 2;
+}
+
+.goods_comment {
+    padding: 15px 75px 0 45px;
+}
+
+.goods_comment>p {
+    font-size: 12px;
+    color: rgb(255, 172, 56);
+    margin-bottom: 20px;
+}
+
+.goods_comment>p i {
+    margin-right: 5px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.goods_rate, .comment_content {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.goods_rate span, .comment_content span {
+    font-size: 15px;
+    color: rgb(149, 149, 149);
+    margin-right: 70px;
+}
+
+.comment_content span {
+    vertical-align: top;
+}
+
+.comment_content textarea {
+    border-color: rgb(199, 199, 199);
+    border-radius: 5px;
+    resize: none;
+}
+
+.up_images {
+    width: 100%;
+    padding-left: 134px;
+}
+
+.up_images div {
+    float: left;
+}
+
+.up_images div:first-child, .up_images div:first-child+div {
+    width: 60px;
+    height: 50px;
+    border: 1px solid rgb(229, 229, 229);
+    background: rgb(247, 247, 247);
+    margin-right: 10px;
+}
+
+.up_images div i {
+    display: block;
+    font-size: 22px;
+    text-align: center;
+    height: 50%;
+    line-height: 30px;
+    color: rgb(151, 151, 151);
+}
+
+.up_images div span {
+    display: block;
+    font-size: 12px;
+    color: rgb(151, 151, 151);
+    text-align: center;
+    line-height: 26px;
+}
+
+.up_images p {
+    color: rgb(151, 151, 151);
+    font-size: 12px;
+    float: left;
+    line-height: 50px;
+}
+
+.up_images p b {
+    color: #e80000;
+    margin: 0 5px;
+}
+
+.submit_comment {
+    width: 100%;
+    height: 108px;
+    background: #fff;
+    line-height: 108px;
+    text-align: center;
+}
+
+.submit_comment button {
+    width: 242px;
+    height: 45px;
+    color: #fff;
+    font-size: 22px;
+    text-align: center;
+    line-height: 45px;
+    background: #e80000;
+    outline: none;
+    border: none;
+    cursor: pointer;
+}
+.submit_comment button:hover {
+    background: rgba(232, 0, 0,0.6);
+}

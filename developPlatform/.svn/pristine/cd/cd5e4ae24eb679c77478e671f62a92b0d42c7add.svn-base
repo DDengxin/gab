@@ -1,0 +1,75 @@
+package com.tengzhi.business.test.personnelfile.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.test.personnelfile.dao.PersonnelFileDao;
+import com.tengzhi.business.test.personnelfile.model.PersonnelFile;
+import com.tengzhi.business.test.personnelfile.service.PersonnelFileService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/7/30 0030 16:12
+ * @Description:
+ */
+@Service
+public class PersonnelFileServiceImpl implements PersonnelFileService {
+
+    @Autowired
+    private PersonnelFileDao personnelFileDao;
+
+    @Override
+    public String savePerson(PersonnelFile person) {
+        PersonnelFile saveResult = personnelFileDao.save(person);
+        System.out.println("saveResult结果:"+saveResult);
+        if (ObjectUtil.isNotEmpty(saveResult)){
+            return "保存成功";
+        }
+        return "保存失败";
+    }
+
+    @Override
+    public String deleteByRy_id(String id) {
+        //当id为非null并非空值时满足条件
+            try{
+                personnelFileDao.deleteById(id);
+            }catch(EmptyResultDataAccessException e){
+                e.printStackTrace();
+                return "删除失败";
+            }
+            return "删除成功";
+    }
+
+    @Override
+    public String updateByRy_Id(PersonnelFile personnelFile) {
+        PersonnelFile saveResult = personnelFileDao.save(personnelFile);
+        if (ObjectUtil.isNotEmpty(saveResult)){
+            return "修改成功";
+        }
+        return "修改失败";
+    }
+
+    @Override
+    public PersonnelFile findPersonById(String id) {
+        return personnelFileDao.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<PersonnelFile> findPersonnelFileAll() {
+        return personnelFileDao.findAll();
+    }
+
+    @Override
+    public List<SelectVo> findAllNotion() {
+        List<SelectVo> ResultNotiveList = new ArrayList<>();
+        personnelFileDao.findAllNotion().forEach((k)->ResultNotiveList.add(new SelectVo(k,k)));
+        return ResultNotiveList;
+    }
+
+}
+

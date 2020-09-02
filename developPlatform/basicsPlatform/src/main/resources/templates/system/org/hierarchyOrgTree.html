@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>公司选择器</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="currentOrgId"/>
+        <input class="mini-hidden" name="state"/>
+
+        <label class="hmq-label" text="公司名称">
+            <input class="mini-textbox" name="orgName"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+</th:block>
+
+
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid" sortField="rank" treeColumn="corpExp" url="/system/org/org.html"
+         idField="orgId" parentField="parentId" resultAsTree="true" iconField="rightIconCls"
+         expandOnLoad="true" showTreeLines="true" ShowTreeicon="false" showPageInfo="false" onrowdblclick="onRowDblClick">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn"></div>
+            <div tz:datagrid="column" field="orgName" name="orgName" width="100%" visible="false">公司名称</div>
+            <div tz:datagrid="column" field="orgId" name="orgId" width="100%" visible="false">公司代码</div>
+            <div tz:datagrid="column" field="corpExp" name="corpExp" width="100%">公司简称</div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+
+    var page_options = {
+        multiSelect: false, //是否多选
+        state: "",
+        //是否显示空节点
+        currentOrgId: true,
+        showNullNode: false,
+
+
+    };
+
+    function SetData(options) {
+        page_options = $.extend(page_options, options.data);
+        grid.setMultiSelect(page_options.multiSelect);
+        form.setData(page_options, true);
+        search_option();
+    }
+
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+
+    });
+
+    grid.on('update', function (e) {
+        if (true === page_options.showNullNode) {
+            grid.addNode({orgId: "ROOT", orgName: "无", corpExp: "无"}, "before", grid.getRow(0));
+        }
+    });
+
+    function search_option() {
+        grid.load({params: JSON.stringify(form.getData())});
+
+    }
+
+    function confirm(e) {
+        if (grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选中一行数据!');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+    /**
+     * 获取数据
+     * @returns {*}
+     * @constructor
+     */
+    function GetData() {
+        if (page_options.multiSelect) {
+            return grid.getSelecteds();
+        } else {
+            return grid.getSelected();
+        }
+    }
+
+    /**
+     * 行双击事件
+     * @param e
+     */
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+package com.tengzhi.business.system.initdata.model;
+
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+
+
+/**
+ * The persistent class for the sys_db_do database table.
+ * 
+ */
+
+
+@NamedStoredProcedureQueries({
+//管理列表
+		@NamedStoredProcedureQuery(name = "proc_solvedata", procedureName = "proc_solvedata", resultClasses = {SysDbDo.class},
+				parameters = {
+						@StoredProcedureParameter(mode = ParameterMode.IN, name = "datacorp", type = String.class),
+						@StoredProcedureParameter(mode = ParameterMode.OUT, name = "code", type = Integer.class),
+						@StoredProcedureParameter(mode = ParameterMode.OUT, name = "message", type = String.class)
+
+				})
+})
+@Entity
+@Table(name="sys_db_do")
+@IdClass(value = SysDbDo.SysDbDoPK.class)
+public class SysDbDo implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+
+	@Id
+	private String dbId;
+
+	@Id
+	private String dataCorp;
+	
+	private String dataType;
+
+	private String dbImpflag;
+
+	private String dbMb;
+
+	private String dbMk;
+
+	private String dbName;
+
+	private String dbSm;
+
+	private String dbTable;
+
+	public SysDbDo() {
+	}
+
+//	public SysDbDoPK getId() {
+//		return this.id;
+//	}
+//
+//	public void setId(SysDbDoPK id) {
+//		this.id = id;
+//	}
+
+	public String getDataType() {
+		return this.dataType;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
+
+	public String getDbImpflag() {
+		return this.dbImpflag;
+	}
+
+	public void setDbImpflag(String dbImpflag) {
+		this.dbImpflag = dbImpflag;
+	}
+
+	public String getDbMb() {
+		return this.dbMb;
+	}
+
+	public void setDbMb(String dbMb) {
+		this.dbMb = dbMb;
+	}
+
+	public String getDbMk() {
+		return this.dbMk;
+	}
+
+	public void setDbMk(String dbMk) {
+		this.dbMk = dbMk;
+	}
+
+	public String getDbName() {
+		return this.dbName;
+	}
+
+	public void setDbName(String dbName) {
+		this.dbName = dbName;
+	}
+
+	public String getDbSm() {
+		return this.dbSm;
+	}
+
+	public void setDbSm(String dbSm) {
+		this.dbSm = dbSm;
+	}
+
+	public String getDbTable() {
+		return this.dbTable;
+	}
+
+	public void setDbTable(String dbTable) {
+		this.dbTable = dbTable;
+	}
+	
+	public String getDbId() {
+		return dbId;
+	}
+
+	public void setDbId(String dbId) {
+		this.dbId = dbId;
+	}
+
+	public String getDataCorp() {
+		return dataCorp;
+	}
+
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+
+	public static class SysDbDoPK implements Serializable {
+		//default serial version id, required for serializable classes.
+		private static final long serialVersionUID = 1L;
+
+		@Column(name="db_id")
+		private String dbId;
+
+		@Column(name="data_corp")
+		private String dataCorp;
+
+		public SysDbDoPK() {
+		}
+		public String getDbId() {
+			return this.dbId;
+		}
+		public void setDbId(String dbId) {
+			this.dbId = dbId;
+		}
+		public String getDataCorp() {
+			return this.dataCorp;
+		}
+		public void setDataCorp(String dataCorp) {
+			this.dataCorp = dataCorp;
+		}
+
+		public boolean equals(Object other) {
+			if (this == other) {
+				return true;
+			}
+			if (!(other instanceof SysDbDoPK)) {
+				return false;
+			}
+			SysDbDoPK castOther = (SysDbDoPK)other;
+			return 
+				this.dbId.equals(castOther.dbId)
+				&& this.dataCorp.equals(castOther.dataCorp);
+		}
+
+		public int hashCode() {
+			final int prime = 31;
+			int hash = 17;
+			hash = hash * prime + this.dbId.hashCode();
+			hash = hash * prime + this.dataCorp.hashCode();
+			
+			return hash;
+		}
+	}
+}

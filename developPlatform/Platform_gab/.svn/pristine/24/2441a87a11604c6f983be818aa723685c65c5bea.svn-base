@@ -1,0 +1,303 @@
+package com.tengzhi.business.platform.common.contorller;
+
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.annotations.Anonymous;
+import com.tengzhi.business.platform.common.service.OperatorService;
+import com.tengzhi.business.platform.enroll.model.G_Supply;
+import com.tengzhi.business.platform.enroll.service.SupplyService;
+import com.tengzhi.business.platform.manage.service.ServiceManageService;
+import com.tengzhi.business.platform.manage.vo.serviceVo;
+import com.tengzhi.business.platform.quotation.service.QuotationService;
+import com.tengzhi.business.platform.quotation.vo.QuotationVo;
+import com.tengzhi.business.platform.specialist.advisory.service.AdvisorysService;
+import com.tengzhi.business.platform.specialist.chamberactivities.service.chamberActivitiesService;
+import com.tengzhi.business.platform.specialist.need.service.NeedService;
+import com.tengzhi.business.platform.specialist.need.vo.needVo;
+import com.tengzhi.business.platform.specialist.product.service.ProductService;
+import com.tengzhi.business.system.params.service.SysParamService;
+import com.tengzhi.business.system.user.service.LoginService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("gab")
+public class Operator {
+	
+	@Autowired
+	private OperatorService OperatorService;
+	
+	@Autowired
+	private NeedService needService;
+	
+	@Autowired
+	private ProductService productService;
+	
+	@Autowired
+	private SupplyService supplyService;
+	
+	@Autowired
+	private AdvisorysService advisorysService;
+	
+	@Autowired
+	private chamberActivitiesService chamberActivitiesService;
+	
+	@Autowired
+	LoginService loginService;
+	
+	@Autowired
+	private ServiceManageService serviceManageService;
+	
+	@Autowired
+	private QuotationService quotationService;
+	
+	@GetMapping("*.html")
+	@Anonymous
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+	
+	@PostMapping(value = "/getAllExpert")
+	@Anonymous
+	public Result getAllExpert(BaseDto baseDto) throws Exception {
+		return OperatorService.getAllExpert(baseDto).getResult();
+	}
+	
+	@GetMapping("all.html")
+	@Anonymous
+	public ModelAndView pageAll(ModelAndView mv,@RequestParam("cur") String cur) {
+
+		mv.addObject("cur", cur);
+		return mv;
+	}
+	
+	/**
+	 *	厂商分页查询
+	 */
+	@GetMapping("allChange/{cur}/{pageSize}/{pageIndex}")
+	@Anonymous
+	public Map<String,Object> allChange(@PathVariable String cur,@PathVariable String pageSize,@PathVariable String pageIndex) {
+		return supplyService.getAll(cur,pageSize,pageIndex);
+	}
+	
+	/**
+	 *	产品需求发布
+	 */
+	@PostMapping(value = "saveNeed")
+    public Result saveNeed(@RequestBody needVo needVo) throws Exception {
+    	return needService.saveNeed(needVo);
+    }
+	
+	/**
+	 *	服务需求发布
+	 */
+	@PostMapping(value = "saveService")
+    public Result saveService(@RequestBody serviceVo serviceVo) throws Exception {
+    	return serviceManageService.saveService(serviceVo);
+    }
+	
+	/**
+	 *	需求市场查询
+	 */
+	@PostMapping("getNeed")
+	@Anonymous
+	public List<Map<String,Object>> getNeed(@RequestParam String type,@RequestParam String value) throws IOException {
+		return needService.getNeed(type,value);
+	}
+	
+	/**
+	 *	需求市场分页查询
+	 * @throws Exception 
+	 */
+	@PostMapping("getNeedPaging")
+	@Anonymous
+	public Map<String,Object> getNeedPaging(@RequestParam String params,@RequestParam String pageIndex,@RequestParam String pageSize) throws Exception {
+		return needService.getNeedPaging(params,pageIndex,pageSize);
+	}
+	
+	/**
+	 *	产品市场分页查询
+	 * @throws Exception 
+	 */
+	@PostMapping("getProductPaging")
+	@Anonymous
+	public Map<String,Object> getProductPaging(@RequestParam String params,@RequestParam String pageIndex,@RequestParam String pageSize) throws Exception {
+		return productService.getProductPaging(params,pageIndex,pageSize);
+	}
+	
+	/**
+	 *	需求市场详情
+	 * @throws IOException 
+	 */
+	@GetMapping("needs.html")
+	@Anonymous
+	public ModelAndView needs(ModelAndView mv,@RequestParam("needNote") String needNote) throws IOException {
+		Map<String,Object> need = needService.getNeed("needNote", needNote).get(0);
+		G_Supply userCompany = needService.getUserCompany();
+		mv.addObject("company",userCompany);
+		mv.addObject("Need", need);
+		if(need.get("cpfl")!=null) {
+			List<Map<String,Object>> TypeNeed = needService.getTypeNeed(need.get("cpfl").toString(),need.get("needNote").toString());
+			mv.addObject("TypeRecommend", TypeNeed);
+			mv.addObject("TypeRecommendSize", TypeNeed.size());
+		}
+		if(need.get("needFirm")!=null) {
+			List<Map<String,Object>> FirmNeed = needService.getFirmNeed(need.get("needFirm").toString());
+			mv.addObject("FirmRecommend", FirmNeed);
+			mv.addObject("FirmRecommendSize", FirmNeed.size());
+		}
+		if(need.get("dataMan")!=null) {
+			List<Map<String,Object>> manNeed = needService.getNeedByDataMan(need.get("dataMan").toString(),need.get("needNote").toString());
+			mv.addObject("manNeed", manNeed);
+			mv.addObject("manNeedSize", manNeed.size());
+		}
+		return mv;
+	}
+	@Autowired
+	public SysParamService sysParamService;
+	/**
+	 *	产品市场详情
+	 * @throws IOException 
+	 */
+	@GetMapping("supplyProDetails.html")
+	@Anonymous
+	public ModelAndView supplyProDetails(ModelAndView mv,@RequestParam("productNote") String productNote) throws IOException {
+		Map<String,Object> product = productService.getProduct(productNote);
+		mv.addObject("Product", product);
+		String sql="select supply_id from sys_user where user_id='"+product.get("dataMan")+"'";
+		String supplyId=productService.supplyId(sql);
+		if(supplyId!=null) {
+			Map<String,Object> supply = supplyService.getSupplyById(supplyId);
+			mv.addObject("Supply", supply);
+		}
+		Result result=sysParamService.getByAddName("CP");
+		Map<String,Object> maps= (Map<String, Object>) result.get("data");
+		mv.addObject("product",maps);
+		if(product.get("dataCorp")!=null) {
+			List<Map<String,Object>> advisory = advisorysService.getAdvisoryClassify("技术案例","9",product.get("dataCorp").toString());
+			mv.addObject("Advisory", advisory);
+		}
+		return mv;
+	}
+	
+	/**
+	 *根据类型获取专家信息
+	 * @param cur  专家的类型 默认值Team 查询所有专家数据 
+	 * @param pageSize 每页数据条数
+	 * @param pageIndex 页码
+	 * @return
+	 */
+	@GetMapping("getSrchExpertTeam/{cur}/{pageSize}/{pageIndex}")
+	@Anonymous
+	public Map<String,Object> getSrchExpertTeam(@PathVariable String cur , @PathVariable String pageSize,@PathVariable String pageIndex) {
+		return supplyService.getSrchExpertTeam(cur,pageSize,pageIndex);
+	}
+	
+	
+	@GetMapping("getByidExpert{id}")
+	@Anonymous
+	public Map<String,Object>  getByidExpert(@RequestParam String id) {
+		return supplyService.getByidExpert(id);
+	}
+
+	@GetMapping("getRandomExpert")
+	@Anonymous
+	public Map<String,Object>  getRandomExpert() {
+		return supplyService.getRandomExpert();
+	}
+
+	@PostMapping("getAdvisory")
+	@Anonymous
+	public Map<String,Object> getAdvisory(){
+		return advisorysService.getAdvisory("8");
+	}
+	
+	/**
+	 *	 首页获取商会活动数据
+	 */
+	@PostMapping("getgChamberActivities")
+	@Anonymous
+	public List<Map<String,Object>> getgChamberActivities(){
+		return chamberActivitiesService.getgChamberActivities();
+	}
+	
+	/**
+	 *	 share.html分页数据
+	 */
+	@PostMapping("getShare")
+	@Anonymous
+	public Map<String,Object> getShare(@RequestParam String classify,@RequestParam String pageIndex,@RequestParam String pageSize) {
+		if(classify.equals("商会活动")) {
+			return chamberActivitiesService.getChamberActivities(pageSize,pageIndex);
+		}
+		return advisorysService.getAdvisoryPage(classify,pageSize,pageIndex);
+	}
+	
+	/**
+	 *	 academic.html数据获取
+	 */
+	@PostMapping("getAcademic")
+	@Anonymous
+	public Map<String,Object> getAcademic(@RequestParam("reqId") String reqId,@RequestParam("type") String type){
+		Map<String,Object> rmap = OperatorService.getAcademic(reqId,type);
+		return rmap;
+	}
+	
+	/**
+	 *	 academic.html数据获取
+	 */
+	@PostMapping("getSupply")
+	@Anonymous
+	public List<Map<String,Object>> getSupply(@RequestParam("supplyType") String supplyType){
+		return supplyService.getSupply(supplyType);
+	}
+	
+	/**
+	 *	 info.html数据获取
+	 */
+	@PostMapping("getInfo")
+	@Anonymous
+	public Map<String,Object> getInfo(){
+		Map<String,Object> rmap = new HashMap<String, Object>();
+		rmap.put("chamberActivities", chamberActivitiesService.getLimit("4"));
+		rmap.put("industryDynamics", advisorysService.getAdvisory("4").get("industryDynamics"));
+		return rmap;
+	}
+
+	/**
+	 *	 供应商详情
+	 */
+	@GetMapping("supply.html")
+	@Anonymous
+	public ModelAndView supply(ModelAndView mv,@RequestParam("supplyNote") String supplyNote ){
+		Map<String, Object> supply = supplyService.getSupplyById(supplyNote);
+		List<Map<String, Object>> supplyProduct = productService.getSupplyProduct(supplyNote);
+		mv.addObject("Supply", supply);
+		mv.addObject("Product", supplyProduct);
+		return mv;
+
+	}
+
+	@Anonymous
+	@PostMapping(value = "expertCaseDetail")
+	public Result expertalone(@RequestParam String id) {
+		return Result.resultOk(advisorysService.expertCaseDetail(id));
+	}
+	
+	/**
+	 *	 立即报价
+	 */
+	@PostMapping("saveOffer")
+	public Result saveOffer(@RequestBody QuotationVo quotationVo){
+		return quotationService.saveOffer(quotationVo);
+
+	}
+	
+}

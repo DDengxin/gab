@@ -1,0 +1,77 @@
+package com.tengzhi.business.system.user.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.system.user.model.SysUser;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+public interface SysUserService extends BaseService  {
+
+
+    BasePage<SysUser> findAll(BaseDto baseDto) throws IOException;
+
+
+    SysUser findByUserId(String userId);
+
+    Map<String,Object> getAvatarUrl(String userId);
+
+    SysUser save(SysUser sysUser) throws Exception;
+
+    String  ReadPath(String id);
+
+    void update(SysUser sysUser) throws Exception;
+
+    /**
+     * 更新用户密码
+     * @param newPassWord
+     * @param oldPassWord
+     * @return
+     */
+    Result passwordUpdate(String newPassWord, String oldPassWord);
+
+    Result deleteByUserId(List<SysUser> list);
+
+
+    boolean judgeUnique(SysUser sysUser);
+
+    void UserAuthSave(Map<String,Object> map);
+    /**
+     * @Param: [baseDto]
+     * @return: com.tengzhi.base.jpa.page.BasePage<java.util.Map<java.lang.String,java.lang.Object>>
+     * @Author: 王翔
+     * @Date: 2020/4/21 20:01
+     * @description: 常规原生Sql实现授权角色查询
+     */
+    BasePage<Map<String, Object>> findSysUserRightAll(BaseDto baseDto)throws IOException;
+
+    /**
+     * 通过手机号码查询用户列表
+     * @return
+     */
+    List<SysUser> findByMobile(String mobile);
+
+    /**
+     * 通过手机号码以及公司账套查询用户列表
+     * @return
+     */
+    List<SysUser> findByMobileAndOrgId(String mobile,String orgId);
+
+    /**
+     * 获取用户账套信息
+     * @return
+     */
+    Map<String,Object> getUserCorpInfo();
+
+    /**
+     * 设置用户默认账套信息
+     * @param defaultOrgId 默认(登录)账套
+     * @param currentOrgId 当前操作展涛
+     * @return
+     */
+    Result setUserCorpInfo(String defaultOrgId, String currentOrgId);
+}

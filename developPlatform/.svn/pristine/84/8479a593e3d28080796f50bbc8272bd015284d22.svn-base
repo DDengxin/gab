@@ -1,0 +1,102 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingImplement.service.impl;
+
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.da.sysCustomer.model.SysCustomer;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.dao.TrainingImplementDao;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.model.EHrTrainingRecord;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.service.TrainingImplementService;
+import com.tengzhi.business.project.projectArchives.xmda.model.EXmXmda;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
+import java.util.Date;
+import java.util.Map;
+
+
+@Service
+@Transactional
+public class TrainingImplementServiceImpl implements TrainingImplementService {
+
+    @Autowired
+    private TrainingImplementDao trainingImplementDao;
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+    /**
+     * 查询
+     * @param baseDto
+     * @return
+     * */
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(c->{
+            c.contains("jl_stype",map.get("jlStype"));
+            c.contains("jl_training_mode",map.get("jlTrainingMode"));
+            c.le("jl_date",map.get("srchRq2"));
+            c.ge("jl_date",map.get("srchRq1"));
+        });
+        String sql = "select jl_note,jl_date,jl_type,jl_plan_note,jl_title,f_get_param_name('培训类型',jl_stype,data_corp) jl_stype,f_get_param_name('培训方式',jl_training_mode,data_corp)jl_training_mode," +
+                "jl_training_content,f_get_param_name('培训讲师',jl_training_lecturer,data_corp)jl_training_lecturer,jl_training_address,jl_plan,jl_actual," +
+                "jl_training_duration,jl_training_check,f_get_param_name('培训效果',jl_training_effect,data_corp)jl_training_effect,jl_training_cost,jl_attachment,f_getname('GETUSERNAME',data_man,'',data_corp)data_man,f_getname('GETCORPNAME',data_corp,'',data_corp)data_corp ,to_char(data_date,'yyyy-MM-dd')data_date from e_hr_training_record "+where;
+        return trainingImplementDao.QueryMapPageList(baseDto, sql, true);
+    }
+    /**
+     * 查询 Personnel
+     * @param baseDto
+     * @return
+     * */
+   /* @Override
+    public BasePage<Map<String, Object>> getPersonList(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+
+        String sql = "select * from e_hr_training_personnel";
+        return trainingImplementDao.QueryMapPageList(baseDto, sql, true);
+    }*/
+    /**
+     * 根据Note获取对象数据
+     * @param jlNote
+     * */
+    @Override
+    public Map<String, Object> getByNote(String jlNote) {
+        String sql = "select jl_note,jl_date,jl_type,jl_plan_note,jl_title,f_get_param_name('培训类型',jl_stype,data_corp) jl_stype,f_get_param_name('培训方式',jl_training_mode,data_corp)jl_training_mode," +
+                "jl_training_content,f_get_param_name('培训讲师',jl_training_lecturer,data_corp)jl_training_lecturer,jl_training_address,jl_plan,jl_actual," +
+                "jl_training_duration,jl_training_check,f_get_param_name('培训效果',jl_training_effect,data_corp)jl_training_effect,jl_training_cost,jl_attachment,f_getname('GETUSERNAME',data_man,'',data_corp)data_man,f_getname('GETCORPNAME',data_corp,'',data_corp)data_corp ,to_char(data_date,'yyyy-MM-dd')data_date from e_hr_training_record  where jl_note ='" + jlNote + "' ";
+        return trainingImplementDao.QueryToFirstMap(sql);
+    }
+
+    /**
+    * 修改
+    * @param eHrTrainingRecord
+     * */
+    public void update(EHrTrainingRecord eHrTrainingRecord) {
+        trainingImplementDao.dynamicSave(eHrTrainingRecord, trainingImplementDao.findById(eHrTrainingRecord.getJlNote()).orElse(null));
+    }
+    /**
+     * 保存
+     * @param eHrTrainingRecord
+     * */
+    @Override
+    public EHrTrainingRecord save(EHrTrainingRecord eHrTrainingRecord) throws Exception {
+        SessionUser securityUser=SessionUser.SessionUser();
+        eHrTrainingRecord.setJlNote(sysGenNoteService.getNote(SysCustomer.class, "CL", "", 4));
+        eHrTrainingRecord.setDataDate(new Date());
+        eHrTrainingRecord.setDataCorp(securityUser.getCorpId());
+        eHrTrainingRecord.setDataMan(securityUser.getUsername());
+        return trainingImplementDao.save(eHrTrainingRecord);
+    }
+
+
+    /**
+     * 删除
+     * @param jlNote
+     * */
+    @Override
+    public void deleteByNote(String jlNote) {
+        trainingImplementDao.deleteByNote(jlNote);
+    }
+}

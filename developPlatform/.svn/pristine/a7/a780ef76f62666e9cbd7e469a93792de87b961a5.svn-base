@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>客人来访</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单位名称">
+            <input class="mini-textbox" name="vdw"/>
+        </label>
+    </th:block>
+</th:block>
+
+<!--撑满页面-->
+
+<div class="mini-fit">
+
+    <div tz:datagrid="datagrid" id="srch_grid" idField="note" showPageInfo="false" url="/xt/reception/visitors/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="note" align="center" width="80">单号</div>
+            <div tz:datagrid="column" field="rq" align="left" width="90">日期</div>
+            <div tz:datagrid="column" field="vdw" align="left"  width="100" >来访单位</div>
+            <div tz:datagrid="column" field="vsl" align="center" width="90">来访人数</div>
+            <div tz:datagrid="column" field="vlfrq" align="center" width="90">来访日期</div>
+            <div tz:datagrid="column" field="vsm" align="left" width="200">来访说明</div>
+            <div tz:datagrid="column" field="vcgz" align="center"  width="80" >参观证数</div>
+            <div tz:datagrid="column" field="vsgz" align="center"  width="80" >施工证数</div>
+            <div tz:datagrid="column" field="vlysl" align="center"  width="80" >安全帽数量</div>
+            <div tz:datagrid="column" field="visgh" align="center"  width="80" >安全帽归还</div>
+            <div tz:datagrid="column" field="vghrq" align="center"  width="100" >归还日期</div>
+            <div tz:datagrid="column" field="man" displayField="manname" align="left" width="80">申请人</div>
+            <div tz:datagrid="column" field="flag" align="center" width="60">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form)
+
+    function search_option() {
+        grid.load();
+    }
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("list.html/{0}".format(row.note), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+</script>
+
+
+</body>
+</html>

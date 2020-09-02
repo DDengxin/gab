@@ -1,0 +1,192 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+	xmlns:o="urn:schemas-microsoft-com:office:office"
+	xmlns:x="urn:schemas-microsoft-com:office:excel"
+	xmlns="http://www.w3.org/TR/REC-html40"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>付款申请单打印模板</title>
+</th:block>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6, form,
+	fieldset, legend, img, input, figure, figcaption {
+	margin: 0;
+	padding: 0;
+}
+
+ul, ol, li {
+	list-style: none;
+}
+
+b, strong {
+	font-weight: normal;
+}
+
+em, i {
+	font-style: normal;
+}
+
+a, u {
+	text-decoration: none;
+}
+
+img {
+	border: 0;
+	display: block;
+}
+
+input {
+	outline: none;
+}
+
+* {
+	box-sizing: border-box;
+	font-family: "";
+}
+
+.container {
+	width: 100%;
+	margin: 0 auto;
+	padding: 10px;
+}
+
+.company, .category {
+	font-weight: bold;
+	font-family: '微软雅黑';
+	font-size: 15px;
+	line-height: 29px;
+	color: #000;
+	text-align: center;
+}
+
+table {
+	width: 100%;
+	text-align: center;
+	border-collapse: collapse;
+}
+
+tbody td {
+	border: 1px solid #000;
+}
+
+table tr {
+	width: 100%;
+}
+
+table tr td {
+	padding: 5px;
+	font-size: 13px;
+}
+
+.title{
+	width: 10%;
+}
+
+.content{
+	width: 40%;
+}
+
+.l{
+	text-align: left;
+}
+
+.divflex{
+	display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+ }
+</style>
+</head>
+
+<body>
+	<div class="container">
+		<table cellpadding="0" cellspacing="0">
+			<thead>
+				<tr>
+					<td colspan="4">
+						<p class="company">辽宁金帝信息科技有限公司</p>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<p style="line-height: 5px" class="company">
+							付款申请单
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+					</td>
+				</tr>
+			</thead>
+
+			<tbody>
+				<tr>
+					<td class="title">申请日期</td>
+					<td class="content l" th:text="${sfkrq}"></td>
+					<td class="title">付款单号</td>
+					<td class="content l" th:text="${sfknote}"></td>
+				</tr>
+				<tr>
+					<td class="title">付款类型</td>
+					<td class="content l" th:text="${sfkdtype}"></td>
+					<td class="title">付款日期</td>
+					<td class="content l" th:text="${datadate}"></td>
+				</tr>
+				<tr>
+					<td class="title">付款单位</td>
+					<td class="content l" th:text="${dwname}"></td>
+					<td class="title">付款方式</td>
+					<td class="content l" th:text="${sfktype}"></td>
+				</tr>
+				<tr>
+					<td class="title">付款币种</td>
+					<td class="content l" th:text="${sfkbz}"></td>
+					<td class="title">报支金额</td>
+					<td class="content l" th:text="${sfkbzje}"></td>
+				</tr>
+				<tr>
+					<td class="title">已付金额</td>
+					<td class="content l" th:text="${sfkyfje}"></td>
+					<td class="title">本次付款</td>
+					<td class="content l " th:text="${sfkfkje}"></td>
+				</tr>
+				<tr>
+					<td class="title" height="50">付款信息</td>
+					<td class="content l" colspan="3"><pre id="fkxx" th:text="${customerbank}"></pre></td>
+				</tr>
+				<tr>
+					<td class="title" height="75">报支说明</td>
+					<td class="content l" style="vertical-align:top;" colspan="3" th:text="${sfksm}"></td>
+				</tr>
+			</tbody>
+			<tr>
+				<td style="border: none;"></td>
+			</tr>
+				<tr>
+                    <td style="border: none;" colspan="4">
+                    	<div class="divflex l">
+                    		<span style="margin-left: 10%;">登记人：<span th:text="${man}"></span></span>
+                			<span style="margin-left: 14%;">主管：<span></span></span>
+                			<span style="margin-left: 14%;">财务：<span th:text="${man}"></span></span>
+                			<span style="margin-left: 14%;margin-right: 5%;">核准：<span></span></span>
+                		</div>
+                    </td>
+                </tr>
+		</table>
+	</div>
+</body>
+<script type="text/javascript">
+var content = $('#fkxx').html();
+content = content.replace(/\n/g, "\n")
+$('#fkxx').html(content);
+</script>
+</html>

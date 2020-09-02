@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>合同选择页面</title>
+</th:block>
+<style type="text/css">
+.New_Button,.Edit_Button,.Delete_Button,.Update_Button,.Cancel_Button {
+	font-size: 11px;
+	color: #1B3F91;
+	font-family: Verdana;
+	margin-right: 5px;
+}
+</style>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+			<label class="hmq-label" text="日期">
+				<input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110px" />
+				<input class="mini-hidden" name="stype"/>
+				</label>
+				<label class="hmq-label" text="至">
+				<input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110px" />
+				</label>
+				<label class="hmq-label" text="合同单号">
+				<input class="mini-textbox" name="srchNo" width="120px"  />
+				</label>
+				<label class="hmq-label" text="合同公司">
+				<input class="mini-buttonedit" id="srchSupplier" name="srchSupplier" emptyText="全部" allowInput="false" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+				</label>
+				<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+				<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+				<a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+		</th:block>
+	</th:block>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick" style="width:100%;height:100%;" 
+			idField="id" selectOnLoad="true" sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true"
+			 url="/finance/complaint/htCode" sortMode="client">
+			<div property="columns">
+				<div tz:datagrid="column" field="htDate" width="100" align="center">日期</div>
+				<div tz:datagrid="column" field="htNo" width="100" align="center">合同编号</div>
+				<div tz:datagrid="column" field="htType" width="100" align="center">合同类型</div>
+				<div tz:datagrid="column" field="htDw" width="400" align="left">合同公司</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+		
+	<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+		var form = new mini.Form("form1");
+		grid.bindSearchForm(form);
+		 
+		function search_option() {
+			grid.load();
+		}
+
+		function SetData(data) {
+			data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+			mini.getByName('stype').setValue(data.stype);
+			search_option(); 
+		}
+
+		function confirm() {
+			CloseWindow("ok");
+		}
+
+		function onRowDblClick(e) {
+			CloseWindow("ok");
+		}
+		
+		function GetData() {
+			return grid.getSelected();
+		}
+
+		function closeWindow(action) {
+			if (window.CloseOwnerWindow) {
+				return window.CloseOwnerWindow(action);
+			} else {
+				window.close();
+			}
+		}
+		
+		/**
+	     * 供应商/客户选择
+	     * @param e
+	     * @returns {*}
+	     */
+	    function onSupplierClick(e) {
+	    	var stype = mini.getByName('stype').getValue();
+	    	var type = "S";
+	    	if(stype=="采购"){
+	    		type = "S";
+	    	}else if(stype=="销售"){
+	    		type = "C";
+	    	}
+	        var btnEdit = e.sender;
+	        return miniopen({
+	            targetWindow: window.top,
+	            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+	            title: "【合同公司】选择页面",
+	            width: 750,
+	            height: 620,
+	            data: type,
+	            ondestroy: function (action) {
+	                if (action == "ok") {
+	                    var iframe = this.getIFrameEl();
+	                    var data = iframe.contentWindow.GetData();
+	                    btnEdit.setValue(data.customerId);
+	                    btnEdit.setText(data.customerExp);
+	                }
+	            }
+	        });
+	    }
+	</script>
+</body>
+</html>

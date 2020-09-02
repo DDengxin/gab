@@ -1,0 +1,92 @@
+package com.tengzhi.business.sc.pd.scpd.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.js.cpgy.scgy.dao.MScScgymxDao;
+import com.tengzhi.business.sale.saleProduct.saleContract.dao.EXsContractDetailedDao;
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContract;
+import com.tengzhi.business.sc.pd.scpd.service.ScpdService;
+import com.tengzhi.business.sc.task.sctack.dao.MScScrwGxDao;
+import com.tengzhi.business.sc.task.sctack.dao.MScScrwWlDao;
+import com.tengzhi.business.sc.task.sctack.dao.ScTackDao;
+import com.tengzhi.business.sc.task.sctack.model.MScScrw;
+import com.tengzhi.business.sc.task.sctack.model.MScScrw.MScScrw_PK;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwGx;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwWl.MScScrwWl_PK;
+import com.tengzhi.business.sc.task.sctack.vo.MScScrwGxVo;
+import com.tengzhi.business.sc.task.sctack.vo.MScScrwWlVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
+
+@Service
+@Transactional
+public class ScpdServiceImpl implements ScpdService {
+
+	
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private ScTackDao scTackDao;
+	
+	
+	@Autowired
+	private MScScrwGxDao mScScrwGxDao;
+	
+	
+	@Autowired
+	private MScScgymxDao mScScgymxDao;
+	
+	@Autowired
+	private MScScrwWlDao mScScrwWlDao;
+	
+	@Autowired
+	private EXsContractDetailedDao eXsContractDetailedDao;
+
+
+	@Override
+	public BasePage<MScScrw> getSrchTopLeftList(BaseDto baseDto) throws IOException {
+		SessionUser ssionuser=SessionUser.SessionUser();
+		String where=" and a.data_corp='"+ssionuser.getCorpId()+"'";
+		Map<String, String> map = baseDto.getParamsMap();
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            where+=" and a.rq >='"+map.get("srchRq1")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            where+=" and a.rq <='"+map.get("srchRq2")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchScmo"))) {
+            where+=" and  a.sc_mo like '%"+map.get("srchScmo")+"%' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchHtmo"))) {
+            where+=" and a.ht_mo like  '%"+map.get("srchHtmo")+"%' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchScgy"))) {
+			where+=" and a.sc_gylx =  '"+map.get("srchScgy")+"' ";
+		}
+
+		if(ObjectUtil.isNotEmpty(map.get("htStype"))) {
+			where+=" and b.cpcode_type =  '"+map.get("htStype")+"' ";
+		}
+		String sqlString=" select a.rq,a.sc_mo,a.ht_mo,code,a.scjs,a.sczq,a.sctqq,a.scsl,a.sczl,a.scjq,a.scyq,a.scflag,a.data_rq, a.sc_gylx,a.sc_stype,f_getname('GETGYNAME',a.sc_gylx,'','') gylxname, " +
+				" f_getparamname('GETBCPCODENAME',b.cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,b.cpcode_size,f_getparamname('GETBYCPCODEFL',b.cpcode_fl,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_fl"
+				+ ",f_getparamname('GETBYPARENTID',b.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"')  cpcode_bz,f_getname('GETUSERNAME',a.data_man,'',a.data_corp) data_man,f_get_param_name('生产方式',sc_stype,'"+   SessionUser.getCurrentCorpId()   +"','',false) stypename "
+				+ " from m_sc_scrw a,e_js_cpcode b where a.code=b.cpcode_id  " + where ;
+		return scTackDao.QueryPageLists(baseDto,sqlString+" order by a.rq desc,a.sc_mo desc ");
+	}
+
+
+
+}

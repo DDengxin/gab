@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>维修工单</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" value="new Date()" width="110"/>
+        </label>
+        <label class="hmq-label" text="申请部门">
+
+            <input id="sbwbDept" name="sbwbDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                   url="/system/dept/combobox/getDeptTreeList"
+                   showClose="true" oncloseclick="onCloseClickClearValue" width="110"/>
+
+        </label>
+
+        <label class="hmq-label" text="类型">
+            <input class="mini-combobox" name="sbwbType" emptyText="全部" nullItemText="全部" showNullItem="true"
+                   url="/mSbJt/by/getSbwbType" width="110"/>
+        </label>
+
+        <label class="hmq-label" text="设备名称">
+            <input class="mini-textbox" name="machineName" id="machineName" width="110"/>
+        </label>
+        <label class="hmq-label" text="设备编号">
+            <input class="mini-textbox" name="machineId" width="110"/>
+        </label>
+        <label class="hmq-label" text="维修人员">
+            <input id="sbwbPman" name="sbwbPman" class="mini-treeselect" url="encodeURI('/system/parameter/getParamsTreeList/设备/WBRY')"
+                   ajaxType="post"
+                   multiSelect="true"
+                   textField="combtext" valueField="combid" parentField="pid" checkRecursive="false"
+                   showFolderCheckBox="false" expandOnLoad="true" showClose="true" oncloseclick="onCloseClickClearValue"
+                   popupWidth="200" method="post"/>
+
+        </label>
+
+        <label class="hmq-label" text="维修单号">
+            <input class="mini-textbox" name="sbwbNote" width="110"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input class="mini-combobox" name="sbwbFlag" emptyText="全部" nullItemText="全部" showNullItem="true"
+                   textField="text" valueFiled="id"
+                   data="[{id:'登记',text:'登记'},{id:'确认',text:'确认'},{id:'接单',text:'接单'},{id:'安排',text:'安排'},{id:'完成',text:'完成'}]" width="110"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" sortField="sbwbSbid" treeColumn="sbwbDept"
+         idField="sbwbSbid" parentField="parentId" resultAsTree="true" iconField="rightIconCls"
+         expandOnLoad="0" showTreeLines="false" ShowTreeicon="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="sbwbRq" name="sbwbRq" align="center" width="80">日期</div>
+            <div tz:datagrid="column" field="sbwbNote" name="sbwbNote" align="left" width="100">维修单号</div>
+            <div tz:datagrid="column" field="sbwbSbid" name="sbwbSbid" align="left" width="120">设备编号</div>
+            <div tz:datagrid="column" field="machineName" name="machineName" align="left" width="180">设备名称</div>
+            <div tz:datagrid="column" field="sbwbDept" displayField="deptname" name="sbwbDept" align="left" width="100">申请部门</div>
+            <!--<div tz:datagrid="column" field="sbwbSm" name="sbwbSm" align="left" width="180">故障描述</div>-->
+            <div tz:datagrid="column" field="sbwbSman" name="sbwbSman" align="center" width="80">申请人员</div>
+            <div tz:datagrid="column" field="sbwbPtime" name="sbwbPtime" align="center" width="80">计划时间</div><!-- dataDate -->
+
+            <div tz:datagrid="column" field="sbwbPman" name="sbwbPman" displayField="usernamee" align="center" width="100">计划人员</div><!-- sbwbPman -->
+            <div tz:datagrid="column" field="sbwbJtime" name="sbwbJtime" align="center" width="80">安排时间</div>
+            <div tz:datagrid="column" field="sbwbDman" name="sbwbDman" displayField="username" align="center" width="100">完成人员</div>
+            <div tz:datagrid="column" field="sbwbType" name="sbwbType" align="center" width="100">故障分类</div>
+            <div tz:datagrid="column" field="sbwbKtype" name="sbwbKtype" align="center" width="80">归档</div>
+            <div tz:datagrid="column" field="sbwbFlag" name="sbwbFlag" align="center" width="80">状态</div>
+            <!--<div tz:datagrid="column" field="sbwbJtime" name="sbwbJtime" align="center" width="80" visible="false">受理时间</div>-->
+            <!-- <div tz:datagrid="column" field="sbwbPtime" name="sbwbPtime" align="center" width="80" visible="false">安排时间</div>-->
+            <div tz:datagrid="column" field="sbwbDtime" name="sbwbDtime" align="center" width="80" visible="false">完成时间</div>
+
+
+            <!--<div tz:datagrid="column" field="sbwbDsm" name="sbwbDsm" align="center" width="80" visible="false">维修说明</div>
+
+
+            <div tz:datagrid="column" field="sbwbDtype" name="sbwbDtype" align="center" width="100" visible="false">维保大类</div>
+            <div tz:datagrid="column" field="sbwbXtype" name="sbwbXtype" align="center" width="100" visible="false">维保小类</div>
+
+            <div tz:datagrid="column" field="dataMan" name="dataMan" align="center" width="80" visible="false">操作人员</div>-->
+            <div tz:datagrid="column" field="dataDate" name="dataDate" align="center" width="80" visible="false" value="new Date()">操作日期</div>
+            <!--<div tz:datagrid="column" field="dataCorp" name="dataCorp" align="center" width="80" visible="false">所属公司</div>-->
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    var surl = "/mSbJt/by";
+    grid.setUrl(surl + "/getSrchButonList");
+    //mini.get("sbwbPman").setUrl(encodeURI("/system/parameter/getParamsSelectList/设备/维保人员"));
+
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, height: '400px', width: '700px'});
+    }
+
+    //查阅
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: row, height: '200px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sbwbFlag == "登记") {
+                e.sender.miniopen({url: 'add.html', action: 'edit', data: row, height: '200px'});
+            } else {
+                hmq.tipDanger("该状态无法修改！");
+            }
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.sbwbFlag == "登记") {
+                mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                    if (action == "ok") {
+                        $['delete']("mSbSbwbList.html/{0}".format(row.sbwbNote), function (res) {
+                            if (200 === res.code) {
+                                grid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            } else {
+                hmq.tipDanger("该状态无法删除！");
+            }
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //安排
+    function ook_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            var params = {
+                sbwbNote: row.sbwbNote
+            }
+            $['put']("getAPFlag", JSON.stringify({"params": mini.encode(params)}),
+                function (res) {
+                    mini.unmask();
+                    if (200 === res.code) {
+                        e.sender.miniopen({url: "add.html", action: 'ook', data: row, width: 200});
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+
+    }
+
+    //完成
+    function conf_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            var params = {
+                sbwbNote: row.sbwbNote
+            }
+            $['put']("getAAFlag", JSON.stringify({"params": mini.encode(params)}),
+                function (res) {
+                    mini.unmask();
+                    if (200 === res.code) {
+                        e.sender.miniopen({url: "add.html", action: 'conf', data: row, width: 200});
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+
+    }
+
+
+    //确认
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("是否确认？", "状态确认", function (action) {
+                if (action == "ok") {
+                    $.get("sure?sbwbNote=" + row.sbwbNote, function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //取消
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("是否取消确认吗？", "确认信息", function (action) {
+                if (action == "ok") {
+                    $.get("cancel?sbwbNote=" + row.sbwbNote, function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //接单
+    function okk_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("是否接单？", "状态接单", function (action) {
+                if (action == "ok") {
+                    $.get("okk?sbwbNote=" + row.sbwbNote, function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            data: "root",
+            width: 500,
+            height: 420,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                }
+            }
+        });
+    }
+
+
+</script>
+
+</body>
+</html>

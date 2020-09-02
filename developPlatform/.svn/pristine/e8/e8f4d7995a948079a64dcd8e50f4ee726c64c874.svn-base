@@ -1,0 +1,124 @@
+package com.tengzhi.business.production.subcontract.wwkc.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.base.publicinterfac.QR;
+import com.tengzhi.business.ck.yw.kctj.service.WarehouseKcService;
+import com.tengzhi.business.production.subcontract.wwkc.service.WwkcService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+
+@RestController
+@RequestMapping("/production/subcontract/wwkc")
+public class WwkcControler {
+
+	@Autowired
+	private WwkcService wwkcService;
+
+	String typeC="";
+
+	@GetMapping("/*.html")
+	public ModelAndView pageForwart(@RequestParam(value="stype",required = false) String stype,ModelAndView mv) {
+		mv.addObject("stype", stype);
+		return mv;
+	}
+	
+	@GetMapping("/tab.html")
+	public ModelAndView tab(@RequestParam(value="stype") String stype,ModelAndView mv,HttpServletRequest request) {
+		mv.addObject("mxurl", "mxlist.html?"+request.getQueryString());
+		mv.addObject("flurl", "fllist.html?"+request.getQueryString());
+		mv.addObject("klurl", "kllist.html?"+request.getQueryString());
+		return mv;
+	}
+	
+	@GetMapping("/table.html")
+	public ModelAndView table(ModelAndView mv,@RequestParam(value="incontract",required = false)String incontract,@RequestParam(value="pack",required = false)String pack,@RequestParam(value="code",required = false)String code,@RequestParam(value="type",required = false)String type) {
+		mv = wwkcService.table(incontract,pack,code,type,mv);
+		return mv;
+	}
+
+	@PostMapping(value = "/exportExcel")
+	public Result exportExcel(HttpServletResponse response, HttpServletRequest request,String parms) throws IOException {
+		return wwkcService.exportExcel(response, request,typeC,parms);
+	}
+
+	/**
+	 * 区分模块的参数入口路径
+	 * @param cgStype
+	 * @param request
+	 * @param rt
+	 * @param mv
+	 * @return
+	 */
+	@GetMapping(value = {"{cgStype}/list.html"})
+	public ModelAndView toPage(@PathVariable String cgStype,  HttpServletRequest request, RedirectAttributes rt,ModelAndView mv) {
+	  String servletPath = request.getServletPath();
+	  servletPath = servletPath.substring(servletPath.lastIndexOf("/")+1);
+	  mv.setView(new RedirectView(String.format("/production/subcontract/wwkc/%s",servletPath)));
+	  request.getParameterMap().forEach((key,value) ->{
+	      mv.addObject(key,value);
+	  });
+	  mv.addObject("cgStype",cgStype);
+	  //是否定向
+	  mv.addObject("orient",true);
+	  return mv;
+	}
+	
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "/getSrchMxList")
+	public Result getSrchMxList(BaseDto baseDto) throws Exception {
+		typeC="mx";
+		return wwkcService.getSrchTopList("mx",baseDto).getResult();
+	}
+
+	@PostMapping(value = "/getSrchFlList")
+	public Result getSrchFlList(BaseDto baseDto) throws Exception {
+		typeC="fl";
+		return wwkcService.getSrchTopList("fl",baseDto).getResult();
+	}
+	
+	@PostMapping(value = "/getSrchKlList")
+	public Result getSrchKlList(BaseDto baseDto) throws Exception {
+		typeC="kl";
+		return wwkcService.getSrchTopList("kl",baseDto).getResult();
+	}
+	
+	/**
+	 * 获取二维码
+	 *
+	 * @return
+	 * @throws IOException 
+	 */
+	@GetMapping(value = "/getQr")
+	public void getQr(@RequestParam(value = "content") String content,HttpServletResponse response) throws IOException{
+		QR qr = new QR();
+		qr.getCode(content,1000,1000,response);
+	}
+
+	/**
+	 * 获取v_stock视图中的信息
+	 * @param baseDto
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value = "/getVStock")
+	public Result getVStock(BaseDto baseDto) throws Exception {
+		return wwkcService.getVStock(baseDto).getResult();
+	}
+
+
+
+}

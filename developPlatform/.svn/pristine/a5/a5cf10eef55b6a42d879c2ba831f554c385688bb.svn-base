@@ -1,0 +1,454 @@
+package com.tengzhi.base.jpa.extension;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * @author lqy sql 拼接
+ */
+public class SqlUtils {
+
+	private StringBuffer SqlStr = new StringBuffer();
+
+	public StringBuffer getSqlStr() {
+		return SqlStr;
+	}
+
+	/**
+	 * 获取带有and前缀条件字符串
+	 * 如果拼接的条件为空，则返回空字符串
+	 * @return
+	 */
+	public String getAndSuffixSqlStr() {
+		if(getSqlStr().length() > 0 && !getSqlStr().toString().trim().toLowerCase().startsWith("and")){
+			return String.format(" and  %s",getSqlStr().toString());
+		}else{
+			return getSqlStr().toString();
+		}
+	}
+
+	/**
+	 * 获取带有Where前缀条件字符串
+	 * 如果拼接的条件为空，则返回空字符串
+	 * @return
+	 */
+	public String getWhereSuffixSqlStr() {
+		if(getSqlStr().length() > 0 && !getSqlStr().toString().trim().toLowerCase().startsWith("where")){
+			return String.format(" where  %s",getSqlStr().toString());
+		}else{
+			return getSqlStr().toString();
+		}
+	}
+
+
+	/**
+	 * Sql ,拼接中间部分
+	 */
+	public String getStrJoin() {
+		if(getSqlStr().length() > 0){
+			return getSqlStr().toString();
+		}
+		return "";
+	}
+
+
+	/**
+	 * 判断字段不能为空
+	 *
+	 * @param field
+	 * @return
+	 */
+	static String getFieldName(String field) {
+		if (field == null) {
+			throw new RuntimeException(field + " cannot be null");
+		}
+		return " " + field;
+	}
+
+	/**
+	 * 值拼接
+	 *
+	 * @param str
+	 * @return
+	 */
+	private String quoteStr(String str) {
+		if (str == null) {
+            return null;
+        }
+		return "'" + str + "'";
+	}
+
+	/**
+	 * 条件评接
+	 *
+	 * @param condition
+	 */
+	protected void addCriterion(String condition) {
+		if (condition == null || "".equals(condition)) {
+			return;
+		}
+		if (SqlStr.length() == 0) {
+            SqlStr.append(condition);
+        } else {
+            SqlStr.append(" and " + condition);
+        }
+	}
+
+	/**
+	 * 条件评接
+	 *
+	 * @param field     字段
+	 * @param condition 属性
+	 */
+	protected void addCriterion(String field, String condition) {
+		if (condition == null || "".equals(condition)) {
+			return;
+		}
+		if (SqlStr.length() == 0) {
+            SqlStr.append(field + condition);
+        } else {
+            SqlStr.append(" and " + field + condition);
+        }
+	}
+
+
+	/***
+	 * 中间部分,拼接
+	 * update修改时取部分数据
+	 */
+	protected void addJoinCriterion(String field, String condition) {
+		if (condition == null || "".equals(condition)) {
+			return;
+		}
+		if (SqlStr.length() == 0) {
+			SqlStr.append(field + condition);
+		} else {
+			SqlStr.append(" , " + field + condition);
+		}
+	}
+
+
+	/**
+	 * 为空
+	 *
+	 * @param field
+	 * @return
+	 */
+	public SqlUtils isNull(String field) {
+		addCriterion(getFieldName(field) + " is null");
+		return this;
+	}
+
+	/**
+	 * 不为空
+	 *
+	 * @param field
+	 * @return
+	 */
+	public SqlUtils isNotNull(String field) {
+		addCriterion(getFieldName(field) + " is not null");
+		return this;
+	}
+
+	/**
+	 * 直接拼接sql片段(慎用)
+	 * @param where
+	 * @return
+	 */
+	public SqlUtils joinString(String where) {
+		SqlStr.append(" " + where);
+		return this;
+	}
+
+
+
+	/**
+	 * 等于
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils eq(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " = ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * 修改中间部分拼接,
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils JOinStrComma(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+			return this;
+		}
+		addJoinCriterion(getFieldName(field) + " = ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 *
+	 * @param field 字段名
+	 * @param value 值
+	 * @param force 是否强制拼接
+	 * @return
+	 */
+	public SqlUtils eq(String field, String value,boolean force) {
+		if (!force && StringUtils.isBlank(value)) {
+			return this;
+		}
+		addCriterion(getFieldName(field) + " = ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * 不等于
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils ne(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " <> ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * 以什麽开始
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils startingWith(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " like ", quoteStr(value + "%"));
+		return this;
+	}
+
+	/**
+	 * 以什麽结束
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils endingWith(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " like ", quoteStr("%" + value));
+		return this;
+	}
+
+	/**
+	 * 包含
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils contains(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " like ", quoteStr("%" + value + "%"));
+		return this;
+	}
+
+	/**
+	 * 大于等于
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils ge(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " >= ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * 大于
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils gt(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " > ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * 小于等于
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils le(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " <= ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * 小于
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils lt(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " < ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * in
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils in(String field, List<String> list) {
+		if (list.size() > 0) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " in ", "(" + quoteStr(String.join("','", list)) + ")");
+		return this;
+	}
+
+	/**
+	 * in
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils in(String field, String... value) {
+		if (StringUtils.isAnyBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " in ", "(" + quoteStr(String.join("','", value)) + ")");
+		return this;
+	}
+
+	/**
+	 * notIn
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils notIn(String field, List<String> list) {
+		if (list.size() > 0) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " not in ", "(" + quoteStr(String.join("','", list)) + ")");
+		return this;
+	}
+
+	/**
+	 * notIn
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils notIn(String field, String... value) {
+		if (StringUtils.isAnyBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " not in ", "(" + quoteStr(String.join("','", value)) + ")");
+		return this;
+	}
+
+	/**
+	 * between
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils between(String field, String value, String value1) {
+		if (StringUtils.isAnyBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " between ", quoteStr(value) + " and " + quoteStr(value1));
+		return this;
+	}
+
+	/**
+	 * 自定义like
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils like(String field, String value) {
+		if (StringUtils.isBlank(value)) {
+            return this;
+        }
+		addCriterion(getFieldName(field) + " like ", quoteStr(value));
+		return this;
+	}
+
+	/**
+	 * 自定义 追加
+	 * 
+	 * @param field
+	 * @param value
+	 * @return
+	 */
+	public SqlUtils add(String sql) {
+		if (StringUtils.isBlank(sql)) {
+            return this;
+        }
+		SqlStr.append(sql);
+		return this;
+	}
+
+	public SqlUtils and(Consumer<SqlUtils> sqlUtils) {
+		SqlUtils sql = new SqlUtils();
+		sqlUtils.accept(sql);
+		if (StringUtils.isNotBlank(sql.getSqlStr())) {
+            SqlStr.append(" and ( " + sql.getSqlStr() + " )");
+        }
+		return this;
+	}
+
+	public SqlUtils or(Consumer<SqlUtils> sqlUtils) {
+		SqlUtils sql = new SqlUtils();
+		sqlUtils.accept(sql);
+		if (StringUtils.isNotBlank(sql.getSqlStr())) {
+            SqlStr.append(" or ( " + sql.getSqlStr() + " )");
+        }
+		return this;
+	}
+
+}

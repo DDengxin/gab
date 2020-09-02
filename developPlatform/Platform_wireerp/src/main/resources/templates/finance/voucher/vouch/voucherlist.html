@@ -1,0 +1,676 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" >
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>科目</title>
+	</th:block>
+</head>
+<body >
+	<form id="srch_from" method="post">
+		<div class="mini-toolbar" style="padding:1px;border-bottom:0;">
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<label>日期: </label>
+						<input id="srchRq1" name="srchRq1" class="mini-datepicker" style="width:100px;" showClearButton="false" />
+						<label>至: </label>
+						<input id="srchRq2" name="srchRq2" class="mini-datepicker" style="width:100px;" showClearButton="false" />
+						<label>凭证字:</label>
+						<select id="fgroupid" name="fgroupid" onvaluechanged="fgroupidvaluechanged();" url="/finance/voucher/vouch/getFGROUPID" class="mini-combobox" style="width:80px;"  required="true">
+						<label>凭证字号:</label>
+						<input id="srch_no" name="srch_no" class="mini-textbox" style="width:80px;" />
+						<label>摘要: </label>
+						<input id="srch_expl" name="srch_expl" class="mini-textbox" style="width:80px;" />
+						<label>来源: </label>
+						<select id="ftranstype" name="ftranstype" class="mini-combobox" style="width:60px;" emptyText="全部">
+							<option value="">全部</option>
+							<option value="出货">出货</option>
+							<option value="采购">采购</option>
+							<option value="销售">销售</option>
+							<option value="收款">收款</option>
+							<option value="付款">付款</option>
+							<option value="转账">转账</option>
+							<option value="暂估">暂估</option>
+							<option value="损益">损益</option>
+							<option value="收益">收益</option>
+							<option value="自增">自增</option>
+						</select>
+						<label>借方金额:</label>
+						<input id="srch_debit" name="srch_debit" class="mini-textbox" style="width:50px;" />
+						<label>-</label>
+						<input id="srch_debit2" name="srch_debit2" class="mini-textbox" style="width:50px;" />
+						<label>贷方金额:</label>
+						<input id="srch_credit" name="srch_credit" class="mini-textbox" style="width:50px;" />
+						<label>-</label>
+						<input id="srch_credit2" name="srch_credit2" class="mini-textbox" style="width:50px;" />
+						<label>科目:</label>
+						<input id="Level" name="Level" class="mini-treeselect" style="width:200px;" multiSelect="false" valueFromSelect="false" textField="fnumbername" valueField="faccountid" parentField="fparentid"
+							allowInput="true" showRadioButton="false" showFolderCheckBox="false" nullitemtext="请选择..." shownullitem="true" emptytext="请选择..." />
+						<input id="fnumbertemp" name="fnumbertemp" class="mini-hidden" readonly="readonly" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div id="srch_grid" class="mini-datagrid" style="width:100%;height:100%;" pager="#pager1" showPager="false" pageSize="100" multiSelect="true" showSummaryRow="true"
+			ondrawsummarycell="onDrawSummaryCell">
+			<div property="columns">
+			
+				<div headerAlign="center" type = "checkcolumn" align ="center" width = "40"></div>
+				<div type="indexcolumn">序号</div>
+				<div field="fdate" width="90" align="center" allowSort="true" dateFormat="yyyy-MM-dd" renderer="onActionRenderer" headerAlign="center">日期</div>
+				<div field="fvoucherid" width="100" align="center" allowSort="true" headerAlign="center" visible="false"></div>
+				<div field="fvoucherno" width="100" align="center" allowSort="true" headerAlign="center" renderer="onActionRenderer">凭证字号</div>
+				<div field="fexplanation" width="120" align="left" allowSort="true" headerAlign="center">摘要</div>
+				<div field="faccountid" displayField="fnumbername" width="150" align="left" allowSort="true" headerAlign="center">科目</div>
+				<div field="debit" width="100" align="right" allowSort="true" summaryType="sum" numberFormat="#,0.00" headerAlign="center">借方金额</div>
+				<div field="credit" width="100" align="right" allowSort="true" summaryType="sum" numberFormat="#,0.00" headerAlign="center">贷方金额</div>
+				<div field="fusername" width="100" align="center" allowSort="true" headerAlign="center">制单人</div>
+				<div field="ftranstype" width="50" align="center" allowSort="true" headerAlign="center">来源</div>
+				<div field="fischecked" width="50" align="center" allowSort="true" headerAlign="center" renderer="onActionRenderer">状态</div>
+				<div field="fcheckname" width="50" align="center" allowSort="true" headerAlign="center">审核人</div>
+				<div field="fchecktime" width="80" align="center" allowSort="true" headerAlign="center" dateFormat="yyyy-MM-dd">审核时间</div>
+				<div></div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar" style="padding:0px;border-bottom:1;">
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;" sizeList="[50,100,200]"></div>
+				</td>
+				<td style="white-space:nowrap;" align="right" id="btnbar">
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div id="editWindow" class="mini-window" title="凭证整理" style="width:400px;height:300px" showModal="true" allowResize="true" allowDrag="true">
+		<form id="form1" method="post">
+			<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+				<label>会计期间:</label>
+				<input id="zcperiod" textfield="combtext" valuefield="combid" name="zcperiod" class="mini-combobox" style="width:110px;" />
+			</div>
+			<div id="editform" class="mini-toolbar" style="padding:2px;border-bottom:0;">
+				<table style="width:100%;">
+					<tr>
+						<td style="width:100%;" align="left">
+							<a class="mini-button" iconCls="icon-save" id="btnsave" onclick="zlsave()">保存</a>
+							<a class="mini-button" iconCls="icon-close" onclick="javascript:cancelRow()">关闭</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</form>
+	</div>
+	<script th:inline="javascript">
+
+		var PERIOD = /*[[${CurrentPeriod}]]*/ "01";
+		var YEAR = /*[[${CurrentYear}]]*/ "1900";
+		var STARTPERIOD = /*[[${StartPeriod}]]*/ "01";
+		var STARTYEAR = /*[[${StartYear}]]*/ "1900";
+		var CORPID = /*[[${corp_id}]]*/ "TZ";
+	</script>
+	<script type="text/javascript">
+		mini.parse();
+
+		var corp_id = TZ_SETTING.corpId;
+		var grid = mini.get("srch_grid");
+		var form = new mini.Form("srch_from");
+		var zcform = new mini.Form("form1");
+		var editWindow = mini.get("editWindow");
+		var surl = "/finance/voucher/vouch";
+		grid.setUrl(surl + "/getVoucherList");
+		mini.get("Level").setUrl(encodeURI(encodeURI("/finance/voucher/vouch/getSubjectTreeList")));
+		mini.get("zcperiod").setUrl("/finance/voucher/vouch/getYearMonthList");
+		mini.get("zcperiod").setValue( YEAR+PERIOD );
+
+		function search_option() {
+			var strs = new Array(); //定义一数组
+			if (mini.get("Level").getValue() == null || mini.get("Level").getValue() == '') {
+				mini.get("fnumbertemp").setValue("");
+			} else {
+				strs = mini.get("Level").getText().split("|"); //字符分割
+				mini.get("fnumbertemp").setValue(strs[0]);
+			}
+			var parms = form.getData(true);//设置true，获取的日期格式是"2010-11-12"字符串。
+			grid.load({
+				parms : mini.encode(parms)
+			});
+		}
+
+		function onButtonEdit(e) {
+			var btnEdit = this;
+			mini.open({
+				url : "../../common/customerselectlist.html",
+				title : "客户选择列表",
+				width : 650,
+				height : 380,
+				ondestroy : function(action) {
+					if (action == "ok") {
+						var iframe = this.getIFrameEl();
+						var data = iframe.contentWindow.GetData();
+						data = mini.clone(data); //必须
+						if (data) {
+							btnEdit.setValue(data.customer_id);
+							btnEdit.setText(data.customer_exp);
+						}
+					}
+				}
+			});
+		}
+
+		// function add_option() {
+		// 	var vurl = surl + "/add.html";
+		// 	var vtitle = "【凭证】新增";
+		// 	miniopen(vurl, vtitle, "", "add", 1200, 502);
+		//
+		// }
+		/**
+		 * 新增
+		 **/
+		function add_option(e){
+
+			e.sender.miniopen({url: surl + "/add.html", action: 'add'});
+		}
+
+		function view_option() {
+			var row = grid.getSelected();
+			if (row) {
+				var vurl = surl + "-add.html";
+				var vtitle = "【凭证】查阅";
+				miniopen(vurl, vtitle, row.fvoucherid, "view", 1200, 502);
+			} else {
+				hmq.tipDanger( "请选中一条记录", "danger");
+			}
+		}
+
+		/**
+		 *  修改
+		 */
+		function edit_option(e) {
+			var row = grid.getSelected();
+			if (row) {
+                    $.ajax({
+                        url: surl + "/findById/"+row.fvoucherid,
+                        type: 'get',
+                        cache: false,
+                        success: function (res) {
+                            if (res.code==200) {
+                                if (res.data.fischecked == 0) {
+                                    var vurl = surl + "/add.html";
+                                    var vtitle = "【凭证录入】修改";
+                                    // miniopen(vurl, vtitle, res.data, "edit", 1200, 502);
+									e.sender.miniopen({url: vurl, action: 'edit',data:res.data});
+                                } else {
+                                    grid.reload();
+									hmq.tipDanger( "该状态不能修改!", "danger");
+                                    return;
+                                }
+                            } else {
+								hmq.tipDanger( "无对应数据", "danger");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+							hmq.tipDanger( "网络请求失败!", "danger");
+
+                        }
+                    });
+			} else {
+				hmq.tipDanger( "请选中一条记录!", "danger");
+			}
+		}
+
+		function del_option() {
+			var row = grid.getSelected();
+			if (row) {
+				if (row.fischecked == "0") {
+					mini.confirm("您确认要删除此凭证吗？删除后将不可恢复，并会产生断号。", "提示信息", function(action) {
+						if (action == "ok") {
+							del.disabled = true;
+							grid.loading("操作中，请稍后......");
+							$.ajax({
+								url : surl + "/removeAll.do",// 跳转到 action
+								data : {
+									parms : row.fvoucherid,
+									stime : (new Date()).getTime()
+								},
+								type : "post",
+								cache : false,
+								dataType : "json",
+								success : function(data) {
+									del.disabled = false;
+									if (data.status) {
+										grid.reload();
+									} else {
+										mini.alert(data.message);
+									}
+								},
+								error : function() {
+									hmq.tipDanger( "网络操作请求失败！", "danger");
+								}
+							});
+						}
+					});
+				} else {
+					hmq.tipDanger("该记录状态不符，不可删除！", "danger");
+				}
+			} else {
+				hmq.tipDanger( "请选中一条记录", "danger");
+			}
+		}
+		
+		function zl_option() {
+			editWindow.show();
+		}
+
+		function cancelRow() {
+			editWindow.hide();
+		}
+		
+		function zlsave() {
+			mini.get("btnsave").disable();
+			var parms = zcform.getData(true);
+			$.ajax({
+				url : surl+"/zl.do",
+				type : 'post',
+				data : {
+					parms : mini.encode(parms),
+					stime : (new Date()).getTime()
+				},
+				cache : false,
+				success : function(data) {
+					mini.get("btnsave").enable();
+					if (data.status) {
+						hmq.tipDanger( data.message, "success");
+					} else {
+						mini.alert(data.message);
+						//mini.get("btnsave").disable();
+						//hmq.tipDanger( data.message, "danger");
+					}
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					mini.get("btnsave").enable();
+					hmq.tipDanger("网络请求失败!", "danger");
+					//CloseWindow();
+				}
+			});
+		}
+
+		function onDrawSummaryCell(e) {
+			var result = e.result;
+			var sumdata = mini.decode(result.sumdata);
+			//服务端汇总计算
+			if (sumdata && e.field == "sk_date") {
+				var s = "<span style='color:Brown;'>";
+				s += "合计:</span>";
+				e.cellHtml = s;
+			}
+			if (sumdata && e.field == "debit") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.sl).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+			if (sumdata && e.field == "credit") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.je).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+
+		}
+
+		//绘制行
+		function onActionRenderer(e) {
+			if (e.field == "fdate") {
+				return mini.formatDate(new Date(e.record.fdate), "yyyy-MM-dd");
+			}
+            if (e.field == "fischecked") {
+                if(e.record.fischecked =='0'){
+                    return "登记";
+				}
+                if(e.record.fischecked =='1'){
+                    return "确认";
+                }
+            }
+			if (e.field == "fvoucherno" || e.record.fvoucherno!=null) {
+				e.cellStyle = "text-align:center";
+				return '<a  href="javascript:viewopen(\'' + e.record.fvoucherid + '\',\'' + e.record.ftranstype + '\')" style="color:blue;"/>'+e.record.fvoucherno+'</a>';
+			}
+		}
+
+		function viewopen(id,stype){
+			var parms={
+					id:id,
+					stype:stype
+			};
+			if(stype=="采购"){
+				var vurl = "/engine/ba/ba_engine_show.jsp?menu_id=A020406&menu_stype=add&menu_cdefine2=";
+				var vtitle = "【采购业务】查阅";
+				miniopen(vurl, vtitle, id, "pz", 1000, 600);
+			}else if(stype=="销售"){
+				var vurl = "/engine/ba/ba_engine_show.jsp?menu_id=A040406&menu_stype=add&menu_cdefine2=";
+				var vtitle = "【销售业务】查阅";
+				miniopen(vurl, vtitle, id, "pz", 1000, 600);
+			}else if(stype=="转账"){
+				 $.ajax({
+                     url : surl + "/getNote.do",// 跳转到 action
+                     data : {
+                         parms : mini.encode(parms),
+                         stime : (new Date()).getTime()
+                     },
+                     type : "post",
+                     cache : false,
+                     dataType : "json",
+                     success : function(text) {
+                         if (text.status) {
+                        	 var data = mini.decode(text.data);
+                        	 data = mini.clone(data);
+                        	 var vurl = "/ymt/cw/zhzz/zhzz_add.html";
+         					var vtitle = "【转账业务】查阅";
+         					miniopen(vurl, vtitle, data.note, "view", 350, 355);
+                         } else {
+                             mini.alert(text.message);
+                         }
+                     },
+                     error : function() {
+						 hmq.tipDanger( "网络操作请求失败！", "danger");
+                     }
+                 });
+			}else if(stype=="付款"||stype=="收款"||stype=="出货"){
+				  var vurl = "/cw/ba/pzgl/voucher/jzpzglyw_list.html";
+        	      var vtitle = "【付款业务】查阅";
+        	      var parms={
+        	    		  srch_rq1 : mini.formatDate(mini.get("srch_rq1").getValue(true),"yyyy-MM-dd"),
+        	    		  srch_rq2 : mini.formatDate(mini.get("srch_rq2").getValue(true),"yyyy-MM-dd"),
+        	    		  srch_type : stype,
+        	    		  srch_pzid : id
+        	      };
+        	      miniopen(vurl, vtitle, parms, "view",1000,550);
+				/*  $.ajax({
+                     url : surl + "/getNote.do",// 跳转到 action
+                     data : {
+                         parms : mini.encode(parms),
+                         stime : (new Date()).getTime()
+                     },
+                     type : "post",
+                     cache : false,
+                     dataType : "json",
+                     success : function(text) {
+                         if (text.status) {
+                        	 var data = mini.decode(text.data);
+                        	 data = mini.clone(data);
+                        	 if(data.cptype=="付款"){
+                        		  var vurl = "/engine/ba/ba_engine_show.jsp?menu_id=A020407&menu_stype=add";
+                        	      var vtitle = "【付款业务】查阅";
+                        	      miniopen(vurl, vtitle, data.note, "view",1000,550);
+                        	 }else if(data.cptype=="报支"){
+                        		 var vurl = "/xt/review_show.html";
+                        		    var vtitle = "【付款业务】查阅";
+                        		    var parms = {
+                        		      note : data.note,
+                        		      report : "/engine/ba/ba_engine_show.jsp?menu_id=A010405&menu_stype=view&note="+ data.note,
+                        		      spid : 'A010405'
+                        		    };
+                        		    miniopen(vurl, vtitle, parms, "view", 858, 580);
+                        	 }else if(data.cptype=="支出"){
+                        		 var vurl =  "/cw/ymt/qtzcadd.html";
+             					var vtitle = "【付款业务】查阅";
+             					miniopen(vurl, vtitle, row.note, "view", 520, 350);
+                        	 }
+                         } else {
+                             mini.alert(text.message);
+                         }
+                     },
+                     error : function() {
+                         hmq.tipDanger( "网络操作请求失败！", "danger");
+                     }
+                 }); 
+			}else if(stype=="收款"){
+				 $.ajax({
+                     url : surl + "/getNote.do",// 跳转到 action
+                     data : {
+                         parms : mini.encode(parms),
+                         stime : (new Date()).getTime()
+                     },
+                     type : "post",
+                     cache : false,
+                     dataType : "json",
+                     success : function(text) {
+                         if (text.status) {
+                        	 var data = mini.decode(text.data);
+                        	 data = mini.clone(data);
+                        	 if(data.cptype=="收款"){
+                        		 var vurl = "/engine/ba/ba_engine_show.jsp?menu_id=A040407&menu_stype=add&xslb="+data.xslb;
+                        	      var vtitle = "【收款业务】查阅";
+                        	      miniopen(vurl, vtitle, data.note, "view",1000,550);
+                        	 }else{
+                        		 var vurl = "/cw/ymt/qtsradd.html";
+             					 var vtitle = "【收款业务】查阅";
+             					miniopen(vurl, vtitle, data.note, "view", 520, 350);
+                        	 }
+                         } else {
+                             mini.alert(text.message);
+                         }
+                     },
+                     error : function() {
+                         hmq.tipDanger( "网络操作请求失败！", "danger");
+                     }
+                 });
+			}else if(stype=="出货"){
+				 $.ajax({
+                     url : surl + "/getNote.do",// 跳转到 action
+                     data : {
+                         parms : mini.encode(parms),
+                         stime : (new Date()).getTime()
+                     },
+                     type : "post",
+                     cache : false,
+                     dataType : "json",
+                     success : function(text) {
+                         if (text.status) {
+                        	 var data = mini.decode(text.data);
+                        	 data = mini.clone(data);
+                        	 var vurl = "/engine/ba/ba_engine_show.jsp?menu_id=A040405&menu_stype=add&menu_cdefine2="+data.stype;
+             				 var vtitle = "【出货业务】查阅";
+             				 miniopen(vurl, vtitle, data.note, "view", 1000, 600);
+                         } else {
+                             mini.alert(text.message);
+                         }
+                     },
+                     error : function() {
+                         hmq.tipDanger( "网络操作请求失败！", "danger");
+                     }
+                 });*/
+				
+			}else{
+				// hmq.tipDanger( "来源不属于采购、销售、付款、收款、转账、出货，不能联动业务！", "danger");
+			}
+			
+		}
+		function print_option() {
+			var vurl = surl + "-print.html";
+			var vtitle = "【凭证】打印";
+			miniopen(vurl, vtitle, "", "print", 1190, 461);
+		}
+
+		function getParms2() {
+			var where = " where 1=1 ";
+			var srch_debit = mini.get("srch_debit").getValue();
+			var srch_credit = mini.get("srch_credit").getValue();
+
+			if (srch_debit.length > 0) {
+				where = where + "and debit'" + srch_debit + "' ";
+			}
+			if (srch_credit.length > 0) {
+				where = where + "and credit='" + srch_credit + "' ";
+			}
+			return where;
+		}
+
+		function getParms1() {
+			var where = " ";
+			var rq1 = mini.formatDate(mini.get("srch_rq1").getValue(), "yyyy-MM-dd");
+			var rq2 = mini.formatDate(mini.get("srch_rq2").getValue(), "yyyy-MM-dd");
+			where = where + " and a.fdate >='" + rq1 + "' and a.fdate <='" + rq2 + "' ";
+
+			var ftranstype = mini.get("ftranstype").getValue();
+			var srch_pzz = mini.get("srch_pzz").getValue();
+			var srch_no = mini.get("srch_no").getValue();
+			var srch_expl = mini.get("srch_expl").getValue();
+			var fnumbertemp = mini.get("fnumbertemp").getValue();
+
+			if (ftranstype.length > 0) {
+				where = where + "and a.ftranstype ='" + ftranstype + "' ";
+			}
+			if (srch_pzz.length > 0) {
+				where = where + "and a.fgroupid='" + srch_pzz + "' ";
+			}
+			if (srch_no.length > 0) {
+				where = where + "and a.fvoucherno like '%" + srch_no + "%' ";
+			}
+			if (srch_expl.length > 0) {
+				where = where + "and a.fexplanation like '%" + srch_expl + "%' ";
+			}
+			if (fnumbertemp.length > 0) {
+				where = where + "and b.faccountid in (SELECT faccountid from BA_CW_PZ_ACCOUNT where FNumber like '" + fnumbertemp + "%'  ";
+			}
+
+			return where;
+		}
+
+		function export_option1() {
+			var rows=grid.getSelecteds();
+			var rq1 = mini.formatDate(mini.get("srch_rq1").getValue(), "yyyy-MM-dd");
+			var rq2 = mini.formatDate(mini.get("srch_rq2").getValue(), "yyyy-MM-dd");
+			where1 =" and a.fdate >='" + rq1 + "' and a.fdate <='" + rq2 + "' ";; 
+				var surl = FR.cjkEncode("../../../../ReportServer?reportlet=/cwgl/voucherexport_new.cpt&where1=" + where1 );
+				mini.open({
+					url : surl,
+					title : "【记账凭证】导出",
+					width : 940,
+					height : 500
+				});
+
+		}
+		function export_option() {
+			var rows=grid.getSelecteds();
+			var where1=""; 
+			var ids="";
+			if (rows.length>0) {
+				for(var i=0;i<rows.length;i++){
+					  var row=rows[i];
+					  where1+="'"+rows[i].fvoucherid+"',";
+					  ids+="'"+rows[i].faccountid+"',";
+				  }
+				where1 = " and a.fvoucherid in ("+where1.substring(0, where1.length-1)+") and b.faccountid in ("+ids.substring(0, ids.length-1)+")";
+				var surl = FR.cjkEncode("../../../../ReportServer?reportlet=/cwgl/voucherexport_new.cpt&where1=" + where1 );
+				mini.open({
+					url : surl,
+					title : "【记账凭证】导出",
+					width : 940,
+					height : 500
+				});
+			}else{
+				 hmq.tipDanger( "请选择导出的数据!", "danger");
+			}
+		}
+  function ok_option(){
+      var rows = grid.getSelecteds();
+      if (rows.length>0) {
+    	  var ids = [];
+    	   for ( var i = 0, l = rows.length; i < l; i++) {
+    	     var r = rows[i];
+    	       if (r.fischecked != "0") {
+    	    	   hmq.tipDanger( "不是登记状态不能确认!", "danger");
+    	         return;
+    	       } else {
+    	         ids.push(r.fvoucherid);
+    	       }
+    	   }
+    	  var id = ids.join(',');
+             mini.confirm("是否确认选择记录", "提示信息", function(action) {
+                 if (action == "ok") {
+                     grid.loading("操作中，请稍后......");
+                     $.ajax({
+                         url : surl + "/ok_Option.do",// 跳转到 action
+                         data : {
+                             parms : id,
+                             stime : (new Date()).getTime()
+                         },
+                         type : "post",
+                         cache : false,
+                         dataType : "json",
+                         success : function(data) {
+                             del.disabled = false;
+                             if (data.status) {
+                                 grid.reload();
+                             } else {
+                                 mini.alert(data.message);
+                             }
+                         },
+                         error : function() {
+                             hmq.tipDanger( "网络操作请求失败！", "danger");
+                         }
+                     });
+                 }
+             });
+         
+      } else {
+          hmq.tipDanger( "请选中一条记录", "danger");
+      }
+  }
+        function no_option(){
+            var rows = grid.getSelecteds();
+            if (rows.length>0) {
+            	 var ids = [];
+           	   for ( var i = 0, l = rows.length; i < l; i++) {
+           	     var r = rows[i];
+           	       if (r.fischecked != "1") {
+           	    	   hmq.tipDanger( "不是确认状态不能取消确认!", "danger");
+           	         return;
+           	       } else {
+           	         ids.push(r.fvoucherid);
+           	       }
+           	   }
+           	  var id = ids.join(',');
+              mini.confirm("是否取消选择记录", "提示信息", function(action) {
+                  if (action == "ok") {
+                      grid.loading("操作中，请稍后......");
+                      $.ajax({
+                          url : surl + "/no_Option.do",// 跳转到 action
+                          data : {
+                              parms : id,
+                              stime : (new Date()).getTime()
+                          },
+                          type : "post",
+                          cache : false,
+                          dataType : "json",
+                          success : function(data) {
+                              del.disabled = false;
+                              if (data.status) {
+                                  grid.reload();
+                              } else {
+                                  mini.alert(data.message);
+                              }
+                          },
+                          error : function() {
+                              hmq.tipDanger( "网络操作请求失败！", "danger");
+                          }
+                      });
+                  }
+              });
+          
+            } else {
+                hmq.tipDanger( "请选中一条记录", "danger");
+            }
+        }
+
+	</script>
+
+</body>
+</html>

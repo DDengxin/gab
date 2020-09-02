@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购订购</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="合同编码">
+            <input class="mini-textbox" name="srchNo" width="120"/>
+        </label>
+        <label class="hmq-label" text="客户">
+            <input name="srchCustomer" emptyText="请选择..."
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+
+
+
+
+
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" style="width: 100%; height: 100%;"
+                     idField="htNo" onselectionchanged="onSelectionChanged"
+                     sortMode="client">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="itemRq" width="100" align="center">日期</div>
+                        <div tz:datagrid="column" field="itemMo" width="120" align="center">合同Mo</div>
+                        <div tz:datagrid="column" field="masterName"  width="120" align="left">客户</div>
+                        <div tz:datagrid="column" field="tname" width="80" align="left"  > 线材材质</div>
+                        <div tz:datagrid="column" field="tsize" width="60" align="right" numberFormat="#,0.00" > 线材规格</div>
+                        <div tz:datagrid="column" field="ttype"  width="100" align="left">线材分类</div>
+                        <div tz:datagrid="column" field="qdMax" width="100" align="right" numberFormat="#,0.00">上强度</div>
+                        <div tz:datagrid="column" field="qdMin" width="100" align="right" numberFormat="#,0.00" >下强度</div>
+                        <div tz:datagrid="column" field="ylBj" width="120" align="left"> 标准用料</div>
+                        <div tz:datagrid="column" field="ylDl" width="120" align="left">代用原料</div>
+                        <div tz:datagrid="column" field="ylLs" width="120" align="left">临时用料</div>
+                        <div tz:datagrid="column" field="gyYqsm" width="250" align="left" >工艺要求</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="sid" showPager="false" multiSelect="true" showColumnsMenu="true"
+                     showSummaryRow="true" sortField="scgyOrd" sortOrder="asc" >
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column"  name="scgyOrd" dataType="int;"  field="scgyOrd" width="40" align="center" >排序</div>
+                        <div tz:datagrid="column" field="scgyGc"  width="100" align="center">工序编码</div>
+                        <div tz:datagrid="column" field="gcName"  width="100" align="center">工序名称</div>
+                        <div tz:datagrid="column" name="scgyCz" field="scgyCz" align="left" width="120">工程材质</div>
+                        <div tz:datagrid="column" name="scgyKsize" field="scgyKsize" align="right" width="120" numberFormat="#,0.00" >工程规格</div>
+                        <div tz:datagrid="column" field="scgyYqsm" width="250" align="left">工程要求</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/sc/pd/khgy";
+    srch_topgrid.setUrl(surl + "/getSrchTopList");
+    srch_bottomgrid.setUrl(surl + "/getSrchBottomList");
+    srch_topgrid.bindSearchForm(form);
+
+
+    function search_option() {
+        srch_topgrid.load();
+        srch_bottomgrid.setData([]);
+    }
+
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params: mini.encode({
+                    itemMo: record.itemMo
+                })
+            });
+        }
+    }
+
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().itemMo;
+        }
+    });
+
+    /**
+     * @Param:
+     * @Author:Gxl
+     * @Date: 2020/4/22 17:12
+     * @description:常规新增函数
+     */
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}, width: 1363, height: 680});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            var params = {
+                htNo: row.htNo,
+                flag: "登记"
+            }
+            $['put']("getFlag", JSON.stringify({"params": mini.encode(params)}),
+                function (res) {
+                    mini.unmask();
+                    if (200 === res.code) {
+                        e.sender.miniopen({url: "add.html", action: 'edit', data: {row: row, formData: form.getData()}, width: 1363, height: 680});
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            var params = {
+                htNo: row.htNo,
+                flag: "登记"
+            }
+            $['put']("getFlag", JSON.stringify({"params": mini.encode(params)}),
+                function (res) {
+                    mini.unmask();
+                    if (200 === res.code) {
+                        mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                            if (action == "ok") {
+                                $['delete']("delete/{0}".format(row.htNo), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "dataRq") {
+            return mini.formatDate(new Date(record.dataRq), "yyyy-MM-dd HH:mm");
+        }
+        if (e.field == "htTax") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+
+    }
+
+    
+   function onActionRenderermx(e) {
+	   var record = e.record;
+       if (e.field == "htJq") {
+           return mini.formatDate(new Date(record.htJq), "yyyy-MM-dd");
+       }
+     
+	
+} 
+    
+    
+    
+    
+    /**
+     汇总
+     */
+    function onDrawSummaryCellmx(e) {
+        var record = e.record;
+
+    	
+    	//htJq
+        if (e.field == "htCode") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "htSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "htJs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "htJe") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+</script>
+</html>

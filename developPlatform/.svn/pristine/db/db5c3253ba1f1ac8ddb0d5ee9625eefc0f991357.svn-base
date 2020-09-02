@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>部门管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="deptId" class="mini-hidden"/>
+        <div id="tabs" class="mini-tabs"  activeIndex="0">
+            <div title="基本信息">
+                <table class="hmq-modify-table">
+                    <tr>
+                        <td title>员工工号:</td>
+                        <td content >
+                            <input class="mini-TextBox"
+                                   emptyText="请输入"  allowInput="true" name="workerId"   />
+                        </td>
+                        <td title>员工姓名:</td>
+                        <td content >
+                            <input class="mini-TextBox" name="workerName"   />
+                        </td>
+                        <td title>外文姓名:</td>
+                        <td content >
+                            <input class="mini-TextBox"
+                                   name="workerForeignName"   />
+                        </td>
+                        <td title>员工性别:</td>
+                        <td content >
+                            <input class="mini-ComboBox"  textField="text" valueField="id"  data="[{id:'true',text:'男'},{id:'false',text:'女'}]"
+                                   emptyText="请选择..." allowInput="false" name="workerSex"   />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>编制公司</td>
+                        <td content>
+                            <input emptyText="请选择..." text="" id="workerOrganizationCorp"  name="workerOrganizationCorp"
+                                   allowInput="false" class="mini-combobox"   url="/system/org/combobox/getCorpList" />
+                        </td>
+                        <td title>编制部门:</td>
+                        <td content>
+                            <!-- <input class="mini-ComboBox"   id="workerDept" name="workerDept"  url="/personnel/eHrWorker/selectDept" textField="texts" valueField="id"/> -->
+                            <input emptyText="请选择..." text="" id="workerOrganizationDept"  name="workerOrganizationDept"
+                                   allowInput="false" class="mini-buttonedit"
+                                   onbuttonclick="onDeptClickHander"   />
+                        </td>
+                        <td title>编制职务:</td>
+                        <td content>
+                            <input class="mini-comboBox"    name="workerOrganizationDuty" url="/system/parameter/getParamsSelectListByParentId/人事/JTZW"  />
+                        </td>
+                        <td title>编制岗位:</td>
+                        <td content>
+                            <input class="mini-comboBox"    name="workerOrganizationPost"  url="/system/parameter/getParamsSelectListByParentId/人事/VGWDA" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>档案公司</td>
+                        <td content>
+                            <input emptyText="请选择..." text="" id="workerCorpid"  name="workerCorpid"
+                                   allowInput="false" class="mini-combobox"
+                                   url="/system/org/combobox/getCorpList"  />
+                        </td>
+                        <td title>档案部门:</td>
+                        <td content>
+                            <!-- <input class="mini-ComboBox"   id="workerDept" name="workerDept"  url="/personnel/eHrWorker/selectDept" textField="texts" valueField="id"/> -->
+                            <input emptyText="请选择..." text="" id="workerDept"  name="workerDept"
+                                   allowInput="false" class="mini-buttonedit"
+                                   onbuttonclick="onDeptClickHander"   />
+                        </td>
+                        <td title>档案职务:</td>
+                        <td content>
+                            <input class="mini-comboBox" id="workerDuty"  name="workerDuty" url="/system/parameter/getParamsSelectListByParentId/人事/JTZW" />
+                        </td>
+                        <td title>档案岗位:</td>
+                        <td content>
+                            <input class="mini-comboBox"  id="workerPost"  name="workerPost"  url="/system/parameter/getParamsSelectListByParentId/人事/VGWDA" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>最高学历:</td>
+                        <td content >
+                            <input class="mini-comboBox"  id="workerBackground"  name="workerBackground"  url="/personnel/eHrWorker/selectXl"  onvaluechanged="onChangedXL"/>
+                        </td>
+                        <td title>技能等级:</td>
+                        <td content >
+                            <input class="mini-combobox" id="workerSkillRank"   name="workerSkillRank"    url="/system/parameter/getParamsSelectListByParentId/人事/JNDJ"  onvaluechanged="onChangedJNDJ" />
+                        </td>
+                        <td title>员工类型:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerType" id="workerType"  url="/personnel/eHrWorker/selectYglx"  />
+                        </td>
+                        <td title>用工类型:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerLaborType"  id="workerLaborType"  url="/system/parameter/getParamsSelectList/人事/用工类型"  />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>是否本市:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerLocal" id="workerLocal" url="encodeURI('/dict/boolean?t=是&f=否&equal=true')"   />
+                        </td>
+                        <td title>行政省份:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerProvince"     />
+                        </td>
+                        <td title>行政市级:</td>
+                        <td content >
+                            <input class="mini-textbox" name="workerCity"      />
+                        </td>
+                        <td title>行政县区:</td>
+                        <td content >
+                            <input class="mini-textbox" name="workerDistrict"      />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>入职日期:</td>
+                        <td content >
+                            <input class="mini-datepicker" format="yyyy-MM-dd"  name="workerHiredate"    />
+                        </td>
+                        <td title>工龄日期:</td>
+                        <td content >
+                            <input class="mini-datepicker" format="yyyy-MM-dd"  name="workerSeniority"   />
+                        </td>
+                        <td title>生日方式:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerBirthdayType"    />
+                        </td>
+                        <td title>出生日期:</td>
+                        <td content >
+                            <input class="mini-datepicker" format="yyyy-MM-dd" name="workerBirthday"    />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>入职方式:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerEntryType" url="/system/parameter/getParamsSelectList/人事/入职方式" />
+                        </td>
+                        <td title>保险类型:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerInsuranceType" url="/system/parameter/getParamsSelectList/人事/保险类型" />
+                        </td>
+                        <td title>集团干部:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerGroupCadres"    url="encodeURI('/dict/boolean?t=是&f=否&equal=true')"   />
+                        </td>
+                        <td title>集团级别:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerGroupLevel"   url="/system/parameter/getParamsSelectList/人事/集团级别"  />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>身份证号:</td>
+                        <td content colspan="3">
+                            <input class="mini-textbox"  id="workerCard" onBlur="onblur"  />
+                        </td>
+                        <td title>政治面貌:</td>
+                        <td content >
+                            <input class="mini-comboBox" name="workerPoliticsStatus"  url="/system/parameter/getParamsSelectList/人事/政治面貌" />
+                        </td>
+                        <td title>户口类型:</td>
+                        <td content>
+                            <input class="mini-combobox"   name="workerRegistered"  url="/system/parameter/getParamsSelectList/人事/户口类型" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>身份地址:</td>
+                        <td content colspan="3">
+                            <input class="mini-textbox" name="workerAddress"     />
+                        </td>
+                        <td title>现居地址:</td>
+                        <td content colspan="3">
+                            <input class="mini-textbox" name="workerCurrentAddress"   />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>联系电话</td>
+                        <td content >
+                            <input class="mini-textbox" name="workerPhone"  />
+                        </td>
+                        <td title>紧急联系</td>
+                        <td content>
+                            <input  class="mini-textbox"     name="workerEmergencyContact"  />
+                        </td>
+                        <td title>邮箱地址</td>
+                        <td content >
+                            <input class="mini-textbox"    name="workerEmail"  />
+                        </td>
+                        <td title>员工状态</td>
+                        <td content>
+                            <input class="mini-combobox"   name="workerFlag" url="encodeURI('/dict/boolean?t=在职&f=离职&equal=true')"  />
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div title="综合信息">
+                <table class="hmq-modify-table">
+                    <tr>
+                        <td title>联系电话</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerPhone"   />
+                        </td>
+                        <td title>虚拟短号</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerShortNumber" />
+                        </td>
+                        <td title>邮箱地址</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerEmail" />
+                        </td>
+                        <td title>微信账号</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerWeChat" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td title>公司固话</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerFixedLineTelephone" />
+                        </td>
+                        <td title>虚拟短号</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerAccount" />
+                        </td>
+                        <td title>传真号码</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerFaxNumber" />
+                        </td>
+                        <td title>个人手机</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerPersonalPhone" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>员工血型</td>
+                        <td content >
+                            <input class="mini-combobox"  name="workerBloodType" url="/system/parameter/getParamsSelectList/人事/员工血型" />
+                        </td>
+                        <td title>员工身高</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerStature" />
+                        </td>
+                        <td title>员工体重</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerWeight" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>衣服尺寸</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerClothingSize" />
+                        </td>
+                        <td title>外套尺寸</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerCoatSize" />
+                        </td>
+                        <td title>裤子尺寸</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerPantsSize" />
+                        </td>
+                        <td title>鞋子尺寸</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerShoesSize" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>居住方式</td>
+                        <td content >
+                            <input class="mini-combobox"  name="workerLivingPattern" url="/system/parameter/getParamsSelectList/人事/居住方式" />
+                        </td>
+                        <td title>是否兵役</td>
+                        <td content >
+                            <input class="mini-combobox"  name="workerMilitaryService" url="encodeURI('/dict/boolean?t=是&f=否&equal=true')" />
+                        </td>
+                        <td title>是否结婚</td>
+                        <td content >
+                            <input class="mini-combobox"  name="workerWedding" url="encodeURI('/dict/boolean?t=是&f=否&equal=true')"  />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>考勤方式</td>
+                        <td content >
+                            <input class="mini-combobox"  name="workerAttendance" url="/system/parameter/getParamsSelectList/人事/考勤方式" />
+                        </td>
+                        <td title>工资级别</td>
+                        <td content >
+                            <input class="mini-combobox"  name="workerWageScale" url="/system/parameter/getParamsSelectList/人事/工资级别"  />
+                        </td>
+                        <td title>计薪模式</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerPaidMethod" />
+                        </td>
+                        <td title>工时制度</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerWorkSchedules" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>银行类型</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerBankType" />
+                        </td>
+                        <td title>开户银行</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerDepositBank" />
+                        </td>
+                        <td title>工资卡号</td>
+                        <td content colspan="3">
+                            <input class="mini-textbox"  name="workerWagesCardNumber" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>保险类型</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerInsuranceType" />
+                        </td>
+                        <td title>投保日期</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerInsuredDate" />
+                        </td>
+                        <td title>社保卡号</td>
+                        <td content colspan="3">
+                            <input class="mini-textbox"  name="workerSocialSecurityCard" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>意外保险</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerAccidentInsurance" />
+                        </td>
+                        <td title>投保基数</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerInsuredBase" />
+                        </td>
+                        <td title>原有工号</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerOldId" />
+                        </td>
+                        <td title>工作证号</td>
+                        <td content >
+                            <input class="mini-textbox"  name="workerCardNumber" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div title="技能档案">
+                <table class="hmq-modify-table">
+                    <tr>
+                        <td title>技能等级</td>
+                        <td content >
+                            <input class="mini-textbox"   name="workerSkillRankBK" readonly />
+                        </td>
+                        <td title>最高学历</td>
+                        <td content >
+                            <input class="mini-textbox" name="workerBackgroundBK" readonly />
+                        </td>
+                        <td title>毕业院校</td>
+                        <td content >
+                            <input class="mini-textbox" name="workerSchool" />
+                        </td>
+                        <td title>毕业专业</td>
+                        <td content >
+                            <input class="mini-textbox"   name="workerMajor" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>学习经历</td>
+                        <td content colspan="7">
+                            <input class="mini-textarea"   name="workerEducation" style="height:100px;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>培训经历</td>
+                        <td content colspan="7">
+                            <input class="mini-textarea" name="workerTrainingExperience" style="height:100px;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td title>工作经历</td>
+                        <td content colspan="7">
+                            <input class="mini-textarea" name="workerJob" style="height:100px;" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div title="家庭成员"  >
+                <div class="mini-toolbar" style="border-bottom:0;padding:0px;">
+                    <table style="width:100%;">
+                        <tr>
+                            <td>
+                                <a id="add1" class="mini-button" iconCls="icon-add" onclick="addRow" plain="true" tooltip="添加行">添加行</a>
+                                <a id="remove1" class="mini-button" iconCls="icon-no" onclick="removeRow" plain="true" tooltip="删除行">删除行</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div  style="height: 360px">
+                    <div tz:datagrid="datagrid" id="family_grid"
+                         allowCellEdit="true"
+                         allowCellSelect="true"
+                         editNextOnEnterKey="true"
+                         editNextRowCell="true"
+                         allowMoveColumn="true"
+                         showPager="false"
+                         allowCellValid="true"
+                         showColumnsMenu="true"
+                         showSummaryRow="true"
+                         sortMode="client" style="height:100%;"
+                         url = "/personnel/eHrWorker/getFamilyList"
+                    >
+                        <div property="columns">
+                            <div tz:datagrid="indexcolumn" width="35">序号</div>
+                            <div tz:datagrid="column" field="workerId" width="140" align="center" visible="false">workerId</div>
+                            <div tz:datagrid="column" field="jtSid" width="140" align="center" visible="false">sid</div>
+                            <div tz:datagrid="column" field="jtWorkingRelationship" width="140" align="center">在职关系
+                                <input property="editor" class="mini-textbox" />
+                            </div>
+                            <div tz:datagrid="column" field="jtFamilyTies" align="center" width="100"   > 家庭关系
+                                <input property="editor" class="mini-textbox"  />
+                            </div>
+                            <div tz:datagrid="column"  field="jtName" align="left" width="100">姓名
+                                <input property="editor" class="mini-textbox"  />
+                            </div>
+                            <div tz:datagrid="column"  field="jtContact" align="left" width="100">联系方式
+                                <input property="editor" class="mini-textbox"  />
+                            </div>
+                            <div tz:datagrid="column" field="jtSocialSecurity" width="100" align="center">是否社保
+                                <input property="editor" class="mini-combobox" data="[{id:'Y',text:'是'},{id:'N',text:'否'}]"  />
+                            </div>
+                            <div tz:datagrid="column" field="jtSocialSecurityBase" width="60">社保基数
+                                <input property="editor" class="mini-textbox"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get('family_grid');
+    function onChangedXL(){
+        var xl = form.getField("workerBackground").getText();
+        form.getField("workerBackgroundBK").setValue(xl);
+    }
+    function onChangedJNDJ(){
+        var jndj = form.getField("workerSkillRank").getText();
+        console.log(jndj);
+        form.getField("workerSkillRankBK").setValue(jndj);
+    }
+    function addRow(){
+        var newRow = {
+            name: ""
+        };
+        grid.addRow(newRow);
+    }
+    function removeRow(){
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+    /*function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            /!* $("#tr1").css("display", "none");  *!/
+        } else if ('edit' == options.action) {
+            $.get("eHrWorkerList.html/{0}".format(options.data.workerId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("workerDept").setText(res.data.workerDeptName);
+                    mini.get("workerDept").setValue(res.data.workerDept);
+                }
+            });
+        }else if('view' == options.action){
+        	$.get("eHrWorkerList.html/{0}".format(options.data.workerId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("workerDept").setText(res.data.workerDeptName);
+                    mini.get("workerDept").setValue(res.data.workerDept);
+                }
+            });
+        	form.setEnabled(false);
+            mini.get("saveBtn").setVisible(false);
+        }
+    }
+
+    /!**
+     *
+     **!/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html",JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }*/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed', false);
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'put' : 'post';
+            $[method]("savedata", JSON.stringify({
+                eHrWorker: form.getData(true),
+                eHrWorkerFamilies: entrydata,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            if ('add' == options.action) {
+                grid.clearData();
+                $('[name=action]').val(options.action);
+            } else if ('edit' == options.action || 'view' == options.action) {
+                $('[name=action]').val(options.action);
+                $.get("eHrWorkerList.html/{0}".format(options.data.workerId), function (res) {
+                    if (200 === res.code) {
+                        var data = mini.decode(res.data);
+                        form.setData(data);
+                        mini.get("workerDept").setValue(data.workerDept);
+                        mini.get("workerDept").setText(data.workerDeptName);
+                        mini.get("workerOrganizationDept").setValue(data.workerOrganizationDept);
+                        mini.get("workerOrganizationDept").setText(data.orgDeptName);
+                        mini.get("workerType").setText(data.workerTypeName);
+                        mini.get("workerDuty").setValue(data.workerDuty);
+                        mini.get("workerDuty").setText(data.workerDutyName);
+                        mini.get("workerPost").setValue(data.workerPost);
+                        mini.get("workerPost").setText(data.workerPostName);
+                        grid.load({
+                            params: JSON.stringify({workerId: form.getField('workerId').getValue()})
+                        });
+
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     *  机构选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/org/hierarchyOrgTree.html",
+            title: "【机构】选择",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.orgName);
+                }
+            }
+        });
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            width: 500,
+            height: 620,
+            data:{
+                currentOrgId:'true',
+                showTopNode:'false',
+                orgId : form.getField("workerCorp").getValue()
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                }
+            }
+        });
+    }
+
+
+
+    function onblur(e){
+    	var workerCard=mini.get("workerCard").getValue();
+    	if(workerCard.length!=15 && workerCard.length!=18){
+    		mini.get("workerBirthday").setValue("");
+    		hmq.tipDanger('请检查身份证的正确性!');
+
+    	}else{
+    		var dates=workerCard.substr(6,4)+"-"+workerCard.substr(10,2)+"-"+workerCard.substr(12,2);
+        	var date= new Date(Date.parse(dates.replace(/-/g,   "/")));
+        	mini.get("workerBirthday").setValue(date);
+    	}
+    }
+
+
+
+
+
+</script>
+</html>

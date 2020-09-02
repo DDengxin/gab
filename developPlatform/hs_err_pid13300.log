@@ -1,0 +1,78 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_PRIV_INSTRUCTION (0xc0000096) at pc=0x0000000003025a4d, pid=13300, tid=0x0000000000003534
+#
+# JRE version: Java(TM) SE Runtime Environment (8.0_221-b11) (build 1.8.0_221-b11)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.221-b11 mixed mode windows-amd64 compressed oops)
+# Problematic frame:
+# j  com.tengzhi.business.platform.common.service.impl.OperatorServiceImpl.getParamValue()Ljava/util/List;+14
+#
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000000026afd800):  JavaThread "http-nio-80-exec-7" daemon [_thread_in_Java, id=13620, stack(0x000000002a100000,0x000000002a200000)]
+
+siginfo: ExceptionCode=0xc0000096
+
+Registers:
+RAX=0x0000000000000000, RBX=0x00000000000000b0, RCX=0x0000000000000000, RDX=0x0000000000000000
+RSP=0x000000002a1fbd30, RBP=0x000000002a1fbdf8, RSI=0x00000000f800944a, RDI=0x0000000003028180
+R8 =0x0000000000000061, R9 =0x0000000000fc7800, R10=0x0000000000000061, R11=0x000000002a1fb500
+R12=0x0000000000000000, R13=0x0000000022e5a147, R14=0x000000002a1fbe18, R15=0x0000000026afd800
+RIP=0x0000000003025a4d, EFLAGS=0x0000000000010206
+
+Top of Stack: (sp=0x000000002a1fbd30)
+0x000000002a1fbd30:   00000000030256d0 0000000026afd800
+0x000000002a1fbd40:   00000000000000b0 00000000f800944a
+0x000000002a1fbd50:   0000000000000000 000000002624b548
+0x000000002a1fbd60:   000000006a07e6f0 00000000269a2b20
+0x000000002a1fbd70:   000000000000000b 0000000003028180
+0x000000002a1fbd80:   00000000f800944a 000000002a1fbdf8
+0x000000002a1fbd90:   000000002a1fbdb8 00000000000000b0
+0x000000002a1fbda0:   000000000000000b 0000000000000000
+0x000000002a1fbdb0:   0000000000000000 000000002a1fbdb8
+0x000000002a1fbdc0:   0000000022e5a146 000000002a1fbe18
+0x000000002a1fbdd0:   00000000279b79f8 0000000000000000
+0x000000002a1fbde0:   0000000022e5a178 0000000000000000
+0x000000002a1fbdf0:   000000002a1fbe18 000000002a1fbe60
+0x000000002a1fbe00:   0000000003028180 00000007714655c0
+0x000000002a1fbe10:   0000000771455bb8 00000006c87bab10
+0x000000002a1fbe20:   000000002a1fbe20 000000002acff848 
+
+Instructions: (pc=0x0000000003025a4d)
+0x0000000003025a2d:   48 b9 c0 df e6 69 00 00 00 00 48 ba d7 59 02 03
+0x0000000003025a3d:   00 00 00 00 4c 8b c4 48 83 e4 f0 e8 c3 12 b4 66
+0x0000000003025a4d:   f4 66 90 00 00 00 00 00 00 00 00 00 00 00 00 00
+0x0000000003025a5d:   00 00 00 80 20 00 00 00 00 00 00 a8 df e6 69 00 
+
+
+Register to memory mapping:
+
+RAX=0x0000000000000000 is an unknown value
+RBX=0x00000000000000b0 is an unknown value
+RCX=0x0000000000000000 is an unknown value
+RDX=0x0000000000000000 is an unknown value
+RSP=0x000000002a1fbd30 is pointing into the stack for thread: 0x0000000026afd800
+RBP=0x000000002a1fbdf8 is pointing into the stack for thread: 0x0000000026afd800
+RSI=0x00000000f800944a is an unknown value
+RDI=0x0000000003028180 is at code_begin+1664 in an Interpreter codelet
+invoke return entry points  [0x0000000003027b00, 0x00000000030284e0]  2528 bytes
+R8 =0x0000000000000061 is an unknown value
+R9 =0x0000000000fc7800 is an unknown value
+R10=0x0000000000000061 is an unknown value
+R11=0x000000002a1fb500 is pointing into the stack for thread: 0x0000000026afd800
+R12=0x0000000000000000 is an unknown value
+R13=0x0000000022e5a147 is pointing into metadata
+R14=0x000000002a1fbe18 is pointing into the stack for thread: 0x0000000026afd800
+R15=0x0000000026afd800 is a thread
+
+
+Stack: [0x000000002a100000,0x000000002a200000],  sp=0x000000002a1fbd30,  free space=1007k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  0x0000000003025a4d

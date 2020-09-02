@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<th:block
+        th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+    <title>工艺卡</title>
+</th:block>
+<script type="text/javascript" src="/static/javascript/LodopFuncs.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        .foot {
+            position: absolute;
+            bottom: 0;
+            width:100%;
+            z-index: 9999;
+        }
+        .head {
+            position: absolute;
+            left:0;
+            top: 0;
+            width:100%;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+<div id="tabs1" class="mini-tabs" activeIndex="0" style="width:100%;height:90%;" plain="false">
+    <div title="工艺卡" >
+        <iframe align="center" style="margin-top: 30px" width="100%" height="80%" src="" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="true"></iframe>
+        <div class="mini-toolbar hmq-toolbar foot">
+            <a class="mini-button" onclick="print" iconCls="icon-print" id="printBtn">打印</a>
+            <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+        </div>
+    </div>
+    <div title="用料">
+            <div id="button-grid" idField="cpcode"  style="width:100%;height:100%;"
+                  oncellcommitedit="OnCellCommitEdit"
+                 allowCellEdit="true" allowCellSelect="false" multiSelect="false" showPager="false" sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" sortField="cpcode" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+                <div property="columns">
+                    <div field="wlType" width="60" align="center" sortField="wlType" displayField="typename" headerAlign="center" allowSort="true">分类</div>
+                    <div name="cpcodeName" field="cpcodeName" align="left" width="80" sortField="cpcodeName" displayField="cpcodeName" headerAlign="center" allowSort="true">名称</div>
+                    <div name="cpcodeSize" field="cpcodeSize" width="100" align="left" sortField="cpcodeSize" displayField="cpcodeSize" headerAlign="center" allowSort="true">规格</div>
+                    <div field="wlSl" width="80" align="left" sortField="wlSl" displayField="wlSl" headerAlign="center" allowSort="true">数量</div>
+                    <div field="wlSm" width="120" align="left" sortField="wlSm" displayField="wlSm" headerAlign="center" allowSort="true">用料说明</div>
+                    <div field="sjSm" width="120" align="left" sortField="sjSm" displayField="sjSm" headerAlign="center" allowSort="true">实际用料</div>
+                </div>
+            </div>
+        </div>
+    <div title="检验" >
+            <div id="button-gridright" idField="xm"  style="width:100%;height:100%;"
+                 oncellcommitedit="OnCellCommitEdit"
+                 allowCellEdit="true" allowCellSelect="false" multiSelect="false" showPager="false" sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" sortField="ordid" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+                <div property="columns">
+                    <div tz:datagrid="indexcolumn" width="35">序号</div>
+                    <div field="xm" width="60" align="center" sortField="xm" displayField="xm" headerAlign="center" allowSort="true">项目</div>
+                    <div name="yq" field="yq" align="left" width="80" sortField="yq" displayField="yq" headerAlign="center" allowSort="true">要求</div>
+                    <div name="scz" field="scz" width="100" align="left" sortField="scz" displayField="scz" headerAlign="center" allowSort="true">实测值</div>
+                    <div field="sj" width="80" align="left" sortField="sj" displayField="sj" headerAlign="center" allowSort="true">时间</div>
+                </div>
+            </div>
+        </div>
+</div>
+</body>
+<script>
+    mini.parse();
+    var LODOP;
+    var srchwlgrid = mini.get("button-grid");
+    var srchjygrid = mini.get("button-gridright");
+    srchwlgrid.setUrl("/sc/task/sctask/getSrchBottomprintList");
+    srchjygrid.setUrl("/sc/task/sctask/getSrchBottomRightprintList");//待定
+    function SetData(option) {
+        if(!!option.data.scMo){
+            $('iframe').attr('src', "gykview.html?"+encodeURI("scMo="+option.data.scMo));
+            srchwlgrid.load({
+                params: mini.encode({
+                    scrwMo: option.data.scMo
+                })
+            });
+            srchjygrid.load();//待定
+        }
+    }
+
+    function print() {
+        var htmlVal = window.frames[0].window.document.getElementsByTagName("html")[0].outerHTML;
+        LODOP=getLodop();
+        LODOP.NewPage();
+        LODOP.PRINT_INIT("工艺卡");
+        LODOP.SET_PRINT_PAGESIZE(1,"210mm","297mm","");
+        LODOP.ADD_PRINT_HTML("2%","5%","90%","100%",htmlVal);
+        LODOP.SET_PRINT_STYLEA(0,"TableHeightScope",1);
+        LODOP.GET_PRINTER_COUNT();
+        LODOP.PREVIEW();
+        /* LODOP.PRINTA(); */
+    }
+</script>
+</html>

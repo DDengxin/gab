@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产异动【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="ksid" name="ksid" class="mini-hidden"/>
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号</td>
+                <td content >
+                    <input class="mini-textbox" name="note" readonly = "readonly" emptyText="自动生成"/>
+                </td>
+                <td title>日期</td>
+                <td content >
+                    <input class="mini-datepicker" name="rq" allowInput="false" value="new Date()"/>
+                </td>
+                <td title>资产编码</td>
+                <td content >
+                    <input class = "mini-buttonedit" name="fcardid" allowInput="false" onbuttonclick = "onButtonEdit" showClose="true" oncloseclick="onCloseClickClearValue" required="true"/>
+                </td>
+                <td title>资产类别</td>
+                <td content >
+                    <input class="mini-combobox" name="ftypeid" required="true"  url="/finance/capitalManager/capitalType/getCapitalSelectList.html"
+                           valueField="fid" textField="fullname"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>使用部门</td>
+                <td content >
+                    <input class="mini-textbox" name="useDept"/>
+                </td>
+                <td title>责任人</td>
+                <td content >
+                    <input class="mini-textbox" name="useMan"/>
+                </td>
+                <td title>管理部门</td>
+                <td content >
+                    <input class="mini-textbox" name="managerDept"/>
+                </td>
+                <td title>放置区域</td>
+                <td content >
+                    <input class="mini-textbox" name="putArea"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>新使用部门</td>
+                <td content >
+                    <input class="mini-textbox" name="useDept"/>
+                </td>
+                <td title>新责任人</td>
+                <td content >
+                    <input class="mini-textbox" name="useDept"/>
+                </td>
+                <td title>新放置区域</td>
+                <td content >
+                    <input class="mini-textbox" name="newPutArea"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action || 'view' == options.action) {
+            $.get("getById/{0}".format(options.data.ksid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("zccode").setText(res.data.zccodeName);
+                    if('view' == options.action){
+                        form.setEnabled(false);
+                        $("#saveBtn").hide();
+                    }
+                }
+            });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+
+
+
+    function onButtonEdit(e) {
+        var btnEdit = this;
+        mini.open({
+            targetWindow: window.parent,
+            url: "/finance/capitalManager/capitalDepletion/capitalSelectList.html",
+            title: "资产档案选择列表",
+            width: 650,
+            height: 380,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data); //必须
+                    if (data) {
+                        btnEdit.setValue(data.fcardid);
+                        btnEdit.setText(data.fnumber +""+ data.fname);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+</script>
+</html>

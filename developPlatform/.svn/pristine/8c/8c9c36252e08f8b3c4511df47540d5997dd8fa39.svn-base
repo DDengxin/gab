@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="Approval()" id="_approval-box_" th:if="${param.action!=null && param.action[0] == 'sh' }">
+	<!--审核流程-->
+	<div class="wrap-row wrap-flow">
+		<span class="wrap-row-title">审批流程：</span>
+		<div class="wrap-row-content">
+			<ul class="flow-step" id="flow-step">
+			</ul>
+		</div>
+	</div>
+	<!--审批内容-->
+	<div class="wrap-row wrap-content">
+		<span class="wrap-row-title">审批意见：</span>
+		<div class="wrap-row-content">
+			<form id="_approval-form_" onsubmit="javascript:return false;">
+				<!--隐藏表单-->
+				<input name="backlogId" class="mini-hidden" />
+				<input name="businessId" class="mini-hidden" />
+				<input name="processId" class="mini-hidden" />
+				<input id="signature" name="signature" type="hidden" />
+				<!--END 隐藏表单-->
+				<textarea name="opinion" class="flow-optition"></textarea>
+			</form>
+		</div>
+	</div>
+	<!--审批操作-->
+	<div class="wrap-row">
+		<div class="wrap-buttons wrap-text-center" id="flow-audit">
+			<button class="bg-success" onclick="ApprovalAgreeHandler()">同意</button>
+			<button onclick="ApprovalDisagreeHandler()">拒绝</button>
+			<button onclick="Signature_()">签名</button>
+		</div>
+		<div class="wrap-buttons wrap-text-center" id="flow-init" style="display: none">
+			<button class="bg-success" onclick="ApprovalConfirmHandler()">提交</button>
+			<button onclick="ApprovalCancelHandler()">取消</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var _linkName = "";
+		/**
+		 * 初始化审批环境
+		 * 被嵌入页面中应该主动调用该方法
+		 * @param options
+		 * {
+		 *     action:动作
+		 *     data:数据荷载
+		 * }
+		 */
+		function InitApprovalHandler(options) {
+			var data = options.data;
+			if (data) {
+				var $approvalForm = $('#_approval-form_');
+				$approvalForm.find('[name=backlogId]').val(data.id);
+				$approvalForm.find('[name=businessId]').val(data.businessId);
+				$approvalForm.find('[name=processId]').val(data.processId);
+				$.get("/system/workflow/backlog/getlink/{0}".format(options.data.linkId), function(res) {
+					if (200 === res.code) {
+						if (res.data.processType == "1") {
+							$("#flow-init").show();
+							$("#flow-audit").hide();
+						}
+						_linkName = res.data.linkName;
+						refreshApprovalFlow();
+					}
+				});
+			}
+		}
+		/**
+		 * 加载审批流程f
+		 */
+		function refreshApprovalFlow() {
+			var type = true;
+			//TODO:待完成
+			$['post']("/system/workflow/process/getProcessDescription", JSON.stringify({
+				processId : $('[name=processId]').val(),
+				businessId : $('[name=businessId]').val(),
+			}), function(res) {
+				if (200 === res.code) {
+					var data = res.data;
+					var htmlText = "";
+					for (var i = 0, max = data.length; i < max; i += 1) {
+						var content = data[i].LinkName;
+						if (data[i].UserName != "" && data[i].UserName != null) {
+							content += '(' + data[i].UserName + ')';
+						}
+						if (type) {
+							htmlText += '<li><span class="flow-step-line"></span><div class="flow-step-dot active">' + content + '</div></li>';
+						} else {
+							htmlText += '<li><span class="flow-step-line"></span><div class="flow-step-dot ">' + content + '</div></li>';
+						}
+						if (data[i].LinkName == _linkName) {
+							type = false;
+						}
+					}
+					$("#flow-step").append(htmlText);
+				} else {
+					hmq.tipDanger('办理记录获取失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+		//重新提交
+		function ApprovalConfirmHandler() {
+			_ApprovalActionHandler_('/system/workflow/process/handle');
+		}
+
+		//取消
+		function ApprovalCancelHandler() {
+			_ApprovalActionHandler_('/system/workflow/process/repeal');
+		}
+
+		/**
+		 * 审核确认事件
+		 * @param e
+		 */
+		function ApprovalAgreeHandler() {
+			_ApprovalActionHandler_('/system/workflow/process/agree');
+		}
+		/**
+		 * 审核驳回事件
+		 * @param e
+		 */
+		function ApprovalDisagreeHandler(e) {
+			_ApprovalActionHandler_('/system/workflow/process/disagree');
+		}
+		/**
+		 * 审核事件
+		 * @param actionUrl 提交URL
+		 */
+		function _ApprovalActionHandler_(actionUrl) {
+			var $approvalForm = $('#_approval-form_');
+			var data = {
+				backlogId : $approvalForm.find('[name=backlogId]').val(),
+				businessId : $approvalForm.find('[name=businessId]').val(),
+				opinion : $approvalForm.find('[name=opinion]').val(),
+				signature : $('[name=signature]').val(),
+			};
+			if ("" == data.backlogId || "" == data.businessId) {
+				alert('审批信息丢失!');
+			} else {
+				$.ajax({
+					url : actionUrl,
+					type : 'put',
+					contentType : 'application/json',
+					data : JSON.stringify(data),
+					before : function() {
+						mini && mini.showMaskLoading();
+					},
+					success : function(res) {
+						if (200 === res.code) {
+							hmq.tipSuccess(res.msg || '提交成功', {
+								exec : function() {
+									(window.parent || window).CloseWindow('refresh')
+								}
+							});
+						} else {
+							hmq.tipDanger('提交失败');
+						}
+					},
+					error : function(e) {
+
+					},
+					complete : function() {
+						mini && mini.unmask();
+					}
+				});
+			}
+		}
+
+		function Signature_() {
+			miniopen({
+				url : "/system/workflow/process/toSignature",
+				action : 'add',
+				title:"签名",
+				data : {
+					processId : $('[name=processId]').val(),
+					businessId : $('[name=businessId]').val(),
+				},
+				width : '980px',
+				height : '400px'
+			});
+		}
+		/**
+		 * 签名处理
+		 * @param e
+		 */
+		function signature(data) {
+			hmq.tipSuccess('保存成功');
+			$('#signature').val(data);
+		}
+	</script>
+	<style tyle="text/css" scoped>
+#_approval-box_ {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 0px 5px;
+	margin: 5px 0px;
+	position: relative;
+	display: block;
+	clear: both;
+}
+
+/*通用样式*/
+#_approval-box_ .wrap-text-center {
+	text-align: center;
+}
+
+#_approval-box_ .bg-success {
+	background-color: #00c2de !important;
+}
+
+/*布局样式*/
+#_approval-box_ .wrap-row {
+	width: 100%;
+	margin: 5px 0px;
+	font-size: 16px;
+	min-height: 16px;
+	position: relative;
+	padding-left: 100px;
+	clear: both;
+}
+
+#_approval-box_ .wrap-row .wrap-row-title {
+	width: 100px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+
+#_approval-box_ .wrap-row .wrap-row-content {
+	width: inherit;
+	min-height: inherit;
+}
+
+/*步骤条*/
+#_approval-box_ .flow-step {
+	
+}
+
+#_approval-box_ .flow-step li {
+	font-size: 12px;
+	margin-bottom: 5px;
+	float: left;
+	overflow: hidden;
+}
+
+#_approval-box_ .flow-step li .flow-step-dot {
+	display: inline-block;
+	font-size: inherit;
+	line-height: inherit;
+	border-radius: 5px;
+	padding: 5px 10px;
+	text-align: center;
+	color: #ffffff;
+	background: rgb(222, 222, 222);
+	cursor: default;
+}
+
+#_approval-box_ .flow-step li .flow-step-dot.active {
+	background: #4092fe;
+}
+
+#_approval-box_ .flow-step li:first-child .flow-step-line {
+	display: none;
+}
+
+#_approval-box_ .flow-step li .flow-step-line {
+	display: inline-block;
+	width: 25px;
+	height: 2px;
+	background: #cccccc;
+	margin-bottom: 5px;
+	line-height: inherit;
+	font-size: inherit;
+}
+
+/*意见输入框*/
+#_approval-box_ .flow-optition {
+	width: 90%;
+	margin-right: 10%;
+	height: 60px;
+	border-radius: 5px;
+	border: 1px solid rgb(202, 202, 202);
+	resize: none;
+	outline: none;
+	font-size: 16px;
+	padding: 5px;
+}
+
+/*按钮组*/
+#_approval-box_ .wrap-buttons {
+	margin-left: -100px; /*反向位移*/
+}
+
+#_approval-box_ .wrap-buttons button {
+	margin: 2px 10px;
+	padding: 5px 25px;
+	border: none;
+	background: rgb(12, 41, 101);
+	color: #fff;
+	font-size: 16px;
+	cursor: pointer;
+}
+</style>
+</div>
+
+<!--
+<div th:fragment="Approval(name,conent)" class="mini-toolbar" style="padding:2px;border-bottom:0;">
+    <form th:id="${name}" th:name="${name}" method="post">
+        <table style="width:100%;">
+            <tr>
+                <td style="white-space:nowrap;" th:insert="${conent}"></td>
+            </tr>
+        </table>
+    </form>
+</div>-->

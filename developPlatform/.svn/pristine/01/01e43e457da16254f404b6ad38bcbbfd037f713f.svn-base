@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'page_main'})}">
+        <title th:text="${SYS_SETTING_XTMC}!=null?${SYS_SETTING_XTMC}:'腾智信息技术有限公司'"></title>
+    </th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/main.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/jquery.bigautocomplete.css}"/>
+    <script th:src="@{/static/javascript/jquery.bigautocomplete.js}"></script>
+    <!--/*[请勿删除,不影响逻辑]Spring thymeleaf插桩开始[请勿删除,不影响逻辑]*/-->
+    <th:block layout:fragment="fragment-header">
+        <!--/*Spring thymeleaf插桩位置*/-->
+    </th:block>
+    <!--/*END [请勿删除,不影响逻辑]Spring thymeleaf插桩开始[请勿删除,不影响逻辑]*/-->
+    <!--web截图-->
+    <!--<script th:src="@{/static/script/kscreenshot/dist/kss.js}"></script>-->
+    <!--END 截图-->
+    <!--
+    即时聊天
+    <script th:src="@{/static/script/im/IMjs/IMjsCommunication.js}"></script>
+    <script th:src="@{/static/script/im/IMjs/IMjs.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+         var userId = [[${userId}]];
+         IMinit(userId);
+         window.onload = function () {
+             //绑定按钮切换聊天面板事件
+             $('#button-im').click(function () {
+                 $('#layui-layer1').toggle();
+             });
+         };
+         showMessage();
+    </script>-->
+    <script type="text/javascript">
+        //禁止回退
+        if (window.history && window.history.pushState) {
+            //其他浏览器
+            history.pushState(null, null, document.URL);
+            window.addEventListener('popstate', function () {
+                history.pushState(null, null, document.URL);
+            });
+        } else {
+            //ie8
+            window.location.hash = "no-back-button";
+            window.location.hash = "Again-No-back-button";
+            window.location.hash = "Again-No-back-button";
+            window.οnhashchange = function () {
+                window.location.hash = "no-back-button";
+            }
+            window.setTimeout(function () {
+                window.location.hash = "Again-No-back-button";
+            }, 1000);
+        }
+    </script>
+</head>
+<body>
+<!--页头区域-->
+<div class="navbar" style="background: rgb(12, 40, 101);">
+    <input id="setting_xtmc_text" th:value="${SYS_SETTING_XTMC}" class="mini-hidden">
+    <input id="setting_xtjz_text" th:value="${SYS_SETTING_XTJZ}" class="mini-hidden">
+    <input id="setting_em_text" th:value="${SYS_SETTING_EM}" class="mini-hidden">
+    <div class="navbar-header">
+        <div id="sys_setting_xttb" class="navbar-brand" style="background: rgb(11, 30, 84);">
+            <img th:src="${SYS_SETTING_ZYTB} == null ? @{static/img/common/index_logo.png} : @{${SYS_SETTING_ZYTB}} " style="width: 100%; height: 100%"
+                 th:attr="defalut-image=|@{/static/img/common/index_logo.png}|"
+                 onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+        </div>
+        <div id="sys_setting_xtmc" style="background-color: #132355" class="navbar-brand navbar-brand-compact">智</div>
+    </div>
+    <ul class="nav navbar-nav" id="navbar-navs">
+        <li><a id="title" href="javascript:void(0);" style="font-size:20px;padding-top: 10px;" th:text="${corpExp}"></a></li>
+        <!--<li>
+            <a id="toggle"><span class="fa iconfont icon-tuozhuaicaidandaohang"></span></a>
+        </li>-->
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li><input class="search-input" type="text" id="nope" autocomplete="off" placeholder="搜索"/></li>
+        <li th:if="${T(com.tengzhi.base.security.common.model.SessionUser).isSuperUser()}">
+            <a href="javascript:emptyCache();"><i class="fa iconfont icon-shuaxin1 fa-2x" title="刷新缓存"></i></a>
+        </li>
+        <li>
+            <a href="javascript:loadIM();" title="腾企通讯">
+                <i class="fa iconfont icon-comment-solid fa-2x"></i>
+                <span id="messageTips"></span>
+            </a>
+        </li>
+        <li><a href="#"><i
+                class="fa iconfont icon-zongheguanli fa-2x"></i></a></li>
+        <li class="dropdown"><a class="dropdown-toggle userinfo">
+            <th:block th:if="${avatar_url}">
+                <img class="user-img" th:src="'/system/user/getImg/'+${userId}" onerror="this.src='/static/model/main/images/user.jpg';this.onerror=null;"/>
+            </th:block>
+            <th:block th:if="${!avatar_url}">
+                <img class="user-img" th:src="@{/static/model/main/images/user.jpg}"/>
+            </th:block>
+            <input id="user_id" name="user_id" class="mini-hidden"/> <input
+                id="user_name" name="user_name" class="mini-hidden"/> <span
+                id="userinfo" style="padding-left: 8px; padding-right: 10px;"
+                th:text="${userName}"> 个人资料 </span><i
+                class="fa iconfont icon-down-triangle-solid"
+                style="font-size: 14px !important;"></i>
+        </a>
+            <ul class="dropdown-menu pull-right">
+                <li>
+                    <a href="#" onclick="changePassword()"><i class="fa iconfont icon-pencil-solid"></i> 修改密码</a>
+                </li>
+                <li>
+                    <a href="#" onclick="commonMenu()"><i class="fa iconfont icon-tuozhuaicaidandaohang"></i> 常用菜单</a>
+                </li>
+                <li>
+                    <a href="#" onclick="toggleCorp()"><i class="fa iconfont icon-tuozhuaicaidandaohang"></i>切换账套</a>
+                </li>
+                <li>
+                    <a href="#" onclick="logout()"><i class="fa iconfont icon-user-solid"></i> 退出登录</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<!--END 页头区域-->
+
+<div class="container">
+    <ul class="tab-bar sidebar-toggle" id="main-menu-tab" contextMenu="#tabsMenu">
+        <li id="li_erp" class="tab_li active tab_l">
+            <th:block th:if="${ERP} eq ERP and ${ERP} != null">
+                <a id="menu_erp" class="btn tar-btn tab-left" link="#main-menu-erp" data-value="ERP">ERP</a>
+            </th:block>
+            <th:block th:if="${MES} == null and ${ERP} == null">
+                <a id="menu_erp" class="btn tar-btn tab-left" link="#main-menu-erp" data-value="ERP">ERP</a>
+            </th:block>
+        </li>
+        <li class="tab_li tab_fa"><i
+                class="fa fa-fw iconfont icon-tuozhuaicaidandaohang"></i></li>
+        <li id="li_mes" class="tab_li tab_r">
+            <th:block th:if="${MES} eq MES and ${MES} != null">
+                <a id="menu_mes" class="btn tar-btn tab-right" link="#main-menu-mes" data-value="MES">MES</a></th:block>
+            <th:block th:if="${MES} == null and ${ERP} == null">
+                <a id="menu_mes" class="btn tar-btn tab-right" link="#main-menu-mes" data-value="MES">MES</a></th:block>
+        </li>
+    </ul>
+    <!--左侧菜单栏-->
+    <div class="sidebar">
+        <div class="tab-page-box">
+            <div id="main-menu-erp"></div>
+            <div id="main-menu-mes"></div>
+        </div>
+    </div>
+
+
+</div>
+<!--END 左侧菜单栏-->
+
+<!--iframe内容区域-->
+<div class="main">
+    <div id="mainTabs" class="mini-tabs" activeIndex="0" style="width: 100%; height: 100%;" buttons="#tabsButtons" contextMenu="#tabsMenu" arrowPosition="side">
+        <!--<div title="首页" th:attr="url=@{gateway/readme.html}" name="index"></div>-->
+        <div title="工作" th:attr="url=@{gateway/index.html}" name="index"></div>
+        <div title="腾企通讯" th:attr="url=@{im/communication.html}" name="R101202"></div>
+        <!--<div title="审批" th:attr="url=@{workflow/backlog/approval}"></div>-->
+    </div>
+</div>
+<!--END iframe内容区域-->
+
+<!--tab头部按钮区域-->
+<div id="tabsButtons">
+    <a class="tabsBtn" onClick="showPageHelp()">
+        <i class="fa iconfont icon-wenhao" title="帮助"></i>
+    </a>
+    <a class="tabsBtn" onClick="StartScreenShot()">
+        <i class="fa iconfont icon-chakan21" title="截图"></i>
+    </a>
+    <a class="tabsBtn" onClick="TriggerIndexTab()">
+        <i class="fa iconfont icon-home-solid" title="主页"></i>
+    </a>
+    <a class="tabsBtn" onClick="refreshTab()">
+        <i class="fa iconfont icon-shuaxin1" title="刷新"></i>
+    </a>
+    <a class="tabsBtn" onClick="closeAllTabs()">
+        <i class="fa iconfont icon-shanchuguanbiquxiaowubiankuang" title="关闭全部Tab页"></i>
+    </a>
+</div>
+<!--END tab头部按钮区域-->
+
+
+<!--右键菜单-->
+<ul id="tabsMenu" class="mini-contextmenu" onbeforeopen="onBeforeOpen">
+    <li iconCls="icon-no" onclick="closeTab">关闭</li>
+    <li iconCls="icon-remove" onclick="closeAllBut">关闭其他</li>
+    <li iconCls="icon-undo" onclick="closeAllTabs">关闭所有</li>
+</ul>
+<!---->
+</body>
+<script type="text/javascript">
+    //系统配置
+    if (!!$("#setting_xtjz_text").val()) {
+        $("#sys_setting_xtmc").html($("#setting_xtjz_text").val());
+    } else {
+        if (!!$("#setting_xtmc_text").val()) {
+            $("#sys_setting_xtmc").html($("#setting_xtmc_text").val().substring(0, 1));
+        }
+    }
+
+    if (!!$("#setting_em_text").val()) {
+        if ($("#setting_em_text").val() === 'MES') {
+            $('#main-menu-erp').css("display", "none")
+            $('#main-menu-mes').css("display", "block")
+        } else if ($("#setting_em_text").val() === 'ERP') {
+            $('#main-menu-erp').css("display", "block")
+            $('#main-menu-mes').css("display", "none")
+        }
+    } else {
+        $('#main-menu-erp').css("display", "block")
+        $('#main-menu-mes').css("display", "none")
+    }
+
+    //切换Tab页面
+    var $btnTar = $('.tar-btn');
+    /* $('#main-menu-mes').css("display","none") */
+    $btnTar.on('click', function (e) {
+        $btnTar.each(function (i, dom) {
+            var page = $($(dom).attr('link'));
+            page.css('display', e.target == dom ? 'block' : 'none');
+            if (e.target == dom) {
+                $currentLoginForm = page.parent('form');
+            }
+        });
+        $(this).parent().addClass('active');
+        $(this).parent().siblings().removeClass("active")
+        return false;
+    });
+</script>
+<script type="text/javascript" th:inline="javascript">
+    mini.parse();
+    var tabs = mini.get("mainTabs");
+    var fixedTabs = [];
+    fixedTabs.push(tabs.getTab("index"));
+    fixedTabs.push(tabs.getTab("R101202"));
+
+    /**
+     * 打开/激活tab页
+     * @param item
+     * {
+     *     id:
+     *     name:
+     *     url:
+     *     iconCls:
+     * }
+     **/
+    function activeTab(item) {
+        var tab = tabs.getTab(item.id);
+        if (!tab) {
+            var turl = "";
+
+            var urlOptions = parseURL(item.url);
+            if ("" == urlOptions.file) {
+                turl = '/static/html/dev/development.html'
+            } else {
+                //分析url并将menu_id追加进入queryc参数中
+                urlOptions.params["menu_id"] = item.id;
+                turl = urlOptions.protocol + "://" + urlOptions.host +
+                    ("80" === urlOptions.port ? "" : ":" + urlOptions.port) +
+                    urlOptions.path +
+                    (urlOptions.query.length > 0 ? urlOptions.query + "&" : '?') + "menu_id=" + item.id +
+                    (urlOptions.hash.length > 0 ? "#" + urlOptions.hash : "");
+            }
+            //该处解码后编码是为了兼容IE
+            //因为chrome会自动编码如果直接使用encodeURI会导致编码两次,而不编码会让url中存在中文的url访问失败
+            turl = encodeURI(decodeURI(turl));
+            tab = {
+                name: item.id,
+                title: item.text,
+                url: turl,
+                iconCls: item.iconCls,
+                showCloseButton: true
+            };
+            tab = tabs.addTab(tab);
+        }
+        tabs.activeTab(tab);
+    }
+
+    /**
+     * 注销
+     **/
+    function logout() {
+        mini.confirm("确定退出吗？", "提示信息", function (returndata) {
+            if (returndata == "ok") {
+                window.top.location.href = "/login/quit";
+            }
+        });
+    }
+
+    /**
+     * 切换到首页
+     **/
+    function TriggerIndexTab() {
+        tabs.activeTab(tabs.getTab("index"));
+    }
+
+    /**
+     * 切换到im页面
+     **/
+    function loadIM() {
+        tabs.activeTab(tabs.getTab("R101202"));
+    }
+    /**
+     * 显示当前tab页的帮助信息
+     **/
+    function showPageHelp(){
+        var tabdata=tabs.getActiveTab();
+        var meunidStr=tabdata.name;
+        var tabnameStr=tabdata.title;
+        if(!$.isEmptyObject(meunidStr)){
+            //TODO:请求帮助信息列表
+            var parms={
+                menuid:meunidStr,
+                typestr:"SC"
+            }
+            $.get("/system/developarchive/archiveByMendata",parms,function (res) {
+                if (200 === res.code) {
+                    if(res.data.length>0){
+                        mini.open({url: '/system/developarchive/helpview.html?meunid='+meunidStr+'&typestr=SC',
+                            title:tabnameStr+'-帮助文档',
+                            width: "80%",
+                            height: "80%",
+                            allowResize:false,//禁用拖拽页面大小
+                            showMaxButton: true,//显示最大化窗口按钮
+                            showModal:false,//取消遮罩
+                            onbuttonclick:function(e){
+                                if(e.name=="max"){//最大化时重新加载tab区域内容
+                                    var iframe = this.getIFrameEl();
+                                    //调用弹出页面方法进行初始化
+                                    iframe.contentWindow.onactivechanged();
+                                }
+                            }
+
+                        });
+                    }else{
+                        showMessge("当前菜单没有帮助文档");
+                    }
+                }
+            });
+            //TODO:如果存在帮助文档则显示弹出页面
+        }else{
+            showMessge("当前菜单没有帮助文档");
+        }
+    }
+    //TODO:错误提示，当前页面公共方法
+    function showMessge(messge){
+        mini.showTips({
+            content: messge,
+            state:'danger',
+            x: 'center',
+            y: 'center',
+            timeout: 2000,
+            targetWindow: window.top
+        });
+    }
+    /**
+     * 监听tab切换事件，当页面是腾企通讯时则触发内iframe页面中的resize事件
+     **/
+    tabs.on('activechanged', function (e) {
+        if ('R101202' === e.name) {
+            //触发resize事件,触发页面样式自适应
+            var iframe = e.sender.getTabIFrameEl(e.index);
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.$(iframe.contentWindow).trigger('resize');
+            }
+
+        }
+    });
+    /**
+     *
+     **/
+    tabs.on('tabload', function (e) {
+        if ('R101202' === e.name) {
+            setTimeout(TriggerIndexTab, 500);
+            tabs.un('tabload');
+        }
+    });
+
+    //首页展示后先切换到im页面加载完，然后跳转回首页
+    loadIM();
+
+
+    /**
+     * 刷新tabs
+     **/
+    function refreshTab() {
+        tabs.reloadTab(tabs.getActiveTab());
+    }
+
+
+    /**
+     * 修改密码
+     **/
+    function changePassword(e) {
+        mini.open({
+            url: "./user/password.html", title: "密码修改",
+            width: 320, height: 270,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    window.location.href = '/login/quit';
+                }
+            }
+        });
+    }
+
+    /**
+     * 切换账套
+     **/
+    function toggleCorp(e) {
+        mini.open({
+            url: "./user/toggleCorp.html", title: "切换账套",
+            width: 350, height: 270,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    /**
+     * 常用菜单
+     * @param e
+     */
+    function commonMenu(e) {
+        mini.open({
+            url: "main/cycd.html", title: "常用菜单",
+            width: 730, height: 520,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    $(function () {
+        $("#main-menu-tab > li a[link]").each(function (i, v, item) {
+            var $a = $(v);
+            if ("" !== $a.data("value")) {
+                //初始化菜单
+                var menu = new Menu($a.attr("link"), {
+                    itemclick: function (item) {
+                        if (null != item.children && item.children.length <= 0) {
+                            activeTab(item);
+                        }
+                    }
+                });
+                //初始化菜单提示插件
+                new MenuTip(menu);
+                //加载菜单数据
+                $.get("/system/menu/" + $a.data("value"), null, function (res, status, xhr) {
+                    menu.loadData(res.data);
+                    $($($a.attr("link")+" ul.menu ").children('li.has-children')[0]).addClass('open')
+                });
+            }
+        });
+        //美化滚动条
+        $(".sidebar").mCustomScrollbar({
+            autoHideScrollbar: true
+        });
+        //toggle
+        $("#toggle, .sidebar-toggle").click(function () {
+            $('body').toggleClass('compact');
+            $('.tab_l').toggleClass('current');
+            $('.tab_r').toggleClass('current');
+            $('.tab_fa').toggleClass('fa_center');
+
+            if (($(".navbar-brand-compact").css("display")) == "block") {
+                $('.tab-bar').css('width', '55px')
+            } else {
+                $('.tab-bar').css('width', '150px')
+            }
+            setTimeout(function () {
+                mini.layout();
+            }, 100);
+        });
+
+
+        /* input自动完成 */
+        $("#nope").bigAutocomplete({
+            width: 180,
+            url: "/system/menu",
+            callback: function (data) {
+                if (null != data) {
+                    activeTab({
+                        id: data.rightId,
+                        ord: data.rightOrd,
+                        pid: data.parentId,
+                        text: data.rightName,
+                        trigger: data.rightResource,
+                        type: data.rightType,
+                        url: data.rightLink,
+                        iconCls: data.rightIconCls
+                    });
+                }
+
+            }
+        });
+
+
+        //dropdown
+        $(".dropdown-toggle").click(function (event) {
+            if ($(this).parent().hasClass("open")) {
+                $(this).parent().removeClass("open");
+            } else {
+                $(this).parent().addClass("open");
+            }
+
+
+            return false;
+        });
+
+        $(document).click(function (event) {
+            $(".dropdown").removeClass("open");
+        });
+    });
+
+
+    /**
+     * 关闭所有Tab页面
+     **/
+    function closeAllTabs() {
+        tabs.removeAll(fixedTabs);
+    }
+
+    /**右键菜单相关函数**/
+    var currentTab = null;
+
+    function onBeforeOpen(e) {
+        currentTab = tabs.getTabByEvent(e.htmlEvent);
+        if (!currentTab) {
+            e.cancel = true;
+        }
+    }
+
+    /**
+     * 关闭当前tab页面
+     **/
+    function closeTab() {
+        tabs.removeTab(currentTab);
+    }
+
+    /**
+     * 关闭非当前tab页面
+     **/
+    function closeAllBut() {
+        fixedTabs.push(currentTab);
+        tabs.removeAll(fixedTabs);
+        fixedTabs.removeAt(fixedTabs.length - 1);
+        tabs.activeTab(currentTab);
+    }
+
+    /**END 右键菜单相关函数**/
+
+
+    (function () {
+        var script = document.createElement('SCRIPT');
+        script.onload = function (e) {
+            //截图
+            try {
+                window.KSCREENSHOT = new kscreenshot({
+                    key: 65, endCB: function (res) {
+                        //创建容器
+                        var div = document.createElement('DIV');
+                        var img = document.createElement('IMG');
+                        img.src = res;
+                        //img加载后触发复制动作
+                        img.onload = function () {
+                            if (document.body.createTextRange) { // IE
+                                // 用于表示文档中特定的一段文本，例如在按住鼠标选中页面上的内容时，创建出的就是一个较为典型的 TextRange。
+                                var range = document.body.createTextRange();
+                                range.moveToElementText(div); //使区域包含指定元素的文本。只能用于 Element 对象。
+                                range.select();
+                                document.execCommand('copy');
+                            } else if (window.getSelection) {
+                                // Selection 对象表示用户选择的文本范围或插入符号的当前位置。它代表页面中的文本选区，可能横跨多个元素。
+                                var selection = window.getSelection();
+                                var range = document.createRange();
+                                range.selectNodeContents(div); //使 Range 包含某个节点的内容。
+                                selection.removeAllRanges(); //将所有的区域都从选区中移除。
+                                selection.addRange(range); //一个区域（Range）对象将被加入选区。
+                                document.execCommand('copy');
+                            } else {
+                                console.log('wrong');
+                            }
+                            //移除元素
+                            div.remove();
+                        };
+                        //追加元素
+                        div.append(img);
+                        document.body.append(div);
+
+
+                    }
+                });
+
+            } catch (e) {
+                window.KSCREENSHOT = null;
+            } finally {
+                window.StartScreenShot = function () {
+                    if (null !== window.KSCREENSHOT) {
+                        window.KSCREENSHOT.startScreenShot();
+                    } else {
+                        mini.showTips({content: '浏览器版本过低,不能截图!', state: 'danger', x: "right", y: "bottom", timeout: 1000});
+                    }
+                }
+            }
+        };
+        $(document.getElementsByTagName('head')[0]).append(script);
+        script.src = '/static/script/kscreenshot/dist/kss.js';
+    })(jQuery);
+
+
+    function parseURL(url) {
+        var a = document.createElement('A');
+        a.href = url;
+        a.href = a.href;
+        return {
+            source: url,
+            protocol: a.protocol.replace(':', ''),
+            host: a.hostname,
+            port: a.port,
+            query: a.search,
+            params: (function () {
+                var ret = {},
+                    seg = a.search.replace(/^\?/, '').split('&'),
+                    len = seg.length, i = 0, s;
+                for (; i < len; i++) {
+                    if (!seg[i]) {
+                        continue;
+                    }
+                    s = seg[i].split('=');
+                    ret[s[0]] = s[1];
+                }
+                return ret;
+            })(),
+            file: (a.pathname.match(/\/([^\/?#]+)$/i) || [, ''])[1],
+            hash: a.hash.replace('#', ''),
+            path: a.pathname.replace(/^([^\/])/, '/$1'),
+            relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [, ''])[1],
+            segments: a.pathname.replace(/^\//, '').split('/')
+        };
+    }
+    
+    function emptyCache() {
+        mini.confirm("注意:确定清除所有缓存吗？", "清除信息", function (action) {
+            if (action == "ok") {
+                $.get("EmptyCache", function (res) {
+                    if (200 === res.code) {
+                        location.reload();
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        });
+    }
+    
+    
+</script>
+<!--/*[请勿删除,不影响逻辑]Spring thymeleaf插桩开始[请勿删除,不影响逻辑]*/-->
+<th:block layout:fragment="fragment-footer">
+    <!--/*Spring thymeleaf插桩位置*/-->
+</th:block>
+<!--/*END [请勿删除,不影响逻辑]Spring thymeleaf插桩开始[请勿删除,不影响逻辑]*/-->
+</html>

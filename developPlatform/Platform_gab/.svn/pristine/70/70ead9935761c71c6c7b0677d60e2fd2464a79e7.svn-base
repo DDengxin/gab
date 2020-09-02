@@ -1,0 +1,47 @@
+package com.tengzhi.business.platform.specialist.chamberactivities.model;
+
+import javax.persistence.*;
+import java.util.Date;
+
+@Entity
+@Table(name = "g_chamber")
+public class G_chamber {
+	private  String  chamberNote , chamberName,chamberMobile,chamberUserid;
+	private Date register_time;
+
+	public String getChamberNote() {
+		return chamberNote;
+	}
+	public void setChamberNote(String chamberNote) {
+		this.chamberNote = chamberNote;
+	}
+	public String getChamberName() {
+		return chamberName;
+	}
+	public void setChamberName(String chamberName) {
+		this.chamberName = chamberName;
+	}
+	public String getChamberMobile() {
+		return chamberMobile;
+	}
+	public void setChamberMobile(String chamberMobile) {
+		this.chamberMobile = chamberMobile;
+	}
+	
+	@Id
+    @Basic
+    @Column(name = "chamberUserid", nullable = true, length = 32)
+	public String getChamberUserid() {
+		return chamberUserid;
+	}
+	public void setChamberUserid(String chamberUserid) {
+		this.chamberUserid = chamberUserid;
+	}
+	public Date getRegister_time() {
+		return register_time;
+	}
+	public void setRegister_time(Date register_time) {
+		this.register_time = register_time;
+	}
+
+}

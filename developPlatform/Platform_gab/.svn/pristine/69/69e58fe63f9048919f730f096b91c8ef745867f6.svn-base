@@ -1,0 +1,265 @@
+<!doctype html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<div th:fragment="CommonHead" id="_CommonHead_" xmlns:th="http://www.w3.org/1999/xhtml">
+    <!-- 右边固定工具栏 -->
+    <div class="tools">
+        <ul>
+            <li class="chat">
+                <a href="javascript:void(0);">
+                    <i class="iconfont icon-zixun"></i>
+                    咨询
+                </a>
+                <div class="tips">
+                    <div class="tips_content">
+                        <p>嫌麻烦？不会用？</p>
+                        <p>
+                            点击与
+                            <a href="/gab/service.html">人工客服</a>
+                            直接沟通
+                        </p>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <a href="/gab/share.html?present=activity">
+                    <i class="iconfont icon-tubiao"></i>
+                    活动
+                </a>
+            </li>
+            <li>
+                <a href="/gab/info.html">
+                    <i class="iconfont icon-zhangdan"></i>
+                    资讯
+                </a>
+            </li>
+            <li>
+                <a target="_blank" href="/system/main">
+                    <i class="iconfont icon-guanli"></i>
+                    管理
+                </a>
+            </li>
+            <li class="toTop">
+                <a href="javascript:void(0);">
+                    <i class="iconfont icon-huidaodingbu"></i>
+                    TOP
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="nav">
+        <div class="nav_content">
+            <div class="nav_left">
+                <ul>
+                    <li>
+                        <a href="/gab/index.html">首页</a>
+                    </li>
+                    <li>
+                        <a href="/gab/erp.html">ERP</a>
+                    </li>
+                    <li>
+                        <a href="#">MES</a>
+                    </li>
+                    <li>
+                        <a href="/gab/share.html?present=teachCase">案例</a>
+                    </li>
+                    <li>
+                        <a href="/gab/info.html">资讯</a>
+                    </li>
+                    <li>
+                        <a href="/gab/share.html?present=activity">商会活动</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="nav_right">
+                <ul id="LoginMsg">
+                    <!-- <li>快速入驻</li> -->
+                    <li class="tel">
+                        <b></b>
+                        <u>400-888-0000</u>
+                    </li>
+                    <!--/*通过模板语法判断用户是否登录成功，并且填充用户信息*/-->
+                    <th:block th:with="sessionUser = ${T(com.tengzhi.base.security.common.model.SessionUser).SessionUser()} ">
+                        <li class="noLogin" th:if="${sessionUser eq null}">
+                            <a class="reg" href="/gab/application.html">注册</a>
+                            <a class="login" href="/gabLogin">登录</a>
+                        </li>
+                        <li class="yesLogin" th:if="${sessionUser ne null}">
+                            <b class="username" th:text="${sessionUser eq null ? '' :  sessionUser.getRealName() ?: (sessionUser.getNickName() ?:sessionUser.getUserId() )} "></b>
+                            <ul>
+                                <li><a href="#">我的资料</a></li>
+                                <li><a href="/gab/manage/accountAuthentication.html">账号认证</a></li>
+                                <li><a href="/gab/manage/business.html">我的企业</a></li>
+                                <li><a href="/gab/manage/corporateCertification.html">企业认证</a></li>
+                                <li><a href="/gab/manage/security.html">修改密码</a></li>
+                                <li><a href="#">切换账套</a></li>
+                                <li><a href="javascript:void(0);" onclick="loginOut()">退出系统</a></li>
+                            </ul>
+                            <a href="/gab/shoppingCart.html">我的购物车</a>
+                            <a href="/gab/manage/ownOrders.html">我的订单</a>
+                            <a target="_blank" href="/system/main">企业管理</a>
+                        </li>
+                    </th:block>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="header_content">
+            <h1>
+                <a href="/gab/index.html"></a>
+            </h1>
+            <div class="head_nav">
+                <ul th:with="menu=${@bar.getParamValue()}">
+
+                    <li th:each="firstMenu : ${menu}" th:if="${firstMenu.level} eq '1' " class=""
+                        th:classappend="${firstMenu.isChildren == '1'} ? 'choice_firm' : '' ">
+                        <a th:href="@{''+${firstMenu.url}}" th:text="${firstMenu.paramName}"
+                           th:if="${firstMenu.paramName} ne '关于我们'">产品市场</a>
+                        <ul class="choice">
+                            <li th:each="secondMenu : ${menu}"
+                                th:if="${secondMenu.level} eq '2' and ${secondMenu.parentId} eq ${firstMenu.paramId}">
+                                <a th:href="@{''+${secondMenu.url}}" th:text="${secondMenu.paramName}">夹具厂商</a>
+
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="search">
+                        <i></i>
+                        <input id="SearchKeyword" type="text" placeholder="请输入关键词" class="autoCompleted">
+                        <b id="searchLike" class="search allSearch">搜索</b>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--/*功能head部门*/-->
+<th:block th:fragment="head(title,links,scripts,model)">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--/*<link type="image/x-icon" href="images/favicon.ico" rel="shortcut icon" >*/-->
+    <!--加载title图标-->
+    <!--<link rel="shortcut icon" th:href="${SYS_SETTING_XTTB}!=null?${SYS_SETTING_XTTB}:@{/static/img/common/shortcut.png}"/>-->
+    <title th:replace="${title}">哥爱帮</title>
+    <th:block th:replace="~{::common_header_setting()}"/>
+    <th:block th:with="model_list = ${#strings.setSplit(model,',')}">
+        <th:block th:replace="~{::common_header_links(${model_list})}"/>
+    </th:block>
+    <th:block th:replace="${links}"/>
+    <th:block th:replace="${scripts}"/>
+</th:block>
+<!--/* 用于处理渲染的资源模块! */-->
+<th:block th:fragment="common_header_links(model_list)">
+    <th:block th:each="row,state : ${model_list}">
+        <!--/*基础样式 & 基础javascript */-->
+        <th:block th:if="${#strings.trim(row) eq 'basic'}">
+            <link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}"/>
+            <link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}"/>
+            <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}"/>
+
+            <script type="text/javascript" th:src="@{/static/gab/js/public/jquery.min.js}"></script>
+            <script type="text/javascript" th:src="@{/static/gab/js/plugin/jquery.plugin.js}"></script>
+            <script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+            <script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+            <script type="text/javascript" th:src="@{/static/gab/js/public/jquery.autocompleter.js}" async></script>
+            <script type="text/javascript" th:src="@{/static/gab/js/public/public.js}"></script>
+        </th:block>
+        <!--/*jquery*/-->
+        <th:block th:if="${#strings.trim(row) eq 'jquery'}">
+            <script type="text/javascript" th:src="@{/static/script/miniui/jquery.min.js}"></script>
+        </th:block>
+        <th:block th:if="${#strings.trim(row) eq 'jquery-1.12.4'}">
+            <script type="text/javascript" th:src="@{/static/script/jquery/jquery-1.12.4.min.js}"></script>
+        </th:block>
+        <!--/*bootstrap3*/-->
+        <th:block th:if="${#strings.trim(row) eq 'bootstrap3'}">
+            <link rel="stylesheet" type="text/css" th:href="@{/static/script/bootstrap3/css/bootstrap.css}"/>
+            <link rel="stylesheet" type="text/css" th:href="@{/static/script/bootstrap3/model/bootoast.css}"/>
+            <script type="text/javascript" th:src="@{/static/script/bootstrap3/jquery.min.js}"></script>
+            <script type="text/javascript" th:src="@{/static/script/bootstrap3/js/bootstrap.js}"></script>
+            <script type="text/javascript" th:src="@{/static/script/bootstrap3/model/bootoast.js}"></script>
+            <script type="text/javascript" th:src="@{/static/script/bootstrap3/js/html5shiv.min.js}"></script>
+        </th:block>
+        <!--/*百度富文本*/-->
+        <th:block th:if="${#strings.trim(row) eq 'umeditor'}">
+            <script type="text/javascript" charset="utf-8" th:src="@{/static/script/utf8-jsp/ueditor.config.js}"></script>
+            <script type="text/javascript" charset="utf-8" th:src="@{/static/script/utf8-jsp/ueditor.all.js}"></script>
+            <script type="text/javascript" th:src="@{/static/script/utf8-jsp/lang/zh-cn/zh-cn.js}"></script>
+        </th:block>
+        <!--/*md5*/-->
+        <th:block th:if="${#strings.trim(row) eq 'md5'}">
+            <script type="text/javascript" th:src="@{/static/script/plugins/md5.js}"></script>
+        </th:block>
+        <!--/*jquery-cookie*/-->
+        <th:block th:if="${#strings.trim(row) eq 'jquery-cookie'}">
+            <script type="text/javascript" th:src="@{/static/script/jqueryplugins/jquery.cookie.js}"></script>
+        </th:block>
+        <!--/*jquery-mCustomScrollbar*/-->
+        <th:block th:if="${#strings.trim(row) eq 'jquery-mCustomScrollbar'}">
+            <link rel="stylesheet" type="text/css" th:href="@{/static/script/miniui/scrollbar/jquery.mCustomScrollbar.css}"/>
+            <script type="text/javascript" th:src="@{/static/script/miniui/scrollbar/jquery.mCustomScrollbar.concat.min.js}"></script>
+        </th:block>
+        <!--/*laytpl 模板js*/-->
+        <th:block th:if="${#strings.trim(row) eq 'laytpl'}">
+            <script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+        </th:block>
+        <!--/*common*/-->
+        <th:block th:if="${#strings.trim(row) eq 'common'}">
+            <link rel="stylesheet" type="text/css" th:href="@{/static/css/common.css}"/>
+            <script type="text/javascript" th:src="@{/static/javascript/common.js}"></script>
+        </th:block>
+        <!--/*upload*/-->
+        <th:block th:if="${#strings.trim(row) eq 'upload'}">
+            <script type="text/javascript" th:src="@{/static/script/webuploader/webuploader.js}"></script>
+            <script type="text/javascript" th:src="@{/static/script/webuploader/uploadFile.js}"></script>
+            <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/webuploader.css}"/>
+            <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/uploadFile.css}"/>
+        </th:block>
+        <!--/*upload file view*/-->
+        <th:block th:if="${#strings.trim(row) eq 'fileView'}">
+            <link rel="stylesheet" type="text/css" th:href="@{/static/css/all.css}"/>
+            <script type="text/javascript" th:src="@{/static/javascript/auto-line-number.js}"></script>
+            <link rel="stylesheet" type="text/css" th:href="@{/static/css/prism.css}"/>
+            <script type="text/javascript" th:src="@{/static/javascript/prism.js}"></script>
+        </th:block>
+        <!--/*markdown-editor.md*/-->
+        <th:block th:if="${#strings.trim(row) eq 'editormd'}">
+            <link rel="stylesheet" th:href="@{/static/script/editor/css/editormd.min.css}"/>
+            <script type="text/javascript" th:src="@{/static/script/editor/editormd.min.js}"></script>
+        </th:block>
+        <!--/**/-->
+        <th:block th:if="${#strings.trim(row) eq 'echarts'}">
+            <script th:src="@{/static/javascript/echarts.min.js}"></script>
+        </th:block>
+    </th:block>
+</th:block>
+<!--/* 用于赋值页面的公共参数的模块! */-->
+<th:block th:fragment="common_header_setting()">
+    <script type="text/javascript" th:inline="javascript" th:if="null  ne ${T(com.tengzhi.base.security.common.model.SessionUser).SessionUser()} "
+            th:with="sessionUser =${T(com.tengzhi.base.security.common.model.SessionUser).SessionUser()} ">
+        /*<![CDATA[*/
+        var TZ_SETTING = {
+            isLogin: true,
+            corpId:/*[[${sessionUser.getCorpId()}]]*/ '',
+            userId:/*[[${sessionUser.getUserId()}]]*/ '',
+            realName:/*[[${sessionUser.getRealName()}]]*/ '',
+            nickName:/*[[${sessionUser.getNickName()}]]*/ '',
+            deptId:/*[[${sessionUser.getDeptId()}]]*/ '',
+            originalCorpId:/*[[${sessionUser.getOriginalCorpId()}]]*/ '',
+            businessPersonnelIds:/*[[${sessionUser.getBusinessPersonnelIds()}]]*/ ''
+        };
+        /*]]>*/
+    </script>
+    <script type="text/javascript" th:inline="javascript" th:if="null  eq ${T(com.tengzhi.base.security.common.model.SessionUser).SessionUser()} ">
+        /*<![CDATA[*/
+        var TZ_SETTING = {isLogin: false};
+        /*]]>*/
+    </script>
+</th:block>
+
+
+</html>

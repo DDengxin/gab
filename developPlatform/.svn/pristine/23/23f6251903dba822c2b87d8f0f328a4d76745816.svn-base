@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,laytpl'})}">
+	<title>权限管理</title>
+</th:block>
+<!-- <link rel="stylesheet" href="http://apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+<script src="http://apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script> -->
+<script src="http://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script id="searchdom" type="text/html">
+<div class=" container mini-clearfix mini-col-3 search" id="">
+		<label class="mini-col-3">{{ d.titleName }}:</label>
+		<div class="mini-col-9">
+			<input id="{{ d.columnName }}" name="{{ d.columnName }}" class="mini-textbox" style="width:95%"/>
+		</div>
+</div>
+</script>
+<script id="columns" type="text/html">
+{{#  for(var i = 0, len = d.list.length; i < len; i++){ var item=d.list[i]  }}
+	 <div field="{{item.columnName }}" width="100" headerAlign="left" allowSort="true">{{ item.titleName }}</div>
+{{#  } }}
+</script>
+<script id="tableInitialDom" type="text/html">
+	<div id="data_grid" class="mini-datagrid" style="width: 100%; height: 250px;" pageSize="100" showPager="true">
+							<div property="columns" id="columnview">
+							</div>
+	</div>
+</script>
+</head>
+<body>
+	<div id="tabs1" class="mini-tabs" activeIndex="0" style="width: 100%; height: 100%;" plain="false">
+		<div title="list页面">
+			<div class="mini-fit">
+				<div id="datagrid" class="mini-datagrid" style="width: 100%; height: 80%" url="/codeGeneration/findTable?tableName=sys_position" showPager="false">
+					<div property="columns">
+						<div type="indexcolumn" width="40">序号</div>
+						<div field="field" width="120" headerAlign="left" allowSort="true">字段</div>
+						<div field="type" width="90" headerAlign="left" allowSort="true">类型</div>
+						<div field="comment" width="150" headerAlign="left" allowSort="true">描述</div>
+						<div field="operation" width="100%" headerAlign="left">操作</div>
+					</div>
+				</div>
+				<div class="container" style="width: 100%; height: 20%">
+					<div class="mini-clearfix ">
+						<div class="mini-col-lg-1">
+							<div>预览:</div>
+						</div>
+					</div>
+					<div class="mini-clearfix ">
+						<div class="mini-col-12">
+							<form id="form1" method="post">
+								<div class="mini-toolbar dragging" style="padding: 2px; border-bottom: 0;">
+									<div class="container mini-clearfix" id="search"></div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<!--撑满页面-->
+					<div class="mini-fit" id="tableInitial"></div>
+				</div>
+			</div>
+		</div>
+		<div title="增加修改页面">212</div>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var grid = mini.get("datagrid");
+	grid.load();
+	grid.on("DrawCell", function(e) {
+		if (e.field == "operation") {
+			var uid = e.row._uid;
+			e.cellHtml = '<a  href="#" onclick="add(\'' + uid + '\',this)"><font color="#2828FF">增加搜索 </font></a><a  href="#" onclick="addColumn(\'' + uid + '\',this)"><font color="#2828FF">增加列 </font></a>';
+		}
+	});
+
+	//添加表格
+	function addTable(data) {
+		var arrayColumn = new Array();
+		var table = document.getElementById("tableInitial");
+		if (table.innerHTML != "") {
+			var dataGrid = mini.get("data_grid");
+			var columns = dataGrid.getBottomColumns();//获取所有表头
+			for (var i = 0; i < columns.length; i++) {
+				var key = columns[i].field;
+				if(map.get(key)!=null){
+					arrayColumn.push(map.get(key));
+				}
+			}
+		}
+		if(data){
+			map.put(data.columnName, data);//所有数据存入map中
+			arrayColumn.push(data);
+		}
+		laytpl(tableInitialDom.innerHTML).render({}, function(html) {
+			table.innerHTML = html;
+		});
+		return arrayColumn;
+	}
+
+	//增加搜索
+	function add(uid, dom) {
+		var row = grid.getRowByUID(uid);
+		var data = { //数据
+			"titleName" : row.comment,
+			"columnName" : row.field
+		}
+		var getTpl = searchdom.innerHTML, view = document.getElementById("search");
+		laytpl(getTpl).render(data, function(html) {
+			view.innerHTML += html;
+			mini.parse();
+		});
+		$(dom).html('<font color="#EE4000">删除搜索 </font>');
+		$(dom).attr("onclick", "deleteSerch(\'" + row.field + "\','" + uid + "',this)");
+	}
+	//删除搜索
+	function deleteSerch(columnName, uid, dom) {
+		$("#" + columnName).parent().parent().remove();
+		$(dom).html('<font color="#2828FF">增加搜索 </font>');
+		$(dom).attr("onclick", "add(\'" + uid + "\',this)");
+	}
+
+	//增加列
+	var map = new Map();
+	function addColumn(uid, dom) {
+		var row = grid.getRowByUID(uid);
+		var data = { //数据
+			"titleName" : row.comment,
+			"columnName" : row.field
+		}
+		commentColumn(data, "columnview")
+		$(dom).html('<font color="#EE4000">删除列 </font>');
+		$(dom).attr("onclick", "deleteColumn(\'" + row.field + "\','" + uid + "',this)");
+	}
+
+	//删除列
+	function deleteColumn(field, uid, dom) {
+		map.remove(field);
+		commentColumn(null,"columnview")
+		$(dom).html('<font color="#2828FF">增加列 </font>');
+		$(dom).attr("onclick", "addColumn(\'" + uid + "\',this)");
+	}
+
+	function commentColumn(data, domId) {
+		var arrayColumn;
+		if (data) {
+			arrayColumn = addTable(data);
+		} else {
+			arrayColumn = addTable();
+		}
+		var getTpl = columns.innerHTML, view = document.getElementById(domId);
+		laytpl(getTpl).render({
+			"list" : arrayColumn
+		}, function(html) {
+			view.innerHTML += html;
+			mini.parse();
+		});
+	}
+
+	$(function() {
+		/* 
+	$(".dragging").sortable({
+			cursor : "move",
+			items : ".search",
+			opacity : 0.6, //拖动时，透明度为0.6
+			revert : true, //释放时，增加动画
+			distance : 5,
+			tolerance : "pointer",
+			revert : false,
+			helper : "clone",
+			scroll : true,
+			forcePlaceholderSize : true,//强制占位符
+			distance : 5,
+			grid : [ 10, 5 ],
+			delay : 150,//不必要的拖拽
+			containment : "parent",
+			update : function(event, ui) { //更新排序之后
+				//             alert($(this).sortable("toArray"));
+			}
+		 });*/
+		var el = document.getElementById('search')
+		 var sortable = new Sortable(el,{
+			 sort:true,
+			 animation:150,
+			 easing:"cubic-bezier(1, 0, 0, 1)"
+		 })
+	});
+</script>
+</html>

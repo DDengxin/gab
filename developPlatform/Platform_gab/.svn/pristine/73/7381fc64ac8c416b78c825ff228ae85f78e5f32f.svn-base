@@ -1,0 +1,127 @@
+$(function () {
+    // 上传文件的控件初始化
+    _init_upload(['#License', '#BusinessLicense']);
+    $('.sidebar').css('height', '1373px');
+
+
+    // 省市联动
+    // new PCAS("province", "city", "area");
+    // new PCAS("province=吉林省", "city=长春市", "area=南关区")
+
+    // 修改手机号码
+    $('.editPhone').click(function () {
+        $('input[name="telphone"]').removeAttr('disabled');
+    })
+
+    //富文本编辑器处理
+    var ue = UE.getEditor('myEditor', {
+        maximumWords: 99999999999,
+        wordCount: false,
+        elementPathEnabled: false,
+        autoFloatEnabled: false
+    });
+    UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
+    UE.Editor.prototype.getActionUrl = function (action) {
+        if (action == 'uploadimage' || action == 'uploadfile' || action == 'uploadvideo') {
+            return '/ueditor/upload';
+        } else {
+            return this._bkGetActionUrl.call(this, action);
+        }
+    };
+
+    layui.use(['form', 'layer', 'layarea'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        var layarea = layui.layarea;
+
+        layarea.render({
+            elem: '#area-picker',
+            // data: {
+            //     province: '广东省',
+            //     city: '深圳市',
+            //     county: '龙岗区',
+            // },
+            change: function (res) {
+                //选择结果
+                console.log(res);
+            }
+        });
+
+        // 表单值填充
+        $.get("/platform/personal/personById/" + TZ_SETTING.gabUserId, function (res) {
+            console.log(res);
+
+            res.data.personal.headImg == null || res.data.personal.headImg == '' ? _init_upload(['#License', '#BusinessLicense']) : fileShow('License', res.data.supply.headImg);
+
+            //给表单赋值
+            form.val('users', res.data.personal);
+            if (res.data.personal.telphone == null) {
+                form.val("users", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                    "telphone": res.data.gUserInfo.userMtel
+                });
+            }
+            $.each($('#city').find("option"), function (i, el) {
+                console.log($(el).text());
+
+                console.log($(el).text() == res.data.personal.city);
+
+                if ($(el).text() == res.data.personal.city) {
+                    $(el).prop("selected", true);
+                }
+            })
+
+            new PCAS("province=吉林省", "city=长春市")
+            // $('#city').find("option").eq(0).prop("selected",true);
+
+            //设置编辑器内容：
+            var editContent = res.data.personal.content == null ? '' : res.data.personal.content;
+            ue.ready(function () {
+                ue.setContent(editContent);
+            });
+
+        })
+
+        form.on('submit(users)', function (data) {
+            console.log(data);
+
+            var jsonData = {};
+            jsonData.gUserInfo = {};
+            jsonData.personal = data.field;
+
+            //添加富文本编辑器的值
+            jsonData.personal.content = ue.getContent();
+
+            var layerTip = layer.load();
+            $.ajax({
+                url: "/platform/personal/gab/authPersonSave",
+                data: JSON.stringify(jsonData),
+                type: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (res) {
+                    if (res.code == 200) {
+                        layer.msg(res.msg, { icon: 1 });
+                    } else {
+                        layer.msg(res.msg || '操作失败', { time: 3000, icon: 5 });
+                    }
+                },
+                error: function () {
+                    layer.msg('请求有错误', { icon: 5 });
+                },
+                complete: function () {
+                    layer.close(layerTip);
+                }
+            })
+
+            return false;
+        })
+    })
+})
+// 回显文件名
+function fileShow(el, is_init_img) {
+    $("#" + el).resetUploader({
+        pickerid: is_init_img,
+        filecount: 1,
+        view: "edit",
+    });
+}

@@ -1,0 +1,38 @@
+package com.tengzhi.business.finance.reportItem.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.reportItem.dao.ReportItemDao;
+import com.tengzhi.business.finance.reportItem.model.EFVoucherReportitem;
+import com.tengzhi.business.finance.reportItem.service.ReportItemService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Map;
+
+@Service
+@Transactional
+public class ReportItemServiceImpl implements ReportItemService {
+
+    @Autowired
+    private ReportItemDao dao;
+
+
+    @Override
+    public BasePage<EFVoucherReportitem> getList(BaseDto baseDto) throws IOException {
+        Map<String,String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(item->{
+            item.eq("data_corp", SessionUser.SessionUser().getCorpId());
+            item.eq("freportid",map.get("report"));
+        });
+        String sql = " select sid,freportid,freportitem,fdesc,case fdc when '1' then '借' else '贷' end fdc_name,frownum,fdatasource,fformula,data_corp from e_f_voucher_reportitem "+where;
+        return dao.QueryPageLists(baseDto,sql);
+    }
+
+
+
+
+}

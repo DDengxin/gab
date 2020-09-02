@@ -1,0 +1,20 @@
+package com.tengzhi.business.platform.need.dao;
+
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dao.BasicsDao;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.need.model.G_UserCollection;
+import com.tengzhi.business.system.workflow.model.Backlog;
+import com.tengzhi.business.system.workflow.vo.Describe;
+
+public interface UserCollectSqlDao extends BasicsDao<G_UserCollection, String> {
+	//分页查询
+	BasePage<Map<String, Object>> getSrchCollection(BaseDto baseDto);
+
+	Result getSrchAllCollection();
+	
+	
+}

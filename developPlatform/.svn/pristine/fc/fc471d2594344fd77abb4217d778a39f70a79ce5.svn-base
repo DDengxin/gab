@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>客户单位【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="customerId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单位编码</td>
+                <td content><input class="mini-textbox" emptyText="单位编码自动生产"
+                                   allowInput="false" name="customerId"/></td>
+                <td title>单位简称</td>
+                <td content><input class="mini-textbox" name="customerExp"/></td>
+                <td title>业务人员</td>
+                <td content>
+                    <input class="mini-combobox" name="customerBuyer" url="/system/parameter/getParamsSelectList/销售/业务员">
+                </td>
+            </tr>
+            <tr>
+                <td title>单位名称</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" required="true" name="customerName"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>单位英文</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="customerIdEn"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>联系人员</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="customerContact"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>单位地址</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="customerAddress"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>开票资料</td>
+                <td content colspan="5">
+                    <input class="mini-textarea" name="customerBank" height="120"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>单位资料</td>
+                <td content colspan="5">
+                    <input class="mini-textarea" name="customerAccount" height="60"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>信用额度</td>
+                <td content>
+                    <input name="customerJe" id="customerJe" vtype="float" class="mini-textBox"/>
+                </td>
+                <td title>付款天数</td>
+                <td content>
+                    <input name="customerDay" id="customerDay" vtype="int" class="mini-textBox"/>
+                </td>
+                <td title>客户级别</td>
+                <td content>
+                    <input name="customerLevel" id="customerLevel" class="mini-combobox" url="/system/parameter/getParamsSelectList/销售/客户等级"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>省份区域</td>
+                <td content>
+                    <input id="customerProvince" name="customerProvince" emptyText="请选择" class="mini-treeselect"
+                           url="/cg/da/sysCustomer/type/citylist" multiSelect="false" valueFromSelect="false" textField="combtext" valueField="combid"
+                           parentField="pid" popupHeight="150"/>
+                </td>
+                <td title>上级单位</td>
+                <td content><input name="customerUid" id="customerUid" allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"/>
+                </td>
+                <td title>启用状态</td>
+                <td content>
+                    <input class="mini-combobox" name="customerFlag" value="Y" data="[{id:'Y',text:'启用'},{id:'N',text:'禁用'}]"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function valuechanged() {
+        let v = mini.get("customerProvince").getText();
+    }
+
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("customerArchives.html/{0}".format(options.data.customerId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("customerUid").setText(res.data.lastcustomername);
+                    mini.get("customerUid").setValue(res.data.customerUid);
+
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /*  员工选择 */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "【员工】选择页面",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    /*  上级单位选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "单位选择页面",
+            width: 750,
+            height: 620,
+			data:'C',
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+</script>
+</html>

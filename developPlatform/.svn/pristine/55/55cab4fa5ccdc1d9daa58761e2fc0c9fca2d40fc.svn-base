@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>设备档案【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>机台编码：</td>
+                <td content>
+                    <input class="mini-textbox" readonly id="machineId" name="machineId" emptyText="自动生成"/>
+                </td>
+                <td title>机台编号：</td>
+                <td content>
+                    <input class="mini-textbox" id="machineNo" name="machineNo"/>
+                </td>
+                <td title>机台名称：</td>
+                <td content>
+                    <input class="mini-textbox" id="machineName" name="machineName"/>
+                </td>
+                <td title>机台大类：</td>
+                <td>
+                    <input class="mini-combobox" required name="machineDtype" url="/mSbJt/sb/getMachineZtype"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>机台分类：</td>
+                <td content>
+                    <input class="mini-combobox" required name="machineZtype" url="/mSbJt/sb/getMachineDtype"/>
+                </td>
+                <td title>机台车间：</td>
+                <td content>
+                    <input class="mini-combobox" id="machineWorkshop" name="machineWorkshop" url="/system/parameter/getParamsSelectListByParentId/技术/SCCJ"/>
+                </td>
+                <td title>机台工序：</td>
+                <td content>
+                    <input class="mini-combobox" required name="machineProcess"
+                           url="/js/cpgy/scgx/getGxAllSelectList" multiSelect="true"/>
+                </td>
+                <td title>机台状态：</td>
+                <td content>
+                    <input class="mini-combobox" name="machineFlag" emptyText="请选择"
+                           textField="text" valueFiled="id"
+                           data="[{id:'启用',text:'启用'},{id:'禁用',text:'禁用'}]"/></td>
+            </tr>
+            <tr>
+                <td title>巡检项目：</td>
+                <td content>
+                    <input class="mini-combobox" required name="machineInspection"
+                           url="/system/parameter/getParamsSelectListByParentId/设备/巡检项目/XJXM"/>
+                </td>
+                <td title>机台位置：</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" id="machineAddress" name="machineAddress"/>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>机台说明：</td>
+                <td content colspan="7">
+                    <input class="mini-textbox" id="machineSm" name="machineSm"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>机台操作：</td>
+                <td content colspan="7">
+                    <textarea class="mini-textarea" style="width:855px; height:52px;" name="machineHelp" id="machineHelp"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td title>机台注意：</td>
+                <td content colspan="7">
+                    <textarea class="mini-textarea" style="width:855px; height:52px;" name="machineWarning" id="machineWarning"></textarea>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <div tz:datagrid="datagrid" id="button-grid" idField="machineId" sortField="machineId" sortOrder="asc" style="width:100%;height:250px;"
+         url="/mSbJt/sb/getSrchBottomList" showEmptyText="true" alwaysShowEmptyText="true"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+         showPager="false" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+         showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" ondrawsummarycell="onDrawSummaryCell">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn" width="35"></div>
+            <div tz:datagrid="column" field="machineBid" width="110" align="center">部件编码
+                <input property="editor" class="mini-textbox" vtype="int;"/>
+            </div>
+            <div tz:datagrid="column" field="machineBname" width="110" align="center">部件名称
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="machineIndate" width="110" align="center">部件启用
+                <input id="machineIndate" property="editor" class="mini-datepicker" value="2020-05-05"/>
+            </div>
+            <div tz:datagrid="column" field="machineJe" width="110" align="center">部件金额
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="machineZid" width="110" align="center">资产编码
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="machineType" width="110" align="center">部件类型
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="machineFlag" width="110" align="center">部件状态
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="machineSm" width="130" align="center">部件说明
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    button_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:addRow()">增加一条</a>');
+
+    //grid.frozenColumns(0, 6);
+    /**
+     新增行
+     */
+    function addRow() {
+        var index = button_grid.getData().length;
+        var machineName = mini.get("machineName").getValue();
+        if (isNull(machineName)) {
+            hmq.tipDanger("请输入设备名称！");
+            return false;
+        }
+        var newRow = {};
+        button_grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("machineId").getValue();
+        var rows = button_grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        button_grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                button_grid.removeRows(rows, true);
+            }
+        }
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            button_grid.validate();
+            if (button_grid.isValid() == false) {
+                var error = button_grid.getCellErrors()[0];
+                button_grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var buttons = button_grid.getData();
+            var deletedList = button_grid.getChanges('removed', false);
+            $(buttons).each(function (index) {
+                buttons[index].rightOrd = index;
+                buttons[index]._state = buttons[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                mSbJt: form.getData(),
+                mSbJtbj: buttons,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        if ('add' == options.action) {
+            button_grid.clearData();
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.machineId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    var data = mini.decode(res.data);
+                    mini.get("machineName").setText(data.machineName);
+                    button_grid.load({
+                        params: JSON.stringify({machineId: form.getField('machineId').getValue()})
+                    });
+                }
+            });
+        }
+    }
+
+
+    /**
+     * @Author: gxl
+     * @description: 供货单位选择页面
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**
+     验证数量、金额不小于0
+     */
+    function onCellValidation(e) {
+
+        if (e.field == "code") {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "编码不能为空！";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htId") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "序号必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "序号不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htJs") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "件数必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "件数不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htSl") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "数量必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "数量不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htPrice") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "单价必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+            if (isNull(e.value) || e.value < 0) {
+                e.isValid = false;
+                e.errorText = "单价不能小于等于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+        if (e.field == "htJe") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "金额必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+            if (isNull(e.value) || e.value < 0) {
+                e.isValid = false;
+                e.errorText = "金额不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+    }
+
+
+    /**
+     汇总方法
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "htCode") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "htSl") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+        }
+        if (e.field == "htJs") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(2) + "</span>";
+        }
+        if (e.field == "htJe") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(2) + "</span>";
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+
+    /**
+     数量和单价联动自动生成金额
+     */
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+        var button_grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = e.value;
+        if (!!~["htSl", "htJs", "htPrice", "htJe", "htHs", "htZl"].indexOf(field)) {
+            var price = getMiniValue(record.htPrice, 0);
+            var sl = getMiniValue(record.htSl, 0);
+            var js = getMiniValue(record.htJs, 0);
+            var zl = getMiniValue(record.htZl, 0);
+
+            if (field == "htSl") {
+                if (record.htHs == "数量") {
+                    button_grid.updateRow(record, {
+                        htJe: value * price
+                    });
+                }
+            }
+            if (field == "htJs") {
+                if (record.htHs == "件数") {
+                    button_grid.updateRow(record, {
+                        htJe: value * price
+                    });
+                }
+            }
+            if (field == "htZl") {
+                if (record.htHs == "重量") {
+                    button_grid.updateRow(record, {
+                        htJe: value * price
+                    });
+                }
+            }
+
+            if (field == "htPrice") {
+                if (record.htHs == "数量") {
+                    button_grid.updateRow(record, {
+                        htJe: value * sl
+                    });
+                } else if (record.htHs == "件数") {
+                    button_grid.updateRow(record, {
+                        htJe: value * js
+                    });
+                } else if (record.htHs == "重量") {
+                    button_grid.updateRow(record, {
+                        htJe: value * zl
+                    });
+                } else {
+                    button_grid.updateRow(record, {
+                        htJe: 0
+                    });
+                }
+            }
+            if (field == "htJe") {
+                if (record.htHs == "数量") {
+                    button_grid.updateRow(record, {
+                        htPrice: value / sl
+                    });
+                } else if (record.htHs == "件数") {
+                    button_grid.updateRow(record, {
+                        htPrice: value / js
+                    });
+                } else if (record.htHs == "重量") {
+                    button_grid.updateRow(record, {
+                        htPrice: value / zl
+                    });
+                } else {
+                    button_grid.updateRow(record, {
+                        htPrice: 0
+                    });
+                }
+            }
+
+            if (field == "htHs") {
+                if (value == "数量") {
+                    button_grid.updateRow(record, {
+                        htJe: price * sl
+                    });
+                } else if (value == "件数") {
+                    button_grid.updateRow(record, {
+                        htJe: price * js
+                    });
+                } else if (value == "重量") {
+                    button_grid.updateRow(record, {
+                        htJe: price * zl
+                    });
+                } else {
+                    button_grid.updateRow(record, {
+                        htJe: 0
+                    });
+                }
+            }
+        }
+    }
+
+    function getMiniValue(key, defaultValue) {
+        if (key == null || key == undefined || key == "") {
+            return defaultValue;
+        }
+        return key;
+    }
+
+    function getMiniDate(key) {
+        return mini.formatDate(new Date(key), "yyyy-MM-dd");
+    }
+
+    // 判读是否为空
+    function isNull(key) {
+        if (key == null || key == undefined || key === "") {
+            return true;
+        }
+        return false;
+    }
+
+
+</script>
+</html>

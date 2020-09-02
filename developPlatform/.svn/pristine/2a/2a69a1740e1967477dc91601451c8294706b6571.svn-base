@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>请假管理</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="jbqjId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>加班单号</td>
+                <td content><input class="mini-textbox" name="qjNote" emptyText="加班单号自动生成" allowInput="false"/></td>
+                <td title>加班人员</td>
+                <td content><input id="workerId" name="workerId" emptyText="全部"
+                                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"/></td>
+
+            </tr>
+            <tr>
+                <td title><label>开始时间</label></td>
+                <td>
+                    <input id="qjKrq" name="qjKrq" class="mini-datepicker"
+                           format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showTime="true" showOkButton="true" showTodayButton="false"
+
+                    />
+                </td>
+                <td title><label>结束时间</label></td>
+                <td>
+                    <input name="qjDrq" class="mini-datepicker"
+                           id="qjDrq"
+                           format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showTime="true" showOkButton="true" showTodayButton="false"
+                           onvaluechanged="timeValueChange()" required="true"
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td title>加班类型</td>
+                <td content>
+                    <input class="mini-combobox" name="qjZtype"
+                           url="/system/parameter/getParamsSelectListByParentId/人事/加班类型/JBLX" required="true"/>
+                </td>
+                <td title>加班时长</td>
+                <td content><input id="qjSc" name="qjSc" class="mini-textbox" vtype="float" required="true"/></td>
+            </tr>
+            <tr>
+                <td title>加班事由</td>
+                <td content colspan="3" height="100"><input class="mini-textarea" name="qjSy"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    mini.parse();
+    mini.get("qjKrq").setValue(mini.formatDate(new Date(), "yyyy/MM/dd HH:mm:ss"));
+
+    function SetData(options) {
+
+
+        if (true !== options.isApproval) {
+            //普通口径
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+
+            }
+            else if ('edit' == options.action) {
+                $.get("staffOvertime.html/{0}".format(options.data.jbqjId), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        // mini.get("workerId").setValue(res.data.workerId);
+                        // mini.get("workerId").setText(res.data.workerName);
+
+                    }
+                });
+            }
+            else if (!!~['view','sh'].indexOf(options.action)) {
+                var jbqjId = options.data.businessId;
+                form.setEnabled(false);
+                $('.hmq-toolbar').hide();
+                $.get("staffOvertime/{0}".format(jbqjId), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        mini.get("workerId").setValue(res.data.workerId);
+                        mini.get("workerId").setText(res.data.workerName);
+                    }
+                });
+            }
+
+        }else {
+            //审批口径
+            $.get("staffOvertime/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("workerId").setValue(res.data.workerId);
+                    mini.get("workerId").setText(res.data.workerName);
+                }
+            }, null, null, {
+                complete : function() {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /*  员工选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sc/da/staffOvertime/worker.html",
+            title: "【请假员工】选择页面",
+            width: 650,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    function timeValueChange() {
+        if (mini.get("qjDrq").getValue() <= mini.get("qjKrq").getValue()) {
+            mini.get("qjDrq").setValue("");
+            hmq.tipDanger("结束时间不能小于开始时间");
+        }
+    }
+
+
+</script>
+</html>

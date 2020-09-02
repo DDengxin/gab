@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产类别【新增】</title>
+    </th:block>
+    <style type="text/css">
+        /*grid操作图标样式调整*/
+        .mini-grid-cell-inner{
+            padding-top:0px;
+        }
+        .mini-grid-cell-inner .iconfont{
+            line-height: 1;
+            padding-top: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+       <table class="hmq-modify-table">
+            <tr>
+                <td title>类型</td>
+                <td content>
+                    <select class="mini-combobox" name="tpye" onvaluechanged="onvaluechanged">
+                        <option value="1">现金科目</option>
+                        <option value="2">报表列</option>
+                    </select>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+        </table>
+    </form>
+    <div id="button-grid"
+         style="width:100%;height:250px;"
+         showEmptyText="true" alwaysShowEmptyText="true"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+         editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true" onCellbeginedit="onCellbeginedit"
+         showPager="false" allowSortColumn="flase" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="50" headerAlign="center" type="indexcolumn">序号</div>
+            <div name="km" field="km" displayField="kmName" align="center" width="190" headerAlign="center" allowSort="true" vtype="required">科目
+                <input property="editor" class="mini-buttonedit" allowInput="false" />
+            </div>
+            <div field="operation" align="center" width="40" headerAlign="center" vtype="required">运算符号
+                <select property="editor" class="mini-combobox" allowInput="false" >
+                    <option value="+">+</option>
+                    <option value="-">-</option>
+                </select>
+            </div>
+            <div field="qsgz" align="center" width="50" headerAlign="center" vtype="required">取数规则
+                <select property="editor" class="mini-combobox" allowInput="false" >
+                    <option value="余额">余额</option>
+                    <option value="借方余额">借方余额</option>
+                    <option value="贷方余额">贷方余额</option>
+                </select>
+            </div>
+            <div field="action" width="160" align="center" renderer="onActionRenderer" sortField="action" displayField="action" headerAlign="center" allowSort="true"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    button_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:modifyRow(\'add\', null)">增加一条</a>');
+
+
+    function onvaluechanged(e){
+        var type = form.getField("type").getValue();
+        var headStr = "科目";
+        if(type && type=='2') headStr = '名称';
+        button_grid.updateColumn("km", {header: headStr});
+        button_grid.setData([]);
+    }
+
+
+    function onCellbeginedit(e){
+        var row = e.record;
+        if(e.field == 'lcXmNode'){
+            var url = "";
+            if(row.lcXmStage){
+                url="/system/parameter/getParamsSelectListByParentId/项目阶段/"+row.lcXmStageName+"/"+row.lcXmStage;
+            }else{
+                hmq.tipDanger("请选择项目阶段！");
+                return;
+                // url="/system/parameter/getParamsSelectList/项目阶段/项目节点";
+            }
+            mini.get("lcXmNode").setUrl(url);
+        }
+        if(e.field == "lcMan"){
+            var lcXmId = form.getField("lcXmId").getValue();
+            if(lcXmId){
+                mini.get("lcMan").setUrl("/project/projectArchives/projectTream/getTeamListByXm/" + lcXmId);
+            }
+        }
+    }
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.lcNote), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("lcXmId").setText(res.data.lcXmIdName);
+                    refushList(res.data.lcNote);
+                }
+           });
+        }
+    }
+
+    /**刷新列表*/
+    function refushList(lcNote){
+        button_grid.setUrl("/project/projectStage/projectLine/getSrchBottomList");
+        button_grid.load({
+            params: mini.encode({
+                lcNote: lcNote
+            })
+        });
+    }
+
+    function SaveData() {
+        var entityData = button_grid.getData();
+        button_grid.validate();
+        if (button_grid.isValid() == false) {
+            var error = button_grid.getCellErrors()[0];
+            hmq.tipDanger("系统提示", error.errorText, "danger");
+            button_grid.beginEditCell(error.record, error.column);
+            return;
+        }
+        if (form.validate() && form.isValid()) {
+            var buttons = button_grid.getData();
+            $(buttons).each(function (index) {
+                buttons[index].mxId = index;
+            });
+            var deletedList = button_grid.getChanges('removed', false);
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                    headData : form.getData(true),
+                    entryData : buttons,
+                    deletedList: deletedList
+            }),
+            function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                    contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     * 项目档案单选选择框
+     * @constructor
+     */
+    function chooseXMDA(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/projectTream/xmdaSelectList.html",
+            title: "【项目档案】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.xmId);
+                    btnEdit.setText(data.xmName);
+                    form.getField("rwJhMan").setUrl("/project/projectArchives/projectTream/getTeamListByXm/"+data.xmId);
+                    form.getField("rwJhMan").select(0);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * 渲染行
+     **/
+    function onActionRenderer(e) {
+        if ('action' == e.field) {
+            return '<span class="fa fa-fw fa-2x iconfont icon-tianjia3 hmq-success" title="新增" onclick="modifyRow(\'add\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-shanchu2 hmq-danger"  title="删除" onclick="modifyRow(\'remove\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-xiangshang1 hmq-success" title="上移" onclick="modifyRow(\'up\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-xiangxia1 hmq-success" title="下移" onclick="modifyRow(\'down\',\'{_uid}\')"></span>'.format(e.record);
+        }
+    }
+
+    function modifyRow(action, row_uid) {
+        var grid = button_grid;
+        if (form.validate() && form.isValid()) {
+            switch (action) {
+                case 'add':
+                    var index = grid.getSelected() ? grid.indexOf(grid.getSelected()) + 1 : 0
+                    grid.addRow({operation: "+",qsgz:'余额'}, index);
+                    grid.cancelEdit();
+                    grid.beginEditRow(row);
+                    break;
+                case 'remove':
+                    var row = grid.getRowByUID(row_uid);
+                    grid.removeRow(row, true);
+                    break;
+                case 'up':
+                    grid.moveUp(grid.getSelecteds());
+                    break;
+                case 'down':
+                    grid.moveDown(grid.getSelecteds());
+                    break;
+            }
+        }
+    }
+
+
+
+</script>
+</html>

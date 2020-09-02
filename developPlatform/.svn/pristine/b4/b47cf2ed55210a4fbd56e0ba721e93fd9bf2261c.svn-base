@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>请假管理</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="sid" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>加班单号</td>
+                <td content><input class="mini-textbox" name="note" emptyText="加班单号自动生成" allowInput="false"/></td>
+
+                <td align="right" width="80px" >申请部门：</td>
+                <td>
+                    <input id="workDept" name="workDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" required
+                           emptyText="请选择" onbeforenodeselect="disableParentSelection"
+                           popupHeight="180" onvaluechanged="onDeptValueChanged" url="/system/dept/combobox/comboboxDeptTreeListByProduction"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>工号</td>
+                <td content><input id="workId" name="workId" emptyText="全部"
+                                   allowInput="false" class="mini-buttonedit"  required="true" onbuttonclick="onSupplierClick"/></td>
+                <td title>姓名</td>
+                <td content>
+                    <input class="mini-textbox" id="workName" name="workName"/></td>
+            </tr>
+            <tr>
+                <td title><label>考勤时间</label></td>
+                <td>
+                    <input id="kqSj" name="kqSj" class="mini-datepicker"
+                           format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showTime="true" showOkButton="true" showTodayButton="false"
+
+                    />
+                </td>
+                <td title><label>日期</label></td>
+                <td>
+                    <input id="rq" name="rq" class="mini-datepicker"
+                           format="yyyy-MM-dd" timeFormate="HH:mm" showTime="true" showOkButton="true" showTodayButton="false"
+
+                    />
+                </td>
+            <tr>
+                <td title>考勤类别</td>
+                <td content>
+                    <input class="mini-combobox" name="kqType"
+                           url="/sc/da/cardAbnormal/findByKqType" required="true"/>
+                </td>
+            <td title>考勤原因</td>
+            <td content>
+                <input class="mini-combobox" name="kqYy"
+                       url="/sc/da/cardAbnormal/findByKqYy" required="true"/>
+            </td>
+            </tr>
+            <tr>
+                <td title>考勤说明</td>
+                <td content colspan="3" height="100">
+                    <input class="mini-textarea" url="/sc/da/cardAbnormal/findByKqYy" name="kqSm"/></td>
+            </tr>
+            <td title></td>
+<!--            <td content>
+                <input class="mini-textbox" visible="false" name="sId"/></td>-->
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    mini.get("kqSj").setValue(mini.formatDate(new Date(), "yyyy/MM/dd HH:mm:ss"));
+    mini.get("rq").setValue(mini.formatDate(new Date(), "yyyy/MM/dd"));
+
+    function SetData(options) {
+
+
+        if (true !== options.isApproval) {
+            //普通口径
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+
+            }
+            else if ('edit' == options.action) {
+                //发送请求：参数为sid，获取选中行的数据并通过setData放进表单
+                $.get("findEHrAttendanceAbnormalById/{0}".format(options.data.sid), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);//将数据放进form表单内，包含note
+                        mini.get("rq").disable();
+                        mini.get("workDept").disable();
+                        mini.get("workId").disable();
+                        //重写装载button_grid表格，url可以写在button_grid属性中，参数由此设置
+/*                        button_grid.load({
+                            params: JSON.stringify({note: form.getField('note').getValue()})//将表单note参数放进请求
+                        });*/
+
+                    }
+                });
+            }
+            else if (!!~['view','sh'].indexOf(options.action)) {
+                var note = options.data.businessId;
+                form.setEnabled(false);
+                $('.hmq-toolbar').hide();
+                $.post("findAttendanceAbnormalAll/{0}".format(note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        mini.get("workerId").setValue(res.data.workerId);
+                        mini.get("workerId").setText(res.data.workerName);
+                    }
+                });
+            }
+
+        }else {
+            //审批口径
+            $.get("staffOvertime/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("workerId").setValue(res.data.workerId);
+                    mini.get("workerId").setText(res.data.workerName);
+                }
+            }, null, null, {
+                complete : function() {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            console.log("数据:"+JSON.stringify(form.getData(true)));
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /*  员工选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        var workDept = mini.get("workDept").getValue();
+        console.log(workDept);
+        //if(workDept!=null && workDept.length!=0){
+            return miniopen({
+                targetWindow: window.top,
+                url: "/sc/da/cardAbnormal/worker.html",
+                title: "【考勤异常工号】选择页面",
+                width: 650,
+                data: {workDept:workDept},
+                height: 620,
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        btnEdit.setValue(data.workerId);
+                        btnEdit.setText(data.workerId);
+                        //mini.get("workDept").disable();
+                        mini.get("workName").setValue(data.workerName);
+                        var row = button_grid.getSelected();
+                        button_grid.updateRow(row, {
+                            workName:data.workerName
+                        });
+                        var row2 = button_grid
+                    }
+                }
+            });
+        /*}else{
+            hmq.tipDanger("请选择部门");
+        }*/
+    }
+
+    function timeValueChange() {
+        if (mini.get("qjDrq").getValue() <= mini.get("qjKrq").getValue()) {
+            mini.get("qjDrq").setValue("");
+            hmq.tipDanger("结束时间不能小于开始时间");
+        }
+    }
+
+
+</script>
+</html>
+
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>考勤异常</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1" >
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="cgStype" name="cgStype" class="mini-hidden"/>
+        <input id="cgName" name="cgName" class="mini-hidden"/>
+        <table style="padding:5px;border-bottom:0;align-content: center">
+            <tr>
+                <td align="right" width="80px">单号：</td>
+                <td>
+                    <input class="mini-textbox" readonly id="note" name="note" width="200" emptyText="自动生成"/>
+                </td>
+                <td align="right" width="100px">日期：</td>
+                <td>
+                    <input class="mini-datepicker" required id="rq" name="rq" width="130" dateFormat="yyyy-MM-dd"/>
+                </td>
+                <td align="right" width="80px" >申请部门：</td>
+                <td>
+                    <input id="workDept" name="workDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" required
+                           emptyText="请选择" onbeforenodeselect="disableParentSelection" width="100" popupWidth="240"
+                           popupHeight="180" onvaluechanged="onDeptValueChanged" url="/system/dept/combobox/comboboxDeptTreeListByProduction"/>
+                </td>
+            </tr>
+
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grid" idField="code" style="width:100%;height:100%" url="/sc/da/cardAbnormal/findAttendanceAbnormalAll"
+             allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+             showPager="false" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+             showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell" sortMode="client">
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="workId" align="center" width="150">
+                    工号
+                    <input id="workId" property="editor" class="mini-buttonedit" onbuttonclick="onSupplierClick" allowInput="false"/>
+                </div>
+                <div tz:datagrid="column" field="workName" width="150" align="left" id="staffName">
+                    姓名
+                </div>
+                <div tz:datagrid="column" field="kqSj" align="left" width="150">
+                    考勤时间
+                    <input property="editor" class="mini-datepicker" required="true" id="kqSj" name="kqSj" width="100"
+                           format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showTime="true" showOkButton="true" showTodayButton="false"/>
+                </div>
+                <div tz:datagrid="column" name="cpcodeSizeEn" field="kqType" displayField="kqType" width="150"
+                     align="left">
+                    考勤类别
+                    <input  property="editor" class="mini-combobox" name="kqType"
+                           url="/sc/da/cardAbnormal/findByKqType" required="true"/>
+                </div>
+                <div tz:datagrid="column" field="kqYy" width="150" align="left">
+                    考勤原因
+                    <input  property="editor" class="mini-combobox" name="kqType"
+                            url="/sc/da/cardAbnormal/findByKqYy" required="true"/>
+                </div>
+                <div tz:datagrid="column" name="kqSm" field="kqSm" width="250" align="left">
+                    考勤说明
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    mini.get("rq").setValue(mini.formatDate(new Date(), "yyyy/MM/dd"));
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    //隐藏件数重量列
+    button_grid.hideColumn("js");
+    button_grid.hideColumn("zl");
+
+    //部门搜素链接
+    // mini.get("sqDept").load("/system/dept/combobox/comboboxDeptTreeListByProduction");
+
+/*    function onDeptValueChanged() {
+        var deptId = mini.get("sqDept").getValue();
+        mini.get("sqMan").setUrl("/personnel/eHrWorker/getDeptWorker/{0}".format(deptId));
+    }*/
+
+    /**
+     新增行:判断form表单是否填写并设置不可编辑
+     */
+    function addRow() {
+        var index = button_grid.getData().length;
+        var newRow = {
+            name: "",
+            htHs: "数量",
+            htJq: mini.formatDate(new Date(), "yyyy-MM-dd")
+
+        };
+        var workDept = mini.get("workDept").getValue();
+        var rq = mini.get("rq").getValue();
+        if (isNull(workDept)) {
+            hmq.tipDanger("请先选择部门！");
+            return false;
+        }
+        button_grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("note").getValue();
+        var rows = button_grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        button_grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("deleteByNote/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                button_grid.removeRows(rows, true);
+            }
+        }
+    }
+
+
+    /**
+    * Description:修改保存删除操作
+    * @author: huangbiao
+    * @date: 2020/8/7 0007 17:37
+    * @param:
+    * @return:
+    */
+    function SaveData() {
+        // console.log(button_grid.getChanges());
+        if (form.validate() && form.isValid()) {
+            button_grid.validate();
+            if (button_grid.isValid() == false) {
+                var error = button_grid.getCellErrors()[0];
+                button_grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var buttons = button_grid.getChanges();
+            if (buttons == "") {
+                buttons = button_grid.getData();
+            }
+            $(buttons).each(function (index) {
+                buttons[index].rightOrd = index;
+                buttons[index]._state = buttons[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                headdata: form.getData(true),
+                entitydata: buttons
+
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+
+    function SetData(options) {
+
+
+        if (true !== options.isApproval) {
+            //普通口径
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+
+            }
+            else if ('edit' == options.action) {
+                //发送请求：参数为sid，获取选中行的数据并通过setData放进表单
+                $.get("findEHrAttendanceAbnormalById/{0}".format(options.data.sid), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);//将数据放进form表单内，包含note
+                        mini.get("rq").disable();
+                        mini.get("workDept").disable();
+
+                        //重写装载button_grid表格，url可以写在button_grid属性中，参数由此设置
+                        button_grid.load({
+                            params: JSON.stringify({note: form.getField('note').getValue()})//将表单note参数放进请求
+                        });
+
+                    }
+                });
+            }
+            else if (!!~['view','sh'].indexOf(options.action)) {
+                var note = options.data.businessId;
+                form.setEnabled(false);
+                $('.hmq-toolbar').hide();
+                $.post("findAttendanceAbnormalAll/{0}".format(note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        mini.get("workerId").setValue(res.data.workerId);
+                        mini.get("workerId").setText(res.data.workerName);
+                    }
+                });
+            }
+
+        }else {
+            //审批口径
+            $.get("staffOvertime/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("workerId").setValue(res.data.workerId);
+                    mini.get("workerId").setText(res.data.workerName);
+                }
+            }, null, null, {
+                complete : function() {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //form表单制度
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+    //员工选择界面跳转
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        var workDept = mini.get("workDept").getValue();
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sc/da/cardAbnormal/worker.html",
+            title: "【考勤异常工号】选择页面",
+            width: 750,
+            data: {workDept:workDept},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerId);
+                    mini.get("workDept").disable();
+                    mini.get("rq").disable();
+
+                    var row = button_grid.getSelected();
+                    button_grid.updateRow(row, {
+                        workName:data.workerName
+
+                    });
+
+                }
+            }
+        });
+    }
+
+    /*function onButtonEdit(e) {
+        var btnEdit = this;
+        var cgStype = mini.get("workId").getValue();
+        var cgName = mini.get("cgName").getValue();
+        if (e.source.id == "workId") {
+            return miniopen({
+                targetWindow: window.top,
+                url: "/cg/yw/purchaseFile/purchaseContract/wlbmselectlist.html",
+                title: cgName + "工号选择列表",
+                width: 1300,
+                height: 620,
+                onload: function () {
+                    var iframe = this.getIFrameEl();
+                    var data = {
+                        action: "search",
+                        cgStype: cgStype,
+                        cgName: cgName
+
+                    };
+                    iframe.contentWindow.SetData(data);
+                },
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var rows = mini.clone(iframe.contentWindow.GetMutiData());
+                        //对比现有数据后，获取需要追加的行
+                        var needAppendRows = appendRow(rows);
+                        for (var i = 0; i < needAppendRows.length; i += 1) {
+                            var rowData = {
+                                code: needAppendRows[i].cpcodeid,
+                                cpcodeBz: needAppendRows[i].cpcodebz,
+                                sqJq: mini.formatDate(new Date(), "yyyy-MM-dd"),
+
+                                cpcodeName: needAppendRows[i].cpcodeName,
+                                cpcodeNameName: needAppendRows[i].cpcodeNameName,
+                                cpcodeSize: needAppendRows[i].cpcodesize,
+                                cpcodeSizeName: needAppendRows[i].cpcodeSizeName,
+                                cpcodeSizeEn: needAppendRows[i].cpcodesizeen,
+                                cpcodeSizeEnName: needAppendRows[i].cpcodeSizeEnName
+                            };
+
+                            if (i === 0 && button_grid.getSelected()) {
+                                button_grid.updateRow(button_grid.getSelected(), rowData);
+                                button_grid.cancelEdit();
+                            } else {
+                                button_grid.addRow(rowData, 0);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }*/
+
+    /**
+     验证数量、金额不小于0
+     */
+    function onCellValidation(e) {
+
+        if (e.field == "code") {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "编码不能为空！";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        } else if (e.field == "sl") {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "数量必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "数量不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        } else if (e.field == "zl") {
+            if (!isNull(e.value)) {
+                if (isNaN(e.value)) {
+                    e.isValid = false;
+                    e.errorText = "重量必须为数字";
+                    button_grid.beginEditCell(e.record, e.field);
+                    return hmq.tipDanger(e.errorText);
+                }
+            }
+        }
+
+    }
+
+    /**
+    * Description:修改时禁用工号选择
+    * @author: huangbiao
+    * @date: 2020/8/7 0007 13:38
+    * @param:
+    * @return:OnCellBeginEdit="OnCellBeginEdit"
+    */
+/*    function OnCellBeginEdit(e) {
+        var record = e.record, field = e.field;
+        if (field == "workId" && record.workId != null) {
+            e.cancel = true;    //如果有值，不允许编辑
+        }
+        if(field == "workDept" && record.workDept != null){
+            e.cancel = true;
+        }
+    }*/
+
+
+    /**
+     汇总方法
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "code") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        } else if (e.field == "sl") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+        } else if (e.field == "zl") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+        }
+
+    }
+
+    /**
+     * 单元格完成编辑时验证
+     **/
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+
+    }
+
+
+    /**
+     * 附件行
+     **/
+    function appendRow(rows) {
+        var retRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (!isEixsts(rows[i])) {
+                retRows.push(rows[i]);
+            } else {
+                hmq.tipDanger("数据已添加");
+            }
+        }
+        return retRows;
+    }
+
+    /**
+     *判断是否存在
+     **/
+    function isEixsts(data) {
+        var row = button_grid.findRow(function (row) {
+            if (row.code == data.cpcodeid)
+                return true;
+        });
+        if (row != null) {
+            return true;
+        }
+        return false;
+    }
+
+/*    /!**
+     *  部门选择
+     * *!/
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            data: "CGSQ",
+            width: 500,
+            height: 420,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                    if (data.deptName == "无") {
+                        return hmq.tipDanger("部门不能选择无！");
+                    }
+                    mini.get("sqMan").setUrl("/personnel/eHrWorker/getDeptWorker/{0}".format(data.deptId));
+                }
+            }
+        });
+    }*/
+
+</script>
+</html>-->

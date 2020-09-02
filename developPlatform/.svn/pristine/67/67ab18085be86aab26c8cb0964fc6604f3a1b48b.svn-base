@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>数据修改</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="outType" id="outType"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="类型">
+            <input class="mini-combobox" name="modifyType" url="/system/data/modification/combobox/modifyType"
+                   emptyText="全部" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="modifyNote"/>
+        </label>
+        <label class="hmq-label" text="目标单号">
+            <input class="mini-textbox" name="targetNote"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch-grid" idField="modifyNote">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="modifyNote" width="140" align="center">单号</div>
+            <div tz:datagrid="column" field="modifyType" width="100" align="center">类型</div>
+            <div tz:datagrid="column" field="targetType" displayField="targetTypeName" width="80" align="center">大类</div>
+            <!--<div tz:datagrid="column" field="modifyTableName" width="120" align="center">数据表</div>-->
+            <div tz:datagrid="column" field="targetNote" width="140" align="center">目标单号</div>
+            <div tz:datagrid="column" field="genTime" width="140" align="center">创建时间</div>
+            <div tz:datagrid="column" field="genUserId" displayField="genUserIdName" width="100" align="center">创建人</div>
+            <div tz:datagrid="column" field="modifyFlag" width="100" align="center">状态</div>
+            <div tz:datagrid="column" field="targetBeforeData" width="50%">修改前数据</div>
+            <div tz:datagrid="column" field="targetAfterData" width="50%">修改后数据</div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch-grid");
+    grid.bindSearchForm(form);
+
+    /**
+     *  查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     * 新增
+     **/
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', width: 1198, height: 580});
+    }
+
+    /**
+     * 编辑
+     **/
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if(row.modifyFlag=="登记"){
+                e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}, width: 1218, height: 580});
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }  x
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if(row.modifyFlag=='登记'){
+                mini.confirm("确定要删除吗？","删除信息",function (action) {
+                    if (action == "ok") {
+                        $['delete']("list.html/{0}".format(row.modifyNote), function (res) {
+                            if (200 === res.code) {
+                                grid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: {row: row, formData: form.getData()}, width: 1218, height: 580});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.modifyFlag != "登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return;
+            } else {
+                hmq.business.approvalConfirm({
+                    businessId: row.modifyNote,
+                    url: "/system/data/modification/Auditadd.html",
+                    error: function (res) {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            hmq.business.approvalCancel({
+                businessId: row.modifyNote,
+                error: function (res) {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    grid.on("Dar")
+    grid.on("drawcell", function (e) {
+        if ("genTime" == e.field && null != e.value) {
+            e.cellHtml = mini.formatDate(new Date(e.value), 'yyyy-MM-dd HH:mm:ss');
+        }
+    });
+
+
+
+</script>
+
+</body>
+</html>
+
+

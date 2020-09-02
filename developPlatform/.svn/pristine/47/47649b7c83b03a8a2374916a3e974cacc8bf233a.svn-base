@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目档案</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="单号"> <input
+                class="mini-textbox" name="inspectionNote" id="inspectionNote"/>
+        </label>
+        <label class="hmq-label" text="巡检项目">
+            <input class="mini-combobox"  name="inspectionProject" id="inspectionProject"
+               url="/system/parameter/getParamsSelectListByParentId/设备/巡检项目/XJXM"/>
+        </label>
+        <div property="columns">
+            <div header="#" field="text"></div>
+        </div>
+        </div>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="inspectionSid" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="inspectionSid" align="center" width="100" visible="false">唯一值</div>
+            <div tz:datagrid="column" field="inspectionNote" align="left" width="120">单号</div>
+            <div tz:datagrid="column" field="inspectionMachine" width="100" visible="false">机器码</div>
+            <div tz:datagrid="column" field="inspectionProject" displayField="projectname" align="center" width="100">巡检项目</div>
+            <div tz:datagrid="column" field="inspectionCode" align="left" width="100">巡检项目编码</div>
+            <div tz:datagrid="column" field="inspectionValue" align="left" width="80">巡检项目值</div>
+            <div tz:datagrid="column" field="dataMan"  align="center" width="120">操作人</div>
+            <div tz:datagrid="column" field="dataDate" align="left" width="80">操作日期</div>
+            <div tz:datagrid="column" field="dataCorp" align="center" width="200">操作公司</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        console.log(row);
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option() {
+        var row = grid.getSelected();
+        console.log(row);
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteById/{0}".format(row.inspectionSid), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+</script>
+
+
+</body>
+</html>

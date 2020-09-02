@@ -1,0 +1,202 @@
+var layer;
+$(document).ready(function () {
+    layui.use('layer', function () {
+        layer = layui.layer;
+    });
+
+    total();
+    isNull();
+});
+
+function isNull() {
+    if ($("#tab tr").length == 1) {
+        $('.cartNull').css("display",'block');
+        $('input[type="checkbox"]').prop("checked",false);
+        $('.fr').find("em:eq(1)").html('0.00');
+    }
+}
+
+// 全选
+function selectAll(chk) {
+    $("input[type='checkbox']").each(function () {
+        this.checked = chk;
+    });
+    total();
+}
+
+// 公司的全选
+function selectP(chk) {
+    var oIn = $(chk).parent().parent().parent().parent().find("tr").find("td:eq(0)>div>input[type='checkbox']");
+    $.each(oIn, function (i, e) {
+        e.checked = $(chk).prop("checked");
+    });
+    total();
+}
+
+// 单个商品选中
+var k = 0;//计算选中的checkbox的个数
+function selectC(chk) {
+    var oIn = $(chk).parent().parent().parent().parent().find('.goodsList');
+    var oInP = $(chk).parent().parent().parent().parent().find("tr:eq(0)").find("td>div>input[type='checkbox']");
+
+    if (oIn.find("input[type='checkbox']").prop('checked')) {
+        k += 1;
+    } else {
+        k = 0;
+    }
+
+    if (oIn.length == k) {
+        oInP.prop("checked", true);
+    } else {
+        oInP.prop("checked", false);
+    }
+
+    total();
+}
+
+// 单行删除
+var j = 0;
+function deleteR(chk) {
+    j += 1;
+    var oTbody = $(chk).parent().parent().parent();
+    var oTbTr = $(chk).parent().parent().parent().find('.goodsList');
+    var oTr = $(chk).parent().parent();
+    var oSmallToltal = oTr.find('.smallTotal').text();
+    var oTotal = $('.cart-div').find('.fr').find('em:eq(1)');
+    oTr.remove();
+    
+    var finalPrice = parseFloat(oTotal.text()) - parseFloat(oSmallToltal);
+    if(finalPrice <= 0){
+        oTotal.text("0.00");
+    } else {
+        oTotal.text(finalPrice);
+    }
+    
+    if (oTbTr.length < j) {
+        oTbody.remove();
+    }
+    isNull();
+}
+
+// 批量删除所选商品
+function removeSelect() {
+    var oTr = $("#tab tr");
+    var b = 0;
+
+    for (var i = 0; i < oTr.length; i++) {
+        var oIns = $(oTr[i]).find("td:eq(0)>div>input[type='checkbox']").prop("checked");
+        if (oIns) {
+            b += 1;
+            $(oTr[i]).remove();
+        }
+    }
+
+    if (b == 0) {
+        layer.msg('请勾选需要删除的商品！', {
+            skin: 'msg-tips'
+        });
+        return false;
+    }
+
+    isNull();
+}
+
+function clickNumber(obj, n) {
+    var old = $(obj).parent().find("input[type='text']");
+    old.val(parseInt(old.val()) + n);
+    if (old.val() <= 0) {
+        old.val(1);
+    }
+    total();
+}
+
+function changeNumber(obj) {
+    var reg = /^\d+$/;
+    if (!(reg.test(obj.value)) || obj.value == 0) {
+        obj.value = 1;
+        return false;
+    }
+    total();
+}
+
+function total() {
+    var total = new Number(0);
+    $("#tab tr").each(function (i) {
+        if (i > 0) {
+            if ($(this).find("td").length == 1) {
+                return;
+            } else {
+                var price = parseFloat($(this).find("td:eq(2)>span>em:eq(1)").html()).toFixed(2);
+                var number = parseInt($(this).find("td:eq(3)>div>input[type='text']").val());
+                var towTotal = (price * number).toFixed(2);
+                if (towTotal == 'NaN') {
+                    towTotal = 0;
+                }
+                $(this).find("td:eq(4)>span>em:eq(1)").html(towTotal);
+                if ($(this).find("td:first input[type='checkbox']").prop("checked")) {
+                    total = (parseFloat(total) + parseFloat(towTotal)).toFixed(2);
+                }
+
+            }
+        }
+    });
+    if (total > 0) {
+        $(".cart-div>span>em:eq(1)").html(total);
+    } else {
+        $(".cart-div>span>em:eq(1)").html("0.00");
+    }
+
+}
+
+function saveCart() {
+    var ids = "";
+    var companyid = 0;
+    var reg = /^\d+$/;
+    $("#tab tr").each(function (i) {
+        var tr = this;
+        if (i > 0) {
+            if ($(tr).find("td").length > 1) {
+                $(tr).find("td:eq(0)>div>input[type='checkbox']:checked").each(function () {
+                    var td = $(this).parent().parent().parent().find("td");
+                    var number = td.eq(3).find("div>input[type='text']");
+                    if (reg.test(number.val())) {
+                        if (companyid != 0 && companyid != this.value) {
+                            layer.msg('商品不属于同一家店铺，请分开付款！', {
+                                skin: 'msg-tips'
+                            });
+                            ids = "BHH";
+                            return false;
+                        } else {
+                            companyid = this.value;
+                            var td = $(this).parent().parent().parent().find("td");
+                            var number = td.eq(3).find("div>input[type='text']");
+                            if (!reg.test(number.val()) || parseInt(number.val()) <= 0) {
+                                layer.msg('数量不合法！', {
+                                    skin: 'msg-tips'
+                                });
+                                ids = "BHH";
+                                return false;
+                            } else {
+                                if (ids != "") { ids += ","; }
+                                ids += td.eq(5).find("a>input[type='hidden']").val() + "_" + number.val();
+                            }
+
+                        }
+                    }
+
+                });
+            }
+        }
+    });
+    if (ids == "") {
+        layer.msg('请勾选需要结算的商品！', {
+            skin: 'msg-tips'
+        });
+        return false;
+    }
+    if (ids == "BHH") {
+        return false;
+    }
+    
+    window.location.href = '/gab/order.html'
+}

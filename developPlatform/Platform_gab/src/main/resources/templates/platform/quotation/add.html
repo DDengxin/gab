@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>报价管理新增</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="cgStype" name="cgStype" class="mini-hidden"/>
+        <input id="cgName" name="cgName" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>报价单Id：</td>
+                <td content>
+                    <input class="mini-textbox" readonly id="quotationId" name="quotationId" emptyText="自动生成"/>
+                </td>
+                <td title>供应方：</td>
+                <td content>
+                    <input class="mini-textbox" name="supplier" id="supplier"/>
+                </td>
+                <td title>供应方代理人：</td>
+                <td content>
+                    <input class="mini-textbox" id="supplierAgent" name="supplierAgent"/>
+                </td>
+
+                <td title>需求方：</td>
+                <td>
+                    <input class="mini-textbox" id="demand" name="demand">
+                </td>
+            </tr>
+            <tr>
+                <td title>需求方代理人：</td>
+                <td>
+                    <input class="mini-textbox" id="demandAgent" name="demandAgent">
+                </td>
+                <td title>供应方代理人传真：</td>
+                <td>
+                    <input class="mini-textbox" id="supplierAgentFax" name="supplierAgentFax"/>
+                </td>
+                <td title>需求方代理人传真：</td>
+                <td>
+                    <input class="mini-textbox" id="demandAgentFax" name="demandAgentFax"/>
+                </td>
+                <td title>供应方电话：</td>
+                <td>
+                    <input class="mini-textbox" id="supplierPhone" name="supplierPhone"/>
+
+                </td>
+            </tr>
+            <tr>
+                <td title>供应方邮箱：</td>
+                <td>
+                    <input class="mini-textbox" id="supplierEmail" name="supplierEmail"/>
+
+                </td>
+
+                <td title>需求方邮箱：</td>
+                <td>
+                    <input class="mini-textbox" id="demandEmail" name="demandEmail"/>
+
+                </td>
+
+                <td title>夹、治具编号：</td>
+                <td>
+                    <input class="mini-textbox" id="fixtureId" name="fixtureId"/>
+
+                </td>
+
+                <td title>被夹产品编号：</td>
+                <td>
+                    <input class="mini-textbox" id="beFixtureId" name="beFixtureId"/>
+
+                </td>
+            </tr>
+            <tr>
+                <td title>机台品牌型号：</td>
+                <td>
+                    <input class="mini-textbox" id="model" name="model"/>
+
+                </td>
+
+                <td title>工作台尺寸：</td>
+                <td>
+                    <input class="mini-textbox" id="size" name="size"/>
+
+                </td>
+
+                <td title>夹具动力形式：</td>
+                <td>
+                    <input class="mini-textbox" id="fixturePowerForm" name="fixturePowerForm"/>
+
+                </td>
+
+                <td title>夹具形式工位数：</td>
+                <td>
+                    <input class="mini-textbox" id="fixtureWorkstation" name="fixtureWorkstation"/>
+
+                </td>
+
+            </tr>
+
+            <tr>
+                <td title>附件清单（张）：</td>
+                <td>
+                    <input class="mini-textbox" id="enclosure" name="enclosure"/>
+
+                </td>
+
+                <td title>报价部门：</td>
+                <td>
+                    <input class="mini-textbox" id="quotationDepartment" name="quotationDepartment"/>
+
+                </td>
+
+                <td title>报价人：</td>
+                <td>
+                    <input class="mini-textbox" id="quotationName" name="quotationName"/>
+
+                </td>
+
+                <!--                <td title>报价日期：</td>-->
+                <!--                <td>-->
+                <!--                    <input class="mini-datepicker"  id="quotationDate" name="quotationDate" dateFormat="yyyy-MM-dd">-->
+
+                <!--                </td>-->
+                <!--                <td title>报价日期：</td>-->
+                <!--                <td content>-->
+                <!--                    <input class="mini-datepicker" name="quotationDate" dateFormat="yyyy-MM-dd" value = "new Date()"  />-->
+                <!--                </td>-->
+
+            </tr>
+
+            <tr>
+                <td title>联合签发部门：</td>
+                <td>
+                    <input class="mini-textbox" id="issueDepartment" name="issueDepartment"/>
+
+                </td>
+
+                <td title>签发人：</td>
+                <td>
+                    <input class="mini-textbox" id="issueName" name="issueName"/>
+
+                </td>
+
+
+                <!--                <td title>签发日期：</td>-->
+                <!--                <td content>-->
+                <!--                    <input class="mini-datepicker" name="issueDate" dateFormat="yyyy-MM-dd" value = "new Date()"  />-->
+                <!--                </td>-->
+
+            </tr>
+
+
+            <tr>
+                <td title>具体报价内容：</td>
+                <td content colspan="7">
+                    <input class="mini-textarea" name="quotationContent" style="height:40px;"/>
+                </td>
+
+            </tr>
+
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grid" idField="id" style="width:100%;height:300px;"
+             url="/js/cpgy/scgx/getSrchBottomList"
+             allowCellEdit="true" allowCellSelect="true" multiSelect="true" showPager="false" sortMode="client">
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="direct_cost_items" width="60" align="center">直接项目成本
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name=" cost_items" field="cost_items" width="130" align="left">成本项目
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="count" field="count" align="left" width="150">数量
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" name="unit_price" field="unit_price" width="150" align="left">单价
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="company" width="100" align="center">单位
+                    <input property="editor" class="mini-combobox" value="true"/>
+                </div>
+
+                <div tz:datagrid="column" field="money" width="350" align="left">金额
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="remarks" width="350" align="left">说明
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="id" width="350" align="left">id
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grids" idField="id" style="width:100%;height:300px;"
+             url="/js/cpgy/scgx/getSrchBottomList"
+             allowCellEdit="true" allowCellSelect="true" multiSelect="true" showPager="false" sortMode="client">
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="direct_cost_items" width="60" align="center">直接项目成本
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name=" cost_items" field="cost_items" width="130" align="left">成本项目
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="count" field="count" align="left" width="150">数量
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" name="unit_price" field="unit_price" width="150" align="left">单价
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="company" width="100" align="center">单位
+                    <input property="editor" class="mini-combobox" value="true"/>
+                </div>
+
+                <div tz:datagrid="column" field="money" width="350" align="left">金额
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="remarks" width="350" align="left">说明
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="id" width="350" align="left">id
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get("button-grid");
+
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("quotationManagement/{0}".format(options.data.quotationId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data.quotation);
+                    button_grid.setData(res.data.quotationCost)
+                }
+            });
+
+        }
+    }
+
+    function SaveData() {
+
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add", JSON.stringify({
+                quotation: form.getData(true),
+                quotationCostItems: button_grid.getData(true)
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     新增行
+     */
+    function addRow() {
+        var index = button_grid.getData().length;
+        var newRow = {
+            name: "",
+            gxxmOrd: index + 1,
+            gxxmValuedo: 'true'
+
+        };
+        button_grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+            if (button_grid.getData() == "") {
+                delAll();
+            }
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("gxId").getValue();
+        var rows = button_grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        button_grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                button_grid.removeRows(rows, true);
+            }
+        }
+    }
+
+
+</script>
+</html>

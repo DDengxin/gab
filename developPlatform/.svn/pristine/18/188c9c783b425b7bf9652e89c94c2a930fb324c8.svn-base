@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>采购订单选择页面</title>
+</th:block>
+<style type="text/css">
+.New_Button,.Edit_Button,.Delete_Button,.Update_Button,.Cancel_Button {
+	font-size: 11px;
+	color: #1B3F91;
+	font-family: Verdana;
+	margin-right: 5px;
+}
+</style>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+				<label class="hmq-label" text="产品大类">
+					<input class="mini-combobox" id="cgStype" name="cgStype" width="80px" readonly="readonly"  url="/system/parameter/getParamsSelectList/技术/产品大类"   />
+				</label>
+				<label class="hmq-label" for="cpcodeFl" text="产品类别">
+					<div id="cpcodeFl" name="cpcodeFl" class="mini-combobox" multiSelect="true"  showClose="true" oncloseclick="onCloseClickClearValue" style="width:240px;" >
+    					<div property="columns">
+        					<div header="全部" field="text"></div>
+    					</div>
+    				</div>
+				</label>
+				<label class="hmq-label" text="编码">
+				<input class="mini-textbox" name="cpcodeId" width="120px" />
+				</label>
+				<label class="hmq-label" for="cpcodeName" text="名称">
+				<input class="mini-textbox" id="cpcodeName" name="cpcodeName" width="120px" />
+				</label>
+				<label class="hmq-label" for="cpcodeSize" text="规格">
+				<input class="mini-textbox" id="cpcodeSize" name="cpcodeSize" width="120px" />
+				</label>
+				<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+				<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+				<a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+				
+		</th:block>
+	
+	</th:block>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid"  onrowdblclick="onRowDblClick" style="width:100%;height:70%;" 
+			idField="cpcodeId" selectOnLoad="true"  
+			sizeList="[50,100,200]" pageSize="100" multiSelect="true" 
+			url="/cg/yw/purchaseFile/purchaseContract/getWlbmSelectList"
+			>
+			<div property="columns">
+					<div tz:datagrid="column" field="optionrow" width="45" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+				<div tz:datagrid="column" field="cpcodeid" width="100">产品1编码</div>
+				<div tz:datagrid="column" field="cpcodeName"   displayField="cpcodeNameName"  name="cpcodeNameName" width="130">产品名称</div>
+				<div tz:datagrid="column" field="cpcodesize"  displayField="cpcodeSizeName"   name="cpcodesize" width="90" align="center" >产品规格</div>
+				<div tz:datagrid="column" field="cpcodesizeen"  displayField="cpcodeSizeEnName"  name="cpcodesizeen" width="90" align="center">长度</div>
+				<div tz:datagrid="column" field="cpcodeFl" displayField="cpcodeFlName" name="cpcodeFl" width="90" align="left" >所属分类</div>
+				<div tz:datagrid="column" field="cpcodexp" displayField="cpcodeXpName"  name="cpcodexp" width="90" align="center" >产品标重</div>
+				<div tz:datagrid="column" field="cpcodebz" width="90"align="center"  >产品单位</div>
+				<div tz:datagrid="column" field="cpcodepb" width="90" align="center" >大包配比</div>
+				<!-- <div tz:datagrid="column" field="cpcodecheck" width="120">检验分类</div> -->
+				<div tz:datagrid="column" field="cpcode01" width="80" align="center"  >入库方式</div>
+				<div tz:datagrid="column" field="cpcode02" width="80" align="center" >核算方式</div>
+				<div tz:datagrid="column" field="cpcodeflag" width="100"  visible="false">状态</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+		<div tz:datagrid="datagrid"  id="return_grid"   style="width:100%;height:30%;" sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+	</div>
+		
+	<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+		var return_grid = mini.get("return_grid");
+		var form = new mini.Form("form1");
+		grid.bindSearchForm(form);
+		/**
+		 * 本地筛选
+		 **/
+		function search_option() {
+			grid.load();
+		}
+
+
+		function isnotExit(record) {
+			var dataRows = return_grid.getData();
+			//需要判断是否已经加入
+			if (dataRows.length > 0) {
+				for ( var i = 0; i < dataRows.length; i++) {
+					var dataRow = dataRows[i];
+					if (dataRow.id == record.id) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+
+		var columns = grid.getColumns();
+		return_grid.set({
+			columns : columns
+		});
+		return_grid.hideColumn("indexcolumn");
+		function onActionRenderer(e) {
+			var grid_id = e.sender.id;
+			var s = "";
+			if (grid_id == "srch_grid") {
+				s = ' <a class="mini-button"  style="width:30px;color:red;" href="javascript:addRow()">' + "+" + '</a>';
+			}
+			if (grid_id == "return_grid") {
+				s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">' + "-" + '</a>';
+			}
+			return s;
+		}
+
+		
+		function addRow() {
+			var row = grid.getSelected();
+			var data = return_grid.getData();
+			row = mini.clone(row); //必须
+			grid.removeRow(grid.getSelected());
+			return_grid.addRow(row, 0);
+		
+			
+		}
+		
+		function removeRow() {
+			var row = return_grid.getSelected();
+			return_grid.removeRow(row);
+			grid.addRow(row, 0);
+		}
+		
+		
+		function SetData(data) {
+			if (data.action == "search") {
+				data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+				mini.get("cgStype").setValue(data.cgStype);
+
+				//动态列转换
+				hmq.business.dynamicProductParams(data.cgStype, {
+					miniDataGrid:[grid,return_grid],
+					success: function (map, res) {
+						
+					},
+					error: function (res) {
+						hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+					}
+				});
+			}
+			
+		}
+
+		function confirm() {
+			CloseWindow("ok");
+		}
+		function GetData() {
+			var row = grid.getSelected();
+			return row;
+		}
+		function GetMutiData() {
+			var rows = return_grid.getData();
+			return rows;
+		}
+		function onRowDblClick(e) {
+			addRow();
+		}
+		
+		//关闭
+		function closeWindow(action) {
+			if (window.CloseOwnerWindow) {
+				return window.CloseOwnerWindow(action);
+			} else {
+				window.close();
+			}
+		}
+	</script>
+</body>
+</html>

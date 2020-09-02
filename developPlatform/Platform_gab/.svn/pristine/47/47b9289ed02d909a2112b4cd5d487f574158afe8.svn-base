@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>报价管理</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block
+            th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="报价单号"> <input class="mini-textbox"  name="quotationId" />
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--铺满页面-->
+<div class="mini-fit">
+	<div tz:datagrid="datagrid" id="datagrid" style="width: 100%; height: 100%;" idField="quotationId" sortMode="client" >
+		<div property="columns">
+			<div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="supplier" align="center" width="120">供应方</div>
+        	<div tz:datagrid="column" field="supplierAgent" width="120">供应方代理人</div>
+        	<div tz:datagrid="column" field="demand" align="center" width="70">需求方</div>
+       		<div tz:datagrid="column" field="demandAgent"align="center" width="120" >需求方代理人</div>
+        	<div tz:datagrid="column" field="supplierAgentFax" align="center" width="130">供应方代理人传真</div>
+         	<div tz:datagrid="column" field="demandAgentFax" align="center" width="130">需求方代理人传真</div>
+         	<div tz:datagrid="column" field="supplierPhone" align="center" width="120">供应方电话</div>
+          	<div tz:datagrid="column" field="demandPhone" align="center" width="120">需求方电话</div>
+      		<div tz:datagrid="column" field="supplierEmail" align="center" width="120">供应方邮箱</div>
+         	<div tz:datagrid="column" field="demandEmail" align="center" width="120">需求方邮箱</div>
+         	<div tz:datagrid="column" field="fixtureId" align="center" width="120">夹、治具编号</div>
+         	<div tz:datagrid="column" field="beFixtureId" align="center" width="120">被夹产品编号</div>
+         	<div tz:datagrid="column" field="model" align="center" width="120">机台品牌型号</div>
+         	<div tz:datagrid="column" field="size" align="center" width="80">工作台尺寸</div>
+         	<div tz:datagrid="column" field="fixturePowerForm" align="center" width="120">夹具动力形式</div>
+         	<div tz:datagrid="column" field="fixtureWorkstation" align="center" width="120">夹具形式工位数</div>
+           	<div tz:datagrid="column" field="quotationContent" align="center" width="120">具体报价内容</div>
+			<div tz:datagrid="column" field="enclosure" align="center" width="120">附件清单（张） </div>
+			<div tz:datagrid="column" field="quotationDepartment" align="center" width="120">报价部门 </div>
+			<div tz:datagrid="column" field="quotationName" align="center" width="70">报价人 </div>
+			<div tz:datagrid="column" field="quotationDate" align="center" width="70">报价日期 </div>
+			<div tz:datagrid="column" field="issueDepartment" align="center" width="120">联合签发部门 </div>
+			<div tz:datagrid="column" field="issueName" align="center" width="70">签发人 </div>
+			<div tz:datagrid="column" field="issueDate" align="center" width="120">签发日期 </div>
+			<div tz:datagrid="column" field="quotationId" align="center" visible="false" width="120">报价单Id</div>
+			<div tz:datagrid="column" width="100%"></div>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	    mini.parse();
+	    var form = new mini.Form("form_home");
+	    var grid = mini.get("datagrid");
+	    grid.bindSearchForm(form);
+	
+	    function search_option() {
+	        grid.load();
+	    }
+	
+	    /* 查阅 */
+	    function view_option(e) {
+	    	var row = grid.getSelected();
+	        if (row) {
+	            e.sender.miniopen({url: 'add.html', action: 'view', data: row,width:600 ,height:400});
+	        } else {
+	            hmq.tipDanger("请选择一条记录");
+	        }
+	    }
+	
+	    /* 修改 */
+	    function edit_option(e) {
+	        var row = grid.getSelected();
+	        if (row) {
+	            e.sender.miniopen({url: 'add.html', action: 'edit', data: row,width:600 ,height:400});
+	        } else {
+	            hmq.tipDanger("请选择一条记录");
+	        }
+	    }
+	
+	    /* 删除 */
+	    function delete_option(){
+	        var row = grid.getSelected();
+	        if (row) {
+	            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+	                if (action == "ok") {
+	                    $['delete']("del/{0}".format(row.quotationId), function (res) {
+	                        if (200 === res.code) {
+	                            grid.reload();
+	                        } else {
+	                            hmq.tipDanger(res.msg);
+	                        }
+	                    });
+	                }
+	            });
+	        } else {
+	            hmq.tipDanger("请选择一条记录");
+	        }
+	    }
+	</script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>外销报价明细</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="note" name="note"  class="mini-hidden"/>
+        <input id="code" name="code"  class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>产地：</td>
+                <td content>
+                    <input id="cd" name="cd" class="mini-combobox" url="/system/parameter/getParamsSelectList/技术/线材产地" onvaluechanged="onChangeCode" />
+                </td>
+                <td title>材质：</td>
+                <td content>
+                    <input id="cz" name="cz" class="mini-combobox" allowInput="true" url="/system/parameter/getParamsSelectList/技术/线材材质" onvaluechanged="onChangeCode" />
+                </td>
+                <td title>规格：</td>
+                <td content>
+                    <input id="gg" name="gg" class="mini-textbox"  vtype="float"  numberFormat="#,0.00" onvaluechanged="onChangeCode" />
+                </td>
+            </tr>
+            <tr>
+                <td title>规格：</td>
+                <td content>
+                    <input id="yzgg" name="yzgg" class="mini-textbox"  vtype="float"  onvaluechanged="onChangeCode" />
+                </td>
+                <td title>长度：</td>
+                <td content>
+                    <input id="length" name="length" class="mini-textbox"  value="0"  onvaluechanged="onChangeCode" />
+                </td>
+                <td title>种类：</td>
+                <td content>
+                    <input id="type" name="type" class="mini-combobox" allowInput="true" url="/system/parameter/getParamsSelectList/技术/线材种类" />
+                </td>
+            </tr>
+            <tr>
+                <td title>包装方式：</td>
+                <td content>
+                    <input id="pack" name="pack" class="mini-buttonedit"  onbuttonclick="onButtonPack" />
+                </td>
+                <td title>交货日期：</td>
+                <td content>
+                    <input id="deliveryTime" name="deliveryTime" class="mini-datepicker" value="new Date()" format="yyyy-MM-dd"  />
+                </td>
+                <td title>数量：</td>
+                <td content>
+                    <input id="amount" name="amount" class="mini-textbox" vtype="int" value="0" onvaluechanged="onChangeMoney" />
+                </td>
+            </tr>
+            <tr>
+                <td title>英制数量：</td>
+                <td content>
+                    <input id="yzsl" name="yzsl" class="mini-textbox" vtype="int" value="0" onvaluechanged="onChangeMoney" />
+                </td>
+                <td title>单价：</td>
+                <td>
+                    <input id="price" name="price" class="mini-textbox" vtype="float" value="0" onvaluechanged="onChangeMoney"  />
+                </td>
+                <td title>英制单价：</td>
+                <td>
+                    <input id="yzprice" name="yzprice" class="mini-textbox" vtype="float" value="0" onvaluechanged="onChangeMoney"  />
+                </td>
+            </tr>
+            <tr>
+                <td title>佣金标准：</td>
+                <td>
+                    <input id="yjbz" name="yjbz" class="mini-textbox" value="0" onvaluechanged="onChangeyjje"  />
+                </td>
+                <td title>备注：</td>
+                <td colspan="3">
+                    <input id="remarks" name="remarks" class="mini-textbox"/>
+                </td>
+            </tr>
+            <tr>
+                <td height="40" colspan="7" style="font-weight:600;"><hr/></td>
+            </tr>
+            <tr>
+                <td title>佣金金额：</td>
+                <td content>
+                    <input id="yjje" name="yjje" class="mini-textbox"  readonly />
+                </td>
+                <td title>金额：</td>
+                <td content>
+                    <input id="money" name="money" class="mini-textbox" readonly />
+                </td>
+                <td title>价差：</td>
+                <td content >
+                    <input id="saleDifferencePaice" name="saleDifferencePaice" class="mini-textbox"  vtype="float"  numberFormat="#,0.00"  />
+                </td>
+            </tr>
+            <tr>
+                <td title>毛利：</td>
+                <td content>
+                    <input id="grossMargin" name="grossMargin" class="mini-textbox"  />
+                </td>
+                <td title>原料产地：</td>
+                <td content>
+                    <input id="originPlace" name="originPlace" class="mini-textbox"  readonly />
+                </td>
+                <td title>原料材质：</td>
+                <td content>
+                    <input id="ylcz" name="ylcz" class="mini-textbox" readonly />
+                </td>
+            </tr>
+            <tr>
+                <td title>加工状态：</td>
+                <td content>
+                    <input id="processStatus" name="processStatus" class="mini-textbox" />
+                </td>
+                <td title>是否酸洗：</td>
+                <td content>
+                    <input id="isPickling" name="isPickling" class="mini-textbox" />
+                </td><td title>原料价格：</td>
+                <td content>
+                    <input id="materialPrice" name="materialPrice" class="mini-textbox"  />
+                </td>
+            </tr>
+            <tr>
+                <td title>原料运价：</td>
+                <td content>
+                    <input id="materialFreight" name="materialFreight" class="mini-textbox"  />
+                </td>
+                <td title>加工费用：</td>
+                <td>
+                    <input id="processFreight" name="processFreight" class="mini-textbox"   />
+                </td>
+                <td title>销售运价：</td>
+                <td content>
+                    <input id="saleFreight" name="saleFreight" class="mini-textbox"   />
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div  style="padding:2px;border-bottom:0;">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100%;" align="center">
+                    <a class="mini-button" iconCls="icon-save" id="saveBtn" onclick="save()">保存</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form1 = new mini.Form("form1");
+
+    function onChangeMoney(){
+        var amount = mini.get("amount").getValue();
+        var price = mini.get("price").getValue();
+        if(amount >0 && price>0){
+            mini.get("money").setValue(parseFloat(amount)*parseFloat(price));
+            onChangeMargin();
+        }
+    }
+    function onChangeMargin(){
+        var price=mini.get("price").getValue();
+        var yljg=mini.get("materialPrice").getValue();
+        var ylyf=mini.get("materialFreight").getValue();
+        var jgfy=mini.get("processFreight").getValue();
+        var xsyf=mini.get("saleFreight").getValue();
+        var amount = mini.get("amount").getValue();
+        var qtfy=mini.get("otherCost").getValue();//价格差异=单价-原料价格-原料运费-加工费-销售运费/1000-其他费用        销售运费以吨为单位   这里以公斤为单位
+        if(!isNull(price)&&!isNull(yljg)&&!isNull(qtfy)&&!isNull(xsyf)&&!isNull(jgfy)&&!isNull(ylyf)){
+            var jgcy=(parseFloat(price)-parseFloat(yljg)-parseFloat(qtfy)-parseFloat(ylyf)-parseFloat(jgfy)-(parseFloat(xsyf)/1000)).toFixed(2);
+            mini.get("saleDifferencePaice").setValue(jgcy);
+            var mlje=(parseFloat(jgcy)*parseFloat(sl)).toFixed(2);
+            mini.get("grossMargin").setValue(mlje);
+        }
+    }
+    function onChangeCode(){
+        var cd = mini.get("cd").getValue();
+        var cz = mini.get("cz").getValue();
+        var gg = parseFloat(mini.get("gg").getValue()).toFixed(2);
+        var length = mini.get("length").getValue();
+        var code="";
+        if(parseFloat(length)>0){
+            code=cd+cz+"￠"+gg+"*"+length;
+        }else{
+            code=cd+cz+"￠"+gg;
+        }
+        mini.get("code").setValue(code);
+        if(cd.length>0&&cz.length>0&&gg.length>0){
+            //onChangeysfy();
+        }
+
+    }
+
+
+    function Setdata(data) {
+        data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+        form1.setData(data);
+    }
+    function GetData() {
+
+        var o = form1.getData();
+        return o;
+    }
+    function save() {
+        CloseWindow("ok");
+    }
+    function CloseWindow(action) {
+        if (action == "close" && form1.isChanged()) {
+            if (confirm(dataChangeInfo)) {
+                return false;
+            }
+        }
+        if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+        else window.close();
+    }
+
+</script>
+</html>

@@ -1,0 +1,134 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.voucher.dao.AccoutDao;
+import com.tengzhi.business.finance.voucher.dao.AuxiliaryItemsDao;
+import com.tengzhi.business.finance.voucher.model.Accout;
+import com.tengzhi.business.finance.voucher.service.AccoutService;
+import com.tengzhi.business.project.projectArchives.projectTreams.model.EXmXmxz;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+@Service
+public class AccoutServiceImpl implements AccoutService{
+	@Autowired
+	private AccoutDao accoutDao;
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+    @Autowired
+    private SysParamDao sysParamDao;
+
+
+
+	@Override
+	public Accout save(Accout accout) throws Exception {
+	
+		return null;
+	}
+
+	@Override
+	public List<Accout> findAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void update(Accout accout) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean judgeUniqueset(Accout accout) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean judgeUniqueother(Accout afva) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Result deleteById(String Id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/**
+	 * 获取种类
+	 */
+	@Override
+	public List<Map> findACTGroup() {
+
+	String sql="SELECT a.fname as combtext,a.fclassid as combid  FROM e_f_voucher_acctgroup a WHERE  a.fgroupid=0 ";
+
+	return accoutDao.QueryListMap(sql);
+	}
+
+	@Override
+	public BasePage<Accout> findAll(BaseDto baseDto) {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpId = SessionUser.getCurrentCorpId();
+        StringBuffer sqlWhere = SqlJoint.where(e -> {
+        //  e.and(el->{el.contains("faccoutId",Long.valueOf(map.get("faccoutId").toString());});
+            e.and(el->{el.contains("ac.data_corp",corpId);});
+        });
+        String sql = "SELECT  "
+        		+ " (case when fisdelete='1' then '启用' else '禁用' end) as fisdelete_n, "
+        		+ " (case when fdc='1' then '借' else '贷' end) as fdc_n, "
+        		+ " (case when fisbank='1' then '是' else '' end) fisbank_n, "
+        		+ " (case when fiscash='1' then '是' else '' end) fiscash_n, "
+        		+ " ((CASE WHEN ac.fcustom = '1' THEN '客户' ELSE '' END)|| "
+        		+ " (CASE WHEN ac.fsupplier = '1' THEN ' 供应商' ELSE '' END)||"
+        		+ " (CASE WHEN ac.femp = '1' THEN ' 职员' ELSE '' END)||"
+        		+ " (CASE WHEN ac.fproject = '1' THEN ' 项目' ELSE '' END) ||"
+        		+ " (CASE WHEN ac.fdept = '1' THEN ' 部门' ELSE '' END)||"
+        		+ " (CASE WHEN ac.fqt = '1' THEN '其他' ELSE '' END)||"
+        		+ " (CASE WHEN ac.finventory = '1' THEN ' 存货' ELSE '' END)) fzks,"
+        		+ " (SELECT  fname FROM e_f_voucher_acctgroup WHERE fgroupid = ac.fgroupid limit 1) fgroupidname,"
+        		+ "	 CAST (ac.fnumber AS varchar(100))||  fname fnumbername,ac.*"
+        		+ "  from e_f_voucher_ac ac where 1=1 "
+                + "  AND fgroupid IN (SELECT fgroupid FROM e_f_voucher_acctgroup  WHERE fclassid = (SELECT DISTINCT fclassid FROM e_f_voucher_acctgroup WHERE fname ='资产')) "     
+                + sqlWhere;
+
+        return accoutDao.QueryPageLists(baseDto,sql);
+
+	}
+	@Override
+	public Accout findById(String Id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/**
+	 * 交易币种
+	 */
+	@Override
+	public List<Map> findCurrency(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String corpId = SessionUser.getCurrentCorpId();
+        StringBuffer sqlWhere = SqlJoint.where(e -> {
+        	  e.and(el->{el.contains("sys.org_id",corpId);});
+            e.and(el->{el.contains("sys.param_type","交易币种");});
+            e.and(el->{el.contains("sys.parent_id","JYBZ");});
+        });
+        String sql = "SELECT sys.param_name AS  combtext,sys.param_id AS combid " +
+                " from sys_param sys where 1=1 " + sqlWhere;
+        return sysParamDao.QueryListMap(sql);
+	}
+
+}

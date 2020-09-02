@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售发票</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <input class="mini-textbox" visible="false" name="orient" id="orient"/>
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="日期">
+                <input  class="mini-datepicker" name="srchRq1" value="new Date()" width="100"/>至<input  class="mini-datepicker"  name="srchRq2" value="new Date()" width="100"/>
+            </label>
+            <label class="hmq-label" text="发票号码">
+                <input class="mini-textbox" name="fpNote" width="100"/>
+            </label>
+            <label class="hmq-label" text="销售客户">
+                <input class="mini-buttonedit" onbuttonclick="onSupplierClick"
+                           emptyText="请选择..."  allowInput="true" id="fpDw" name="fpDw"   width="110px"/>
+            </label>
+            <label class="hmq-label" text="发票税率">
+                <input class="mini-comboBox" name="fpSl" url="/finance/invoice/getHtFpsl" showNullItem="true" nullItemText="全部"   width="80px"/>
+            </label>
+            <label class="hmq-label" text="交易币种">
+                <input class="mini-comboBox" name="fpBz" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" showNullItem="true" nullItemText="全部"   textField="text" valueField="id"  width="80px"/>
+            </label>
+            <label class="hmq-label" text="发票状态">
+                <select name="fpFlag" class="mini-combobox" width="80">
+                <option value="">全部</option>
+                <option value="登记">登记</option>
+                <option value="确认">确认</option>
+                </select>
+            </label>
+            <label class="hmq-label" text="月结状态">
+                <select name="fpMonth" class="mini-combobox" width="80">
+                <option value="">全部</option>
+                <option value="已结">已结</option>
+                <option value="未结">未结</option>
+                </select>
+            </label> 
+            <input class="mini-textbox"  name="fpCgtype" id="fpCgtype" visible="false"/>
+            <input class="mini-textbox"  name="cwStype" id="cwStype" visible="false"/>
+            <input class="mini-textbox"  name="fpDtype" id="fpDtype" visible="false"/>
+           
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <!-- <div tz:datagrid="treegrid"  id="srch_grid" class="mini-datagrid"  sortField="fpId"  
+         idField="fpId"  resultAsTree="true" iconField="rightIconCls" showColumnsMenu="true"
+         ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" style="width:100%;height:100%;"
+         expandOnLoad="0" virtualColumns="true" showPageInfo="false"  > -->
+         <div id="srch_grid" style="width: 100%; height: 100%;" idField="fpNote" sizeList="[50,100,200]" pageSize="100" pager="#pager1" data-pagebuttonbar="true"
+			showPager="true" sortField="fpNote" sortOrder="desc" ondrawsummarycell="onDrawSummaryCellmx" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" 
+			allowSort="true" align="center" class="mini-datagrid" showSummaryRow="true" url="/finance/invoice/invoiceList.html">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="fpId"   align="center" width="80" visible="false">编码</div>
+            <div tz:datagrid="column" field="fpRq"   align="center" width="120" dateFormat="yyyy-MM-dd"  renderer="onActionRenderer">日期</div>
+            <div tz:datagrid="column" field="fpNote" align="center" width="120">发票号码</div>
+            <div tz:datagrid="column" field="fpDw"   displayField="fpdws" align="center" width="120">销售客户</div>
+            <div tz:datagrid="column" field="fpType" displayField="fplx"  align="center" width="100">发票类型</div>
+            <div tz:datagrid="column" field="fpSl"   align="right"  width="80" renderer="onActionRenderer" >发票税率</div>
+            <div tz:datagrid="column" field="fpBz"   displayField="fpbzs" align="left"   width="80">交易币种</div>
+            <div tz:datagrid="column" field="fpSe"   align="right"  width="80" numberFormat="#,0.00" summaryType="sum">未税金额</div>
+            <div tz:datagrid="column" field="fpJe"   align="right"  width="100" numberFormat="#,0.00" summaryType="sum"> 税额</div>
+            <div tz:datagrid="column" field="fpSje"  align="right"  width="100" numberFormat="#,0.00" summaryType="sum">含税金额</div>
+            <div tz:datagrid="column" field="fpFlag" align="center" width="80">发票状态</div>
+            <div tz:datagrid="column" field="fpMonth" align="center" width="80">月结状态</div>
+            <div tz:datagrid="column" field="fpSm"   align="center" width="200">发票备注</div>
+            
+            <!-- <div tz:datagrid="column" field="fpDtype" name="fpDtype" align="center" width="80">分类</div>
+            <div tz:datagrid="column" field="fpXtype" name="fpXtype" align="center" width="80">发票小类</div>
+            <div tz:datagrid="column" field="dataCorp" name="dataCorp" align="left" width="100" >所属公司</div>
+            <div tz:datagrid="column" field="dataDate" name="dataDate" align="center" width="120" >操作日期</div>
+            <div tz:datagrid="column" field="dataMan" name="dataDate" align="center" width="120" >操作人</div> -->
+            <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    //grid.frozenColumns(0, 5);
+    //grid.frozenColumns ( 1, 6 );
+    
+    var cwStype = hmq.getQueryString("cwStype");
+    var fpCgtype = hmq.getQueryString("fpCgtype");
+    var fpDtype = hmq.getQueryString("fpDtype");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(cwStype)) {
+        form.getField("cwStype").setValue(cwStype);
+        form.getField("fpDtype").setValue(cwStype);
+    }
+    if (hmq.isNotEmpty(fpCgtype)) {
+        form.getField("fpCgtype").setValue(fpCgtype);
+    }
+   
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            e.cellHtml = e.value ? '是' : '否';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row:row,formData:form.getData()},width:1040,height:550});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+        	if(row.fpFlag=="登记"&&row.fpMonth=="未结"){
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: {row:row,formData:form.getData()},width:1040,height:550});
+        	}else{
+        		hmq.tipDanger("该状态无法修改！");
+        	}
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+        	if(row.fpFlag=="登记"&&row.fpMonth=="未结"){
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/finance/invoice/invoiceList.html/{0}".format(row.fpId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        	}else{
+        		hmq.tipDanger("该状态无法删除！");
+        	}
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    
+
+   /* 确认操作，修改状态  */
+   function ok_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   if(row.fpFlag=="登记"&&row.fpMonth=="未结"){
+		   mini.confirm("确定要进行确认操作吗？", "确认信息", function (action) {
+               if (action == "ok") {
+                   $.put("/finance/invoice/ok/{0}".format(row.fpId), function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法审核！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+   
+   /* 月结操作修改月结状态 */
+   function yok_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   if(row.fpMonth=="未结"){
+		   mini.confirm("确定要审核吗？", "审核信息", function (action) {
+               if (action == "ok") {
+                   $.put("/finance/invoice/yok/{0}".format(row.fpId), function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法进行月结操作！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+   
+   /* 取消操作，修改状态  */
+   function qx_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   if(row.fpFlag=="确认"&&row.fpMonth=="已结"){
+		   mini.confirm("确定要取消吗？", "取消信息", function (action) {
+               if (action == "ok") {
+                   $.put("/finance/invoice/qx/{0}".format(row.fpId), function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法取消！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+   
+   /* 月结取消操作修改月结状态 */
+   function yqx_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   if(row.fpMonth=="已结"){
+		   mini.confirm("确定要取消月结吗？", "取消月结信息", function (action) {
+               if (action == "ok") {
+                   $.put("/finance/invoice/yqx/{0}".format(row.fpId), function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法进行取消月结操作！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+
+   function onActionRenderer(e) {
+	      var record = e.record;
+	      if (e.field == "fpRq") {
+	        return mini.formatDate(new Date(record.fpRq), "yyyy-MM-dd");
+	      }
+	      if (e.field == "fpSl") {
+				if (e.value != null) {
+					return e.value * 100 + "%";
+				}
+			}
+			
+	    }
+   
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            //url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            url : "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data:"C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+	/**
+	 汇总
+	 */
+	 function onDrawSummaryCellmx(e) {
+			if (e.field == "fpNote") {
+				var s = "<span style='color:Brown;'>";
+				s += "合计:</span>";
+				e.cellHtml = s;
+			}
+			if (e.field == "fpSe") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+				e.cellHtml = s;
+			}
+			if (e.field == "fpJe") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+				e.cellHtml = s;
+			}
+			if (e.field == "fpSje") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+				e.cellHtml = s;
+			}
+			
+		}
+</script>
+
+</body>
+</html>

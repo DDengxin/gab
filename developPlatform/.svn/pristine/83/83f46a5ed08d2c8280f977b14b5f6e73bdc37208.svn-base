@@ -1,0 +1,13 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.business.finance.voucher.dao.OtherExpenpesDao;
+
+import com.tengzhi.business.finance.voucher.service.OtherExpenpesService;
+@Service
+public class OtherExpenpesServiceImpl implements OtherExpenpesService {
+	@Autowired
+	OtherExpenpesDao otherExpenpesDao;
+}

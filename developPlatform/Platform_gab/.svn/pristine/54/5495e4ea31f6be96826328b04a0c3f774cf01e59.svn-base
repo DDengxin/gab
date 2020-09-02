@@ -1,0 +1,76 @@
+package com.tengzhi.business.platform.manage.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.manage.service.ServiceManageService;
+import com.tengzhi.business.platform.manage.vo.serviceVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+
+/***
+ * 服务管理
+ * @author lsh
+ */
+@RestController
+@RequestMapping("platform/manage")
+public class ServiceManageControler {
+	
+	@Autowired
+	private  ServiceManageService serviceManageService;
+	
+	@GetMapping("*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}	
+	
+	/**
+	 * 分页查询
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "/getSrch")
+	public Result getSrch(BaseDto baseDto) throws IOException {
+		return serviceManageService.getSrch(baseDto).getResult();
+	}
+	
+    @GetMapping(value = "uniqueQuery/{id}/{result}")
+    public Result uniqueQuery(@PathVariable String id,@PathVariable String result) {
+        return Result.resultOk(serviceManageService.findByNote(id,result));
+    }
+    
+    @GetMapping(value = "examination/{id}")
+    public Result examination(@PathVariable String id) {
+        return Result.resultOk(serviceManageService.examination(id));
+    }
+    
+    /**
+	 * 新增
+	 * 
+	 */
+	@PostMapping(value = "add")
+	public Result add(@RequestBody serviceVo serviceVo) throws Exception {
+		Result rs = serviceManageService.saveService(serviceVo);
+		return rs;
+	}
+	
+	/**
+	 * 修改
+	 * @param advisory
+	 * @return
+	 */
+    @PutMapping("add")
+    public Result modify(@RequestBody serviceVo serviceVo) {
+    	Result rs = serviceManageService.update(serviceVo);
+        return rs;
+    }
+    
+    @DeleteMapping(value = "delete/{service_note}")
+    public Result delete(@PathVariable String service_note) {
+    	serviceManageService.deleteByServiceNote(service_note);
+        return Result.resultOk();
+    }
+
+}

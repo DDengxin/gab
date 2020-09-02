@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<!-- <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}"> -->
+
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+
+	<title>客户管理修改</title>
+</th:block>
+<style>
+
+	.webuploadItemButtons{padding-right:43px;}
+	.webuploadItemButtons+.webuploadItemButtons{padding-right:0 !important;display:inline-block !important;width:auto !important;float:right;margin-top:-22px}
+</style>
+</head>
+
+<body>
+	<div>
+      <input name="action" class="mini-hidden"/>
+		<form id="userform" class="supply-center">
+			<table class="hmq-modify-table"
+				style="padding-bottom: 0px !important;">
+				<tr>
+					<td title>用户账户:</td>
+					<td content><input class="mini-textbox" name="userId"
+						readonly="readonly"></td>
+					<td title>用户名称:</td>
+					<td content><input class="mini-textbox" name="nickName">
+					</td>
+					<td title>手机号:</td>
+					<td content><input class="mini-textbox" name="mobile"
+						vtype="numberAndLetter" required></td>
+					<td title>邮箱：</td>
+					<td content><input class="mini-textbox" name="email">
+					</td>
+	             
+
+				</tr>
+
+			</table>
+		</form>
+		<!-- 需求方 -->
+		<form id="application-user">
+			<input name="supplyType" class="mini-hidden" />
+			<table class="hmq-modify-table"
+				style="padding-bottom: 0px !important;">
+				<tr>
+					<td title>单位名称:</td>
+					<td content><input class="mini-textbox" name="supplyName" />
+					</td>
+					<td title>单位简称:</td>
+					<td content><input class="mini-textbox" name="customerExp" />
+					</td>
+					<td title>单位区域:</td>
+					<td content><input class="mini-textbox" name="district" /></td>
+					  <td title class="hide">密码：</td>
+					<td content class="hide"><input class="mini-textbox" name="password">
+					</td>
+				</tr>
+				<tr>
+					<td title>用户头像:</td>
+					<td content colspan="7">
+						<Article class="pserson" name="uploaderSupplierImg"></Article> <input
+						name="headImg" class="mini-hidden" />
+					</td>
+				</tr>
+
+				<tr>
+					<td title>上年度营业额:</td>
+					<td content><input class="mini-textbox" name="lastyearMoney" />
+					</td>
+					<td title>身份证号:</td>
+					<td content><input class="mini-textbox" name="idCard" /></td>
+					<td title>数量范围:</td>
+					<td content><input class="mini-textbox" name="numberScope" /></td>
+					<td title>交期范围:</td>
+					<td content><input class="mini-textbox"
+						name="deliveryDateScope" /></td>
+				</tr>
+				<tr>
+					<td title>精度要求:</td>
+					<td content><input class="mini-textbox"
+						name="accuracyRequire" /></td>
+					<td title>空间要求:</td>
+					<td content><input class="mini-textbox" name="spaceRequire" /></td>
+					<td title>重量要求:</td>
+					<td content><input class="mini-textbox" name="weightRequire" /></td>
+					<td title>自动化要求:</td>
+					<td content><input class="mini-textbox" name="autoRequire" /></td>
+				</tr>
+				<tr>
+					<td title>范围选择:</td>
+					<td content><input class="mini-textbox" name="targetScope" /></td>
+					<td title>客户等级:</td>
+					<td content><input class="mini-textbox" name="supplyLevel" /></td>
+					<td title>客户金额:</td>
+					<td content><input class="mini-textbox" name="supplyJe" /></td>
+					<td title>特别说明:</td>
+					<td content><input class="mini-textbox" name="explain" /></td>
+					
+				</tr>
+
+				<tr>
+					<td title>第三方监理:<input class="mini-checkbox" name="isProxy" /></td>
+					<td content></td>
+					<td title>公开竞标:<input class="mini-checkbox" name="isPublic" /></td>
+					<td content></td>
+				</tr>
+
+				<tr>
+
+					
+				</tr>
+
+			</table>
+		</form>
+
+
+
+
+
+
+	</div>
+	<div class=" hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save"
+			id="saveBtn">保存</a>
+		  <a class="mini-button" id="colseBtn" onclick="CloseWindow" iconCls="icon-cancel">关闭</a> 
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	
+	var form = new mini.Form('application-user');	
+	var user_form = new mini.Form('userform');
+	//修改上传图片回显
+	function  initUpload(containter,fileId){ 
+		 $("."+containter+":first").resetUploader({
+             pickerid: fileId,
+             filecount: 1,
+             view : "edit", 
+         });
+	}	
+	//查询数据
+	function findAlone(options) {
+		var userid = options.data.userId|| '';
+	     $.get("/platform/personal/personById/{0}".format(userid), function (res) {
+             if (200 === res.code) {
+            		if(!!res.data == false || (!!res.data.personal == false ) ){
+    					hmq.tipDanger( '该账号非需求用户！');
+    					return;
+    				}			
+    				user_form.setData(res.data.sysuser);
+    				initUpload(  "pserson" ,res.data.personal.headImg);
+    				form.setData(res.data.personal);	
+             }
+         });
+	}
+
+	
+	
+	  function SetData(options) {
+          $('[name=action]').val(options.action);	          	            
+	        if ('add' == options.action) {
+	        	user_form.getField('userId').readOnly = false;
+	            var fileId2 = getFileId();
+	            //用户头像图片
+	            form.getField('headImg').setValue(fileId2);
+	            $(".pserson").filesUpload({
+	                pickerid: fileId2,
+	                filecount: 1,
+	            });
+	   	            
+	        } else if ('edit' == options.action) {
+	        	  $(".hide").hide();
+	        	findAlone(options);
+	        
+	        }else if('view' == options.action){
+	        	$.get("eHrWorkerList.html/{0}".format(options.data.workerId), function (res) {
+	                if (200 === res.code) {
+	                    form.setData(res.data);
+	                   
+	                }
+	            });
+	        	form.setEnabled(false);
+	            mini.get("saveBtn").setVisible(false);
+	        }else{
+	        	// 客户身份修改数据，数据回想
+	        	findAlone();
+	            mini.get("colseBtn").hide();
+
+	        }
+	    }
+
+	/**
+	 * 保存数据
+	 * @constructor
+	 */
+	function SaveData() {
+		if (user_form.validate() && user_form.isValid()) {
+		
+	var data = {};
+			data.sysuser = user_form.getData();
+			data.personal = form.getData();
+			var type = $('[name=action]').val();
+			var url = {'add' : '/platform/personal/add'}[type] || '/platform/personal/personedit';
+			var method = {
+				'add' : 'post'
+			}[type] || 'put';
+			
+			$[method](url, JSON.stringify(data), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							if (!!type == false) {
+								findAlone();
+							}else{
+								   CloseWindow('refresh');
+							}
+							
+
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+</script>
+</html>

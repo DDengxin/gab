@@ -1,0 +1,545 @@
+/*common*/
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif;
+}
+
+body {
+    font: 12px/1.5 "微软雅黑";
+}
+
+html, body {
+    height: 100%;
+}
+
+a, img {
+    border: none;
+}
+
+a {
+    text-decoration: none;
+    color: #333;
+}
+
+ul li, ol li {
+    list-style: none;
+}
+
+.fl {
+    float: left
+}
+
+.fr {
+    float: right
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.clearfix {
+    display: inline-block;
+}
+
+.w {
+    width: 1000px;
+    margin: 0 auto;
+}
+
+/*END common*/
+
+/*index.html*/
+.header {
+    width: 100%;
+    height: 100px;
+    background: #effbff;
+    overflow: hidden;
+    background: url(../images/head_bg.png) repeat-x;
+}
+
+.logo {
+    float: left;
+    height: 60px;
+    overflow: hidden;
+    margin-top: 28px;
+    height: 60px;
+    margin-bottom: 20px;
+}
+
+.logo-left {
+    padding-right: 18px;
+    float: left;
+    margin-left: 25px;
+    border-right: 1px solid #c3c3c3
+}
+
+.logo-left h2 {
+    font-size: 20px;
+    color: #000;
+}
+
+.logo-right {
+    float: left;
+    margin-left: 20px;
+    background: url(../images/head_img.png) no-repeat;
+    padding-left: 55px;
+}
+
+.logo-right h3 {
+    color: #0076bb;
+    font-size: 16px;
+    line-height: 25px;
+}
+
+.logo-right p {
+    color: #000;
+    line-height: 25px;
+}
+
+.top-right {
+    float: right;
+    overflow: hidden;
+    margin-top: 20px;
+    margin-right: 15px;
+}
+
+.top-right ul {
+    overflow: hidden;
+    margin-top: 2px;
+}
+
+.top-right ul li {
+    float: left;
+    line-height: 13px;
+    padding: 0 8px;
+}
+
+.top-right ul li p {
+    text-align: center;
+    line-height: 20px;
+    height: 20px;
+}
+
+.top-right ul li a {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+.top-right ul li a:hover {
+    text-decoration: underline;
+}
+
+.box {
+    width: 100%;
+}
+
+.box img {
+    width: 100%;
+}
+
+.zhuti {
+    background: url(../../resources/images/li1-.png) no-repeat;
+    display: block;
+    text-align: center;
+    width: 52px;
+    height: 50px;
+}
+
+.zhuti:hover {
+    background: url(../../resources/images/li1.png) no-repeat;
+}
+
+.help {
+    background: url(../../resources/images/li2-.png) no-repeat;
+    display: block;
+    width: 52px;
+    height: 50px;
+}
+
+.help:hover {
+    background: url(../../resources/images/li2.png) no-repeat;
+}
+
+.jishu {
+    background: url(../../resources/images/li3-.png) no-repeat;
+    display: block;
+    width: 52px;
+    height: 50px;
+}
+
+.jishu:hover {
+    background: url(../../resources/images/li3.png) no-repeat;
+}
+
+.end {
+    background: url(../../resources/images/li4-.png) no-repeat;
+    display: block;
+    width: 52px;
+    height: 50px;
+}
+
+.end:hover {
+    background: url(../../resources/images/li4.png) no-repeat;
+}
+
+.text-link {
+    color: blue;
+}
+
+/*END index.html*/
+/*
+.block-div{width:250px;height:277px;position:absolute;z-index:9999;left:-20px;display:none;}
+.block-div h2{background:url(../../resources/images/main/blcok-bg.png) no-repeat top center;width:250px;height:44px;}
+.text-block{background-color:#fff;background-image:url(../../resources/images/main/2wei.jpg);background-repeat:no-repeat;background-position:top 18px right 18px;width:220px;height:204px;border-bottom:1px solid #bdd2d9;border-left:1px solid #bdd2d9;border-right:1px solid #bdd2d9;padding:14px;}
+.text-block p{color:#666666;font-size:12px;font-family:"宋体";line-height:20px;}
+.btn2{overflow:hidden;margin-top:14px;}
+.btn2 a{width:108px;height:30px;line-height:30px;text-align:center;color:#fff;font-size:12px;font-family:"宋体";display:block;border-radius:4px;}
+.btn-a1{background:#eb4c00;float:left;}
+.btn-a2{background:#0a95c9;float:right;}*/
+/*公共样式*/
+.hmq-padding-t-0 {
+    padding-top: 0px;
+}
+
+/*END 公共样式*/
+
+
+/*miniui样式覆盖与扩展*/
+/*DataGrid页面宽度增加*/
+.mini-pager-size .mini-combobox {
+    width: 65px !important;
+}
+
+/*END DataGrid页面宽度增加*/
+
+
+/*表单只读样式*/
+.asLabel .mini-textbox-border,
+.asLabel .mini-textbox-input,
+.asLabel .mini-buttonedit-border,
+.asLabel .mini-buttonedit-input,
+.asLabel .mini-textboxlist-border {
+    border: 0 !important;
+    background: none !important;
+    cursor: default !important;
+}
+
+.asLabel .mini-buttonedit-button,
+.asLabel .mini-textboxlist-close {
+    display: none !important;
+}
+
+.asLabel .mini-textboxlist-item {
+    padding-right: 8px !important;
+}
+.asLabel .mini-textbox-input::placeholder,.asLabel .mini-buttonedit-input::placeholder
+{
+    color: transparent;
+    font-size: 0px;
+}
+.asLabel .mini-textbox-input::-webkit-input-placeholder,.asLabel.mini-buttonedit-input::-webkit-input-placeholder
+{
+    color: transparent;
+    font-size: 0px;
+}
+.asLabel .mini-textbox-input::-ms-input-placeholder,.asLabel .mini-buttonedit-input::-ms-input-placeholder
+{
+    color: transparent;
+    font-size: 0px;
+}
+.asLabel .mini-textbox-input::-moz-placeholder,.asLabel .mini-buttonedit-input::-moz-placeholder
+{
+    color: transparent;
+    font-size: 0px;
+}
+
+
+
+
+/*END 表单只读样式*/
+
+/*END miniui样式覆盖与扩展*/
+
+/*iframe报表*/
+.hmq-iframe-box {
+    width: 100%;
+    overflow: hidden !important;
+    border: 1px solid #999999;
+}
+
+.hmq-iframe-box > iframe {
+    width: 100%;
+    height: 100% !important;
+    border: 0px;
+    overflow: hidden;
+}
+
+/*END iframe报表*/
+
+/*新增窗体表格自适应*/
+table.hmq-modify-table,
+table.hmq-modify-table > tr > th,
+table.hmq-modify-table > tr > td,
+table.hmq-modify-table > tbody > tr > th,
+table.hmq-modify-table > tbody > tr > td {
+    padding: 1px;
+    padding: 0.2rem;
+}
+
+table.hmq-modify-table {
+    margin: auto;
+    border: 0;
+    width: 100%;
+    table-layout: fixed;
+    _border-collapse: collapse;
+    border-spacing: 1px;
+    border-spacing: 0.2rem;
+
+    width: 92%;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+
+table.hmq-modify-table > tr > td,
+table.hmq-modify-table > tbody > tr > td {
+    height: 30px !important;
+}
+
+table.hmq-modify-table > tr > td[title],
+table.hmq-modify-table > tr > td.title,
+table.hmq-modify-table > tbody > tr > td[title],
+table.hmq-modify-table > tbody > tr > td.title {
+    white-space: nowrap;
+    text-align: right;
+    text-align-last: justify; /*字宽平均*/
+}
+
+table.hmq-modify-table > tr > td[content],
+table.hmq-modify-table > tr > td.content,
+table.hmq-modify-table > tbody tr > td[content],
+table.hmq-modify-table > tbody tr > td.content {
+    box-sizing: content-box !important;
+}
+
+div.hmq-toolbar {
+    padding: 5px 3px;
+    padding: 0.5rem 3px;
+    text-align: center;
+    border-width: 0px;
+}
+
+div.hmq-toolbar > a.mini-button {
+    margin-left: 5px;
+    margin-right: 5px;
+    min-width: 25px;
+}
+
+/*END 新增窗体表格自适应*/
+
+/*查询页面参数自动换行*/
+.hmq-search-td {
+}
+
+.hmq-search-td > span {
+    display: inline-flex;
+    display: inline-block;
+    padding: 1px 0px;
+}
+
+/* Css Hack Chrome */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .hmq-search-td > span {
+        display: inline-flex;
+        _padding: 0px;
+    }
+}
+
+/*END 查询页面参数自动换行*/
+
+/*textarea 列表页展示样式*/
+.hmq-context-box {
+    border: 1px solid #dddddd;
+    box-sizing: border-box;
+    width: inherit;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+
+}
+
+.hmq-context-box > * {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-weight: 500;
+}
+
+/*标题*/
+.hmq-context-box > h1 {
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+/*描述*/
+.hmq-context-box > h4 {
+    text-align: right;
+}
+
+/*正文*/
+.hmq-context-box > .hmq-context {
+    text-indent: 2em;
+    padding: 10px;
+    word-break: break-word;
+    font-size: 16px;
+}
+
+.hmq-context-box > .hmq-context > pre {
+    overflow: auto;
+    white-space: pre-wrap;
+    /*以下代码为了兼容IE6,7*/
+    *white-space: pre;
+    *word-wrap: break-word;
+}
+
+/*textarea 列表页展示样式*/
+
+/*DataGrid背景色*/
+/*红色*/
+.mini-grid-row.hmq-row-bg-success,
+.mini-grid-row.hmq-row-bg-green {
+    background-color: rgba(92, 184, 92, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-success,
+.mini-grid-row-selected.hmq-row-bg-green {
+    background-color: #5cb85c !important;
+}
+
+.hmq-bg-success, .hmq-bg-green,
+.hmq-success, .hmq-green {
+    background-color: #5cb85c;
+}
+
+/*橙色*/
+.mini-grid-row.hmq-row-bg-warning,
+.mini-grid-row.hmq-row-bg-orange {
+    background-color: rgba(236, 151, 31, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-warning,
+.mini-grid-row-selected.hmq-row-bg-orange {
+    background-color: #ec971f !important;
+}
+
+.hmq-bg-warning, .hmq-bg-orange,
+.hmq-warning, .hmq-orange {
+    background-color: #ec971f;
+}
+
+/*红色*/
+.mini-grid-row.hmq-row-bg-danger,
+.mini-grid-row.hmq-row-bg-red {
+    background-color: rgba(217, 83, 79, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-danger,
+.mini-grid-row-selected.hmq-row-bg-red {
+    background-color: #d9534f !important;
+}
+
+.hmq-bg-danger, hmq-bg-red,
+.hmq-danger, hmq-red {
+    background-color: #d9534f;
+}
+
+/*蓝色*/
+.mini-grid-row.hmq-row-bg-primary,
+.mini-grid-row.hmq-row-bg-blue {
+    background-color: rgba(0, 123, 255, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-primary,
+.mini-grid-row-selected.hmq-row-bg-blue {
+    background-color: #007bff !important;
+}
+
+.hmq-bg-primary, hmq-bg-blue,
+.hmq-primary, hmq-blue {
+    background-color: #007bff;
+}
+
+/*灰色*/
+.mini-grid-row.hmq-row-bg-secondary,
+.mini-grid-row.hmq-row-bg-gray {
+    background-color: rgba(108, 117, 125, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-secondary,
+.mini-grid-row-selected.hmq-row-bg-gray {
+    background-color: #6c757d !important;
+}
+
+.hmq-bg-secondary, hmq-bg-gray,
+.hmq-secondary, hmq-gray {
+    background-color: #6c757d;
+}
+
+/*蓝绿*/
+.mini-grid-row.hmq-row-bg-info,
+.mini-grid-row.hmq-row-bg-lightgreen {
+    background-color: rgba(23, 162, 184, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-info,
+.mini-grid-row-selected.hmq-row-bg-lightgreen {
+    background-color: #17a2b8 !important;
+}
+
+.hmq-bg-info, hmq-row-bg-lightgreen,
+.hmq-info, .hmq-lightgreen {
+    background-color: #17a2b8;
+}
+
+/*深色*/
+.mini-grid-row.hmq-row-bg-dark {
+    background-color: rgba(52, 58, 64, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-dark {
+    background-color: #343a40 !important;
+}
+
+.hmq-row-bg-dark,
+.hmq-dark {
+    background-color: #343a40;
+}
+
+/*END DataGrid背景色*/
+
+
+/*列表查询栏样式*/
+/*TODO:*/
+.hmq-srch-table {
+    margin: 2px;
+    width: 100%;
+    max-width: 100%;
+    word-break: break-word;
+    display: table;
+}
+
+.hmq-srch-table > label {
+    display: inline-block;
+    max-width: 6em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: table-cell;
+}
+
+/*END 列表查询栏样式*/

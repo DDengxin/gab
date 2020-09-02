@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>发票管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <input class="mini-hidden" name="orient"/>
+    <form id="form1">
+        <input name="deptId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号:</td>
+                <td content >
+                <input class="mini-TextBox" 
+                           emptyText="自动生成"  allowInput="false" name="cwNote"  visible="false" required="false"/>
+                    <input class="mini-TextBox" 
+                           emptyText="自动生成"  allowInput="false" name="cwNote"  required="false"/>
+                </td>
+                <td title>订单编号:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwItem"  required/>
+                </td>
+                <td title>单位:</td>
+                <td content >
+                     <input class="mini-buttonedit" onbuttonclick="onSupplierClick" 
+                           emptyText="请选择..." allowInput="false" id="cwDw" name="cwDw"  required />
+                </td>
+            </tr>
+            <tr>
+                <td title>结算日期:</td>
+                <td content>
+                   <input class="mini-datepicker" format="yyyy-MM-dd" value="new Date()" name="cwRq" required/>
+                </td>
+                <td title>付款日期:</td>
+                <td content>
+                   <input class="mini-datepicker" format="yyyy-MM-dd" value="new Date()" name="cwFkrq" required/>
+                </td>
+                <td title>产品编号:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwCode"  required/>
+                </td>
+               
+            </tr>
+             <tr>
+                <td title>发票号码:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwFph"  required/>
+                </td>
+                <td title>付款号码:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwFkh"  required/>
+                </td>
+                <td title>业务类别:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwStype" id="cwStype"  required/>
+                </td>
+            
+            </tr>
+            <tr>
+                <td title>产品种类:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwType"  required/>
+                </td>
+                <td title>交易件数:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwJs"  required/>
+                </td>
+                <td title>交易数量:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwSl"  required/>
+                </td>
+            
+            </tr>
+            <tr>
+            <td title>交易重量:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwZl"  required/>
+                </td>
+                <td title>交易单价:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwPrice"  required/>
+                </td>
+                <td title>含税金额:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwSje"  required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>交易税额:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwSe"  required/>
+                </td>
+                <td title>交易汇率:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwHl"  required/>
+                </td>
+                <td title>发票税率:</td>
+                <td content >
+                    <!-- <input class="mini-TextBox" name="cwShl"  required/> -->
+                    <input class="mini-comboBox" name="cwShl" url="/finance/invoice/getHtFpsl" required/>
+                </td>
+                
+            
+            </tr>
+            <tr>
+                <td title>结算方式:</td>
+                <td content >
+                    <input class="mini-TextBox" name="cwCk"  required/>
+                </td>
+                
+                <td title>付款币种:</td>
+                <td content >
+                    <input class="mini-comboBox" name="cwBz" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" textField="text" valueField="id"  required/> 
+                </td>
+            </tr>
+           
+            <tr>
+                <td title>说明:</td>
+                <td content colspan="5">
+                    <input class="mini-TextBox" name="cwSm"  required="false"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+    	var formData = options.data.formData;
+    	var row = options.data.row;
+    	mini.getByName("action").setValue(options.action);
+        mini.getByName("orient").setValue(formData.orient);
+    	setIdDisable("cwStype");
+        if ('add' == options.action) {
+        	if ("true" == formData.orient) {
+                form.setData({
+                    cwStype: formData.cwStype
+                });
+            }
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("allowanceList.html/{0}".format(row.cwNote), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("cwDw").setValue(res.data.cwDw);
+                    mini.get("cwDw").setText(res.data.cwdws);
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html",JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+    
+    /**
+     * @Author: gxl
+     * @description: 供货单位选择页面
+     */
+    function onSupplierClick(e) {
+        var cwStype = form.getField("cwStype").getValue();
+        var customerType = "C";
+        if(cwStype=="应付折让"){
+            customerType = "S";
+        }
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url : "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title : "【单位】选择页面",
+            width : 750,
+            data : customerType,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     *  机构选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system//system/org/hierarchyOrgTree.html",
+            title: "【机构】选择",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.orgName);
+                }
+            }
+        });
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            data:"root",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                }
+            }
+        });
+    }
+
+
+
+</script>
+</html>

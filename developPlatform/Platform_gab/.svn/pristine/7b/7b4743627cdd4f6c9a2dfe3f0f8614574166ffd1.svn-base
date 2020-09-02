@@ -1,0 +1,13 @@
+package com.tengzhi.business.platform.quotation.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+
+import com.tengzhi.business.platform.quotation.model.QuotationCostItems;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+
+public interface QuotationCostItemsDao extends BasedaoRepository<QuotationCostItems, String> {
+    @Query(value=" SELECT * from g_quatation_cost_items  where direct_cost_items=? ",nativeQuery = true)
+    List<QuotationCostItems> findByCostItems(String id);
+}

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>订单统计</title>
+    </th:block>
+    <style type="text/css">
+        .td {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <table>
+            <tr>
+                <td id="rq">
+                    <input class="mini-hidden" name="orient" id="orient"/>
+                    <input class="mini-hidden" name="htStype" id="htStype" width="100"/>
+                    <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+
+                    <label>日期: </label>
+                    <input class="mini-datepicker" id="srchRq1" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+                </td>
+                <td id="z" class="td">
+                    <label>至:</label>
+                    <input class="mini-datepicker" id="srchRq2" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+                </td>
+                <td id="fhdh" class="td">
+                    <label>发货单号:</label>
+                    <input class="mini-textbox" id="srchNo" name="srchNo" width="120"/>
+                </td>
+                <td id="ywry" class="td">
+                    <label>业务人员:</label>
+                    <div name="srchYwy" class="mini-combobox" popupMaxHeight="250" multiSelect="true"
+                         url="/system/parameter/getParamsSelectList/销售/业务员"
+                         showClose="true" oncloseclick="e.sender.setValue('');">            
+                        <div property="columns">
+                            <div header="#" field="text"></div>
+                        </div>
+                    </div>
+                    <!--<input class="mini-combobox" id="srchYwy" name="srchYwy" url="/system/parameter/getParamsSelectList/销售/业务员" textField="text" valueField="text" width="120" emptyText="全部" showNullItem="true" nullItemText="全部" /> -->
+                </td>
+                <td id="kh" class="td">
+                    <label>客户:</label>
+                    <input id="srchCustromer" name="srchCustromer" emptyText="全部" allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue" width="200"/>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td id="bm" class="td">
+                    <label>编码:</label>
+                    <input class="mini-textbox" id="srchCode" name="srchCode" width="110"/>
+                </td>
+                <td id="mc" class="td">
+                    <label>名称:</label>
+                    <input id="srchName" name="srchName" class="mini-treeselect" multiSelect="true" valueFromSelect="false" textField="combtext" valueField="combid" parentField="pid" value="无" onbeforenodeselect="disableParentSelection"
+                           popupWidth="240" popupHeight="180" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+                </td>
+                <td id="gg" class="td">
+                    <label>规格:</label>
+                    <input class="mini-textbox" id="srchSize" name="srchSize" width="110"/>
+                </td>
+                <td id="fl" class="td">
+                    <label>分类:</label>
+                    <div id="srchFl" name="srchFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" emptyText="全部">
+                        <div property="columns">
+                            <div header="全部" field="text"></div>
+                        </div>
+                    </div>
+                </td>
+                <td id="fpzt" class="td">
+                    <label>发票状态:</label>
+                    <select class="mini-combobox" name="srchFpFlag" id="srchFpFlag" width="110">
+                        <option value="">全部</option>
+                        <option value="已开票">已开票</option>
+                        <option value="未开票">未开票</option>
+                    </select>
+                </td>
+                <td id="kf" class="td">
+                    <label>库房:</label>
+                    <input class="mini-combobox" name="srchLib" id="srchLib" width="110" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+                </td>
+            </tr>
+        </table>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" style="height: 100%;clear: both;margin-bottom: 0px;padding-bottom: 0px;">
+    <div tz:datagrid="datagrid" id="srch_top_grid" pager="#pager1" pageSize="100" showPager="false" sortMode="client" showSummaryRow="false">
+        <div property="columns">
+
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+    <table style="width: 100%;">
+        <tr>
+            <td style="white-space: nowrap;width: 20%">
+                <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+            </td>
+            <td style="white-space: nowrap;width: 80%" align="right" id="btnbar"/>
+        </tr>
+    </table>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_top_grid");
+    var surl = "/sale/saleStatistics/orderStatistics";
+    grid.bindSearchForm(form);
+
+    //start
+    var htStype = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(htStype)) {
+        form.getField("htStype").setValue(htStype);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("outType,paramMod");
+        mini.get("srchLib").load("/system/parameter/getParamsSelectListByParentId/仓库/库房档案/{0}".format(htStype));
+        hmq.business.dynamicProductParams(htStype, {
+            success: function (map, res) {
+                mini.get("srchName").load(map.cpcodeNameUrl);
+                mini.get("srchFl").load(map.cpcodeFlUrl);
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+    }
+
+    //end
+
+    function setColumn(type) {
+        if (type == "单号") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cwRq", header: "日期", width: 120, headerAlign: "center", align: "center"},
+                    {field: "cwNote", header: "单号", width: 120, headerAlign: "center", align: "center"},
+                    {field: "cwAct", header: "口径", width: 120, headerAlign: "center", align: "center", displayField: "actName"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.0000"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.00"},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {field: "cwDw", header: "单位", width: 300, headerAlign: "center", align: "left", displayField: "deptName"},
+                    {field: "cwFlag", header: "状态", width: 120, headerAlign: "center", align: "center"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "产品") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cpcodeFl", header: "编码", width: 120, headerAlign: "center", align: "center"},
+                    {field: "cwCode", header: "名称", width: 120, headerAlign: "center", align: "left"},
+                    {field: "cpcodeSize", header: "规格", width: 120, headerAlign: "center", align: "left"},
+                    {field: "cpcodeSizeEn", header: "长度", width: 120, headerAlign: "center", align: "left"},
+                    {field: "cpcodeFl", header: "分类", width: 120, headerAlign: "center", align: "left", displayField: "flName"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.0000"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.00"},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "客户") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cwDw", header: "单位", width: 300, headerAlign: "center", align: "left", displayField: "deptName", numberFormat: "#,0.0000"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.00"},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "业务员") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cwDw", header: "单位", width: 300, headerAlign: "center", align: "left", displayField: "deptName"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right"},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "分类") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cpcodeFl", header: "分类", width: 120, headerAlign: "center", align: "left", displayField: "flName"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.0000"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.00", numberFormat: "#,0.00"},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "币种") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.0000"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.00"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "库房") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cwLib", header: "库房", width: 120, headerAlign: "center", align: "center", displayField: "libName"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.0000"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right"},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "业务方式") {
+            grid.setUrl(surl + "/getWlList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cwAct", header: "口径", width: 120, headerAlign: "center", align: "center", displayField: "actName"},
+                    {field: "sl", header: "数量", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.0000"},
+                    {field: "je", header: "金额", width: 120, headerAlign: "center", align: "right", numberFormat: "#,0.00"},
+                    {field: "cwBz", header: "币种", width: 120, headerAlign: "center", align: "center", displayField: "bzName"},
+                    {width: "100%"}
+                ]
+            });
+        } else if (type == "默认") {
+            grid.setUrl(surl + "/getSrchXstjList");
+            grid.set({
+                columns: [
+                    {type: "indexcolumn", header: "序号", headerAlign: "center", width: 40},
+                    {field: "cw_rq", header: "日期", width: 100, headerAlign: "center", align: "center", renderer: "onActionRenderer", dateFormat: "yyyy-MM-dd"},
+                    {field: "cw_note", header: "发货单号", width: 120, headerAlign: "center", align: "center"},
+                    {field: "cw_act", header: "口径", width: 80, headerAlign: "center", align: "center", displayField: "actname"},
+                    {field: "cw_dw", header: "客户", width: 140, headerAlign: "center", align: "left", displayField: "dwexp"},
+                    {field: "ywy", header: "业务员", width: 140, headerAlign: "center", align: "left"},
+                    {field: "cw_item", header: "销售订单", width: 120, headerAlign: "center", align: "center"},
+                    {field: "cw_code", header: "编码", width: 100, headerAlign: "center", align: "center"},
+                    {field: "cpcode_name", header: "名称", width: 120, headerAlign: "center", align: "left", displayField: "cpcodename"},
+                    {field: "cpcode_size", header: "规格", width: 130, headerAlign: "center", align: "left"},
+                    {field: "cpcode_size_en", header: "品牌", width: 90, headerAlign: "center", align: "left"},
+                    {field: "cpcode_fl", header: "大类", width: 80, headerAlign: "center", align: "left", displayField: "flName"},
+                    {field: "cw_lib", header: "库房", width: 80, headerAlign: "center", align: "center", displayField: "libname"},
+                    {field: "cw_sl", header: "数量", width: 80, headerAlign: "center", align: "right", numberFormat: "#,0.0000", summaryType: "sum", dataType: "double"},
+                    {field: "cw_price", header: "单价", width: 80, headerAlign: "center", align: "right", numberFormat: "#,0.0000"},
+                    {field: "cw_se", header: "税额", width: 80, headerAlign: "center", align: "right", numberFormat: "#,0.00", summaryType: "sum"},
+                    {field: "cw_sje", header: "含税额", width: 80, headerAlign: "center", align: "right", numberFormat: "#,0.00", summaryType: "sum"},
+                    {field: "cw_wje", header: "未税额", width: 80, headerAlign: "center", align: "right", numberFormat: "#,0.00", summaryType: "sum"},
+                    {field: "cw_bz", header: "币种", width: 80, headerAlign: "center", align: "center", displayField: "bzname"},
+                    {field: "cw_shl", header: "税率", width: 60, headerAlign: "center", align: "center", renderer: "onActionRenderer"},
+                    {field: "cw_fph", header: "发票号", width: 110, headerAlign: "center", align: "center"},
+                    {field: "cw_flag", header: "状态", width: 80, headerAlign: "center", align: "center"},
+                    {width: "100%"}
+                ]
+            });
+        }
+        grid.load();
+    }
+
+    function search_option(type) {
+        if (type == null || type == "") {
+            type = "默认";
+        }
+        setColumn(type);
+    }
+
+    function setType(val) {
+        type = val;
+        search_option();
+    }
+
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "cw_rq" && record.cw_rq != null) {
+            return mini.formatDate(new Date(record.cw_rq), "yyyy-MM-dd");
+        }
+        if (e.field == "cw_shl") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+    }
+
+</script>
+</html>

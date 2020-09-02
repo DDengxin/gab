@@ -1,0 +1,176 @@
+<div th:fragment="CommonHead" id="_CommonHead_">
+	<!-- 右边固定工具栏 -->
+	<div class="tools">
+		<ul>
+			<!-- <li>
+			<a href="#">
+				<i class="iconfont icon-sousuo"></i>
+				搜索
+			</a>
+		</li> -->
+			<li class="chat">
+				<a href="javascript:void(0);">
+					<i class="iconfont icon-zixun"></i>
+					咨询
+				</a>
+				<div class="tips">
+					<div class="tips_content">
+						<p>嫌麻烦？不会用？</p>
+						<p>
+							点击与
+							<a href="/gab/service.html">人工客服</a>
+							直接沟通
+						</p>
+					</div>
+				</div>
+			</li>
+			<li>
+				<a href="/gab/share.html?present=activity">
+					<i class="iconfont icon-tubiao"></i>
+					活动
+				</a>
+			</li>
+			<li>
+				<a href="/gab/info.html">
+					<i class="iconfont icon-zhangdan"></i>
+					资讯
+				</a>
+			</li>
+			<li>
+				<a target="_blank" href="/system/main">
+					<i class="iconfont icon-guanli"></i>
+					管理
+				</a>
+			</li>
+			<li class="toTop">
+				<a href="javascript:void(0);">
+					<i class="iconfont icon-huidaodingbu"></i>
+					TOP
+				</a>
+			</li>
+		</ul>
+	</div>
+
+	<div class="nav">
+		<div class="nav_content">
+			<div class="nav_left">
+				<ul>
+					<li>
+						<a href="/gab/index.html">首页</a>
+					</li>
+					<li>
+						<a href="/gab/erp.html">ERP</a>
+					</li>
+					<li>
+						<a href="#">MES</a>
+					</li>
+					<li>
+						<a href="/gab/share.html?present=teachCase">案例</a>
+					</li>
+					<li>
+						<a href="/gab/info.html">资讯</a>
+					</li>
+					<li>
+						<a href="/gab/share.html?present=activity">商会活动</a>
+					</li>
+				</ul>
+			</div>
+			<div class="nav_right">
+				<ul>
+					<!-- <li>快速入驻</li> -->
+					<li class="tel">
+						<b></b>
+						<u>400-888-0000</u>
+					</li>
+					<li class="noLogin">
+						<a class="reg" href="/gab/application.html">注册</a>
+						<a class="login" href="/gabLogin">登录</a>
+					</li>
+					<li class="yesLogin">
+						<a target="_blank" href="/system/main"><b></b></a>
+						<a href="/gab/shoppingCart.html">我的购物车</a>
+						<a href="/gab/allOrders.html">我的订单</a>
+						<a href="javascript:void(0);" onclick="loginOut()">退出</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="header">
+		<div class="header_content">
+			<h1>
+				<a href="/gab/index.html"></a>
+			</h1>
+			<div class="head_nav">
+				<ul th:with="menu=${@bar.getParamValue()}">
+
+					<li th:each="firstMenu : ${menu}" th:if="${firstMenu.level} eq '1' " class="choice_firm" >
+						<a href="/gab/goodsList.html"  th:text="${firstMenu.paramName}">产品市场</a>
+						<ul class="choice">
+							<li th:each="secondMenu : ${menu}" th:if="${secondMenu.level} eq '2' and ${secondMenu.parentId} eq ${firstMenu.paramId}">
+								<a href="/gab/all.html?cur=jj" th:text="${secondMenu.paramName}" >夹具厂商</a>
+							</li>
+						</ul>
+					</li>
+<!--					<li class="choice_firm">-->
+<!--						<a href="/gab/all.html?cur=jj" >夹治具商</a>-->
+<!--						<ul class="choice">-->
+<!--							<li>-->
+<!--								<a href="/gab/all.html?cur=jj">夹具厂商</a>-->
+<!--							</li>-->
+<!--							<li>-->
+<!--								<a href="/gab/all.html?cur=fj">辅件厂商</a>-->
+<!--							</li>-->
+<!--							<li>-->
+<!--								<a href="/gab/all.html?cur=hh">整合厂商</a>-->
+<!--							</li>-->
+<!--							<li>-->
+<!--								<a href="/gab/all.html?cur=ts">特色经贸商</a>-->
+<!--							</li>-->
+<!--						</ul>-->
+<!--					</li>-->
+<!--					<li>-->
+<!--						<a href="/gab/needsList.html">需求市场</a>-->
+<!--					</li>-->
+
+<!--					<li class="choice_container">-->
+<!--						<a href="/gab/expertList.html?type=artTeam">专家团队</a>-->
+<!--						<ul class="choice">-->
+<!--							<li>-->
+<!--								<a href="/gab/expertList.html?type=artTeam">工艺专家</a>-->
+<!--							</li>-->
+<!--							<li>-->
+<!--								<a href="/gab/expertList.html?type=saleBeforeTeam">售前专家</a>-->
+<!--							</li>-->
+<!--							<li>-->
+<!--								<a href="/gab/expertList.html?type=saleAfterTeam">售后专家</a>-->
+<!--							</li>-->
+<!--						</ul>-->
+<!--					</li>-->
+<!--					<li class="choice_manager">-->
+<!--						<a href="#">管理服务</a>-->
+<!--						<ul class="choice">-->
+<!--							<li>-->
+<!--								<a href="/gab/erp.html">ERP</a>-->
+<!--							</li>-->
+<!--							<li>-->
+<!--								<a href="#">MES</a>-->
+<!--							</li>-->
+<!--							<li>-->
+<!--								<a href="#">研发</a>-->
+<!--							</li>-->
+<!--						</ul>-->
+<!--					</li>-->
+					<li class="search">
+						<i></i>
+						<input id="SearchKeyword" type="text" placeholder="请输入关键词" class="autoCompleted">
+						<b id="searchLike" class="search allSearch">搜索</b>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+
+</div>

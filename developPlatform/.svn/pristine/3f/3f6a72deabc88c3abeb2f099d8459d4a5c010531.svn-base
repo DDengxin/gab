@@ -1,0 +1,87 @@
+package com.tengzhi.business.sc.da.cardAbnormal.model;
+
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.sc.da.cardAbnormal.dao.EHrAttendanceAbnormalDao;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/6 0006 11:41
+ * @Description:
+ */
+public class EHrAttendanceAbnormalVo implements Serializable {
+
+    EHrAttendanceAbnormal headdata;
+    List<EHrAttendanceAbnormal> entitydata;
+
+    @Autowired
+    private EHrAttendanceAbnormalDao eHrAttendanceAbnormalDao;
+
+    public EHrAttendanceAbnormal getHeaddata() {
+        return headdata;
+    }
+
+    public void setHeaddata(EHrAttendanceAbnormal headdata) {
+        this.headdata = headdata;
+    }
+
+    public List<EHrAttendanceAbnormal> getEntitydata() {
+        return entitydata;
+    }
+
+    public void setEntitydata(List<EHrAttendanceAbnormal> entitydata) {
+        this.entitydata = entitydata;
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 15:09
+     *@Param:       [securityUser, i]
+     *@return:      com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormal
+     *@Description: 添加数据设置属性
+     **/
+    public EHrAttendanceAbnormal setAttributeAdd(SessionUser securityUser,int i,long MaxSid,SysGenNoteService sysGenNoteService){
+
+        EHrAttendanceAbnormal abnormal = new EHrAttendanceAbnormal();
+        abnormal.setSid(MaxSid);
+        abnormal.setRq(this.getHeaddata().getRq());
+        abnormal.setWorkDept(this.getHeaddata().getWorkDept());
+        abnormal.setWorkId(this.getEntitydata().get(i).getWorkId());
+        abnormal.setWorkName(this.getEntitydata().get(i).getWorkName());
+        abnormal.setKqSj(this.getEntitydata().get(i).getKqSj());
+        abnormal.setKqYy(this.getEntitydata().get(i).getKqYy());
+        abnormal.setKqType(this.getEntitydata().get(i).getKqType());
+        abnormal.setDataMan(securityUser.getUsername());
+        abnormal.setDataCorp(securityUser.getCorpId());
+        abnormal.setDataDate(new Date());
+        abnormal.setKqSm(this.getEntitydata().get(i).getKqSm());
+        abnormal.setFlag("登记");
+        return abnormal;
+    }
+
+    public EHrAttendanceAbnormal setAttributeUpdate(SessionUser securityUser,int i,SysGenNoteService sysGenNoteService){
+        EHrAttendanceAbnormal abnormal = new EHrAttendanceAbnormal();
+        abnormal.setRq(this.getHeaddata().getRq());
+        abnormal.setWorkDept(this.getHeaddata().getWorkDept());
+        abnormal.setWorkId(this.getEntitydata().get(i).getWorkId());
+        abnormal.setWorkName(this.getEntitydata().get(i).getWorkName());
+        abnormal.setKqSj(this.getEntitydata().get(i).getKqSj());
+        abnormal.setKqYy(this.getEntitydata().get(i).getKqYy());
+        abnormal.setKqType(this.getEntitydata().get(i).getKqType());
+        abnormal.setDataMan(securityUser.getUsername());
+        abnormal.setDataCorp(securityUser.getCorpId());
+        abnormal.setDataDate(new Date());
+        abnormal.setKqSm(this.getEntitydata().get(i).getKqSm());
+        abnormal.setFlag("登记");
+        return abnormal;
+    }
+
+}

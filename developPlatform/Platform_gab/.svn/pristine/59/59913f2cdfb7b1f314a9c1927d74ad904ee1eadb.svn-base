@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver #连接驱动
+    druid:
+      db-type: postgresql #指定数据库类型 postgresql
+      use-global-data-source-stat: true #统计所有数据源状态
+      validation-query: select 1 #验证连接有效性的sql
+      test-on-borrow: false #申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      test-while-idle: true #指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除
+      test-on-return: false #归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      max-wait: 60000 #连接最大等待时间
+      max-active: 100 #最大连接数量（包含使用中的和空闲的）
+      min-idle: 2 #最小空闲连接数
+      initial-size: 2 #初始化数量
+      max-pool-prepared-statement-per-connection-size: 100 #要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100
+      pool-prepared-statements: true #是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。
+      filter:
+        stat:
+          merge-sql: false
+          slow-sql-millis: 5000 #sql合并统计 设置慢sql时间为3s，超过3s 会有记录提示
+    url: jdbc:postgresql://192.168.31.235:5432/postgres?currentSchema=gab #部署数据库连接
+    #url: jdbc:postgresql://121.36.196.113:5432/postgres?currentSchema=gab
+    password: kfyh #密码
+    username: kfyh  #账号
+    #username: kfyh #账号
+  jpa: #指定数据库配型
+    database: postgresql
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy #https://www.cnblogs.com/lovechengyu/p/8032039.html
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: true
+    open-in-view: true
+  session: # session会话存储类型
+    store-type: none

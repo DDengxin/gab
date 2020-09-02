@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>记录日期：</td>
+                <td content>
+                    <input class="mini-datepicker" readonly name="rq" id="rq" format="yyyy-MM-dd" />
+                </td>
+                <td title>在制工程：</td>
+                <td content>
+                    <input class="mini-textbox" readonly  id="bgc" name="bgc"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>所属车间：</td>
+                <td content>
+                    <input class="mini-combobox" readonly  id="gcCj" name="gcCj"/>
+                </td>
+                <td title>所属车台：</td>
+                <td content>
+                    <input class="mini-combobox" readonly  id="gcCt" name="gcCt"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>所属任务：</td>
+                <td content>
+                    <input class="mini-textbox" readonly  id="gcScmo" name="gcScmo"/>
+                </td>
+                <td title>生产人员：</td>
+                <td content>
+                    <input class="mini-combobox" readonly  id="gcMan" name="gcMan"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>生产工序：</td>
+                <td content colspan="3">
+                    <input class="mini-combobox" readonly  id="gcGx" name="gcGx" url="/js/cpgy/scgx/getGxAllSelectList"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>不良类型：</td>
+                <td content>
+                    <input class="mini-textbox"  readonly id="blType" name="blType"/>
+                </td>
+                <td title>不良项目：</td>
+                <td content>
+                    <input class="mini-textbox" readonly  id="blXm" name="blXm"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>不良情况：</td>
+                <td content colspan="3">
+                    <input class="mini-textarea" readonly  id="blQk" name="blQk" height="60"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>处理结果：</td>
+                <td content>
+                    <input class="mini-combobox" required emptyText="请选择" id="clDo" name="clDo" data="[{id:'FX',text:'放行'},{id:'GZ',text:'改制'},{id:'BF',text:'报废'}]"/>
+                </td>
+                <td title>处理人员:</td>
+                <td content>
+                    <input id="clMan" name="clMan" required class="mini-lookup" style="width:100%;"
+                           textField="workName" valueField="workId" popupWidth="auto" popup="#gridPanel" grid="#datagrid1" multiSelect="false" />
+                    <div id="gridPanel" class="mini-panel" title="header" iconCls="icon-add" style="width:450px;height:250px;"
+                         showToolbar="true" showCloseButton="true" showHeader="false" bodyStyle="padding:0" borderStyle="border:0"
+                    >
+                        <div property="toolbar" style="padding:5px;padding-left:8px;text-align:center;">
+                            <div style="float:left;padding-bottom:2px;">
+                                <span>姓名：</span>
+                                <input id="srchName" class="mini-textbox" style="width:160px;" onenter="onSearchClick"/>
+                                <a class="mini-button" onclick="onSearchClick">查询</a>
+                                <a class="mini-button" onclick="onClearClick">清除</a>
+                            </div>
+                            <div style="float:right;padding-bottom:2px;">
+                                <a class="mini-button" onclick="onCloseClick">关闭</a>
+                            </div>
+                            <div style="clear:both;"></div>
+                        </div>
+                        <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;"
+                             borderStyle="border:0" showPageSize="false" showPageIndex="false"  onSelectionChanged="onSelectionChanged"  >
+                            <div property="columns">
+                                <div type="checkcolumn" ></div>
+                                <div field="workId"   align="center" width="100" sortField="workId" displayField="workId" headerAlign="center" allowSort="true">工号</div>
+                                <div field="workName" align="left"   width="100" visible="true" sortField="workName" displayField="workName" headerAlign="center" allowSort="true">姓名</div>
+                                <div field="workDept" displayField="deptname"  align="left" width="100" sortField="workDept" headerAlign="center" allowSort="true">部门</div>
+                                <div field="workBb"   displayField="bbname" align="left" width="100" sortField="workBb" headerAlign="center" allowSort="true">班别</div>
+
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>原因大类：</td>
+                <td content>
+                    <input class="mini-textbox"  required  id="clDtype" name="clDtype"/>
+                </td>
+                <td title>原因小类：</td>
+                <td content>
+                    <input class="mini-textbox"  required id="clStype" name="clStype"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>原因说明：</td>
+                <td content colspan="3">
+                    <input class="mini-textarea"   id="clQk" name="clQk"  height="60"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var surl = "/sc/task/blcl";
+
+    var grid = mini.get("datagrid1");
+
+    function onSearchClick(e) {
+        var params={
+            srchName: mini.get("srchName").getValue(),
+            srchGx  : mini.get("gcGx").getValue(),
+            srchCt  : mini.get("GcCt").getValue()
+        };
+        grid.load({
+            "params": mini.encode(params)
+        });
+    }
+    function onCloseClick(e) {
+        var lookup = mini.get("clMan");
+        lookup.hidePopup();
+    }
+
+    function onClearClick(e) {
+        var lookup = mini.get("clMan");
+        lookup.deselectAll();
+    }
+
+    function onSelectionChanged(e) {
+        var grid = e.sender;
+        var record = grid.getSelected();
+        if (record) {
+            mini.get("clMan").setValue(record.workId);
+
+        }
+    }
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        var row = options.data;
+        if ('add' == options.action||'view'==options.action) {
+            $('[name=action]').val(options.action);
+            if('view'==options.action){
+                $('#saveBtn').hide();
+                form.setEnabled();
+            }
+            $['put'](surl+"/getById",JSON.stringify({"params": mini.encode(row)}), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data, true);
+                    mini.get("gcMan").setValue(res.data.gcMan);
+                    mini.get("gcMan").setText(res.data.gcManName);
+                    mini.get("gcCj").setUrl("/js/cpgy/scgx/getCjList/{0}".format(res.data.gcGx));
+                    mini.get("gcCt").setUrl("/mSbJt/sb/getGxJtList/{0}".format(res.data.gcGx));
+
+                    mini.get("clMan").setValue(res.data.clMan);
+                    mini.get("clMan").setText(res.data.clManName);
+                    grid.setUrl("/sc/da/rydg/getSrchList");
+                    grid.load({
+                        "params": mini.encode({	srchGx : res.data.gcGx, srchCt : res.data.gcCt})
+                    });
+
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            $['put'](surl+"/add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh', false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+</script>
+</html>

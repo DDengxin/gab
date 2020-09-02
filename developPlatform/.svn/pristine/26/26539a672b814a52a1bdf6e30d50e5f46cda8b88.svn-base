@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>成品BOM【新增】</title>
+    </th:block>
+</head>
+<body>
+	<div class="mini-fit">
+	    <form id="form1">
+	     	<table class="hmq-modify-table">
+	        	<tr>
+	            	<td title>产品编码：</td>
+	                <td content>
+	                    <input id="cpcodeId" name="cpcodeId" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false" required="required"/>
+	               		<input id="cpcodeBom" name="cpcodeBom" class="mini-hidden" readonly="readonly"/>
+	               		<input id="cpcodeUid" name="cpcodeUid" class="mini-hidden" readonly="readonly"/>
+	               		<input id="action" name="action" class="mini-hidden" readonly="readonly"/>
+	                </td>
+	                <td title>产品名称：</td>
+	                <td content>
+	                    <input id="cpcodeName" name="cpcodeName" class="mini-textbox" disabled="disabled" readonly="readonly"/>
+	                </td>
+	            	<td title>产品规格：</td>
+	                <td content>
+	                    <input id="cpcodeSize" name="cpcodeSize" class="mini-textbox" disabled="disabled" readonly="readonly"/>
+	                </td>
+	                <td title>产品单位：</td>
+	                <td content>
+	                    <input id="cpcodeBz" name="cpcodeBz" class="mini-textbox" disabled="disabled" readonly="readonly"/>
+	                </td>
+	        	</tr>
+	        	<tr>
+	            	<td title>BOM说明：</td>
+	                <td content colspan="7">
+	                    <input id="cpcodeSm" name="cpcodeSm" class="mini-textarea" style="height:60px;"/>
+	                </td>
+	        	</tr>
+	        </table>
+	    </form>
+	    <div class="mini-fit">
+			<div tz:datagrid="treegrid" id="srch_grid" idField="idField" treeColumn="cpcodeId" parentField="parentField" resultAsTree="true" showTreeLines="true" showTreeIcon="false" expandOnLoad="true" showPager="true" showExpandButtons="true" expandOnDblClick="true" showPageIndex="false" showPageSize="false" showPageInfo="false" showPagerButtonIcon="false" allowCellEdit="true" allowCellSelect="true">
+				<div property="columns">
+					<div tz:datagrid="indexcolumn" width="40" align="center">序号</div>
+					<div tz:datagrid="column" field="cpcodeId" width="150" align="left" name="cpcodeId">产品品号
+						<input property="editor" name="cpcodeId" required class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"/>
+					</div>
+					<div tz:datagrid="comboboxcolumn" field="cpcodeType" width="80" align="center">类型
+						<input property="editor" onvaluechanged="typeChange" required class="mini-combobox" url="/system/parameter/getParamsSelectListByParentId/技术/产品大类/CPDL" textField="text" valueField="id"/>
+					</div>
+					<div tz:datagrid="column" field="cpcodeBl" width="100" align="center">配比
+						<input property="editor" required class="mini-textbox" />
+					</div>
+					
+					<div tz:datagrid="column" field="cpcodeStype" width="0" align="center">层级</div>
+					<div tz:datagrid="column" field="cpcodeUid" width="100" align="center" id="cpcodeId">uid</div>
+					<div tz:datagrid="column" field="cpcodeSh" width="100" align="center">损耗
+						<input property="editor" required class="mini-textbox" />
+					</div>
+					<div tz:datagrid="column" field="action" width="160" align="center" renderer="onActionRenderer">操作</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+	 	<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+	  	<a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+	    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+	    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get('srch_grid');
+    
+    function addRow() {
+    	let cpcodeId = mini.get("cpcodeId").getValue();
+		if(!!cpcodeId){
+			var newNode = {cpcodeStype:2,cpcodeUid:cpcodeId};
+			grid.addNode(newNode, "after");
+    	}else{
+    		hmq.tipD.bbniytanger("请先选择表单产品编码");
+    	}
+    }
+    
+	function delRow() {
+		var node = grid.getSelectedNode();
+		if (node) {
+			mini.confirm("注意:确定要删除吗？",  "删除信息", function (action) {
+				if (action == "ok") {
+             		grid.removeNode(node);
+				}
+			});
+         }
+    }
+    
+    function SaveData() {
+		if('edit' == mini.get("action").getValue()){
+			edit();
+			return;
+		}
+    	if (form.validate() && form.isValid()) {
+    		grid.validate();
+			if (grid.isValid() == false) {
+				var error = grid.getCellErrors()[0];
+				grid.beginEditCell(error.record, error.column);
+				return;
+			}
+			var gen = grid.getRootNode();
+			var children = grid.getAllChildNodes(gen);
+            children.push({cpcodeStype: 1, cpcodeUid: mini.get("cpcodeId").getValue(), cpcodeId: mini.get("cpcodeId").getValue(), cpcodeType: 'CP',cpcodeSm: mini.get("cpcodeSm").getValue()});
+            save(children);
+        }
+    }
+	
+	function save(gridData) {
+		$.get("getBom", function (bom) {
+        	for(let i = 0;i<gridData.length;i++){
+        		gridData[i].cpcodeBom = bom;
+          		$.post("add.html", JSON.stringify(gridData[i]), function (res) {
+                    if (200 === res.code && i === (gridData.length-1)) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+            }
+        });
+	}
+	
+    function edit() {
+    	var old = getOldData();
+    	for(let i = 0;i<old.length;i++){
+    		$.ajax({
+            	url: "/js/cpbom/delete.html/{0}".format(old[i].cpcodeId+"_"+old[i].cpcodeUid+"_"+old[i].cpcodeBom),
+                type: "GET",
+                dataType: "json",
+                async: true,
+                success: function (res) {
+                	if (200 === res.code && i === (old.length-1)) {
+        				mini.get("action").setValue("add");
+                     	SaveData();
+                     }
+                }
+            });
+    	}
+    }	
+	
+    function SetData(options) {
+        if ('add' == options.action) {
+            grid.clearData();
+            mini.get("action").setValue(options.action);
+        } else if ('edit' == options.action) {
+        	var row = options.data;
+            $.get("getById/{0}".format(row.cpcodeId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("action").setValue(options.action);
+                    mini.get("cpcodeId").setValue(res.data.cpcodeId);
+                    mini.get("cpcodeId").setText(res.data.cpcodeId);
+                    $.get("cpcodeName/{0}".format(res.data.cpcodeId), function (res) {
+                    	mini.get("cpcodeName").setValue(res.cpcodeName);
+                        mini.get("cpcodeName").setText(res.cpcodeName);
+                        mini.get("cpcodeSize").setValue(res.cpcode_size);
+                        mini.get("cpcodeSize").setText(res.cpcode_size);
+                        mini.get("cpcodeBz").setValue(res.bzName);
+                        mini.get("cpcodeBz").setText(res.bzName);
+                    });
+                    mini.get("cpcodeName").setValue(res.data.cpcodeId);
+                    mini.get("cpcodeName").setText(res.data.cpcodeId);
+                    var data = mini.decode(res.data);
+                    grid.setUrl("/js/cpbom/getSrchBottomList");
+                    grid.load({
+                        params: JSON.stringify({cpcodeId: res.data.cpcodeId})
+                    });
+                	mini.get("cpcodeId").setReadOnly(true);
+                	getOldData();
+                }
+            });
+        }
+    }
+   
+    grid.on('load', function (e) {
+		var tree = new mini.DataTree();
+		tree.setExpandOnLoad(grid.getExpandOnLoad());
+		tree.setSortOrder(grid.getSortField());
+        tree.setCheckSelectOnLoad(grid.getCheckSelectOnLoad());
+        tree.setMultiSelect(grid.setMultiSelect());
+        var text = JSON.parse(e.text).data;
+        tree.setData(mini.listToTree(text, grid.getNodesField(), grid.getIdField(), grid.getParentField()));
+        grid.loadList(tree.getDataView());
+        tree.destroy();
+    });
+	 
+    var chooseRow = "";
+    var chooseNode = "";
+    
+    function typeChange(e) {
+    	var node = grid.getSelectedNode();
+    	grid.updateNode(node, {cpcodeId: "",cpcodeType: node.cpcodeType,cpcodeBl: node.cpcodeBl,cpcodeStype: node.cpcodeStype,cpcodeUid: node.cpcodeUid,cpcodeSh: node.cpcodeSh});
+    }
+    
+    function onButtonEdit(e) {
+    	chooseRow = grid.getSelected();
+    	chooseNode = grid.getSelectedNode();
+		var btnEdit = this;
+		var index =grid.getData().length;
+		var type ;
+		if (e.source.id == "cpcodeId") {
+			type = "CP";
+		}else{
+			if(!!chooseRow.cpcodeType){
+				type=chooseRow.cpcodeType;
+			}else{
+				hmq.tipDanger("请先选择类型");
+				return null;
+			}
+		}
+		return miniopen({
+			targetWindow: window.top,
+			url: "/sale/saleProduct/saleContract/wlbmselect.html",
+			title : "编码单选择列表",
+			width : 1300,
+			height : 620,
+			onload : function() {
+				var iframe = this.getIFrameEl();
+				var data = {
+					action : "search",
+					cgStype : type
+				};
+				iframe.contentWindow.SetData(data);
+			},
+			ondestroy : function(action) {
+				if (action == "ok") {
+					if (e.source.id == "cpcodeId") {
+						var iframe = this.getIFrameEl();
+						var rows = iframe.contentWindow.GetData();
+						rows = mini.clone(rows);
+						btnEdit.setValue(rows.cpcodeid);
+						btnEdit.setText(rows.cpcodeid);
+						mini.get("cpcodeName").setValue(rows.cpcodename);
+						mini.get("cpcodeSize").setValue(rows.cpcodesize);
+						mini.get("cpcodeBz").setValue(rows.cpcodebz);
+						fromChange(null,rows.cpcodeid)
+					}else{
+						var iframe = this.getIFrameEl();
+						var rows = iframe.contentWindow.GetData();
+						rows = mini.clone(rows);
+						btnEdit.setValue(rows.cpcodeid);
+						btnEdit.setText(rows.cpcodeid);
+						fromChange(chooseNode,rows.cpcodeid)
+					}
+				}
+				grid.clearSelect();
+			}
+		});
+	}
+    
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+    
+	function onActionRenderer(e) {
+		if ('action' == e.field) {
+			return '<span class="fa fa-fw fa-x iconfont icon-tianjia3 hmq-success" title="新增" onclick="modifyRow(\'add\',\'{_uid}\')"></span>'.format(e.record) + '<span class="fa fa-fw fa-x iconfont icon-shanchu2 hmq-danger"  title="删除" onclick="modifyRow(\'remove\',\'{_uid}\')"></span>'.format(e.record)
+		} else if ('rightIconCls' === e.field) {
+			return '<div style="with:100%;height:32px;"><span class="mini-button-icon mini-icon mini-iconfont {0}"></span></div>'.format(e.value);
+		}
+	}
+   
+	function modifyRow(action, row_uid) {
+		switch (action) {
+			case 'add':
+			var node = grid.getSelectedNode();
+			if(!!node.cpcodeId){
+				var num = parseInt(node.cpcodeStype)+1;
+				var newNode = {cpcodeStype:num,cpcodeUid:node.cpcodeId};
+				grid.addNode(newNode, "add", node);
+			}else{
+				hmq.tipDanger("请先选择上级编码");
+			}
+			break;
+            case 'remove':
+			var node = grid.getSelectedNode();
+			if (node) {
+				mini.confirm("注意:确定要删除吗？",  "删除信息", function (action) {
+					if (action == "ok") {
+						grid.removeNode(node);
+					}
+				});
+			}
+			break;
+        }
+    }
+    
+    function fromChange(row,cpcodeid) {
+    	if(!!row){
+    		var node = grid.getChildNodes(row);
+    		for(let i = 0;i<node.length;i++){
+				grid.updateNode(node[i], {cpcodeId: node[i].cpcodeId,cpcodeType: node[i].cpcodeType,cpcodeBl: node[i].cpcodeBl,cpcodeStype: node[i].cpcodeStype,cpcodeUid:cpcodeid,cpcodeSh: node[i].cpcodeSh});
+    		}
+    	}else{
+    		var node = grid.getRootNode().children;
+    		for(let i = 0;i<node.length;i++){
+				grid.updateNode(node[i], {cpcodeId: node[i].cpcodeId,cpcodeType: node[i].cpcodeType,cpcodeBl: node[i].cpcodeBl,cpcodeStype: node[i].cpcodeStype,cpcodeUid:mini.get("cpcodeId").getValue(),cpcodeSh: node[i].cpcodeSh});
+    		}
+    		addNode ( node, index, parentNode);
+    	}
+    }
+    
+    var oldGridData = [];
+    function getOldData() {
+    	var gen = grid.getRootNode().children;
+    	for(let i = 0;i<gen.length;i++){
+    		oldGridData.push({cpcodeId: gen[i].cpcodeId, cpcodeUid: gen[i].cpcodeUid, cpcodeBom: gen[i].cpcodeBom});
+    		var children = grid.getAllChildNodes(gen[i]);
+    		for(let j = 0;j<children.length;j++){
+    			oldGridData.push({cpcodeId: children[j].cpcodeId, cpcodeUid: children[j].cpcodeUid, cpcodeBom: children[j].cpcodeBom});
+    		}
+    	}
+    	oldGridData.push({cpcodeId: mini.get("cpcodeId").getValue(), cpcodeUid: mini.get("cpcodeUid").getValue(), cpcodeBom: mini.get("cpcodeBom").getValue()});
+    	return oldGridData;
+    }
+</script>
+</html>

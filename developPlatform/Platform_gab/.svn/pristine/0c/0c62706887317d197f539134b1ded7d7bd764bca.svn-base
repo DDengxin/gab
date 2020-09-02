@@ -1,0 +1,113 @@
+<html layout:decorator="~{gab/layout/gabPlatformFrame}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <title>全局查询</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/search.css}"/>
+    <script type="text/javascript" th:src="@{/static/gab/js/search.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <div class="search_content">
+        <div class="search_content_list">
+            <div class="content-box">
+                <div class="content">
+                    <p class="showContent"><b>夹具</b>搜索结果</p>
+                    <div class="fl">
+                        <ul id="search_list">
+                            <li>
+                                <a href="#">
+                                    <div>
+                                        <p class="title">信誓旦旦的500亿目标只完成20%，为什么物联网发展没想象中快？</p>
+                                        <p class="from"> 来自：<i>资讯</i> > <i>行业动态</i></p>
+                                        <p class="zy">
+                                            本次展会将主要聚焦宁波大市范围的：15000+家电零部件配套企业，10000+模具加工企业，
+                                            4500+汽车零部件生产企业，45000+家电生产企业，1000+塑料机械加工企业，3000+厨具生产企业，
+                                            200+紧固件生产企业，45000+家电生产企业，1000+塑料机械加工企业，45000+家电生产企业，
+                                            1000+塑料机械加工企业，45000+家电生产企业，1000+塑料机械加工企业...
+                                        </p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <div>
+                                        <p class="title">信誓旦旦的500亿目标只完成20%，为什么物联网发展没想象中快？</p>
+                                        <p class="from"> 来自：<i>资讯</i> > <i>行业动态</i></p>
+                                        <p class="zy">
+                                            本次展会将主要聚焦宁波大市范围的：15000+家电零部件配套企业，10000+模具加工企业，
+                                            4500+汽车零部件生产企业，45000+家电生产企业，1000+塑料机械加工企业，3000+厨具生产企业，
+                                            200+紧固件生产企业，45000+家电生产企业，1000+塑料机械加工企业，45000+家电生产企业，
+                                            1000+塑料机械加工企业，45000+家电生产企业，1000+塑料机械加工企业...
+                                        </p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <div>
+                                        <p class="title">信誓旦旦的500亿目标只完成20%，为什么物联网发展没想象中快？</p>
+                                        <p class="from"> 来自：<i>资讯</i> > <i>行业动态</i></p>
+                                        <p class="zy">
+                                            本次展会将主要聚焦宁波大市范围的：15000+家电零部件配套企业，10000+模具加工企业，
+                                            4500+汽车零部件生产企业，45000+家电生产企业，1000+塑料机械加工企业，3000+厨具生产企业，
+                                            200+紧固件生产企业，45000+家电生产企业，1000+塑料机械加工企业，45000+家电生产企业，
+                                            1000+塑料机械加工企业，45000+家电生产企业，1000+塑料机械加工企业...
+                                        </p>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <div>
+                                        <p class="title">信誓旦旦的500亿目标只完成20%，为什么物联网发展没想象中快？</p>
+                                        <p class="from"> 来自：<i>资讯</i> > <i>行业动态</i></p>
+                                        <p class="zy">
+                                            本次展会将主要聚焦宁波大市范围的：15000+家电零部件配套企业，10000+模具加工企业，
+                                            4500+汽车零部件生产企业，45000+家电生产企业，1000+塑料机械加工企业，3000+厨具生产企业，
+                                            200+紧固件生产企业，45000+家电生产企业，1000+塑料机械加工企业，45000+家电生产企业，
+                                            1000+塑料机械加工企业，45000+家电生产企业，1000+塑料机械加工企业...
+                                        </p>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                        <div id="page1"></div>
+                    </div>
+                    <div class="fr">
+                        <dl>
+                            <dt>产品市场</dt>
+                            <dd><a
+                                    href="/gab/academic.html?reqId=4ffda8a1b28a4a048e0b62c98fecf142&amp;classify=学术论文">弹簧夹头工装夹具选购必备：加工中心常用刀具常识</a>
+                            </dd>
+                            <dd><a
+                                    href="/gab/academic.html?reqId=57373e4260a24e45977cc4f74ec03ffa&amp;classify=学术论文">高精度弹簧夹头厂家分享自动化工装夹具的原理与作用</a>
+                            </dd>
+                            <dd><a
+                                    href="/gab/academic.html?reqId=794f05abc87641569aa9460f431ef8df&amp;classify=学术论文">产品设计工程师必须知道的16种产品工艺方法</a>
+                            </dd>
+                            <dd><a
+                                    href="/gab/academic.html?reqId=34e859eef88c455d896c46dc877cb3e9&amp;classify=学术论文">工装夹具设计要领，机械设计必备知识</a>
+                            </dd>
+                            <dd><a
+                                    href="/gab/academic.html?reqId=e9694bf485954143996e05d53a9372fb&amp;classify=学术论文">快速换模系统案例—双色注塑机磁力换模</a>
+                            </dd>
+                            <dd><a
+                                    href="/gab/academic.html?reqId=d5f4912298a84a31a7f1ec974869956f&amp;classify=经验分享">和小胖哥学习同轴度检具设计</a>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>需求信息</dt>
+                            <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+                            <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+                            <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+                            <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+                            <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+                            <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+                        </dl>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block layout:fragment="footer"></th:block>
+</html>

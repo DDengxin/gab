@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>应付总账</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-textbox" visible="false" name="orient" id="orient"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" value="new Date()" width="100"/>至<input class="mini-datepicker" name="srchRq2" value="new Date()" width="100"/>
+        </label>
+        <label class="hmq-label" text="单位">
+            <input class="mini-buttonedit" onbuttonclick="onSupplierClick"
+                   emptyText="全部" allowInput="true" id="cwDw" name="cwDw" showClose="true" oncloseclick="onCloseClickClearValue" width="110px"/>
+        </label>
+        <label class="hmq-label" text="币种">
+            <input class="mini-comboBox" id="cwBz" name="cwBz" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" showNullItem="true" nullItemText="全部" emptyText="全部" textField="text" valueField="id" width="100px"/>
+        </label>
+        <input class="mini-textbox" name="cwStype" id="cwStype" visible="false"/>
+        <input class="mini-textbox" name="paramMod" id="paramMod" visible="false"/>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" style="width: 100%; height: 100%;" idField="cw)dw" sizeList="[50,100,200]" pageSize="100" pager="#pager1" data-pagebuttonbar="true"
+         showPager="true" sortField="cw_dw" sortOrder="desc" ondrawsummarycell="onDrawSummaryCellmx" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false"
+         allowSort="true" align="center" class="mini-datagrid" showSummaryRow="true">
+        <div property="columns">
+            <div tz:datagrid="column" header="统计:" headerAlign="left">
+                <div property="columns">
+                    <div tz:datagrid="indexcolumn" width="48">序号</div>
+                    <div tz:datagrid="column" field="cwDw" align="center" width="80" visible="true">单位编码</div>
+                    <div tz:datagrid="column" field="dwname" align="center" width="140">单位简称</div>
+                    <div tz:datagrid="column" field="buyer" name="buyer" align="center" width="120">经办人</div>
+                    <div tz:datagrid="column" field="cwBz" displayField="bzName" align="left" width="80">币种</div>
+                    <div tz:datagrid="column" width="3px"></div>
+                    <!--<div tz:datagrid="column" field="fpSe" align="right" width="80" numberFormat="#,0.00" summaryType="sum">上期余额</div>-->
+                    <div tz:datagrid="column" header="入库">
+                        <div property="columns">
+                            <div tz:datagrid="column" field="qc" width="120" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">期初余额</div>
+                            <div tz:datagrid="column" field="bqfs" width="100" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">本期入库</div>
+                            <div tz:datagrid="column" field="bqsfk" width="120" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">本期付款</div>
+                            <div tz:datagrid="column" field="qmje" width="100" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">期末余额</div>
+                        </div>
+                    </div>
+                    <div tz:datagrid="column" width="3px"></div>
+                    <div tz:datagrid="column" header="开票">
+                        <div property="columns">
+                            <div tz:datagrid="column" field="qcfp" width="120" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">期初余额</div>
+                            <div tz:datagrid="column" field="bqfpfs" width="100" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">本期开票</div>
+                            <div tz:datagrid="column" field="bqfpsfk" width="120" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">本期付款</div>
+                            <div tz:datagrid="column" field="qmfpwk" width="100" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">期末未开</div>
+                            <div tz:datagrid="column" field="qmfpje" width="100" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">期末余额</div>
+                        </div>
+                    </div>
+                    <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+
+    var cwStype = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(cwStype)) {
+        form.getField("cwStype").setValue(cwStype);
+        form.getField("paramMod").setValue(paramMod);
+    }
+
+    function onSupplierClick(e) {
+        var cwStype = mini.get("cwStype").getValue();
+        var customerType = "C";
+        if (cwStype == "CG") {
+            customerType = "S";
+        } else {
+            customerType = "C";
+        }
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【单位】选择页面",
+            width: 750,
+            data: customerType,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on('drawcell', function (e) {
+        if (!!~['币种', '期末余额'].indexOf(grid.getColumn(1).header)) {
+            e.rowStyle = "border-right:2px solid black";
+        }
+    });
+
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "fpRq") {
+            return mini.formatDate(new Date(record.fpRq), "yyyy-MM-dd");
+        }
+        if (e.field == "fpSl") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+
+    }
+
+
+    /**
+     汇总
+     */
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "cw_dw") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "fpSe") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "fpJe") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "fpSje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    function export_option() {
+        assembling({
+            grid: grid,
+            form: form,
+            url: "/finance/generalLedger/exportExcel"
+        });
+    }
+
+</script>
+
+</body>
+</html>

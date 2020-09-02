@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>用户档案</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="工号">
+                <input class="mini-textbox" name="jobNumber"/>
+            </label>
+            <label class="hmq-label" text="姓名">
+                <input class="mini-textbox" name="realName"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <!--
+    url:用于div表格数据拉取的拉取地址，将表单与该div绑定后，会将参数一起提交上去
+    datagrid="datagrid"：将该div下的所有div渲染成数据表格
+    -->
+    <div tz:datagrid="datagrid" id="srch_grid" idField="userId" sortField="userOrd" multiSelect="true" url="findProductionStaffAll">
+        <div property="columns">
+            <!--
+            field：div对应数据拉取后的字段属性
+            -->
+            <div type="checkcolumn"></div>
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="jobNumber" width="120" align="center">工号</div>
+            <div tz:datagrid="column" field="realName"  width="120" align="center">姓名</div>
+            <div tz:datagrid="column" field="gender" width="90" align="center">性别</div>
+            <div tz:datagrid="column" field="deptName" width="120" align="center">部门</div>
+            <div tz:datagrid="column" field="positionName" width="120" align="center">岗位</div>
+            <div tz:datagrid="column" field="mobile"  width="150" align="center">手机号码</div>
+            <div tz:datagrid="column" field="email" th:width="150" align="center">邮箱</div>
+            <div tz:datagrid="column" field="userOrd" width="80" align="center">排序</div>
+            <div tz:datagrid="column" field="orgName" width="120" align="center">公司</div>
+            <div tz:datagrid="column" field="orgIds" width="120" align="center" visible="false" >查询账套</div>
+            <div tz:datagrid="column" field="defaultOrgId" width="80" align="center" visible="false">默认账套</div>
+            <div tz:datagrid="column" field="businessPersonnelIds" width="200" align="center">业务权限</div>
+            <div tz:datagrid="column" field="isForbidden" width="80" align="center">启用状态</div>
+            <div tz:datagrid="column" field="genTime" align="center">创建时间</div>
+            <div tz:datagrid="column" field="modifyTime" align="center">最后修改时间</div>
+            <div tz:datagrid="column" width="100%"></div>
+            <!--<div tz:datagrid="column" field="face">头像</div>-->
+            <!--<div tz:datagrid="column" field="identity_type">登录类型</div>
+            <div tz:datagrid="column" field="indetifiter">登录标识</div>
+            <div tz:datagrid="column" field="identifier_token">密码凭证</div>-->
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();//预先强制加载所有标签组件
+    var form = new mini.Form("form_home");//获取form表单控件
+    var grid = mini.get("srch_grid");//获取div控件
+    grid.bindSearchForm(form);//将form表单绑定到div
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "gender") {
+            e.cellHtml = e.value ?  '男' :'女';
+        }else if (e.field == "isForbidden") {
+            e.cellHtml = e.value ? '否' : '是';
+        }
+    });
+
+    /**
+     * 查询函数
+     * 用于查询按钮提交后执行的函数
+     * 会将表单参数数据传送后端，并拉取后端数据
+     */
+    function search_option() {
+        grid.load();
+    }
+
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 800, height: 300});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var rows = grid.getSelecteds();
+        if (rows) {
+            mini.confirm("注意:确定要删除吗(包括所有授权)？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("user.html", JSON.stringify(rows), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    }, null, {
+                        contentType: 'application/json'
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //授权菜单
+    function role_option(){
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function auth_option() {
+        var row = grid.getSelected();
+        if (row) {
+            miniopen({url: 'hierarchyUserAuthTree.html', title: "【用户管理】授权", data: {userId: row.userId}, width: 500, height: 620});
+        } else {
+            hmq.tipDanger("请选中一条记录！");
+        }
+    }
+
+</script>
+
+</body>
+</html>

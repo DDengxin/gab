@@ -1,0 +1,40 @@
+<html layout:decorator="~{gab/layout/gabPlatformManage}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/security.css}">
+    <script th:src="@{/static/gab/js/manage/security.js}"></script>
+</th:block>
+<th:block layout:fragment="right-content">
+    <h4>修改密码</h4>
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">用&nbsp;&nbsp;户&nbsp;&nbsp;名</label><b></b>
+            <div class="layui-input-block">
+                <input type="text" id="username" name="username" required lay-verify="required" autocomplete="off"
+                 readonly  class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">新&nbsp;&nbsp;密&nbsp;&nbsp;码</label><b>*</b>
+            <div class="layui-input-block">
+                <input type="password" id="pwd" name="pwd" required lay-verify="required" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">确认密码</label><b>*</b>
+            <div class="layui-input-block">
+                <input type="password" id="pwdSure" name="pwdSure" required lay-verify="required" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="securityForm">提交修改</button>
+            </div>
+        </div>
+    </form>
+</th:block>
+<th:block layout:fragment="footer">
+</th:block>
+
+</html>

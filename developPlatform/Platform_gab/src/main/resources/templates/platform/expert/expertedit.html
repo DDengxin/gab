@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<link rel="stylesheet"
+		  th:href="@{/static/fonts/workflowfont/iconfont.css}">
+	<link rel="stylesheet" th:href="@{/static/css/g6.css}">
+	<link rel="stylesheet" th:href="@{/static/script/M_select/M_select.css}">
+	<script th:src="@{/static/javascript/g6.min.js}"></script>
+	<script th:src="@{/static/script/jquery/jquery-1.12.4.min.js}"></script>
+	<script th:src="@{/static/script/M_select/M_select.js}"></script>
+	<script th:src="@{/static/script/layer/layer.js}"></script>
+	<script th:src="@{/static/javascript/g6-plugins.min.js}"></script>
+	<script th:src="@{/static/javascript/html2canvas.min.js}"></script>
+
+
+
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+	<title>专家管理</title>
+</th:block>
+
+
+
+<style type="text/css">
+
+
+.show {
+	display: block !important;
+}
+.webuploadItemButtons{padding-right:43px;}
+	.webuploadItemButtons+.webuploadItemButtons{padding-right:0 !important;display:inline-block !important;width:auto !important;float:right;margin-top:-22px}
+
+.mini-tabs-headers.mini-tabs-header-top {
+	display: none !important;
+}
+fieldset
+{
+	border:solid 1px #aaa;
+}
+.hideFieldset
+{
+	border-left:0;
+	border-right:0;
+	border-bottom:0;
+}
+.hideFieldset .fieldset-body
+{
+	display:none;
+}
+</style>
+</head>
+<body>
+	<div >
+		<fieldset >
+			<legend><span>基本信息</span></legend>
+		<input class="mini-hidden" name="action" readonly="readonly">
+		<form id="userform" class="supply-center">
+			<table class="hmq-modify-table"  >
+				<tr>
+					<td title>姓名:</td>
+					<td content><input class="mini-textbox" name="userId"  vtype ="required" 
+						readonly="readonly"></td>
+					<td title>昵称:</td>
+					<td content><input class="mini-textbox" name="userName"  vtype ="required" >
+					</td>
+					<td title>手机号:</td>
+					<td content><input class="mini-textbox" name="userMtel"       onvalidation="onTelValidation"  ></td>
+					
+
+				</tr>
+				
+				<tr>
+				
+				<td title>邮箱：</td>
+					<td content><input class="mini-textbox" name="email"   >
+					</td>
+					 <td title>专家类型：</td>
+					<td content>
+					<select name="type" class="mini-combobox"
+						emptyText="请选择类型"   id="SelectType">
+							<option value="售前专家">售前专家</option>
+							<option value="售后专家">售后专家</option>
+							<option value="工艺专家">工艺专家</option>
+					</select>
+					</td>
+				<td title class="hidepassword">密码:</td>
+					<td class="hidepassword" content><input class="mini-textbox" name="userPwd"  vtype ="required"></td>
+				</tr>
+				
+				
+				
+			</table>
+		</form>
+		</fieldset>
+
+
+		<div id="tabs" class="mini-tabs" activeIndex="0"
+			style="width: 100%; height: 400px;" plain="true"  showNavHead="false" >
+			<div name="售前专家" title="售前专家">
+				<!-- 售前专家  -->
+				<form id="beforeExpert">
+				<input class="mini-hidden" value="售前专家"  name="expertType" />
+      
+
+						<fieldset >
+							<legend><span>专家认证</span></legend>
+							<table class="hmq-modify-table" >
+						<tr>
+							<td title>我的企业:</td>
+							<td content colspan="3"><input class="mini-combobox" name="bindSupplyid"
+								url="/platform/enroll/getAllsupplyxx" /></td>
+								<td title>身份证号:</td>
+							<td content colspan="3"><input class="mini-textbox" name="idCard"></td>
+						</tr>
+						<tr>
+							<td title>个人形象:</td>
+							<td content colspan="7">
+								<div class="saleBeforeImg"></div> <input  name="headImg" class="mini-hidden" />
+							</td>
+						</tr>
+						<tr>
+							<td title>身份证照片 :</td>
+							<td content colspan="7">
+								<div class="saleBeforeIdCardImg"></div> <input  name="idCardImg" class="mini-hidden" />
+							</td>
+						</tr>
+							</table>
+						</fieldset>
+
+					 <fieldset >
+						<legend><span>专家信息完善</span></legend>
+						<table class="hmq-modify-table" >
+						<tr>
+							<td title>专长优势:</td>
+							<td content><input class="mini-textbox" name="strengths"></td>
+							<td title>等级:</td>
+							<td content><input class="mini-textbox" name="level"></td>
+							<td title>主要职业:</td>
+							<td content><input class="mini-textbox" name="mainJob"></td>
+							<td title>销售经验:</td>
+							<td content><input class="mini-textbox"
+								name="saleExperience"></td>
+						</tr>
+						<tr>
+							<td title>最高学历:</td>
+							<td content><input class="mini-textbox" name="education"></td>
+							<td title>特色方言:</td>
+							<td content><input class="mini-textbox" name="dialect"></td>
+							<td title>最熟悉的产品:</td>
+							<td content><input class="mini-textbox" name="knowProduct"></td>
+							<td title>服务半径:</td>
+							<td content><input class="mini-textbox" name="serviceScope"></td>
+						</tr>
+						<tr>
+							<td title>工作年限:</td>
+							<td content><input class="mini-textbox" name="jobAge"></td>
+						</tr>
+
+						<tr>
+							<td title>个人简介:</td>
+							<td content colspan="7"><input class="mini-textarea"  name="introduce"  /></td>
+						</tr>
+							<tr>
+								<td title> 个人介绍</td>
+								<td content colspan="7">
+									<script type="text/plain" id ="beforeExpertEditor" class="ueEditor"  style="width: 100%; height: 200px;"></script>
+									<input name="content" class="mini-hidden strengContent"/></td>
+							</tr>
+						<tr>
+							<td title>是否接受一周左右的出差:<input class="mini-checkbox"
+								name="isWeekEvection"></td>
+							<td content></td>
+							<td title>是否接受只有邮政到达的偏远地区:<input class="mini-checkbox"
+								name="isRemote"></td>
+							<td content></td>
+							<td title>在生产一线是否工作过 :<input class="mini-checkbox"
+								name=isFrontline></td>
+							<td content></td>
+							<td title>是否可出国出差:<input class="mini-checkbox"
+								name=isGoAbroad></td>
+							<td content></td>
+						</tr>
+					</table>
+					 </fieldset>
+				</form>
+
+			</div>
+			<div name="售后专家" title="售后专家">
+				<div class="mini-fit">
+					<!-- 售后专家  -->
+					<form id="afterExpert">
+				<input class="mini-hidden" value="售后专家"  name="expertType" />
+						<fieldset >
+							<legend><span>专家认证</span></legend>
+						<table class="hmq-modify-table" >
+							<tr>
+								<td title>我的企业:</td>
+								<td content colspan="3"><input class="mini-combobox" name="bindSupplyid"
+									url="/platform/enroll/getAllsupplyxx" /></td>
+								<td title>身份证号:</td>
+							<td content colspan="3"><input class="mini-textbox" name="idCard"></td>
+							</tr>
+							<tr>
+								<td title>个人形象:</td>
+								<td content colspan="7">
+									<div class="saleAfterImg"></div> <input   name="headImg" class="mini-hidden" />
+								</td>
+							</tr>
+							<tr>
+								<td title>身份证照片 :</td>
+								<td content colspan="7">
+									<div class="saleAfrerIdCardImg"></div> <input  name="idCardImg" class="mini-hidden" />
+								</td>
+							</tr>
+						</table>
+						</fieldset>
+
+						<fieldset >
+							<legend><span>专家信息完善</span></legend>
+							<table class="hmq-modify-table" >
+							<tr>
+								<td title>专长优势:</td>
+								<td content><input class="mini-textbox" name="strengths"></td>
+								<td title>等级:</td>
+								<td content><input class="mini-textbox" name="level"></td>
+								<td title>主要职业:</td>
+								<td content><input class="mini-textbox" name="mainJob"></td>
+								<td title>销售经验:</td>
+								<td content><input class="mini-textbox"
+									name="saleExperience"></td>
+							</tr>
+							<tr>
+								<td title>最高学历:</td>
+								<td content><input class="mini-textbox" name="education"></td>
+								<td title>特色方言:</td>
+								<td content><input class="mini-textbox" name="dialect"></td>
+								<td title>最熟悉的产品:</td>
+								<td content><input class="mini-textbox" name="knowProduct"></td>
+								<td title>服务半径:</td>
+								<td content><input class="mini-textbox" name="serviceScope"></td>
+							</tr>
+							<tr>
+								<td title>工作年限:</td>
+								<td content><input class="mini-textbox" name="jobAge"></td>
+								<td title>动手能力:</td>
+								<td content><input class="mini-textbox" name="doIt"></td>
+							</tr>
+
+
+							<tr>
+								<td title>自身专长介绍:</td>
+								<td content colspan="7"><input class="mini-textarea"
+									name="introduce"  /></td>
+							</tr>
+								<tr>
+									<td title> 个人介绍</td>
+									<td content colspan="7">
+										<script type="text/plain" id ="afterExpertEditor" class="ueEditor"  style="width: 100%; height: 200px;"></script>
+										<input name="content" class="mini-hidden strengContent"/></td>
+								</tr>
+
+
+							<tr>
+								<td title>是否接受一周左右的出差:<input class="mini-checkbox"
+									name="isWeekEvection"></td>
+								<td content></td>
+								<td title>是否接受只有邮政到达的偏远地区:<input class="mini-checkbox"
+									name="isRemote"></td>
+								<td content></td>
+								<td title>在生产一线是否工作过 :<input class="mini-checkbox"
+									name=isFrontline></td>
+								<td content></td>
+								<td title>是否可出国出差:<input class="mini-checkbox"
+									name=isGoAbroad></td>
+								<td content></td>
+							</tr>
+						</table>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+			<div name="工艺专家" title="工艺专家">
+				<div class="mini-fit">
+					<!-- 工艺专家 -->
+					<form id="artExpert">
+				<input class="mini-hidden" value="工艺专家"  name="expertType" />
+						<fieldset >
+							<legend><span>专家认证</span></legend>
+							<table class="hmq-modify-table" >
+
+							<tr>
+								<td title>我的企业:</td>
+								<td content colspan="3"><input class="mini-combobox" name="bindSupplyid"
+									url="/platform/enroll/getAllsupplyxx" /></td>
+								<td title>身份证号:</td>
+							<td content colspan="3"><input class="mini-textbox" name="idCard"></td>
+							</tr>
+								<tr>
+									<td title>个人形象:</td>
+									<td content colspan="7">
+										<div class="artImg"></div>
+										<input  name="headImg" class="mini-hidden" />
+									</td>
+								</tr>
+								<tr>
+									<td title>身份证照片 :</td>
+									<td content colspan="7">
+										<div class="artIdCardImg"></div> <input  name="idCardImg" class="mini-hidden" />
+									</td>
+								</tr>
+							</table>
+						</fieldset>
+						<fieldset >
+							<legend><span>专家信息完善</span></legend>
+							<table class="hmq-modify-table" >
+							<tr>
+								<td title>专长优势:</td>
+								<td content><input class="mini-textbox" name="strengths"></td>
+								<td title>等级:</td>
+								<td content><input class="mini-textbox" name="level"></td>
+								<td title>从业年限:</td>
+								<td content><input class="mini-textbox" name="jobAge"></td>
+								<td title>年龄:</td>
+								<td content><input class="mini-textbox" name="age"></td>
+							</tr>
+							<tr>
+								<td title>主要职业:</td>
+								<td content><input class="mini-textbox" name="mainJob"></td>
+								<td title>销售经验:</td>
+								<td content><input class="mini-textbox"
+									name="saleExperience"></td>
+							</tr>
+
+							<tr>
+								<td title>自身简介:</td>
+								<td content colspan="7"><input class="mini-textarea"
+									name="introduce" height="100" /></td>
+							</tr>
+
+								<tr>
+									<td title> 个人介绍</td>
+									<td content colspan="7">
+										<script type="text/plain" id ="artExpertEditor" class="ueEditor"  style="width: 100%; height: 200px;"></script>
+										<input name="content" class="mini-hidden strengContent"/></td>
+								</tr>
+						</table>
+						</fieldset>
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+
+		<div th:class="approveFrom">
+			<form id="approveFrom" class="supply-center">
+				<table class="hmq-modify-table"  >
+					<tr>
+						<td title>公司:</td>
+						<td content>
+							<input id="dataCorp" class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+								   emptyText="请选择..." allowInput="false" name="erpCorp" required/>
+						</td>
+						<td title>人员:</td>
+						<td content><input  class="mini-buttonedit" onbuttonclick="openMan" name="erpUserid"  required   >
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+
+	</div>
+	<div class=" hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save"  id="saveBtn">保存</a>
+		<a class="mini-button" onclick="SaveData('submit')" iconCls="icon-save" style="display: none;"  id="submit">提交</a>
+		<a class="mini-button" id="colseBtn" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+	<th:block th:replace="~{model/Approval :: Approval() }">
+	</th:block>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var tabs = mini.get('tabs');
+	function ApprovalAgreeHandler() {
+		//表单验证非空
+		if( !validForm([approveFrom])){
+		 return ;
+		}
+		_ApprovalActionHandler_('/platform/expert/agree',JSON.stringify(approveFrom.getData()));///system/workflow/process/agree
+	}
+	UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
+	UE.Editor.prototype.getActionUrl = function (action) {
+		if (action == 'uploadimage' || action == 'uploadfile' || action == 'uploadvideo') {
+			return '/ueditor/upload';
+		} else {
+			return this._bkGetActionUrl.call(this, action);
+		}
+	};
+	//初始化富文本编辑器
+	function initEditor(arr) {
+		$.each(arr, function(index, temp) {
+			UE.getEditor(temp, {
+				maximumWords: 99999999999,
+				wordCount: false,
+				elementPathEnabled: false,
+				autoFloatEnabled: false
+			});
+
+		});
+	}
+    //设置富文本编辑器的内容
+	function setContent(flag) {
+		var obj =	getType(tabs.getActiveTab().name);
+		var  edit = UE.getEditor($(obj.form.el).find(".ueEditor")[0].id);
+		edit.execCommand('insertHtml', obj.form.getField("content").getValue());
+		if(flag){
+			edit.setDisabled();
+		}
+
+
+	}
+	//售前专家
+	var beforeExpert_form = new mini.Form('beforeExpert');
+	//售后专家
+	var afterExpert_form = new mini.Form('afterExpert');
+	//工艺专家
+	var artExpert_form = new mini.Form('artExpert');
+	//用户基础信息
+	var user_form = new mini.Form('userform');
+
+	var approveFrom = new mini.Form('approveFrom');
+	$('div.approveFrom').hide();
+  //获取类型
+	function getType(title) {
+		return {
+			'售前专家': {
+				index: 0,
+				form: beforeExpert_form,
+				data: [{id: "saleBeforeImg", text: "headImg"}, {id: "saleBeforeIdCardImg", text: "idCardImg"}],
+			},
+			"售后专家":{
+				index: 1,
+				form: afterExpert_form,
+				data: [{id: "saleAfterImg", text: "headImg"}, {id: "saleAfrerIdCardImg", text: "idCardImg"}],
+			},
+			"工艺专家":{
+				index: 2,
+				form: artExpert_form,
+				data: [{id: "artImg", text: "headImg"}, {id: "artIdCardImg", text: "idCardImg"}],
+			}
+
+		}[title] || '';
+	}
+	//专家类型下拉框值改变事件
+	mini.get("SelectType").on("valuechanged", function (e) {
+		tabs.activeTab(e.value);
+	});
+	//tab页切换事件
+	tabs.on("activechanged", function (e) {
+		var  title  =  e.name;
+		var   obj  ={"flag":true}		
+		fileUpLoad($.extend(obj, getType(title)));
+    });
+	//图片上传或图片回显
+      function  fileUpLoad(obj){
+    	  if(!$.isEmptyObject( obj ) ){
+    			//新增上传图片
+  			var flag = obj.flag;
+  			var  form  = obj.form;
+  			$.each(obj.data, function(index, temp) {
+  				var fileId = getFileId();
+  				var  text =  temp.text;
+  				var   id = temp.id;
+  				//判断图片控件是否已经初始化
+                  var  is_init_img = form.getField(text).getValue();
+  				if(( !!is_init_img == false ) && flag  ){
+  					//新增图片
+  					form.getField(text).setValue(fileId);
+  					　　	$("#" + form.el.id + " ." + id).filesUpload({
+  							pickerid : fileId,
+  							filecount : 1,
+  						});
+  				}else {
+  					//修改数据回显图片
+  					$("#" + form.el.id + " ." + id).resetUploader({
+  						pickerid : is_init_img,
+  						filecount : 1,
+  						view : !!obj.view ? obj.view : "edit",
+  					});
+
+  				}
+  			});
+
+		}
+
+	}
+
+
+
+	//查询数据
+	function findByIdExpert(options) {
+		var expertNote = !!options.data.expertNote ? options.data.expertNote
+				: null;
+		var action = options.action;
+		//修改图片
+		var obj = {flag : false,editFlag:false};
+		if (action == "sh") {
+			expertNote = options.data.businessId
+			obj["view"] = "view";
+			obj["editFlag"] = true;
+		}
+		if(action == "edit"){
+			obj["editFlag"] = false;
+
+		}
+		$.get("expertInfo/{0}".format(expertNote), function(res) {
+			if (200 === res.code) {
+				if (!!res.data == false) {
+					hmq.tipDanger('该账号非专家用户！');
+					return;
+				}
+				user_form.setData(res.data.gUserInfo);
+				var data  =res.data.expert;
+				// 根据专家类型自动选择tab页
+				var data = res.data.expert;
+				mini.get("SelectType").setValue(data.expertType);
+				user_form.getField('type').setValue(data.expertType);
+				if (data.expertType == '售前专家') {
+					tabs.activeTab(0);
+					beforeExpert_form.setData(data);
+				} else if (data.expertType  == '售后专家') {
+					tabs.activeTab(1);
+					afterExpert_form.setData(data)
+				} else if (data.expertType  == '工艺专家') {
+					tabs.activeTab(2);
+					artExpert_form.setData(data)
+				} else {
+
+				}
+				fileUpLoad($.extend(obj, getType(data.expertType)));
+				setContent(obj.editFlag);
+			}
+		});
+
+	}
+
+	function SetData(options) {
+		$('[name=action]').val(options.action);
+		if (true !== options.isApproval) {
+			//普通口径
+			initEditor(["beforeExpertEditor","afterExpertEditor","artExpertEditor"])
+			if ('add' == options.action) {
+				user_form.getField('userId').readOnly = false;
+			} else if ('edit' == options.action) {
+				$(".hidepassword").hide();
+				findByIdExpert(options);
+			}  else if("complete" == options.action){
+				//信息补充
+				$("#saveBtn,.hidepassword").hide();
+				findByIdExpert(options);
+			}
+		} else {
+			$('div.approveFrom').show();
+			//审批口径
+			$(".hidepassword").hide();
+			findByIdExpert(options);
+			setFormReadOnly(beforeExpert_form);
+			setFormReadOnly(afterExpert_form);
+			setFormReadOnly(artExpert_form);
+			setFormReadOnly(user_form);
+			//隐藏按钮区域
+			$('.hmq-toolbar').hide();
+
+		}
+
+	}
+	   //电话号码正则表达式验证
+	   function isTelNumber(v) {
+		   var myreg =  /^[1][3,4,5,7,8][0-9]{9}$/;
+           var re = new RegExp(myreg);
+           if (re.test(v)) return true;
+           return false;
+       }
+	//自定义电话号码验证
+	  function onTelValidation(e){
+		    if (e.isValid) {
+                if (isTelNumber(e.value) == false) {
+                    e.errorText = "必须输入正确的手机号码1111";
+                    hmq.tipDanger( e.errorText);
+                    e.isValid = false;
+                }
+            }
+	  }
+
+	//表单验证
+	function validForm(data){
+		var   flag = true;
+		$.each(data, function(index, temp) {
+			if (temp instanceof mini.Form) {
+				if( (!temp.validate())  || (!temp.isValid()) ){
+					flag =  false ;
+				}
+			}
+		});
+		return flag;
+	}
+	/**
+	 * 保存数据
+	 *
+	 */
+	function SaveData() {
+		var  obj = getType(tabs.getActiveTab().name);
+		if (validForm([obj.form,user_form])) {
+			//获取富文本编辑器的内容
+			obj.form.getField("content").setValue( UE.getEditor($(obj.form.el).find(".ueEditor")[0].id).getContent() );
+			var action = $('[name=action]').val();
+			var method = "post";
+			var data = {};
+			data.gUserInfo = user_form.getData();
+			var type = tabs.getActiveTab().name;
+			data.expert  =  getType(type).form.getData();
+			if(action  == "complete"){
+				data.selectType = action;
+			}
+			var url = {'add' : 'add'}[action] || 'expertedit';
+			$[method](url, JSON.stringify(data), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+
+
+
+
+	function onOrgClickHander(e) {
+		var btnEdit = e.sender;
+		return miniopen({
+			targetWindow: window.top,
+			url: "/system/org/hierarchyOrgTree.html",
+			title: "【公司】选择",
+			width: 500,
+			height: 620,
+			data: {
+				state: true
+			},
+			ondestroy: function (action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var data = iframe.contentWindow.GetData();
+					btnEdit.setValue(data.orgId);
+					btnEdit.setText(data.corpExp);
+				}
+			}
+		});
+	}
+
+
+
+	
+	function openMan() {
+		var 	dataCorp = approveFrom.getField("erpCorp").getValue();
+		if(!!dataCorp ==  false){
+			return  hmq.tipDanger("请先选择公司")
+		}
+
+		layer.open({
+			id : 'role',
+			type : 2,
+			title : '选择人员',
+			area : [ '900px', '550px' ],
+			fixed : false, //不固定
+			maxmin : true,
+			content : '/system/user/selectUser.html',
+			cancel: function (e) {
+
+			}
+		});
+
+
+		/*miniopen({
+			id : 'role',
+			width: 1154,
+            height: 620,
+			title : '选择人员',
+			url : '/system/user/selectUser.html',
+			ondestroy: function (res) {  // 弹出页面关闭前
+
+			},
+		});*/
+	}
+
+	function  GetPeoMessageData(e) {
+		approveFrom.getField("erpUserid").setValue(e.userId);
+		approveFrom.getField("erpUserid").setText(e.nickName);
+	}
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+package com.tengzhi.business.system.sms.service;
+
+public interface SmsService {
+
+    /**
+     * 发送短信
+     * @param phone 手机号码
+     * @param content 内容
+     * @return  正确的响应数据
+     * @throws Exception
+     */
+    String send(String phone, String content) throws Exception;
+
+}

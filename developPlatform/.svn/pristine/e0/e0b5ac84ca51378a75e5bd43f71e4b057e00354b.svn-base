@@ -1,0 +1,603 @@
+package com.tengzhi.business.finance.voucher.model;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.util.Objects;
+
+@Entity
+@Table(name = "e_f_voucherentry")
+public class EFVoucherentry {
+    private String dataCorp;
+    private Long fvoucherid;
+    private Long fentryid;
+    private String fexplanation;
+    private Long faccountid;
+    private String fcur;
+    private BigDecimal frate;
+    private int fdc;
+    private BigDecimal famountfor;
+    private BigDecimal famount;
+    private Long fitemclassid;
+    private Long fitemid;
+    private Long fcustomid;
+    private Long fdeptid;
+    private Long fsupplierid;
+    private Long fempid;
+    private Long finventoryid;
+    private Long fprojectid;
+    private Integer fqty;
+    private BigDecimal fprice;
+    private Integer fsettlecode;
+    private String fsettleno;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm",timezone="GMT+8")
+    private Date fsettledate;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm",timezone="GMT+8")
+    private Date ftransdate;
+    private String ftransno;
+    private Integer fmatch;
+    private BigDecimal ftransbal;
+    private BigDecimal ftransbalfor;
+    private Long fid;
+    private int fcontrol;
+    private Long faccountid2;
+    private String funit;
+    private Integer flimited;
+    private Integer fisitem;
+    private Integer fcustom;
+    private Integer fsupplier;
+    private Integer femp;
+    private Integer fproject;
+    private Integer fdept;
+    private Integer finventory;
+    private Integer fisqtyaux;
+    private Integer fisbank;
+    private Integer fiscash;
+    private Integer fisrateadj;
+    private Long xjllb;
+    private String kmfcur;
+    private Integer fqtid;
+
+    private String _state;
+    @Transient
+    public String get_state() {
+        return _state;
+    }
+
+    public void set_state(String _state) {
+        this._state = _state;
+    }
+
+    @Basic
+    @Column(name = "data_corp")
+    public String getDataCorp() {
+        return dataCorp;
+    }
+
+    public void setDataCorp(String corpId) {
+        this.dataCorp = corpId;
+    }
+
+    @Basic
+    @Column(name = "fvoucherid")
+    public Long getFvoucherid() {
+        return fvoucherid;
+    }
+
+    public void setFvoucherid(Long fvoucherid) {
+        this.fvoucherid = fvoucherid;
+    }
+
+    @Id
+    @Column(name = "fentryid")
+    public Long getFentryid() {
+        return fentryid;
+    }
+
+    public void setFentryid(Long fentryid) {
+        this.fentryid = fentryid;
+    }
+
+    @Basic
+    @Column(name = "fexplanation")
+    public String getFexplanation() {
+        return fexplanation;
+    }
+
+    public void setFexplanation(String fexplanation) {
+        this.fexplanation = fexplanation;
+    }
+
+    @Basic
+    @Column(name = "faccountid")
+    public Long getFaccountid() {
+        return faccountid;
+    }
+
+    public void setFaccountid(Long faccountid) {
+        this.faccountid = faccountid;
+    }
+
+    @Basic
+    @Column(name = "fcur")
+    public String getFcur() {
+        return fcur;
+    }
+
+    public void setFcur(String fcur) {
+        this.fcur = fcur;
+    }
+
+    @Basic
+    @Column(name = "frate")
+    public BigDecimal getFrate() {
+        return frate;
+    }
+
+    public void setFrate(BigDecimal frate) {
+        this.frate = frate;
+    }
+
+    @Basic
+    @Column(name = "fdc")
+    public int getFdc() {
+        return fdc;
+    }
+
+    public void setFdc(int fdc) {
+        this.fdc = fdc;
+    }
+
+    @Basic
+    @Column(name = "famountfor")
+    public BigDecimal getFamountfor() {
+        return famountfor;
+    }
+
+    public void setFamountfor(BigDecimal famountfor) {
+        this.famountfor = famountfor;
+    }
+
+    @Basic
+    @Column(name = "famount")
+    public BigDecimal getFamount() {
+        return famount;
+    }
+
+    public void setFamount(BigDecimal famount) {
+        this.famount = famount;
+    }
+
+    @Basic
+    @Column(name = "fitemclassid")
+    public Long getFitemclassid() {
+        return fitemclassid;
+    }
+
+    public void setFitemclassid(Long fitemclassid) {
+        this.fitemclassid = fitemclassid;
+    }
+
+    @Basic
+    @Column(name = "fitemid")
+    public Long getFitemid() {
+        return fitemid;
+    }
+
+    public void setFitemid(Long fitemid) {
+        this.fitemid = fitemid;
+    }
+
+    @Basic
+    @Column(name = "fcustomid")
+    public Long getFcustomid() {
+        return fcustomid;
+    }
+
+    public void setFcustomid(Long fcustomid) {
+        this.fcustomid = fcustomid;
+    }
+
+    @Basic
+    @Column(name = "fdeptid")
+    public Long getFdeptid() {
+        return fdeptid;
+    }
+
+    public void setFdeptid(Long fdeptid) {
+        this.fdeptid = fdeptid;
+    }
+
+    @Basic
+    @Column(name = "fsupplierid")
+    public Long getFsupplierid() {
+        return fsupplierid;
+    }
+
+    public void setFsupplierid(Long fsupplierid) {
+        this.fsupplierid = fsupplierid;
+    }
+
+    @Basic
+    @Column(name = "fempid")
+    public Long getFempid() {
+        return fempid;
+    }
+
+    public void setFempid(Long fempid) {
+        this.fempid = fempid;
+    }
+
+    @Basic
+    @Column(name = "finventoryid")
+    public Long getFinventoryid() {
+        return finventoryid;
+    }
+
+    public void setFinventoryid(Long finventoryid) {
+        this.finventoryid = finventoryid;
+    }
+
+    @Basic
+    @Column(name = "fprojectid")
+    public Long getFprojectid() {
+        return fprojectid;
+    }
+
+    public void setFprojectid(Long fprojectid) {
+        this.fprojectid = fprojectid;
+    }
+
+    @Basic
+    @Column(name = "fqty")
+    public Integer getFqty() {
+        return fqty;
+    }
+
+    public void setFqty(Integer fqty) {
+        this.fqty = fqty;
+    }
+
+    @Basic
+    @Column(name = "fprice")
+    public BigDecimal getFprice() {
+        return fprice;
+    }
+
+    public void setFprice(BigDecimal fprice) {
+        this.fprice = fprice;
+    }
+
+    @Basic
+    @Column(name = "fsettlecode")
+    public Integer getFsettlecode() {
+        return fsettlecode;
+    }
+
+    public void setFsettlecode(Integer fsettlecode) {
+        this.fsettlecode = fsettlecode;
+    }
+
+    @Basic
+    @Column(name = "fsettleno")
+    public String getFsettleno() {
+        return fsettleno;
+    }
+
+    public void setFsettleno(String fsettleno) {
+        this.fsettleno = fsettleno;
+    }
+
+    @Basic
+    @Column(name = "fsettledate")
+    public Date getFsettledate() {
+        return fsettledate;
+    }
+
+    public void setFsettledate(Date fsettledate) {
+        this.fsettledate = fsettledate;
+    }
+
+    @Basic
+    @Column(name = "ftransdate")
+    public Date getFtransdate() {
+        return ftransdate;
+    }
+
+    public void setFtransdate(Date ftransdate) {
+        this.ftransdate = ftransdate;
+    }
+
+    @Basic
+    @Column(name = "ftransno")
+    public String getFtransno() {
+        return ftransno;
+    }
+
+    public void setFtransno(String ftransno) {
+        this.ftransno = ftransno;
+    }
+
+    @Basic
+    @Column(name = "fmatch")
+    public Integer getFmatch() {
+        return fmatch;
+    }
+
+    public void setFmatch(Integer fmatch) {
+        this.fmatch = fmatch;
+    }
+
+    @Basic
+    @Column(name = "ftransbal")
+    public BigDecimal getFtransbal() {
+        return ftransbal;
+    }
+
+    public void setFtransbal(BigDecimal ftransbal) {
+        this.ftransbal = ftransbal;
+    }
+
+    @Basic
+    @Column(name = "ftransbalfor")
+    public BigDecimal getFtransbalfor() {
+        return ftransbalfor;
+    }
+
+    public void setFtransbalfor(BigDecimal ftransbalfor) {
+        this.ftransbalfor = ftransbalfor;
+    }
+
+    @Basic
+    @Column(name = "fid")
+    public Long getFid() {
+        return fid;
+    }
+
+    public void setFid(Long fid) {
+        this.fid = fid;
+    }
+
+    @Basic
+    @Column(name = "fcontrol")
+    public int getFcontrol() {
+        return fcontrol;
+    }
+
+    public void setFcontrol(int fcontrol) {
+        this.fcontrol = fcontrol;
+    }
+
+    @Basic
+    @Column(name = "faccountid2")
+    public Long getFaccountid2() {
+        return faccountid2;
+    }
+
+    public void setFaccountid2(Long faccountid2) {
+        this.faccountid2 = faccountid2;
+    }
+
+    @Basic
+    @Column(name = "funit")
+    public String getFunit() {
+        return funit;
+    }
+
+    public void setFunit(String funit) {
+        this.funit = funit;
+    }
+
+    @Basic
+    @Column(name = "flimited")
+    public Integer getFlimited() {
+        return flimited;
+    }
+
+    public void setFlimited(Integer flimited) {
+        this.flimited = flimited;
+    }
+
+    @Basic
+    @Column(name = "fisitem")
+    public Integer getFisitem() {
+        return fisitem;
+    }
+
+    public void setFisitem(Integer fisitem) {
+        this.fisitem = fisitem;
+    }
+
+    @Basic
+    @Column(name = "fcustom")
+    public Integer getFcustom() {
+        return fcustom;
+    }
+
+    public void setFcustom(Integer fcustom) {
+        this.fcustom = fcustom;
+    }
+
+    @Basic
+    @Column(name = "fsupplier")
+    public Integer getFsupplier() {
+        return fsupplier;
+    }
+
+    public void setFsupplier(Integer fsupplier) {
+        this.fsupplier = fsupplier;
+    }
+
+    @Basic
+    @Column(name = "femp")
+    public Integer getFemp() {
+        return femp;
+    }
+
+    public void setFemp(Integer femp) {
+        this.femp = femp;
+    }
+
+    @Basic
+    @Column(name = "fproject")
+    public Integer getFproject() {
+        return fproject;
+    }
+
+    public void setFproject(Integer fproject) {
+        this.fproject = fproject;
+    }
+
+    @Basic
+    @Column(name = "fdept")
+    public Integer getFdept() {
+        return fdept;
+    }
+
+    public void setFdept(Integer fdept) {
+        this.fdept = fdept;
+    }
+
+    @Basic
+    @Column(name = "finventory")
+    public Integer getFinventory() {
+        return finventory;
+    }
+
+    public void setFinventory(Integer finventory) {
+        this.finventory = finventory;
+    }
+
+    @Basic
+    @Column(name = "fisqtyaux")
+    public Integer getFisqtyaux() {
+        return fisqtyaux;
+    }
+
+    public void setFisqtyaux(Integer fisqtyaux) {
+        this.fisqtyaux = fisqtyaux;
+    }
+
+    @Basic
+    @Column(name = "fisbank")
+    public Integer getFisbank() {
+        return fisbank;
+    }
+
+    public void setFisbank(Integer fisbank) {
+        this.fisbank = fisbank;
+    }
+
+    @Basic
+    @Column(name = "fiscash")
+    public Integer getFiscash() {
+        return fiscash;
+    }
+
+    public void setFiscash(Integer fiscash) {
+        this.fiscash = fiscash;
+    }
+
+    @Basic
+    @Column(name = "fisrateadj")
+    public Integer getFisrateadj() {
+        return fisrateadj;
+    }
+
+    public void setFisrateadj(Integer fisrateadj) {
+        this.fisrateadj = fisrateadj;
+    }
+
+    @Basic
+    @Column(name = "xjllb")
+    public Long getXjllb() {
+        return xjllb;
+    }
+
+    public void setXjllb(Long xjllb) {
+        this.xjllb = xjllb;
+    }
+
+    @Basic
+    @Column(name = "kmfcur")
+    public String getKmfcur() {
+        return kmfcur;
+    }
+
+    public void setKmfcur(String kmfcur) {
+        this.kmfcur = kmfcur;
+    }
+
+    @Basic
+    @Column(name = "fqtid")
+    public Integer getFqtid() {
+        return fqtid;
+    }
+
+    public void setFqtid(Integer fqtid) {
+        this.fqtid = fqtid;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EFVoucherentry that = (EFVoucherentry) o;
+        return fdc == that.fdc &&
+                fcontrol == that.fcontrol &&
+                Objects.equals(dataCorp, that.dataCorp) &&
+                Objects.equals(fvoucherid, that.fvoucherid) &&
+                Objects.equals(fentryid, that.fentryid) &&
+                Objects.equals(fexplanation, that.fexplanation) &&
+                Objects.equals(faccountid, that.faccountid) &&
+                Objects.equals(fcur, that.fcur) &&
+                Objects.equals(frate, that.frate) &&
+                Objects.equals(famountfor, that.famountfor) &&
+                Objects.equals(famount, that.famount) &&
+                Objects.equals(fitemclassid, that.fitemclassid) &&
+                Objects.equals(fitemid, that.fitemid) &&
+                Objects.equals(fcustomid, that.fcustomid) &&
+                Objects.equals(fdeptid, that.fdeptid) &&
+                Objects.equals(fsupplierid, that.fsupplierid) &&
+                Objects.equals(fempid, that.fempid) &&
+                Objects.equals(finventoryid, that.finventoryid) &&
+                Objects.equals(fprojectid, that.fprojectid) &&
+                Objects.equals(fqty, that.fqty) &&
+                Objects.equals(fprice, that.fprice) &&
+                Objects.equals(fsettlecode, that.fsettlecode) &&
+                Objects.equals(fsettleno, that.fsettleno) &&
+                Objects.equals(fsettledate, that.fsettledate) &&
+                Objects.equals(ftransdate, that.ftransdate) &&
+                Objects.equals(ftransno, that.ftransno) &&
+                Objects.equals(fmatch, that.fmatch) &&
+                Objects.equals(ftransbal, that.ftransbal) &&
+                Objects.equals(ftransbalfor, that.ftransbalfor) &&
+                Objects.equals(fid, that.fid) &&
+                Objects.equals(faccountid2, that.faccountid2) &&
+                Objects.equals(funit, that.funit) &&
+                Objects.equals(flimited, that.flimited) &&
+                Objects.equals(fisitem, that.fisitem) &&
+                Objects.equals(fcustom, that.fcustom) &&
+                Objects.equals(fsupplier, that.fsupplier) &&
+                Objects.equals(femp, that.femp) &&
+                Objects.equals(fproject, that.fproject) &&
+                Objects.equals(fdept, that.fdept) &&
+                Objects.equals(finventory, that.finventory) &&
+                Objects.equals(fisqtyaux, that.fisqtyaux) &&
+                Objects.equals(fisbank, that.fisbank) &&
+                Objects.equals(fiscash, that.fiscash) &&
+                Objects.equals(fisrateadj, that.fisrateadj) &&
+                Objects.equals(xjllb, that.xjllb) &&
+                Objects.equals(kmfcur, that.kmfcur) &&
+                Objects.equals(fqtid, that.fqtid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dataCorp, fvoucherid, fentryid, fexplanation, faccountid, fcur, frate, fdc, famountfor, famount, fitemclassid, fitemid, fcustomid, fdeptid, fsupplierid, fempid, finventoryid, fprojectid, fqty, fprice, fsettlecode, fsettleno, fsettledate, ftransdate, ftransno, fmatch, ftransbal, ftransbalfor, fid, fcontrol, faccountid2, funit, flimited, fisitem, fcustom, fsupplier, femp, fproject, fdept, finventory, fisqtyaux, fisbank, fiscash, fisrateadj, xjllb, kmfcur, fqtid);
+    }
+}

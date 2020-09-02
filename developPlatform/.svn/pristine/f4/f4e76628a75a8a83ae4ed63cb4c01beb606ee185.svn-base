@@ -1,0 +1,77 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingPlan.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.dao.TrainingPlanDao;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.model.EHrTrainingPlan;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.service.TrainingPlanService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Date;
+import java.util.Map;
+
+@Service
+@Transactional
+public class TrainingPlanServiceImpl implements TrainingPlanService {
+
+    @Autowired
+    private TrainingPlanDao trainingPlanDao;
+
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto baseDto) {
+
+        Map<String, String> map = baseDto.getParamsMap();
+
+        String sqlshere = " where data_corp in ('"+ SessionUser.SessionUser().getSysUser().getOrgIds().replaceAll(",", "','")+"') ";
+
+        if (StringUtils.isNotBlank(map.get("srchRq1"))) {
+            sqlshere += " and jh_time >='" + map.get("srchRq1") + "' ";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            sqlshere += " and jh_time <='" + map.get("srchRq2") + "' ";
+        }
+        if (StringUtils.isNotEmpty(map.get("jhFrom"))) {
+            sqlshere += " and jh_from = '" + map.get("jhFrom") + "'";
+        }
+        if (StringUtils.isNotEmpty(map.get("jhType"))) {
+            sqlshere += " and jh_type = '" + map.get("jhType") + "'";
+        }
+        if (StringUtils.isNotEmpty(map.get("jhNote"))) {
+            sqlshere += " and jh_note = '" + map.get("jhNote") + "'";
+        }
+        String sql = "select  jh_ny,jh_note,jh_title,jh_type,jh_from,jh_object,jh_time,jh_dept,jh_training_content,jh_estimated_cost,jh_training_level,jh_course_length,jh_training_address,jh_training_order," +
+                "jh_flag,data_man,data_corp,data_date  from e_hr_training_plan "+sqlshere;
+        return trainingPlanDao.QueryMapPageList(baseDto, sql, true);
+    }
+
+    @Override
+    public EHrTrainingPlan saveData(EHrTrainingPlan eHrTrainingPlan) {
+        SessionUser securityUser=SessionUser.SessionUser();
+        eHrTrainingPlan.setDataDate(new Date());
+        eHrTrainingPlan.setDataCorp(securityUser.getCorpId());
+        eHrTrainingPlan.setDataMan(securityUser.getUsername());
+        eHrTrainingPlan.setJhFlag("登记");
+        return trainingPlanDao.save(eHrTrainingPlan);
+    }
+
+    @Override
+    public EHrTrainingPlan getDataByNote(String jhNote) {
+        return null;
+    }
+
+    @Override
+    public Result updateData(EHrTrainingPlan eHrTrainingPlan) {
+        return null;
+    }
+
+    @Override
+    public Result deleteByNote(String jhNote) {
+        return null;
+    }
+}

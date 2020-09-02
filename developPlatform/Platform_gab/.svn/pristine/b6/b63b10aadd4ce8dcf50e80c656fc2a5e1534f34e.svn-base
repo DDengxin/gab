@@ -1,0 +1,223 @@
+<html layout:decorator="~{gab/layout/gabPlatformManage}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/business.css}">
+    <link rel="stylesheet" th:href="@{/static/gab/css/input_tag.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/webuploader.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/uploadFile.css}" />
+    <script type="text/javascript" th:src="@{/static/script/webuploader/webuploader.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/webuploader/uploadFile.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/plugs/PCASClass.js}"></script>
+    <script th:src="@{/static/gab/js/plugs/input_tag.js}"></script>
+    <script th:src="@{/static/gab/js/manage/users.js}"></script>
+</th:block>
+<th:block layout:fragment="right-content">
+    <p class="tip">请完善一下信息，方便我们更好的为您服务</p>
+    <form action="" class="layui-form">
+        <div class="base-msg">
+            <h4>基本信息</h4>
+            <div class="layui-form-item">
+                <!-- <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" required lay-verify="required" placeholder="请输入用户名"
+                            autocomplete="off" class="layui-input">
+                    </div>
+                </div> -->
+                <!-- <div class="layui-inline">
+                    <label class="layui-form-label">用户昵称</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" required lay-verify="required" placeholder="请输入用户昵称"
+                            autocomplete="off" class="layui-input">
+                    </div>
+                </div> -->
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">企业形象</label><b>*</b>
+                <div class="layui-input-block">
+                    <div id="License" name="uploaderheadImg"></div>
+                    <input id="BusinessLicense" name="headImg" type="hidden" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">单位名称</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="supplyName" required lay-verify="required" placeholder="请输入单位名称"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="business-msg">
+            <h4>业务信息</h4>
+            <div class="container" id="container">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">上年度营业额</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="lastyearMoney" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">数量范围</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="numberScope" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">交期范围</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="deliveryDateScope" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">精度要求</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="accuracyRequire" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">空间要求</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="spaceRequire" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">重量要求</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="weightRequire" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">自动化要求</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="autoRequire" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">范围选择</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="targetScope" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">客户等级</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="supplyLevel" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">违约金额比</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="supplyJe" 
+                                autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">特别说明</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="explain"  autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline checkbox-width">
+                        <input type="checkbox" name="isProxy" title="第三方代理" >
+                    </div>
+                    <div class="layui-inline">
+                        <input type="checkbox" name="isPublic" title="公开竞标" >
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="concact-msg">
+            <h4>联系信息</h4>
+            <div class="layui-form-item">
+                <label class="layui-form-label">地址</label><b>*</b>
+                <div class="layui-input-block user-address-width">
+                    <select name="province" lay-ignore></select>
+                    <select name="city" lay-ignore></select>
+                    <select name="area" lay-ignore></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">手机号</label><b>*</b>
+                    <div class="layui-input-block address-width">
+                        <input type="text" name="telphone" required lay-verify="phone" placeholder="" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">联系人</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="concatPerson" required lay-verify="required" placeholder="" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">公司网址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="website" lay-verify="required" placeholder="" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">联系邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" lay-verify="email" placeholder="" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">单位电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="workTelephone" lay-verify="" placeholder="" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">单位传真</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="fax" lay-verify="" placeholder="" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="company">
+            <h4>客户介绍</h4>
+            <textarea id="users" name="content" style="display: none;"></textarea>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="users">提交</button>
+            </div>
+        </div>
+    </form>
+</th:block>
+<th:block layout:fragment="footer">
+</th:block>
+
+</html>

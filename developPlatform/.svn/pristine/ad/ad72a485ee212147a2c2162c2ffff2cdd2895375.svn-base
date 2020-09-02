@@ -1,0 +1,387 @@
+package com.tengzhi.app.ck.model;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+
+/**
+ * @author 13427
+ *
+ */
+@Entity
+@Table(name = "e_ck_delivery_notice")
+@IdClass(DeliveryNotice.DeliveryNotice_PK.class)
+public class DeliveryNotice implements Serializable {
+
+    @Id
+    private String fhNote;
+    @Id
+    private String fhCode;
+    
+    private String fhCustomer,fhLib,fhContract,dataMan,dataCorp,fhAct,fhType,fhBz,fhHs,fhFlag,htMo,fhPh,fhRemarks;
+    private BigDecimal fhSl,fhCeiling,fhLower,fhTax,fhPrice;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    private Date dataRq;
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone="GMT+8")
+    private Date fhRq;
+
+
+    public String getFhNote() {
+        return fhNote;
+    }
+
+    public void setFhNote(String fhNote) {
+        this.fhNote = fhNote;
+    }
+
+    public String getFhCustomer() {
+        return fhCustomer;
+    }
+
+    public void setFhCustomer(String fhCustomer) {
+        this.fhCustomer = fhCustomer;
+    }
+
+    public String getFhLib() {
+        return fhLib;
+    }
+
+    public void setFhLib(String fhLib) {
+        this.fhLib = fhLib;
+    }
+
+    public String getFhContract() {
+        return fhContract;
+    }
+
+    public void setFhContract(String fhContract) {
+        this.fhContract = fhContract;
+    }
+
+    public String getFhCode() {
+        return fhCode;
+    }
+
+    public void setFhCode(String fhCode) {
+        this.fhCode = fhCode;
+    }
+
+    public String getDataMan() {
+        return dataMan;
+    }
+
+    public void setDataMan(String dataMan) {
+        this.dataMan = dataMan;
+    }
+
+    public String getDataCorp() {
+        return dataCorp;
+    }
+
+    public void setDataCorp(String dataCorp) {
+        this.dataCorp = dataCorp;
+    }
+
+    public String getFhAct() {
+        return fhAct;
+    }
+
+    public void setFhAct(String fhAct) {
+        this.fhAct = fhAct;
+    }
+
+    public String getFhType() {
+        return fhType;
+    }
+
+    public void setFhType(String fhType) {
+        this.fhType = fhType;
+    }
+
+    public BigDecimal getFhSl() {
+        return fhSl;
+    }
+
+    public void setFhSl(BigDecimal fhSl) {
+        this.fhSl = fhSl;
+    }
+
+    public BigDecimal getFhCeiling() {
+        return fhCeiling;
+    }
+
+    public void setFhCeiling(BigDecimal fhCeiling) {
+        this.fhCeiling = fhCeiling;
+    }
+
+    public BigDecimal getFhLower() {
+        return fhLower;
+    }
+
+    public void setFhLower(BigDecimal fhLower) {
+        this.fhLower = fhLower;
+    }
+
+    public Date getDataRq() {
+        return dataRq;
+    }
+
+    public void setDataRq(Date dataRq) {
+        this.dataRq = dataRq;
+    }
+
+    public Date getFhRq() {
+        return fhRq;
+    }
+
+    public void setFhRq(Date fhRq) {
+        this.fhRq = fhRq;
+    }
+    
+    public String getFhBz() {
+		return fhBz;
+	}
+
+	public void setFhBz(String fhBz) {
+		this.fhBz = fhBz;
+	}
+
+	public String getFhHs() {
+		return fhHs;
+	}
+
+	public void setFhHs(String fhHs) {
+		this.fhHs = fhHs;
+	}
+
+	public String getFhFlag() {
+		return fhFlag;
+	}
+
+	public void setFhFlag(String fhFlag) {
+		this.fhFlag = fhFlag;
+	}
+
+	public BigDecimal getFhTax() {
+		return fhTax;
+	}
+
+	public void setFhTax(BigDecimal fhTax) {
+		this.fhTax = fhTax;
+	}
+
+	public BigDecimal getFhPrice() {
+		return fhPrice;
+	}
+
+	public void setFhPrice(BigDecimal fhPrice) {
+		this.fhPrice = fhPrice;
+	}
+
+	public String getHtMo() {
+		return htMo;
+	}
+
+	public void setHtMo(String htMo) {
+		this.htMo = htMo;
+	}
+	
+	public String getFhPh() {
+		return fhPh;
+	}
+
+	public void setFhPh(String fhPh) {
+		this.fhPh = fhPh;
+	}
+
+
+	@Transient
+    private String _state;
+	
+	@Transient
+	private String cpcodeName,cpcodeSize,cpcodeXp,cpcodeBz,cpcodeSizeEn,customername,libname,actname,cpcodeFl;
+	
+	@Transient
+	private BigDecimal fhJe;
+	public String get_state() {
+		return _state;
+	}
+
+	public void set_state(String _state) {
+		this._state = _state;
+	}
+
+	public String getCpcodeName() {
+		return cpcodeName;
+	}
+
+	public void setCpcodeName(String cpcodeName) {
+		this.cpcodeName = cpcodeName;
+	}
+
+	public String getCpcodeSize() {
+		return cpcodeSize;
+	}
+
+	public void setCpcodeSize(String cpcodeSize) {
+		this.cpcodeSize = cpcodeSize;
+	}
+
+	public String getCpcodeXp() {
+		return cpcodeXp;
+	}
+
+	public void setCpcodeXp(String cpcodeXp) {
+		this.cpcodeXp = cpcodeXp;
+	}
+
+	public String getCpcodeBz() {
+		return cpcodeBz;
+	}
+
+	public void setCpcodeBz(String cpcodeBz) {
+		this.cpcodeBz = cpcodeBz;
+	}
+
+	public String getCpcodeSizeEn() {
+		return cpcodeSizeEn;
+	}
+
+	public void setCpcodeSizeEn(String cpcodeSizeEn) {
+		this.cpcodeSizeEn = cpcodeSizeEn;
+	}
+
+	public String getCustomername() {
+		return customername;
+	}
+
+	public void setCustomername(String customername) {
+		this.customername = customername;
+	}
+
+	public String getLibname() {
+		return libname;
+	}
+
+	public void setLibname(String libname) {
+		this.libname = libname;
+	}
+
+	public String getActname() {
+		return actname;
+	}
+
+	public void setActname(String actname) {
+		this.actname = actname;
+	}
+
+	public String getCpcodeFl() {
+		return cpcodeFl;
+	}
+
+	public void setCpcodeFl(String cpcodeFl) {
+		this.cpcodeFl = cpcodeFl;
+	}
+
+	public BigDecimal getFhJe() {
+		return fhJe;
+	}
+
+	public void setFhJe(BigDecimal fhJe) {
+		this.fhJe = fhJe;
+	}
+
+
+	public String getFhRemarks() {
+		return fhRemarks;
+	}
+
+	public void setFhRemarks(String fhRemarks) {
+		this.fhRemarks = fhRemarks;
+	}
+
+
+	@Transient
+	private String distribution ;
+	
+	public String getDistribution() {
+		return distribution;
+	}
+
+	public void setDistribution(String distribution) {
+		this.distribution = distribution;
+	}
+
+	public static class DeliveryNotice_PK implements Serializable {
+		
+		private String fhNote;
+		private String fhCode;
+		public String getFhNote() {
+			return fhNote;
+		}
+		public void setFhNote(String fhNote) {
+			this.fhNote = fhNote;
+		}
+		public String getFhCode() {
+			return fhCode;
+		}
+		public void setFhCode(String fhCode) {
+			this.fhCode = fhCode;
+		}
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((fhCode == null) ? 0 : fhCode.hashCode());
+			result = prime * result + ((fhNote == null) ? 0 : fhNote.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+                return true;
+            }
+			if (obj == null) {
+                return false;
+            }
+			if (getClass() != obj.getClass()) {
+                return false;
+            }
+			DeliveryNotice_PK other = (DeliveryNotice_PK) obj;
+			if (fhCode == null) {
+				if (other.fhCode != null) {
+                    return false;
+                }
+			} else if (!fhCode.equals(other.fhCode)) {
+                return false;
+            }
+			if (fhNote == null) {
+                return other.fhNote == null;
+			} else {
+                return fhNote.equals(other.fhNote);
+            }
+        }
+		
+		public DeliveryNotice_PK(String fhNote, String fhCode) {
+			super();
+			this.fhNote = fhNote;
+			this.fhCode = fhCode;
+		}
+
+
+		public DeliveryNotice_PK() {
+			super();
+		}
+		
+	}
+}

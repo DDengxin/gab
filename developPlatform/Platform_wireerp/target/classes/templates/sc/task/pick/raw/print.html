@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>领用通知打印</title>
+</th:block>
+<object  id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0> 
+<embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
+</object> 
+<script type="text/javascript" src="/static/javascript/LodopFuncs.js?version=1"></script>
+<head>
+<meta charset="UTF-8">
+<style type="text/css">
+.foot {
+	position: absolute;
+	bottom: 0;
+	width:100%;
+	z-index: 9999;
+}
+.head {
+	position: absolute;
+	left:0;
+	top: 0;
+	width:100%;
+	z-index: 9999;
+}
+</style>
+</head>
+<body>
+	<iframe align="center" style="margin-top: 30px" width="100%" height="80%" src="" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="true"></iframe>
+	<div class="mini-toolbar hmq-toolbar foot">
+		<input id="printname" name="printname" class="mini-hidden"/>
+		<a class="mini-button" onclick="download" iconCls="icon-download" id="downloadBtn">导出</a>
+		<a class="mini-button" onclick="print" iconCls="icon-print" id="printBtn">打印</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script>
+	mini.parse();
+	var LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));
+
+	function SetData(option) {
+		if(!!option.data){
+			mini.get("printname").setValue(option.data.formData.srchRq1+"--"+option.data.formData.srchRq2);
+			var rows = option.data.rows;
+			if(!!rows){
+				var ids = [];
+				var sid = "";
+				for (var a = 0; a < rows.length; a++) {
+					var row = rows[a];
+					sid = row.fhNote;
+					if (sid != undefined) {
+						ids.push(sid);
+					}
+				}
+				var id = ids.join("','");
+				$('iframe').attr('src', "table.html?"+encodeURI("outNotes="+id));
+			}
+		}
+	}
+	
+	function print() {
+		var htmlVal = window.frames[0].window.document.getElementsByTagName("html")[0].outerHTML;
+		LODOP=getLodop(); 
+		LODOP.NewPage();
+		LODOP.PRINT_INIT("领用通知");
+		LODOP.SET_PRINT_PAGESIZE(1,"215.9mm","139.7mm","");
+		LODOP.ADD_PRINT_TABLE(0,0,"100%","100%",htmlVal);
+		LODOP.SET_PRINT_STYLEA(0,"TableHeightScope",1);
+		LODOP.GET_PRINTER_COUNT();
+		//LODOP.PREVIEW();
+		LODOP.PRINTA(); 
+	}
+	function download() {
+		var printname= mini.get("printname").getValue();
+		var htmlVal = window.frames[0].window.document.getElementsByTagName("html")[0].outerHTML;
+		LODOP=getLodop(); 
+		LODOP.NewPage();
+		LODOP.PRINT_INIT("领用通知");
+		LODOP.SET_PRINT_PAGESIZE(1,"215.9mm","139.7mm","");
+		LODOP.ADD_PRINT_TABLE(0,0,"100%","100%",htmlVal);
+		LODOP.SET_PRINT_STYLEA(0,"TableHeightScope",1);
+		LODOP.SAVE_TO_FILE(printname+".xls");
+		/* LODOP.PRINTA(); */
+	}
+</script>
+</html>

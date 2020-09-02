@@ -1,0 +1,760 @@
+package com.tengzhi.app.cf.service.impl;
+
+
+import com.tengzhi.app.cf.dao.ECkPackScanDao;
+import com.tengzhi.app.cf.model.ECkPackScan;
+import com.tengzhi.app.cf.service.CFService;
+import com.tengzhi.app.ck.dao.CKDao;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.log.Log;
+import com.tengzhi.business.cg.yw.purchaseReceipt.dao.ECkInDao;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.system.core.dao.SysGenNoteDao;
+import com.tengzhi.business.system.core.model.SysGenNote;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.tools.JSONObject;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+@Transactional
+public class CFServiceImpl implements CFService {
+    @Autowired
+    CKDao ckDao;
+
+    @Autowired
+    ECkOutDao eCkOutDao;
+
+    @Autowired
+    ECkInDao eCkInDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Autowired
+    private SysGenNoteDao sysGenNoteDao;
+
+    @Autowired
+    private ECkPackScanDao eCkPackScanDao;
+
+    /**
+     * 判断数据在不在v_stock和判断数据在e_ck_out,e_ck_out_ls
+     */
+    @Override
+    public Map<String, Object> selectDateIn(String pack){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="SELECT COUNT(s.pack) AS stock_count "
+                +"FROM v_stock s "+
+                "  WHERE s.pack='"+pack+"'";
+
+        String sql1="SELECT COUNT(os.out_pack) AS out_count "
+                +"FROM e_ck_out os "+
+                "  WHERE os.out_pack='"+pack+"'";
+        String sql2="SELECT COUNT(ls.out_pack) AS el_count "
+                +"FROM e_ck_out_ls ls "+
+                "  WHERE ls.out_pack='"+pack+"'";
+        
+        String stock_count = eCkOutDao.getSingleResult("select count(s.pack) as stock_count from v_stock s   WHERE s.pack='"+pack+"' ");
+        String ck_count = eCkOutDao.getSingleResult("select count(out_pack) as ck_count from (" + 
+        		"	select out_pack from e_ck_out s  where out_pack ='"+pack+"' and out_sl >0 and out_flag not in ('库审','结算')" + 
+        		"	union all " + 
+        		"  	select out_pack from 	e_ck_out_ls where out_pack = '"+pack+"' and out_sl >0 and out_flag<>'库审' " + 
+        		" 	) a");
+        String bpack_count = eCkOutDao.getSingleResult("select count(s.pack) as bpack_count from v_ck_mx s   WHERE s.in_bpack='"+pack+"'  ");
+        if(Integer.parseInt(stock_count)<1) {//是否存库存
+        	rmap.put("status", false);
+        	rmap.put("message", "该包装号不在库存！");
+        	
+        }else if(Integer.parseInt(bpack_count)>1){//是否是小包装
+        	rmap.put("status", false);
+        	rmap.put("message", "该包装存在大包装号，请先拆箱！");
+        	
+        }else if (Integer.parseInt(ck_count)>0){//是否正在出库
+        	rmap.put("status", false);
+        	rmap.put("message", "该包装正在出库！");
+        }else {
+        	rmap.put("data",eCkOutDao.QueryListMap("select * from v_ck_mx where pack = '"+pack+"' ", null));
+        	rmap.put("status", true);
+        }
+        
+		/*
+		 * rmap.put("data", eCkOutDao.QueryListMap(sql, null)); rmap.put("dataos",
+		 * eCkOutDao.QueryListMap(sql1, null)); rmap.put("datals",
+		 * eCkOutDao.QueryListMap(sql2, null));
+		 */
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 根据包装号查询订单明细（v_ck_mx表）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectCKNoteMX(String pack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select * FROM v_ck_mx " +
+                 "WHERE pack='"+pack+"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 根据包装号和订单号查询订单明细（v_ck_mx表）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectCKNoteOrder(String contract,String pack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.*,a.cpcode_id,a.cpcode_name,a.cpcode_name_en,a.cpcode_size,a.cpcode_size_en FROM e_ck_in s " +
+                " LEFT JOIN e_js_cpcode a ON s.in_code=a.cpcode_id WHERE s.in_contract='"+contract+"' and s.in_pack='"+pack+"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 自动生成包装号
+     */
+    @Override
+    public String getPackNumber(String date) {
+        try {
+            Date date1=new Date(date);
+            return sysGenNoteService.getyyyyMMddNote4(ECkIn.class, "P");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void insert(String oldPack, String newPack,String outString) {
+    	
+    	JSONObject jsonObject = new JSONObject(outString);
+    	SessionUser sessionUser = SessionUser.SessionUser();
+    	if(!"0".equals(eCkInDao.getSingleResult("select count(*) from e_ck_in where in_pack ='"+oldPack+"'  and in_sl>0" ))) {
+    		List<ECkIn> eCkIns = eCkInDao.QueryListModel(ECkIn.class, "select * from e_ck_in where in_pack=:1 ",oldPack);
+    		
+    		if(eCkIns.size()>=0) {
+    			ECkIn oldIn = eCkIns.get(0);
+    			ECkIn newIn = eCkIns.get(0);
+    			oldIn.setInSl(oldIn.getInSl().subtract(BigDecimal.valueOf(jsonObject.optDouble("sl"))));
+    			eCkInDao.update(oldIn);
+    			newIn.setInPack(newPack);
+    			newIn.setInBpack(newPack);
+    			newIn.setInSl(BigDecimal.valueOf(jsonObject.optDouble("sl")));
+    			newIn.setDataDate(new Date());
+    			newIn.setDataMan(sessionUser.getUserId());
+    			newIn.setInOriginalPack(oldPack);
+    			eCkInDao.store(newIn);
+    		}
+    		/*
+			 * eCkIns.forEach(item -> {
+			 * eCkInDao.updateSplit(item.getInSl().subtract(BigDecimal.valueOf(jsonObject.
+			 * optDouble("sl"))).toString(),oldPack); item.setInPack(newPack);
+			 * item.setInBpack(newPack);
+			 * item.setInSl(BigDecimal.valueOf(jsonObject.optDouble("sl")));
+			 * item.setInOriginalPack(oldPack); eCkInDao.store(item); });
+			 */
+    	}else {
+    		List<ECkOut> eCkOut = eCkOutDao.QueryListModel(ECkOut.class, "select * from e_ck_out where out_pack=:1  and out_sl<0 ",oldPack);
+    		if(eCkOut.size()>=0) {
+    			ECkOut oldOut = eCkOut.get(0);
+    			ECkOut newOut = eCkOut.get(0);
+    			oldOut.setOutSl(oldOut.getOutSl().subtract(BigDecimal.valueOf(jsonObject.optDouble("sl")).multiply(new BigDecimal("-1"))));
+    			eCkOutDao.update(oldOut);
+    			newOut.setOutPack(newPack);
+    			newOut.setOutBpack(newPack);
+    			newOut.setOutSl(BigDecimal.valueOf(jsonObject.optDouble("sl")).multiply(new BigDecimal("-1")));
+    			newOut.setDataDate(new Date());
+    			newOut.setDataMan(sessionUser.getUserId());
+    			newOut.setOutOriginalPack(oldPack);
+    			eCkOutDao.store(newOut);
+    		}
+    		
+			/*
+			 * eCkOut.forEach(item -> {
+			 * eCkOutDao.updateSplit(item.getOutSl().subtract(BigDecimal.valueOf(jsonObject.
+			 * optDouble("sl")).multiply(new BigDecimal("-1"))).toString(),oldPack);
+			 * item.setOutPack(newPack); item.setOutBpack(newPack);
+			 * item.setOutSl(BigDecimal.valueOf(jsonObject.optDouble("sl")));
+			 * item.setOutOriginalPack(oldPack); eCkOutDao.store(item); });
+			 */
+    	}
+    	
+    	/*if (outString != null) {
+            ECkIn eCkIn = new ECkIn();
+            JSONObject jsonObject = new JSONObject(outString);
+            eCkIn.setInOriginalPack(oldPack);
+            //登记日期
+            if (jsonObject.opt("in_rq") != null) {
+                SimpleDateFormat simpleDateFormat;
+                if ((jsonObject.opt("in_rq") + "").contains("/")) {
+                    simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+                } else {
+                    simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                }
+                try {
+                    long out_rq = simpleDateFormat.parse(jsonObject.opt("in_rq") + "").getTime();
+                    eCkIn.setInRq(simpleDateFormat.parse(jsonObject.opt("in_rq") + ""));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            //出库状态
+            eCkIn.setInFlag(jsonObject.optString("in_flag"));
+            //产品编码
+            eCkIn.setInCode(jsonObject.optString("in_code"));
+            if (jsonObject.opt("in_js") != null) {
+                //产品件数
+                eCkIn.setInJs(BigDecimal.valueOf(jsonObject.optDouble("in_js")));
+            }
+            //核算(件数/数量)
+            eCkIn.setInHs(jsonObject.optString("in_hs"));
+            //合同编号
+            eCkIn.setInContract(jsonObject.optString("in_contract"));
+            //所属公司
+            eCkIn.setDataCorp(jsonObject.optString("data_corp"));
+            //大批包装
+            //eCkIn.setInBpack(jsonObject.optString("in_bpack"));
+            eCkIn.setInBpack(newPack);
+            //批次包装
+            eCkIn.setInPack(newPack);
+            //eCkIn.setInPack(jsonObject.optString("in_pack"));
+            //出库库房
+            eCkIn.setInLib(jsonObject.optString("in_lib"));
+            //操作人员
+            eCkIn.setDataMan(jsonObject.optString("data_man"));
+            //入库业务
+            eCkIn.setInAct(jsonObject.optString("in_act"));
+            //操作日期
+            if (jsonObject.opt("data_date") != null) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                try {
+                    eCkIn.setDataDate(simpleDateFormat.parse(jsonObject.opt("data_date") + ""));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (jsonObject.opt("in_tax") != null) {
+                //发票税率
+                eCkIn.setInTax(BigDecimal.valueOf(jsonObject.optDouble("in_tax")));
+            }
+            //入库单位
+            eCkIn.setInCustomer(jsonObject.optString("in_customer"));
+            //入库大类
+            eCkIn.setInType(jsonObject.optString("in_type"));
+            //币种
+            eCkIn.setInBz(jsonObject.optString("in_bz"));
+            if (jsonObject.opt("in_sl") != null) {
+                //产品数量
+                eCkIn.setInSl(BigDecimal.valueOf(jsonObject.optDouble("sl")));
+            }
+            if (jsonObject.opt("in_price") != null) {
+                //产品价格
+                eCkIn.setInPrice(BigDecimal.valueOf(jsonObject.optDouble("in_price")));
+            }
+            //入库单号
+            eCkIn.setInNote(jsonObject.optString("in_note"));
+            //领用库房
+            eCkIn.setInCklib(jsonObject.optString("in_cklib"));
+            if (jsonObject.opt("in_rate") != null) {
+                //发票汇率
+                eCkIn.setInRate(BigDecimal.valueOf(jsonObject.optDouble("in_rate")));
+            }
+            //入库单号
+            eCkIn.setInVnote(jsonObject.optString("in_vnote"));
+            //领用人
+            eCkIn.setInLyr(jsonObject.optString("in_lyr"));
+            //品牌
+            eCkIn.setBrand(jsonObject.optString("brand"));
+            //原料炉号
+            eCkIn.setInLuono(jsonObject.optString("in_luono"));
+            //记账月结
+            eCkIn.setInMonth(jsonObject.optString("in_month"));
+            //出库检验
+            eCkIn.setInCheckflag(jsonObject.optString("in_checkflag"));
+            //采购编码
+            eCkIn.setInKfcode(jsonObject.optString("in_kfcode"));
+            //客户合同
+            eCkIn.setInKfcontract(jsonObject.optString("in_kfcontract"));
+            if (jsonObject.opt("in_zl") != null) {
+                //产品重量
+                eCkIn.setInZl(BigDecimal.valueOf(jsonObject.optDouble("in_zl")));
+            }
+            //库审人
+            eCkIn.setInMan(jsonObject.optString("in_man"));
+            //库审时间
+            eCkIn.setInDate(new Date(System.currentTimeMillis()));
+            //库位
+            eCkIn.setInKw(jsonObject.optString("in_kw"));
+
+            eCkIn.setInRemarks(jsonObject.optString("in_remarks"));
+            eCkIn.setInXh(jsonObject.optString("in_xh"));
+            eCkIn.setInPh(jsonObject.optString("in_ph"));
+            eCkInDao.store(eCkIn);
+        }*/
+    }
+
+    /**
+     * 根据大包装号查询订单号（v_ck_mx表）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectCKBigNoteOrder(String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select DISTINCT in_contract  FROM v_ck_mx " +
+                "WHERE in_bpack='"+bpack+"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 根据订单号查询订单明细（v_ck_mx表）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectCKBigNoteMX(String contract,String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select DISTINCT code, cpcode_name,cpcode_size  FROM v_ck_mx " +
+                "WHERE in_bpack='"+bpack+"' and in_contract='"+contract+"'";
+        String sql1="select sum(sl) AS sl  FROM v_ck_mx " +
+                "WHERE in_bpack='"+bpack+"' and in_contract='"+contract+"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("total", eCkOutDao.QueryListMap(sql1, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 查询小包装号是否在大包装号里（e_ck_in表）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectBigSmall(String pack,String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="SELECT COUNT(in_pack) AS ck_count  FROM e_ck_in " +
+                "WHERE in_pack='"+pack+"' and in_bpack='"+bpack+"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+    /**
+     * 修改大包装号为小包装号
+     */
+    @Override
+    public Result updateBigPack(String bpack, String pack) {
+        eCkInDao.updateBigPack(bpack,pack);
+        return  Result.resultOk();
+    }
+
+    /**
+     * 修改大包装号为小包装号(全部拆除)
+     */
+    @Override
+    public Result updateAllBigPack(String bpack,String code) {
+        eCkInDao.updateAllBigPack(bpack,code);
+        return  Result.resultOk();
+    }
+
+    /**
+     * 根据订单号生产大包装号
+     * @param prefix  前缀
+     * @return
+     */
+    @Override
+    public String getOrderBig( String prefix) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+
+        String date = DateFormatUtils.format(new Date(), "yyyyMMdd");
+
+        SysGenNote sysGenNote = sysGenNoteDao.findById(new SysGenNote.SysGenNoteRolePK(prefix,"yyyyMMdd",date,"E_CK_IN",sessionUser.getCorpId())).orElse(null);
+        //sysGenNoteDao.findByTableNameAndPrefixAndDateFormatAndDateAndLengthAndCorpId(tableName, prefix, dateFormat,date, length, corpId);
+        if (null == sysGenNote) {
+            sysGenNote = new SysGenNote();
+
+            sysGenNote.setTableName("E_CK_IN");
+            sysGenNote.setPrefix(prefix);
+            sysGenNote.setLength(4);
+            sysGenNote.setDate(date);
+            sysGenNote.setIncrement(Long.valueOf(1));
+            sysGenNote.setDateFormat("yyyyMMdd");
+            sysGenNote.setCorpId(sessionUser.getCorpId());
+            sysGenNoteDao.save(sysGenNote);
+        } else {
+            if (String.valueOf(sysGenNote.getIncrement()).length() > 4) {
+                Log.info(String.format("单号生成规则长度溢出,{}", sysGenNote));
+            } else {
+                sysGenNote.setIncrement(sysGenNote.getIncrement() + 1);
+                sysGenNoteDao.update(sysGenNote);
+            }
+        }
+        //拼接单号
+        return String.format(prefix+String.format("%0" + 4 + "d", sysGenNote.getIncrement()));
+    }
+
+    /**
+     * 判断订单是否相等和判断小包装号与大包装号是否相等
+     */
+    @Override
+    public Map<String, Object> selectOrderEqual(String pack,String contract,String bpack){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String co_count = eCkOutDao.getSingleResult("select count(s.in_contract) as co_count from e_ck_in s   WHERE s.in_pack='"+pack+"' and s.in_contract='"+contract+"'");
+        String ck_count = eCkOutDao.getSingleResult(" select count(pack) from (" 
+        		+"	select pack,bpack,code,sl,contract from e_ck_pack_scan where pack ='"+pack+"' and pack<>bpack and flag='登记' and data_act='P1007'" 
+        		+" union all "  
+        		+" select pack,in_bpack,code,sl,in_contract from v_ck_mx where pack ='"+pack+"' and pack<>in_bpack "  
+        		+" )a    ");//and s.in_bpack='"+bpack+"'
+        
+        
+        String  sql="select s.in_pack,'"+bpack+"' in_bpack,in_code,in_sl,in_lib,in_kw,in_customer,in_js from e_ck_in s   WHERE s.in_pack='"+pack+"' and s.in_contract='"+contract+"' ";//
+        if(Integer.parseInt(co_count)<1) {//订单是否相同
+            rmap.put("status", false);
+            rmap.put("message", "订单不相同！");
+        }else if (Integer.parseInt(ck_count)>=1){
+        	System.out.println("ces");
+            rmap.put("status", false);
+            rmap.put("message", "该小包装号已有大包装号！");
+        }else{
+            rmap.put("status", true);
+            rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        }
+        rmap.put("code", 200);
+        return rmap;
+    }
+    /**
+     * 将订单明细插入e_ck_pack_sacn表
+     */
+    @Override
+    public void insertOrderMx(String scanString, String rightId,String newKw) {
+        if (scanString != null) {
+        	SessionUser securityUser=SessionUser.SessionUser();
+
+            ECkPackScan eCkPackScan = new ECkPackScan();
+            JSONObject jsonObject = new JSONObject(scanString);
+            //操作日期
+            eCkPackScan.setDataRq(new Date());
+            //大包装
+            eCkPackScan.setPack(jsonObject.optString("in_pack"));
+            //小包装
+            eCkPackScan.setBpack(jsonObject.optString("in_bpack"));
+            //编码
+            eCkPackScan.setCode(jsonObject.optString("in_code"));
+            //数量
+            if(jsonObject.opt("in_sl")!=null){
+                //发票税率
+                eCkPackScan.setSl(BigDecimal.valueOf(jsonObject.optDouble("in_sl")));
+            }
+            //订单
+            eCkPackScan.setContract(jsonObject.optString("in_contract"));
+            //操作人
+            //eCkPackScan.setDataMan(jsonObject.optString("data_man"));
+            eCkPackScan.setDataMan(securityUser.getUserId());
+            //库房
+            eCkPackScan.setLib(jsonObject.optString("in_lib"));
+            //库房区位
+            eCkPackScan.setKw(jsonObject.optString("in_kw"));
+            //客户
+            eCkPackScan.setCustomer(jsonObject.optString("in_customer"));
+            //件数
+            if(jsonObject.opt("in_js")!=null){
+                eCkPackScan.setJs(BigDecimal.valueOf(jsonObject.optDouble("in_js")));
+            }
+            //重量
+            if(jsonObject.opt("in_zl")!=null){
+                eCkPackScan.setZl(BigDecimal.valueOf(jsonObject.optDouble("in_zl")));
+            }
+            //状态
+            eCkPackScan.setFlag("登记");
+            //操作菜单
+            eCkPackScan.setDataAct(rightId);
+            if (newKw!=null&&newKw.length()>0){
+                //新区位
+                eCkPackScan.setNewKw(newKw);
+            }else {
+                eCkPackScan.setNewKw(null);
+            }
+
+            eCkInDao.store(eCkPackScan);
+        }
+    }
+
+    /**
+     * 更新e_ck_pack_sacn状态
+     */
+    @Override
+    public Result updateScanningFlag(String flag,String pack,String bpack) {
+        eCkPackScanDao.updateFlag("库审",bpack,"登记");
+        return  Result.resultOk();
+    }
+
+    /**
+     * 更新大包装号(装箱)
+     * @return
+     */
+    @Override
+    @PostMapping("updateFillBigPack")
+    public Result updateFillBigPack(String pack,String bpack)  {
+        List<ECkPackScan> eCkPackScan = eCkPackScanDao.QueryListModel(ECkPackScan.class, "select pack from e_ck_pack_scan where bpack=:1 and flag = :2",bpack,"登记");
+        eCkPackScan.forEach(item -> {
+        	eCkInDao.updateFillBigPack(item.getPack(),bpack);
+        });
+        return  Result.resultOk();
+    }
+
+    /**
+     * 根据大包装号查询扫描表信息（e_ck_pack_sacn表）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectScanning(String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql = " select a.*,b.cpcode_id,b.cpcode_name,b.cpcode_size,b.cpcode_size_en from ("
+        			+"	select pack,bpack,code,sl,contract from e_ck_pack_scan where bpack ='"+bpack+"' and flag='登记' and data_act='P1007'"
+        			+" union all "
+        			+" select pack,in_bpack,code,sl,in_contract from v_ck_mx where in_bpack='"+bpack+"'  "
+        			+ " )a ,e_js_cpcode b where a.code=b.cpcode_id  ";
+        /*String sql="SELECT s.*,a.cpcode_id,a.cpcode_name,a.cpcode_name_en," +
+                "a.cpcode_size,a.cpcode_size_en  FROM e_ck_pack_scan s LEFT JOIN e_js_cpcode a ON s.code=a.cpcode_id " +
+                "WHERE s.bpack='"+bpack+"' and s.flag='登记'";*/
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 装箱根据大小包装号查询包装信息（大小包装号一样）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectFillBigSmall(String pack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql ="select  code,cpcodename \"cpcodeName\",cpcodeflname \"cpcodeFl\",cpcode_xp \"cpcodeXp\", cpcode_name,cpcode_size,cpcode_size_en,in_luono,in_bpack,sum(sl)sl,sum(js)js,dtype printtype,'1' barcodetype from v_ck_mx where in_bpack='"+pack+"' group by code,cpcodename,cpcodeflname,cpcode_xp,cpcode_size,cpcode_size_en,in_luono,in_bpack,dtype  "  ;
+        /*String sql="SELECT s.*,a.cpcode_id,a.cpcode_name,a.cpcode_name_en," +
+                "a.cpcode_size,a.cpcode_size_en  FROM e_ck_in s LEFT JOIN e_js_cpcode a ON s.in_code=a.cpcode_id " +
+                "WHERE s.in_bpack='"+pack+"' and s.in_pack='"+pack+"'";*/
+        rmap.put("data", eCkInDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 库位调整页面选择库房
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectLocationHouse() {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="SELECT DISTINCT s.in_lib,a.param_name " +
+                "  FROM e_ck_in s LEFT JOIN sys_param a ON s.in_lib=a.param_id";
+        rmap.put("data", eCkInDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 判断数据在不在v_ck_mx和判断数据在e_ck_out,e_ck_out_ls(库位调整页面)
+     */
+    @Override
+    public Map<String, Object> selectDateInLocation(String pack,String bpack){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        if (!StringUtils.isBlank(pack)) {
+            String stock_count = eCkOutDao.getSingleResult("select count(s.pack) as stock_count from v_ck_mx s   WHERE s.pack='"+pack+"' ");
+            String ck_count = eCkOutDao.getSingleResult("select count(out_pack) as ck_count from (" +
+                    "	select out_pack from e_ck_out s  where out_pack ='"+pack+"'  and out_sl >0 and out_flag not in ('库审','结算') " +
+                    "	union all " +
+                    "  	select out_pack from e_ck_out_ls where out_pack = '"+pack+"' and out_sl >0 and out_flag<>'库审' " +
+                    " 	) a");
+            if(Integer.parseInt(stock_count)<1) {//是否存库存
+                rmap.put("status", false);
+                rmap.put("message", "该包装号不在库存！");
+
+            }else if (Integer.parseInt(ck_count)>0){//是否正在出库
+                rmap.put("status", false);
+                rmap.put("message", "该包装正在出库！");
+            }else {
+                rmap.put("status", true);
+            }
+        }
+        if (!StringUtils.isBlank(bpack)) {
+            String stock_count = eCkOutDao.getSingleResult("select count(s.in_bpack) as stock_count from v_ck_mx s   WHERE s.in_bpack='"+bpack+"' ");
+            String ck_count = eCkOutDao.getSingleResult("select count(out_bpack) as ck_count from (" +
+                    "	select out_bpack from e_ck_out s  where out_bpack ='"+bpack+"' and out_sl >0 and out_flag not in ('库审','结算')" +
+                    "	union all " +
+                    "  	select out_bpack from e_ck_out_ls where out_bpack = '"+bpack+"' and out_sl >0  and out_flag<>'库审' " +
+                    " 	) a");
+            if(Integer.parseInt(stock_count)<1) {//是否存库存
+                rmap.put("status", false);
+                rmap.put("message", "该包装号不在库存！");
+
+            }else if (Integer.parseInt(ck_count)>0){//是否正在出库
+                rmap.put("status", false);
+                rmap.put("message", "该包装正在出库！");
+            }else {
+                rmap.put("status", true);
+            }
+        }
+
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 根据大小包装查询包装号信息
+     */
+    @Override
+    public Map<String, Object> selectBigSmallInfo(String pack,String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        if (!StringUtils.isBlank(pack)) {
+            String sql="select * FROM e_ck_in " +
+                    "WHERE in_pack='"+pack+"'";
+            rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        }
+        if (!StringUtils.isBlank(bpack)) {
+            String sql="select * FROM e_ck_in " +
+                    "WHERE in_bpack='"+bpack+"'";
+            rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        }
+        rmap.put("code", 200);
+        return rmap;
+    }
+    /**
+     * 更新大包装号的库位
+     */
+    @Override
+    public Result updateKwBigPack(String inKw, String bpack) {
+        eCkInDao.updateKwBigPack(inKw,bpack);
+        return  Result.resultOk();
+    }
+    /**
+     * 更新小包装号的库位
+     */
+    @Override
+    public Result updateKwSmallPack(String inKw, String pack) {
+        eCkInDao.updateKwSmallPack(inKw,pack);
+        return  Result.resultOk();
+    }
+
+    /**
+     * 更新小包装号e_ck_pack_sacn状态(库位调整)
+     */
+    @Override
+    public Result updateSmallScanningKwFlag(String flag,String pack) {
+        String sql="update ECkPackScan  set flag=?1 where pack=?2";
+        eCkInDao.executeUpdate(sql,flag,pack);
+        return  Result.resultOk();
+    }
+    /**
+     * 更新大包装号e_ck_pack_sacn状态(库位调整)
+     */
+    @Override
+    public Result updateBigScanningKwFlag(String flag,String bpack) {
+        String sql="update ECkPackScan  set flag=?1 where bpack=?2";
+        eCkInDao.executeUpdate(sql,flag,bpack);
+        return  Result.resultOk();
+    }
+
+    /**
+     * 根据库房查询扫描表信息（e_ck_pack_sacn表）
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectScanningLib(String lib) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql=" SELECT pack,bpack,code,sl,contract,s.data_man,s.data_rq,lib,kw,customer,js,flag,data_act,f_get_param_name('仓库库位',new_kw,'"+   SessionUser.getCurrentCorpId()   +"','')new_kw,a.cpcode_id,a.cpcode_name,a.cpcode_name_en,a.cpcode_size,a.cpcode_size_en "
+        		+ " FROM e_ck_pack_scan s LEFT JOIN e_js_cpcode a ON s.code=a.cpcode_id WHERE s.lib='"+lib+"' and s.flag='登记' ";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 批量删除(库位调整页面)
+     */
+    @Override
+    public Result batchDeleteKw(String pack,String bpack) {
+        //小包装删除
+        if (!StringUtils.isBlank(pack)) {
+            eCkPackScanDao.deletePack(pack);
+        }
+        //大包装删除
+        if (!StringUtils.isBlank(bpack)) {
+            eCkPackScanDao.deleteBPack(bpack);
+        }
+        return  Result.resultOk();
+
+    }
+
+    /**
+     * 根据小包装号查询打印数据单打（v_ck_mx）
+     */
+    @Override
+    public Map<String, Object> selectSmallPrint(String pack,String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        //小包装单打
+        if (!StringUtils.isBlank(pack)) {
+            String sql="select code,cpcodename AS \"cpcodeName\",cpcode_xp as \"cpcodeXp\",cpcodeflname as \"cpcodeFl\",cpcode_size AS ksize,cpcode_size_en AS origin,in_luono AS lh,pack,in_bpack AS spack,sl,js,dtype printtype,'1' barcodetype from v_ck_mx " +
+                    "where pack='"+pack+"'";
+            rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        }
+        //大包装单打
+        if (!StringUtils.isBlank(bpack)) {
+            String sql="SELECT code,cpcodename AS \"cpcodeName\",cpcode_xp as \"cpcodeXp\",cpcodeflname as \"cpcodeFl\",cpcode_size AS ksize,cpcode_size_en AS origin," +
+                    "in_luono AS lh,in_bpack AS spack,SUM ( sl ) sl,SUM ( js ) js,dtype printtype,'1' barcodetype " +
+                    "FROM v_ck_mx WHERE in_bpack ='"+bpack+"'"+
+                    "GROUP BY code,cpcodename,cpcode_xp,cpcodeflname,cpcode_size,cpcode_size_en,in_luono,in_bpack,dtype";
+            rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        }
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 根据大包装号查询打印数据连打（v_ck_mx）
+     */
+    @Override
+    public Map<String, Object> selectBigPrint(String bpack) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select code,cpcodename AS \"cpcodeName\",cpcode_xp as \"cpcocdeXp\",cpcodeflname as \"cpcodeFl\",cpcode_size AS ksize,cpcode_size_en AS origin,in_luono AS lh,pack,in_bpack AS spack,sl,js,dtype printtype,'1' barcodetype from v_ck_mx " +
+                "where in_bpack='"+bpack+"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+	@Override
+	public Result updateKw(String dataAct, String lib) {
+	
+		//eCkInDao.updateKwByScan(lib,dataAct);
+		List<ECkPackScan> scans = eCkPackScanDao.QueryListModel(ECkPackScan.class, "select * from e_ck_pack_scan where flag='登记' and lib ='"+lib+"' and data_act='"+dataAct+"' ");
+		scans.forEach(item -> {
+			eCkInDao.updateKwSmallPack(item.getNewKw(),item.getPack());
+        });
+		eCkPackScanDao.updateKw("完成",lib,dataAct);
+		return Result.resultOk();
+	}
+
+
+
+
+
+
+}

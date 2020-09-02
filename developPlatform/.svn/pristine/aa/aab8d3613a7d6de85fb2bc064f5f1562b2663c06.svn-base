@@ -1,0 +1,21 @@
+package com.tengzhi.business.finance.voucher.model;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity(name = "e_f_voucher_ac")
+public class Accout {
+	@Id
+	private String faccountid;
+
+	public String getFaccountid() {
+		return faccountid;
+	}
+
+	public void setFaccountid(String faccountid) {
+		this.faccountid = faccountid;
+	}
+}
+

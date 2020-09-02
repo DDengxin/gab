@@ -1,0 +1,40 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingPlan.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.model.EHrTrainingPlan;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.service.TrainingPlanService;
+import com.tengzhi.business.project.projectArchives.xmda.model.EXmXmda;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/personnel/personnelTraining/trainingPlan")
+public class TrainingPlanController {
+    @Autowired
+    private TrainingPlanService trainingPlanService;
+    @GetMapping(value="/*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    @PostMapping(value = "pxjhList.html")
+    public Result getList(BaseDto baseDto) throws IOException {
+        return trainingPlanService.getList(baseDto).getResult();
+    }
+    /**
+     *
+     *保存对象信息
+     * @param eHrTrainingPlan
+     * */
+    @PostMapping(value = "add.html/{jhNote}")
+    public Result getById(@RequestBody EHrTrainingPlan eHrTrainingPlan) throws Exception {
+        trainingPlanService.saveData(eHrTrainingPlan);
+        return Result.resultOk();
+    }
+}

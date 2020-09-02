@@ -1,0 +1,509 @@
+package com.tengzhi.business.finance.voucher.model;
+
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity(name = "e_f_voucher_accout")
+public class Accout {
+	@Id
+	//id
+	private Long accoutId; 
+	//编码
+	private String number;
+	//名稱
+	private String name;
+	//核算项目使用ID，0为不下设核算项目
+	private Long level;
+	//详情
+	private Long fdetail;
+	private Long fparentid;
+	private Long frootid;
+	private Long fgroupid;
+	private Long fdc;
+	private String fhelpercode;
+	private Long fcurrencyid;
+	private Long fadjustrate;
+	private Long fearnaccountid;
+	private Long fquantities;
+	private Long funitgroupid;
+	private Long fmeasureunitid;
+	private Long fiscash;
+	private Long fisbank;
+	private Long fjournal;
+	private Long fcontact;
+	private Long fiscashflow;
+	private Long fdetailid;
+	private Long facnt;
+	private Long floan;
+	private Long fdpst;
+	private Long fstateddpst;
+	private Long finterest;
+	private Long fisacnt;
+	private Long fisbudget;
+	private Long facntid;
+	private String fbrno;
+	private Long facctint;
+	private Float fintrate;
+	private Date flastintdate;
+	private Long facnttype;
+	private String ftradenum;
+	private Long fcontrol;
+	private Long fviewmsg;
+	private String fmessage;
+	private short fdelete;
+	private Long fisbusi;
+	private String ffullname;
+	private Long fsystemtype;
+	private Long fcontrolsystem;
+	private String uuid;
+	private String frightuserid;
+	private Long fisbalance;
+	private String corp_id;
+	private Long fisdelete;
+	private Long fcustom;
+	private Long fsupplier;
+	private Long fdept;
+	private Long femp;
+	private Long fisrateadj;
+	private Long fisqtyaux;
+	private Long fistrans;
+	private Long finventory;
+	private Long fisitem;
+	private Long fplaccountid;
+	private Long fproject;
+	private Long flimited;
+	private Long fitemclassid;
+	private String funit;
+	private String fcur;
+	private Long fisjrnl;
+	private Long fclassid;
+	private Long fqt;
+	private String fgroupidname, fparentidname;
+	private String data_corp;
+	public Long getAccoutId() {
+		return accoutId;
+	}
+	public void setAccoutId(Long accoutId) {
+		this.accoutId = accoutId;
+	}
+	public String getNumber() {
+		return number;
+	}
+	public void setNumber(String number) {
+		this.number = number;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Long getLevel() {
+		return level;
+	}
+	public void setLevel(Long level) {
+		this.level = level;
+	}
+	public Long getFdetail() {
+		return fdetail;
+	}
+	public void setFdetail(Long fdetail) {
+		this.fdetail = fdetail;
+	}
+	public Long getFparentid() {
+		return fparentid;
+	}
+	
+	public Date getFlastintdate() {
+		return flastintdate;
+	}
+	public void setFlastintdate(Date flastintdate) {
+		this.flastintdate = flastintdate;
+	}
+	public void setFparentid(Long fparentid) {
+		this.fparentid = fparentid;
+	}
+	public Long getFrootid() {
+		return frootid;
+	}
+	public void setFrootid(Long frootid) {
+		this.frootid = frootid;
+	}
+	public Long getFgroupid() {
+		return fgroupid;
+	}
+	public void setFgroupid(Long fgroupid) {
+		this.fgroupid = fgroupid;
+	}
+	public Long getFdc() {
+		return fdc;
+	}
+	public void setFdc(Long fdc) {
+		this.fdc = fdc;
+	}
+	public String getFhelpercode() {
+		return fhelpercode;
+	}
+	public void setFhelpercode(String fhelpercode) {
+		this.fhelpercode = fhelpercode;
+	}
+	public Long getFcurrencyid() {
+		return fcurrencyid;
+	}
+	public void setFcurrencyid(Long fcurrencyid) {
+		this.fcurrencyid = fcurrencyid;
+	}
+	public Long getFadjustrate() {
+		return fadjustrate;
+	}
+	public void setFadjustrate(Long fadjustrate) {
+		this.fadjustrate = fadjustrate;
+	}
+	public Long getFearnaccountid() {
+		return fearnaccountid;
+	}
+	public void setFearnaccountid(Long fearnaccountid) {
+		this.fearnaccountid = fearnaccountid;
+	}
+	public Long getFquantities() {
+		return fquantities;
+	}
+	public void setFquantities(Long fquantities) {
+		this.fquantities = fquantities;
+	}
+	public Long getFunitgroupid() {
+		return funitgroupid;
+	}
+	public void setFunitgroupid(Long funitgroupid) {
+		this.funitgroupid = funitgroupid;
+	}
+	public Long getFmeasureunitid() {
+		return fmeasureunitid;
+	}
+	public void setFmeasureunitid(Long fmeasureunitid) {
+		this.fmeasureunitid = fmeasureunitid;
+	}
+	public Long getFiscash() {
+		return fiscash;
+	}
+	public void setFiscash(Long fiscash) {
+		this.fiscash = fiscash;
+	}
+	public Long getFisbank() {
+		return fisbank;
+	}
+	public void setFisbank(Long fisbank) {
+		this.fisbank = fisbank;
+	}
+	public Long getFjournal() {
+		return fjournal;
+	}
+	public void setFjournal(Long fjournal) {
+		this.fjournal = fjournal;
+	}
+	public Long getFcontact() {
+		return fcontact;
+	}
+	public void setFcontact(Long fcontact) {
+		this.fcontact = fcontact;
+	}
+	public Long getFiscashflow() {
+		return fiscashflow;
+	}
+	public void setFiscashflow(Long fiscashflow) {
+		this.fiscashflow = fiscashflow;
+	}
+	public Long getFdetailid() {
+		return fdetailid;
+	}
+	public void setFdetailid(Long fdetailid) {
+		this.fdetailid = fdetailid;
+	}
+	public Long getFacnt() {
+		return facnt;
+	}
+	public void setFacnt(Long facnt) {
+		this.facnt = facnt;
+	}
+	public Long getFloan() {
+		return floan;
+	}
+	public void setFloan(Long floan) {
+		this.floan = floan;
+	}
+	public Long getFdpst() {
+		return fdpst;
+	}
+	public void setFdpst(Long fdpst) {
+		this.fdpst = fdpst;
+	}
+	public Long getFstateddpst() {
+		return fstateddpst;
+	}
+	public void setFstateddpst(Long fstateddpst) {
+		this.fstateddpst = fstateddpst;
+	}
+	public Long getFinterest() {
+		return finterest;
+	}
+	public void setFinterest(Long finterest) {
+		this.finterest = finterest;
+	}
+	public Long getFisacnt() {
+		return fisacnt;
+	}
+	public void setFisacnt(Long fisacnt) {
+		this.fisacnt = fisacnt;
+	}
+	public Long getFisbudget() {
+		return fisbudget;
+	}
+	public void setFisbudget(Long fisbudget) {
+		this.fisbudget = fisbudget;
+	}
+	public Long getFacntid() {
+		return facntid;
+	}
+	public void setFacntid(Long facntid) {
+		this.facntid = facntid;
+	}
+	public String getFbrno() {
+		return fbrno;
+	}
+	public void setFbrno(String fbrno) {
+		this.fbrno = fbrno;
+	}
+	public Long getFacctint() {
+		return facctint;
+	}
+	public void setFacctint(Long facctint) {
+		this.facctint = facctint;
+	}
+	public Float getFintrate() {
+		return fintrate;
+	}
+	public void setFintrate(Float fintrate) {
+		this.fintrate = fintrate;
+	}
+
+	public Long getFacnttype() {
+		return facnttype;
+	}
+	public void setFacnttype(Long facnttype) {
+		this.facnttype = facnttype;
+	}
+	public String getFtradenum() {
+		return ftradenum;
+	}
+	public void setFtradenum(String ftradenum) {
+		this.ftradenum = ftradenum;
+	}
+	public Long getFcontrol() {
+		return fcontrol;
+	}
+	public void setFcontrol(Long fcontrol) {
+		this.fcontrol = fcontrol;
+	}
+	public Long getFviewmsg() {
+		return fviewmsg;
+	}
+	public void setFviewmsg(Long fviewmsg) {
+		this.fviewmsg = fviewmsg;
+	}
+	public String getFmessage() {
+		return fmessage;
+	}
+	public void setFmessage(String fmessage) {
+		this.fmessage = fmessage;
+	}
+	public short getFdelete() {
+		return fdelete;
+	}
+	public void setFdelete(short fdelete) {
+		this.fdelete = fdelete;
+	}
+	public Long getFisbusi() {
+		return fisbusi;
+	}
+	public void setFisbusi(Long fisbusi) {
+		this.fisbusi = fisbusi;
+	}
+	public String getFfullname() {
+		return ffullname;
+	}
+	public void setFfullname(String ffullname) {
+		this.ffullname = ffullname;
+	}
+	public Long getFsystemtype() {
+		return fsystemtype;
+	}
+	public void setFsystemtype(Long fsystemtype) {
+		this.fsystemtype = fsystemtype;
+	}
+	public Long getFcontrolsystem() {
+		return fcontrolsystem;
+	}
+	public void setFcontrolsystem(Long fcontrolsystem) {
+		this.fcontrolsystem = fcontrolsystem;
+	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	public String getFrightuserid() {
+		return frightuserid;
+	}
+	public void setFrightuserid(String frightuserid) {
+		this.frightuserid = frightuserid;
+	}
+	public Long getFisbalance() {
+		return fisbalance;
+	}
+	public void setFisbalance(Long fisbalance) {
+		this.fisbalance = fisbalance;
+	}
+	public String getCorp_id() {
+		return corp_id;
+	}
+	public void setCorp_id(String corp_id) {
+		this.corp_id = corp_id;
+	}
+	public Long getFisdelete() {
+		return fisdelete;
+	}
+	public void setFisdelete(Long fisdelete) {
+		this.fisdelete = fisdelete;
+	}
+	public Long getFcustom() {
+		return fcustom;
+	}
+	public void setFcustom(Long fcustom) {
+		this.fcustom = fcustom;
+	}
+	public Long getFsupplier() {
+		return fsupplier;
+	}
+	public void setFsupplier(Long fsupplier) {
+		this.fsupplier = fsupplier;
+	}
+	public Long getFdept() {
+		return fdept;
+	}
+	public void setFdept(Long fdept) {
+		this.fdept = fdept;
+	}
+	public Long getFemp() {
+		return femp;
+	}
+	public void setFemp(Long femp) {
+		this.femp = femp;
+	}
+	public Long getFisrateadj() {
+		return fisrateadj;
+	}
+	public void setFisrateadj(Long fisrateadj) {
+		this.fisrateadj = fisrateadj;
+	}
+	public Long getFisqtyaux() {
+		return fisqtyaux;
+	}
+	public void setFisqtyaux(Long fisqtyaux) {
+		this.fisqtyaux = fisqtyaux;
+	}
+	public Long getFistrans() {
+		return fistrans;
+	}
+	public void setFistrans(Long fistrans) {
+		this.fistrans = fistrans;
+	}
+	public Long getFinventory() {
+		return finventory;
+	}
+	public void setFinventory(Long finventory) {
+		this.finventory = finventory;
+	}
+	public Long getFisitem() {
+		return fisitem;
+	}
+	public void setFisitem(Long fisitem) {
+		this.fisitem = fisitem;
+	}
+	public Long getFplaccountid() {
+		return fplaccountid;
+	}
+	public void setFplaccountid(Long fplaccountid) {
+		this.fplaccountid = fplaccountid;
+	}
+	public Long getFproject() {
+		return fproject;
+	}
+	public void setFproject(Long fproject) {
+		this.fproject = fproject;
+	}
+	public Long getFlimited() {
+		return flimited;
+	}
+	public void setFlimited(Long flimited) {
+		this.flimited = flimited;
+	}
+	public Long getFitemclassid() {
+		return fitemclassid;
+	}
+	public void setFitemclassid(Long fitemclassid) {
+		this.fitemclassid = fitemclassid;
+	}
+	public String getFunit() {
+		return funit;
+	}
+	public void setFunit(String funit) {
+		this.funit = funit;
+	}
+	public String getFcur() {
+		return fcur;
+	}
+	public void setFcur(String fcur) {
+		this.fcur = fcur;
+	}
+	public Long getFisjrnl() {
+		return fisjrnl;
+	}
+	public void setFisjrnl(Long fisjrnl) {
+		this.fisjrnl = fisjrnl;
+	}
+	public Long getFclassid() {
+		return fclassid;
+	}
+	public void setFclassid(Long fclassid) {
+		this.fclassid = fclassid;
+	}
+	public Long getFqt() {
+		return fqt;
+	}
+	public void setFqt(Long fqt) {
+		this.fqt = fqt;
+	}
+	public String getFgroupidname() {
+		return fgroupidname;
+	}
+	public void setFgroupidname(String fgroupidname) {
+		this.fgroupidname = fgroupidname;
+	}
+	public String getFparentidname() {
+		return fparentidname;
+	}
+	public void setFparentidname(String fparentidname) {
+		this.fparentidname = fparentidname;
+	}
+	public String getData_corp() {
+		return data_corp;
+	}
+	public void setData_corp(String data_corp) {
+		this.data_corp = data_corp;
+	}
+	
+}
+

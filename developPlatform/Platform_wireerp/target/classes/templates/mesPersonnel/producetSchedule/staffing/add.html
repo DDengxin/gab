@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员定岗新增</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+		<input name="action" class="mini-hidden" />
+		<form id="form1">
+			<table class="hmq-modify-table">
+				<tr>
+					<input class="mini-hidden" id="workRq" name="workRq"/>
+					<td title>员工工号</td>
+					<td content>
+						<input class="mini-buttonedit" id="workId" name="workId" allowInput="false" required onbuttonclick="onPersonClick"/>
+					</td>
+					<td title>员工姓名</td>
+					<td content>
+						<input class="mini-textbox" id="workName" name="workName" readonly="readonly" emptyText="自动填充" />
+					</td>
+				</tr>
+				<tr>
+					<td title>员工部门</td>
+					<td content>
+						<input class="mini-textbox" id="workDept" name="workDept" readonly="readonly" emptyText="自动填充" />
+						<!-- url="/mesPersonnel/producetSchedule/staffing/type/deptlist" textField="dept_name" valueField="dept_id" parentField="parent_id" -->
+					</td>
+					<td title>员工班别</td>
+					<td content>
+                    	<input class="mini-combobox" id="workBb" name="workBb" required url="/mesPersonnel/producetSchedule/staffing/type/treelist" textField="combtext" valueField="combid"> 
+                    </td>
+				</tr>
+				<tr>
+					<td title>分配车台</td>
+					<td content colspan="1">
+						<input class="mini-combobox" id="workCt" name="workCt" url="/mesPersonnel/producetSchedule/staffing/type/typelist" textField="combtext" valueField="combid"/>
+					</td>
+				</tr>			
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save"
+			id="saveBtn">保存</a> <a class="mini-button" onclick="CloseWindow"
+			iconCls="icon-cancel"> 关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+mini.parse();
+var form = new mini.Form('form1');
+function SetData(options) {
+    if ('add' == options.action) {
+        $('[name=action]').val(options.action);
+    } else if ('edit' == options.action) {
+        $.get("staffingList.html/{0}_{1}_{2}".format(options.data.workId,options.data.workRq,options.data.workBb), function (res) {
+            if (200 === res.code) {
+                form.setData(res.data);
+                mini.get("workId").setText(res.data.workId);
+                mini.get("workId").setReadOnly(true);
+                mini.get("workBb").setReadOnly(true);
+            }
+        });
+    }
+}
+
+function SaveData() {
+    if (form.validate() && form.isValid()) {
+        var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+        $[method]("add.html",JSON.stringify(form.getData()),
+        function (res) {
+            if (200 === res.code) {
+                hmq.tipSuccess(res.msg || '保存成功', {
+                    exec: function () {
+                        CloseWindow('refresh');
+                    }
+                });
+            } else {
+                hmq.tipDanger(res.msg || '保存失败');
+            }
+        }, null, {
+            contentType: 'application/json'
+        });
+    }
+}
+
+
+/* 员工选择  */
+function onPersonClick(e) {
+    var btnEdit = e.sender;
+    return miniopen({
+        targetWindow: window.top,
+        url:"/personnel/checkWorkAttendance/leave/worker.html",
+        title: "人员选择",
+        width: 750,
+        data:{},
+        height: 620,
+        ondestroy: function (action) {
+            if (action == "ok") {
+                var iframe = this.getIFrameEl();
+                var data = iframe.contentWindow.GetData();
+                form.setData({
+                	dgWorkerDept: data.workerDept,
+                });
+                btnEdit.setValue(data.workerId);
+                btnEdit.setText(data.workerId);
+                mini.get("workName").setValue(data.workerName);
+                mini.get("workName").setText(data.workerName);
+                mini.get("workDept").setValue(data.workerDept)
+                mini.get("workDept").setText(data.workerDeptName)
+            }
+        }
+    });
+}
+
+
+
+
+
+
+
+</script>
+</html>

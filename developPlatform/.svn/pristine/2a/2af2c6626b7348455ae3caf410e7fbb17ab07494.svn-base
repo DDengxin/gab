@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>员工部门选择页面</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="员工编号">
+            <input class="mini-textbox" id="workerId" name="workerId"/>
+
+        </label>
+        <label class="hmq-label" text="员工姓名">
+            <input class="mini-textbox" name="workerName"/>
+        </label>
+
+        <input class="mini-hidden" name="workerDept" value=""   textField="texts" valueField="id" nullItemText="全部" showNullItem="true" width="100" />
+
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+
+</th:block>
+
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid"  style="width:100%;height:100%;" idField="workerId"
+         sizeList="[50,100,200]" pageSize="100"  url="/sc/da/staffOvertime/findByProductionList"
+         onrowdblclick="onRowDblClick"
+         pager="#pager1" showPager="false" sortField="workerId" sortOrder="desc" >
+        <div property="columns">
+            <div tz:datagrid="checkcolumn"></div>
+            <div tz:datagrid="column" field="workerId"  align="center" width="80">员工编号</div>
+            <div tz:datagrid="column" field="workerName" align="center" width="80">员工姓名</div>
+            <div tz:datagrid="column" field="workerDept" displayField="workerDeptName"  align="center" width="80">员工部门</div>
+            <div tz:datagrid="column" width="100%"></div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+
+    function SetData(options) {
+        search_option();
+    }
+
+
+
+    function search_option() {
+        grid.load();
+    }
+
+    function confirm(e) {
+        if (grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选择一条数据');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+
+    function GetData() {
+        return grid.getSelected();
+    }
+
+
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+package com.tengzhi.business.finance.invoice.dao;
+
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.finance.invoice.model.invoice;
+
+
+public interface invoiceDao extends BasedaoRepository<invoice, String>{
+	
+	invoice findByFpId(String fpId); 
+	
+	@Modifying
+	@Query(value="update invoice set fpFlag='确认',fpMonth='已结'  where fpFlag='登记'  and fpMonth='未结' and fpId=:fpId")
+	int ok(@Param("fpId")String fpId);
+	
+	@Modifying
+	@Query(value="update invoice set fpMonth='已结'  where fpId=:fpId")
+	void yok(@Param("fpId")String fpId);
+	
+	@Modifying
+	@Query(value="update invoice set fpFlag='登记',fpMonth='未结'  where fpFlag='确认'  and fpMonth='已结'  and fpId=:fpId")
+	int qx(@Param("fpId")String fpId);
+	
+	@Modifying
+	@Query(value="update invoice set fpMonth='未结'  where fpId=:fpId")
+	void yqx(@Param("fpId")String fpId);
+	
+	@Query(value="select f_getname('GETDWEXP', :fpdw, '', :datacorp) ",nativeQuery = true)
+	String getCorpName(@Param("fpdw") String fpDw,@Param("datacorp") String dataCorp);
+	
+	@Modifying
+	@Query(value = "update e_cw_ysyf set cw_fph='N',cw_flag='库审'   where cw_fph=(select fp_note from e_cw_fp where fp_id=:fpId)",nativeQuery = true)
+	void updateYsyf(@Param("fpId") String fpId);
+
+	/*
+	 * @Modifying
+	 * 
+	 * @Query(value =
+	 * "select count(*) from :tablename where :flagname = :flagnames and :monthname = :monthnames and :id = :ids"
+	 * ) int getFlagInt(@Param("tablename") String
+	 * tablename,@Param("flagname")String flagname,
+	 * 
+	 * @Param("flagnames") String flagnames,@Param("monthname") String monthname,
+	 * 
+	 * @Param("monthnames") String monthnames,@Param("id") String id,@Param("ids")
+	 * String ids);
+	 */
+	 
+
+}

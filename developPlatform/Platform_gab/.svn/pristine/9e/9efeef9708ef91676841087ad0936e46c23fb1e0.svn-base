@@ -1,0 +1,332 @@
+<html layout:decorator="~{gab/layout/gabPlatformManage}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/business.css}">
+    <link rel="stylesheet" th:href="@{/static/gab/css/input_tag.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/webuploader.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/uploadFile.css}" />
+    <script type="text/javascript" th:src="@{/static/script/webuploader/webuploader.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/webuploader/uploadFile.js}"></script>
+    <!-- <script type="text/javascript" th:src="@{/static/gab/js/plugs/PCASClass.js}"></script> -->
+    <script th:src="@{/static/gab/js/plugs/input_tag.js}"></script>
+    <script th:src="@{/static/gab/js/manage/expert.js}"></script>
+</th:block>
+<th:block layout:fragment="right-content">
+    <p class="tip">请完善一下信息，方便我们更好的为您服务</p>
+    <form action="" class="layui-form">
+        <div class="base-msg">
+            <h4>基本信息</h4>
+            <div class="layui-form-item">
+                <label class="layui-form-label">专家类型</label><b>*</b>
+                <div class="layui-input-block">
+                    <select name="type" id="type" lay-filter="type" lay-verify="required">
+                        <option value="工艺专家">工艺专家</option>
+                        <option value="售前专家">售前专家</option>
+                        <option value="售后专家">售后专家</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item bussiness">
+                <label class="layui-form-label">我的企业</label><b>*</b>
+                <div class="layui-input-block">
+                    <select name="companyName" lay-verify="required">
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">个人形象</label><b>*</b>
+                <div class="layui-input-block">
+                    <div id="License" name="uploaderheadImg"></div>
+                    <input id="BusinessLicense" name="supplyImg" type="hidden" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">姓名</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="userId" required lay-verify="required" placeholder=""
+                               autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">年龄范围</label><b>*</b>
+                    <div class="layui-input-block">
+                        <select name="age" id="age" lay-verify="required">
+                            <option value="30-40岁">30-40岁</option>
+                            <option value="40-50岁">40-50岁</option>
+                            <option value="50-60岁">50-60岁</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">从业年限</label><b>*</b>
+                    <div class="layui-input-block">
+                        <input type="text" name="jobAge" required lay-verify="required" placeholder=""
+                               autocomplete="off"
+                               class="layui-input">
+                        <i>年</i>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">从事行业</label><b>*</b>
+                    <div class="layui-input-block">
+                        <select name="level" lay-verify="required">
+                            <option value="智能制造">智能制造</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">资质等级</label><b>*</b>
+                <div class="layui-input-block">
+                    <select name="level" lay-verify="required">
+                        <option value="一级">一级</option>
+                        <option value="二级">二级</option>
+                        <option value="三级">三级</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">专长优势</label><b>*</b>
+                <div class="layui-input-block">
+                    <textarea name="introduce" placeholder="请输入内容" class="layui-textarea"></textarea>
+                </div>
+                <div class="layui-form-mid layui-word-aux">控制在100个字符以内</div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">擅长技能</label><b>*</b>
+                <div class="layui-input-block">
+                    <div class="input_box" id="jjTags">
+                        <p class="keyTips">输入内容后，按回车键增加关键字标签</p>
+                        <input type="text" name="keyWord" autocomplete="off" placeholder="请输入关键字" value="" hidden>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="business-msg">
+            <h4>业务信息</h4>
+            <div class="container" id="container"></div>
+        </div>
+        <div class="concact-msg">
+            <h4>联系信息</h4>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="userName" required lay-verify="required" placeholder=""
+                               autocomplete="off"
+                               class="layui-input" disabled='true'>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">手机号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="userMtel" required lay-verify="phone" placeholder="" autocomplete="off"
+                               class="layui-input" disabled='true'>
+                        <button type="button" class="edit">修改</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">联系邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="email" lay-verify="email" placeholder="" autocomplete="off"
+                               class="layui-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="company">
+            <h4>个人介绍</h4>
+            <textarea id="content" style="display: none;"></textarea>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="">提交</button>
+            </div>
+        </div>
+    </form>
+    <script id="GyExpertMsg" type="text/html">
+        <div class="layui-form-item">
+                <label class="layui-form-label">最熟悉的产品</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="knowProduct" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">特色方言</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="dialect" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">服务范围</label>
+                <div class="layui-input-block">
+                    <select name="serviceScope" lay-verify="required">
+                        <option value="全国">全国</option>
+                        <option value="全球">全球</option>
+                        <option value="省内">省内</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline checkbox-width">
+                <input type="checkbox" name="" isWeekEvection="是否接受一周左右的出差" checked>
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isRemote" title="是否接受偏远地区出差" checked>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline checkbox-width">
+                <input type="checkbox" name="isGoAbroad" title="是否接受出国出差的任务" checked>
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isFrontline" title="是否在生产一线工作过" checked>
+            </div>
+        </div>
+    </script>
+    <script id="SqExpertMsg" type="text/html">
+        <div class="layui-form-item">
+                <label class="layui-form-label">最熟悉的产品</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="knowProduct" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">销售经验</label>
+                <div class="layui-input-block">
+                    <input type="text" name="saleExperience" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">最高学历</label>
+                <div class="layui-input-block">
+                    <input type="text" name="education" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">特色方言</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="dialect" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">服务范围</label>
+                <div class="layui-input-block">
+                    <select name="serviceScope" lay-verify="required">
+                        <option value="全国">全国</option>
+                        <option value="全球">全球</option>
+                        <option value="省内">省内</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline checkbox-width">
+                <input type="checkbox" name="isWeekEvection" title="是否接受一周左右的出差" checked>
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isRemote" title="是否接受偏远地区出差" checked>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline checkbox-width">
+                <input type="checkbox" name="isGoAbroad" title="是否接受出国出差的任务" checked>
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isFrontline" title="是否在生产一线工作过" checked>
+            </div>
+        </div>
+    </script>
+    <script id="ShExpertMsg" type="text/html">
+        <div class="layui-form-item">
+                <label class="layui-form-label">最熟悉的产品</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="knowProduct" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">销售经验</label>
+                <div class="layui-input-block">
+                    <input type="text" name="saleExperience" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">最高学历</label>
+                <div class="layui-input-block">
+                    <input type="text" name="education" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">特色方言</label><b>*</b>
+                <div class="layui-input-block">
+                    <input type="text" name="dialect" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">服务范围</label>
+                <div class="layui-input-block">
+                    <select name="serviceScope" lay-verify="required">
+                        <option value="全国">全国</option>
+                        <option value="全球">全球</option>
+                        <option value="省内">省内</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">动手能力</label>
+                <div class="layui-input-block">
+                    <input type="text" name="doIt" required lay-verify="required" placeholder=""
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline checkbox-width">
+                <input type="checkbox" name="isWeekEvection" title="是否接受一周左右的出差" checked>
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isRemote" title="是否接受偏远地区出差" checked>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline checkbox-width">
+                <input type="checkbox" name="isGoAbroad" title="是否接受出国出差的任务" checked>
+            </div>
+            <div class="layui-inline">
+                <input type="checkbox" name="isFrontline" title="是否在生产一线工作过" checked>
+            </div>
+        </div>
+    </script>
+</th:block>
+<th:block layout:fragment="footer">
+</th:block>
+
+</html>

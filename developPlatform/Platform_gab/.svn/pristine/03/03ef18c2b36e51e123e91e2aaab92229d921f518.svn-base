@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+        <title>模板维护【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="pcNote" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>名称:</td>
+                <td content><input name="pcName" class="mini-textbox" required/></td>
+                <td title>分类:</td>
+                <td content colspan="1">
+                    <input id="pcType" name="pcType" class="mini-combobox" url="/system/parameter/getParamsSelectListByParentId/平台参数/表单配置/BJGL" textField="text" valueField="id" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>排序:</td>
+                <td content><input name="pcSort" class="mini-textbox" vtype="float" required="required"/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    mini.get("pcType").select(0);
+
+    function SetData(options) {
+        $('[name=action]').val(options.action);
+        if ('add' == options.action) {
+        } else if (!!~['view', 'edit'].indexOf(options.action)) {
+            $.get("/platform/priceconfigure/uniqueQuery/{0}".format(options.data.pc_note), function (
+                res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    //setContent();
+                    editUpload(res.data.status);
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("/platform/priceconfigure/add", JSON.stringify(form.getData()), function (
+                res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+</script>
+</html>

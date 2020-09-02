@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>凭证字</title>
+    </th:block>
+</head>
+<body>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid"   idField="sqNote" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+             <div tz:datagrid="column" field="fgenerateid" name="fgenerateid" width="50"></div>
+            <div tz:datagrid="column" field="fname" name="fname" width="120">凭证字</div>
+            <div tz:datagrid="column" field="fprefix" name="fprefix" width="120">打印标题</div>
+            <div tz:datagrid="column" field="fisdefault" name="fisdefault" width="70">默认</div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="/static/js/list.js"></script>
+<script type="text/javascript">
+				mini.parse();
+				var form = new mini.Form("form_home");
+				var grid = mini.get("srch_grid");
+				var surl = "/finance/voucher/certificateWord";
+				grid.setUrl(surl + "/getSrchTopList");
+				
+				grid.hideColumn("fgenerateid");
+			    function search_option() {
+			    	grid.load();
+			
+			    }
+
+</script>
+</html>

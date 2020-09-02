@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>维修人员选择页面</title>
+</th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+				<label class="hmq-label" text="参数编码">
+					<input class="mini-textbox" name="paramId" visible="true"/>
+					<input class="mini-hidden" id="paramName" name="paramName"/>
+                   <!-- <input class="mini-combobox" name="workerDept" url="/personnel/eHrWorker/selectDept" value="" textField="texts"  visible="false" valueField="id" nullItemText="全部" showNullItem="true" width="100"/>   -->
+				</label>
+				<label class="hmq-label" text="参数名称">
+					<input class="mini-textbox" id="paramName" name="paramName"/>
+				</label>
+			
+				<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+				<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+				<a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+		</th:block>
+	</th:block>
+	<!--撑满页面-->
+	<div class="mini-fit"><!-- /personnel/eHrWorker/eHrWorkerList.html --><!--  -->
+		<div tz:datagrid="datagrid" id="srch_grid"  style="width:100%;height:100%;" idField="paramId" 
+					sizeList="[50,100,200]" pageSize="100"  url="/system/parameter/parameter.html"
+					onrowdblclick="onRowDblClick"              
+					 pager="#pager1" showPager="false" sortField="paramId" sortOrder="desc" >
+			<div property="columns">
+				<div tz:datagrid="checkcolumn"></div>
+			<div tz:datagrid="column" field="paramId"  align="center" width="360" value=""> 参数编码</div>
+				 <div tz:datagrid="column" field="paramName" align="left" width="360">参数名称</div>
+				 <!-- <div tz:datagrid="column" field="workerName" align="left" width="360" value="">员工部门</div> -->
+				<div tz:datagrid="column" width="100%"></div> 
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form("form1");
+	var grid = mini.get("srch_grid");
+	grid.bindSearchForm(form);
+	
+	
+	function SetData(options) {
+		//mini.get("workerName").setValue(options.data);
+		//mini.get("workerId").setValue(options.data);
+		search_option();
+	}
+
+
+
+	function search_option() {
+		grid.load();
+	}
+
+	function confirm(e) {
+		if (grid.getSelecteds().length <= 0) {
+			hmq.tipDanger('请选择一条数据');
+		} else {
+			closeWindow('ok');
+		}
+	}
+
+	
+	function GetData() {
+			return grid.getSelected();
+	}
+
+	
+	function onRowDblClick(e) {
+		confirm("ok");
+	}
+
+	
+	function closeWindow(action) {
+		if (window.CloseOwnerWindow) {
+			return window.CloseOwnerWindow(action);
+		} else {
+			window.close();
+		}
+	}
+	</script>
+	</body>
+</html>

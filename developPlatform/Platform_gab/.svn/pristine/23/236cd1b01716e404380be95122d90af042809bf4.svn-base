@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>夹治具商专家团队</title>
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/all.css}" />
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/all.js}"></script>
+<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+<script id="demo" type="text/html">
+	{{#layui.each(d.list, function(index, item){ }}
+		<li>
+			<a href="/gab/supply.html?supplyNote={{item.supplyNote}}">
+				<img src="{{item.supplyImg}}" alt="" default-img="/static/gab/images/wt.png">
+				<div class="company">{{item.supplyName}}</div>
+				<div class="describe">{{item.supplyInfo}}</div>
+				<div class="key">
+					<span>关键词:</span>
+						{{# if (item.keyWord != null) { }}
+                         {{#layui.each(item.keyWord, function(gjindex, gjitem){ }}
+    						<b>{{gjitem}}</b>
+						 {{#  }); }}	
+    					{{# } else { }}
+							<b>暂无</b>
+						{{# }  }}
+					
+				</div>
+			</a>
+		</li>
+  		{{#  });
+	}}
+	{{#  if(d.list.length === 0){ }}
+		<div class="noData"><h1>暂无数据</h1></div>
+	{{#  } }}	
+</script>
+<script id="team" type="text/html">
+	{{#layui.each(d.list, function(index, item){ }}
+		<li>
+			<div class="top">
+				<img src="/static/gab/images/zj2.jpg" alt="" default-img="/static/gab/images/wt.png">
+				<div class="peo_details">
+					<div class="name"> <i>可顺中</i><u>爱帮值:<b>82.6</b></u>
+						<div class="peo_rate" id="peo8"></div>
+					</div>
+					<div class="peo_about">
+						<div>从业年限：<b>15年</b></div>
+						<div>资质等级：<b>一级</b></div>
+						<div>从事行业：<b>模具冶具工艺</b></div>
+						<div class="good">
+							专长优势：<b>专注精密手板模型定制生产专注定制生产</b>
+						</div>
+					</div>
+					<div class="btn">
+						<span><a href="#">了解更多</a></span>
+						<span><a href="#">立即咨询</a></span>
+					</div>
+				</div>
+			</div>
+			<div class="bottom">
+				<ul><li>回复速度：<b>快速</b></li>
+					<li>方案交期：<b>3</b>天</li>
+					<li>可靠性：<b>98%</b></li>
+					<li>服务态度：<b>99.8%</b></li>
+				</ul>
+			</div>
+		</li>
+  		{{#  });
+	}}
+	{{#  if(d.list.length === 0){ }}
+		<div class="noData"><h1>暂无数据</h1></div>
+	{{#  } }}	
+</script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+	<div id="content" class="expert_content">
+		<div class="expert_content_list">
+			<p class="changeTitle"></p>
+
+			<div class="screen">
+				<div class="fl">
+					<dl>
+						<dt>热门搜索:</dt>
+						<dd>CNC加工</dd>
+						<dd>3D打印</dd>
+						<dd>模型定制</dd>
+					</dl>
+				</div>
+				<div class="fr">
+					<input id="searchContent" type="text" placeholder="请输入搜索内容">
+					<b id="search">搜索</b>
+				</div>
+			</div>
+			<ul id="tablist">
+				<li class="firm liJj">夹具厂商</li>
+				<li class="firm liFj">辅件厂商</li>
+				<li class="firm liHh">整合厂商</li>
+				<li class="firm liTs">特色厂商</li>
+			</ul>
+			<div class="content-box">
+				<div class="content jzj_content">
+					<ul id="jj">
+						<li>
+							<a href="#">
+								<img src="/static/gab/images/sy_38.jpg" alt="">
+								<div class="company">深圳市冠泰精密科技有限公司</div>
+								<div class="describe">专注精密手板模型定制生产-CNC加工/3D打印专注精密手板模型定制生产-CNC加工/3D打印</div>
+								<div class="key">
+									<span>关键词:</span>
+									<b>CNC加工</b>
+									<b>3D打印</b>
+									<b>模型定制</b>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div id="page1"></div>
+				</div>
+
+				<div class="content jzj_content">
+					<ul id="fj">
+						<li>
+							<a href="#">
+								<img src="/static/gab/images/sy_38.jpg" alt="">
+								<div class="company">深圳市冠泰精密科技有限公司</div>
+								<div class="describe">专注精密手板模型定制生产-CNC加工/3D打印专注精密手板模型定制生产-CNC加工/3D打印</div>
+								<div class="key">
+									<span>关键词:</span>
+									<b>CNC加工</b>
+									<b>3D打印</b>
+									<b>模型定制</b>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div id="page2"></div>
+				</div>
+
+				<div class="content jzj_content">
+					<ul id="hh">
+						<li>
+							<a href="#">
+								<img src="/static/gab/images/sy_38.jpg" alt="">
+								<div class="company">深圳市冠泰精密科技有限公司</div>
+								<div class="describe">专注精密手板模型定制生产-CNC加工/3D打印专注精密手板模型定制生产-CNC加工/3D打印</div>
+								<div class="key">
+									<span>关键词:</span>
+									<b>CNC加工</b>
+									<b>3D打印</b>
+									<b>模型定制</b>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div id="page3"></div>
+				</div>
+				<div class="content jzj_content">
+					<ul id="ts">
+						<li>
+							<a href="#">
+								<img src="/static/gab/images/sy_38.jpg" alt="">
+								<div class="company">深圳市冠泰精密科技有限公司</div>
+								<div class="describe">专注精密手板模型定制生产-CNC加工/3D打印专注精密手板模型定制生产-CNC加工/3D打印</div>
+								<div class="key">
+									<span>关键词:</span>
+									<b>CNC加工</b>
+									<b>3D打印</b>
+									<b>模型定制</b>
+								</div>
+							</a>
+						</li>
+					</ul>
+					<div id="page4"></div>
+				</div>
+				<!-- 专家团队 start -->
+				<div class="content contentin">
+					<ul></ul>
+					<div id="page5"></div>
+				</div>
+				<!-- 专家团队end -->
+			</div>
+		</div>
+		<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+		</th:block>
+		<script>
+			var expert_type = "";
+			var teamPage = "team"
+			//专家团队
+			if (expert_type == "team") {
+				//查询所有专家
+			} else if (expert_type == "artTeam") {
+				//工艺专家
+			} else if (expert_type == "saleBeforeTeam") {
+				//售前专家
+			} else if (expert_type == "=afterBeforeTeam") {
+				//售后专家
+			}
+
+			var cur = "[[${cur}]]";
+			var pageSize = 8;
+			var pageIndex = 1;
+			var total = 1;
+			var firmPage = "page1";
+
+			findSupply();
+
+			function findSupply() {
+
+				if (cur == "jj") {
+					firmPage = "page1";
+				} else if (cur == "fj") {
+					firmPage = "page2";
+				} else if (cur == "hh") {
+					firmPage = "page3";
+				} else if (cur == "ts") {
+					firmPage = "page4";
+				}
+				$.ajax({
+					url : '/gab/allChange/' + cur + "/" + pageSize + "/" + pageIndex,
+					type : 'GET',
+					async : true,
+					success : function(res) {
+						total = res.total;
+						drawing(res.data);
+						pageView();
+					}
+				});
+			}
+
+			function pageView() {
+				layui.use('laypage', function() {
+					var laypage = layui.laypage
+					laypage.render({
+						elem : firmPage,
+						count : total,
+						limit : 8,
+						jump : function(obj, first) {
+							if (!first) {
+								firmPage = obj.elem;
+								pageIndex = obj.curr;
+								$.ajax({
+									url : '/gab/allChange/' + cur + "/" + pageSize + "/" + pageIndex,
+									type : 'GET',
+									async : true,
+									success : function(res) {
+										total = res.total;
+										drawing(res.data);
+									}
+								});
+							}
+						}
+					});
+				});
+			}
+
+			function drawing(res) {
+				for (var i = 0; i < res.length; i++) {
+					if (res[i].keyWord != null)
+						res[i].keyWord = res[i].keyWord.split(",");
+				}
+				var data = {
+					"list" : res
+				}
+				var getTpl = demo.innerHTML, view = document.getElementById(cur);
+				laytpl(getTpl).render(data, function(html) {
+					view.innerHTML = html;
+				});
+			}
+
+			$(".firm").click(function(e) {
+				pageIndex = 1;
+				var text = $(this).text();
+				if (e.currentTarget.innerText == "夹具厂商") {
+					cur = "jj";
+					firmPage = "page1";
+				} else if (e.currentTarget.innerText == "辅件厂商") {
+					cur = "fj";
+					firmPage = "page2";
+				} else if (e.currentTarget.innerText == "混合厂商") {
+					cur = "hh";
+					firmPage = "page3";
+				} else if (e.currentTarget.innerText == "特色厂商") {
+					cur = "ts";
+					firmPage = "page4";
+				}
+				$.ajax({
+					url : '/gab/allChange/' + cur + "/" + pageSize + "/" + pageIndex,
+					type : 'GET',
+					async : true,
+					success : function(res) {
+						total = res.total;
+						drawing(res.data);
+						pageView();
+					}
+				});
+
+			});
+		</script>
+</body>
+</html>

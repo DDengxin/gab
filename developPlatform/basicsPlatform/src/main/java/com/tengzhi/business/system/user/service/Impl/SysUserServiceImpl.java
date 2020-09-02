@@ -1,0 +1,348 @@
+package com.tengzhi.business.system.user.service.Impl;
+
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.impl.BaseServiceImpl;
+import com.tengzhi.base.property.Property;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.security.common.tool.spring.SpringUtil;
+import com.tengzhi.base.tools.MD5.MD5Util;
+import com.tengzhi.base.tools.TierTool;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.base.tools.ehcache.util.EhcacheEnum;
+import com.tengzhi.base.tools.ehcache.util.EhcacheTemplate;
+import com.tengzhi.base.tools.file.FileUtil;
+import com.tengzhi.business.system.dept.dao.SysDeptDao;
+import com.tengzhi.business.system.dept.model.SysDept;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.upload.service.SysUploadService;
+import com.tengzhi.business.system.user.dao.SysUserDao;
+import com.tengzhi.business.system.user.model.SysUser;
+import com.tengzhi.business.system.user.service.SysUserService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class SysUserServiceImpl extends BaseServiceImpl implements SysUserService {
+
+    @Autowired
+    private SysUserDao sysUserDao;
+    @Autowired
+    private SysDeptDao sysDeptDao;
+    @Autowired
+    private SysParamDao sysParamDao;
+    @Autowired
+    private SysUploadService sysUploadService;
+
+    @Autowired
+    private EhcacheTemplate template;
+
+    @Override
+    public BasePage<SysUser> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        String cxQx=sysUserDao.getSingleResult("select org_ids from sys_user where user_id=?1 ",SessionUser.SessionUser().getUserId());
+        return sysUserDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            if (!SessionUser.isSuperUser()) {
+                c.in("orgId", StringUtils.split(cxQx, ","));
+            }
+            c.eq("orgId", map.get("dataCorp"));
+            c.contains("jobNumber", map.get("jobNumber"));
+            c.contains("nickName", map.get("nickName"));
+            c.eq("deleteLogo", false);
+        }));
+    }
+
+    @Override
+    public void saveUserAuth(Map<String, Object> map) {
+        String corpId = "";
+        Property pro = SpringUtil.getBean(Property.class);
+        try {
+            corpId = SessionUser.getCurrentCorpId();
+            if (corpId == null) {
+                corpId = pro.getBusiness().getDefaultCorp();
+            }
+        } catch (NullPointerException e) {
+            corpId = pro.getBusiness().getDefaultCorp();
+        } finally {
+            removeCache();
+            String userId = String.valueOf(map.get("userId"));
+            sysUserDao.deleteRoleAuthByUserIdAndDataCorp(userId, corpId);
+            sysUserDao.flush();
+            List<Map<String, String>> roleMap = (List<Map<String, String>>) map.get("roleMap");
+            String finalCorpId = corpId;
+            roleMap.forEach(item -> {
+                sysUserDao.saveUserAuth(UUIDUtil.uuid(), userId, item.get("roleId"), finalCorpId);
+            });
+        }
+    }
+
+
+    @Override
+    public SysUser findByUserId(String userId) {
+        return sysUserDao.findByUserId(userId);
+    }
+
+    @Override
+    public Map<String, Object> getAvatarUrl(String userId) {
+        String sql = "SELECT a.*,b.line_primary FROM sys_user a left join com_file b on a.user_id=b.line_primary where a.user_id='" + userId + "'";
+        List<Map> user = sysUserDao.QueryListMap(sql);
+        Map<String,Object> map = new HashMap<String,Object>(1);
+        if (user.size() > 0 && ObjectUtil.isNotEmpty(user.get(0).get("line_primary"))) {
+            map.put("avatar_url", true);
+        } else {
+            map.put("avatar_url", false);
+        }
+        return map;
+    }
+
+    @Override
+    public String ReadPath(String id) {
+        String sql = "SELECT b.file_path FROM sys_user a, com_file b where a.user_id=b.line_primary and a.user_id='" + id + "'";
+        List<Map> user = sysUserDao.QueryListMap(sql);
+        Map<String, Object> map = user.get(0);
+        String UPLOAD_ABS_PATH = FileUtil.getUploadAbsPath();
+        String uploadFileAbsolutePath = FileUtil.PathJoin(UPLOAD_ABS_PATH, map.get("file_path").toString());
+        String p = SysUserServiceImpl.class.getResource("").getPath();
+        p = p.substring(1, 3);
+        String dd = p + uploadFileAbsolutePath;
+        return dd;
+    }
+
+    @Override
+    public SysUser save(SysUser sysUser) {
+        sysUser.setUserId(sysUser.getJobNumber());
+        if (judgeUnique(sysUser)) {
+            sysUser.setDeleteLogo(false);
+            sysUser.setRealName(sysUser.getNickName());
+
+            SysParams sysParam = sysParamDao.findByParamTypeAndParamId("工作岗位", sysUser.getPositionId());
+            if (null != sysParam) {
+                sysUser.setPositionName(sysParam.getParamName());
+            }
+
+            //关联用户的最小单位为层级码
+            if (StringUtils.isNotEmpty(sysUser.getDeptId())) {
+                SysDept sysDept = sysDeptDao.findByDeptIdAndDeleteLogo(sysUser.getDeptId(), false);
+                sysUser.setTierId(TierTool.join(sysDept.getTierId(), sysUser.getUserId()));
+                sysUser.setDeptName(sysDept.getDeptName());
+                sysUser.setOrgId(sysDept.getOrgId());
+                sysUser.setOrgName(sysDept.getOrgName());
+            } else {
+                if (StringUtils.isBlank(sysUser.getDeptId())) {
+                    throw new RuntimeException("部门不得为空");
+                } else {
+                    throw new RuntimeException("部门数据丢失,请检查部门档案");
+                }
+            }
+
+            //规范账套信息
+            sysUser = standardOrgInfo(sysUser);
+
+
+            sysUser.setGenTime(new Timestamp(System.currentTimeMillis()));
+            sysUser.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            sysUser.Validate();
+            sysUser.setPassword(MD5Util.encode(sysUser.getPassword()));
+            return sysUserDao.save(sysUser);
+        } else {
+            throw new RuntimeException("工号已存在");
+        }
+    }
+
+    @Override
+    public void update(SysUser sysUser) throws Exception {
+        SysParams sysParam = sysParamDao.findByParamTypeAndParamId("工作岗位", sysUser.getPositionId());
+        if (null != sysParam) {
+            sysUser.setPositionName(sysParam.getParamName());
+        }
+        SysDept sysDept = sysDeptDao.findByDeptIdAndDeleteLogo(sysUser.getDeptId(), false);
+        if (null == sysDept) {
+            if (StringUtils.isBlank(sysUser.getDeptId())) {
+                throw new RuntimeException("部门不得为空");
+            } else {
+                throw new RuntimeException("部门数据丢失,请检查部门档案");
+            }
+
+        } else {
+            sysUser.setTierId(TierTool.join(sysDept.getTierId(), sysUser.getUserId()));
+            sysUser.setDeptName(sysDept.getDeptName());
+            sysUser.setOrgId(sysDept.getOrgId());
+            sysUser.setOrgName(sysDept.getOrgName());
+        }
+        //规范账套信息
+        sysUser = standardOrgInfo(sysUser);
+
+        sysUser.setModifyTime(new Timestamp(System.currentTimeMillis()));
+        //修改密码
+        if (StringUtils.isNotEmpty(sysUser.getPassword())) {
+            sysUser.setPassword(MD5Util.encode(sysUser.getPassword()));
+        } else {
+            sysUser.setPassword(null);
+        }
+        sysUserDao.dynamicSave(sysUser, sysUserDao.findByUserId(sysUser.getUserId()));
+    }
+
+    /**
+     * 规范用户默认账套，账套列表字段规范
+     *
+     * @param sysUser
+     * @throws RuntimeException
+     */
+    private SysUser standardOrgInfo(SysUser sysUser) throws RuntimeException {
+        //用户账套列表(数据规范)、默认账套(确保在账套列表中)的逻辑处理
+        List<String> orgIds = StrUtil.split(StrUtil.nullToDefault(sysUser.getOrgIds(), ""), ',', true, true);
+        if (orgIds.indexOf(sysUser.getOrgId()) < 0) {
+            orgIds.add(sysUser.getOrgId());
+        }
+        if (StringUtils.isEmpty(sysUser.getDefaultOrgId())) {
+            sysUser.setDefaultOrgId(sysUser.getOrgId());
+        }
+        if (orgIds.indexOf(sysUser.getDefaultOrgId()) < 0) {
+            throw new RuntimeException(String.format("默认账套不在该用户的账套列表中"));
+        }
+        sysUser.setOrgIds(ArrayUtil.join(orgIds.toArray(), ","));
+        return sysUser;
+    }
+
+    @Override
+    public Result updatePassword(String newPassWord, String odlPassWord) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        SysUser sysUser = sysUserDao.findByUserId(sessionUser.getUserId());
+        if (MD5Util.eq(odlPassWord, sysUser.getPassword())) {
+            sysUser.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            sysUser.setPassword(newPassWord);
+            sysUserDao.update(sysUser);
+            return Result.resultOk();
+        } else {
+            return Result.error("原始密码输入错误");
+        }
+    }
+
+    @Override
+    public Result deleteByUserId(List<SysUser> list) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getIsForbidden()) {
+                sysUserDao.deleteByUserId(list.get(i).getUserId());
+                sysUserDao.deleteRoleAuthByUserIdAndDataCorp(list.get(i).getUserId(), SessionUser.getCurrentCorpId());
+                if (StrUtil.isNotEmpty(list.get(i).getUserId())) {
+                    try {
+                        sysUploadService.delete("{\"uuid\":\"" + list.get(i).getUserId() + "\"}");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                return Result.error("不能删除已经启用的用户");
+            }
+        }
+        removeCache();
+        return Result.resultOk("删除成功");
+    }
+
+    @Override
+    public boolean judgeUnique(SysUser sysUser) {
+        return sysUserDao.findOne(Specifications.where((c) -> {
+            c.eq("jobNumber", sysUser.getJobNumber());
+            c.eq("deleteLogo", false);
+            if (StringUtils.isNotEmpty(sysUser.getUserId())) {
+                c.ne("userId", sysUser.getUserId());
+            }
+        })).orElse(null) == null;
+    }
+
+    @Override
+    public List<Map<String, Object>> findSysUserRightAll(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String userId = map.get("userId");
+
+        String where = SqlJoint.start()
+                //限定只允许查询当前操作账套下的角色
+                .eq("sys_role.data_corp", SessionUser.getCurrentCorpId(), true)
+                .contains("sys_role.role_name", map.get("roleName"))
+                .getAndSuffixSqlStr();
+        String sql = " select sys_role.*,tmp.id,tmp.role_id  validation "
+                + " from sys_role "
+                + " left join (SELECT id,role_id,data_corp from sys_user_r_role where user_id='" + userId + "' ) tmp on sys_role.role_id = tmp.role_id  and tmp.data_corp = sys_role.data_corp "
+                + " where sys_role.is_forbidden = false  " + where
+                + " ORDER BY sys_role.role_ord asc ";
+        return sysUserDao.QueryToMap(sql);
+    }
+
+
+    @Override
+    public List<SysUser> findByMobile(String mobile) {
+        return sysUserDao.findByMobile(mobile);
+    }
+
+    @Override
+    public List<SysUser> findByMobileAndOrgId(String mobile, String orgId) {
+        return sysUserDao.findByMobileAndOrgId(mobile, orgId);
+    }
+
+    @Override
+    public Map<String, Object> getUserCorpInfo() {
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        SessionUser sessionUser = SessionUser.SessionUser();
+        SysUser sysUser = sysUserDao.getOne(sessionUser.getUserId());
+
+        result.put("userId", sysUser.getUserId());
+        result.put("realName", sysUser.getRealName());
+        //当前操作账套
+        result.put("currentOrgId", sessionUser.getCorpId());
+        //档案账套
+        result.put("orgId", sysUser.getOrgId());
+        result.put("orgName", sysUser.getOrgName());
+        //账套列表
+        result.put("orgIds", sysUser.getOrgIds());
+        //默认(登录)账套
+        result.put("defaultOrgId", sysUser.getDefaultOrgId());
+
+        return result;
+    }
+
+    @Override
+    public Result setUserCorpInfo(String defaultOrgId, String currentOrgId) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        SysUser sysUser = sysUserDao.getOne(sessionUser.getUserId());
+        String[] orgIds = StrUtil.split(StrUtil.nullToDefault(sysUser.getOrgIds(), ""), ",");
+        if (!SessionUser.isSuperUser()) {
+            if (!ArrayUtil.contains(orgIds, defaultOrgId)) {
+                return Result.error("默认账套不在您在账套列表中,操作失败");
+            } else if (!ArrayUtil.contains(orgIds, currentOrgId)) {
+                return Result.error("操作账套不在您在账套列表中,操作失败");
+            }
+        }
+        sysUser.setDefaultOrgId(defaultOrgId);
+        sysUserDao.save(sysUser);
+        sessionUser.setCorpId(currentOrgId);
+        return Result.resultOk();
+    }
+
+    @Override
+    public void removeCache() {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        if (null != sessionUser) {
+            template.removeLike("ehCacheConfig", String.format("%s%s", EhcacheEnum.menu.getGroup(), sessionUser.getCorpId()));
+            template.removeLike("ehCacheConfig", String.format("%s%s", EhcacheEnum.button.getGroup(), sessionUser.getCorpId()));
+        }
+    }
+
+
+}

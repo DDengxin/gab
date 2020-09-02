@@ -1,0 +1,209 @@
+.manage {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 125px;
+    padding-bottom: 50px;
+}
+
+.manage_content {
+    width: 1200px;
+    overflow: hidden;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.manage_content h2 {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.manage_content h2:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.manage_content h3 {
+    font-size: 26px;
+    color: #e80000;
+    font-weight: bold;
+    margin: 30px 0 20px;
+}
+
+.manage_content .sidebar {
+    width: 182px;
+    height: 100%;
+    background: rgb(248, 248, 248);
+    padding: 20px 0;
+    float: left;
+}
+
+.manage_content .sidebar dl:first-child {
+    margin-bottom: 40px;
+}
+
+.manage_content .sidebar dl, .manage_content .sidebar dt, .manage_content .sidebar dd {
+    width: 100%;
+}
+
+.manage_content .sidebar dt {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 2;
+}
+
+.manage_content .sidebar dd {
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.manage_content .sidebar dd a {
+    display: block;
+    height: 100%;
+    color: #666;
+}
+
+.manage_content .sidebar dd a:hover {
+    background: rgb(236, 236, 236) !important;
+    border-left: 6px solid #e80000 !important;
+    color: #e80000 !important;
+}
+
+.selected {
+    background: rgb(236, 236, 236) !important;
+    border-left: 6px solid #e80000 !important;
+    color: #e80000 !important;
+}
+
+.right {
+    width: 1018px;
+    padding-left: 18px;
+    float: left;
+}
+
+.tip {
+    width: 100%;
+    height: 40px;
+    background: rgb(249, 249, 249);
+    border: 1px solid rgb(220, 220, 220);
+    line-height: 40px;
+    padding-left: 13px;
+    font-size: 12px;
+    color: #666;
+}
+
+h4 {
+    margin: 22px 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+form {
+    padding-left: 40px;
+}
+
+.layui-form-label {
+    width: 100px !important;
+    color: #666;
+}
+
+.layui-input {
+    width: 50% !important;
+}
+
+.layui-form-mid {
+    margin-left: 110px;
+}
+
+.layui-btn {
+    display: inline-block;
+    height: 46px;
+    line-height: 46px;
+    padding: 0 48px;
+    background-color: #e80000;
+    color: #fff;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 16px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 42px;
+    margin-left: 85px;
+}
+
+.layui-form-item {
+    position: relative;
+}
+
+.layui-form-item b {
+    color: #e80000;
+    font-size: 16px;
+    position: absolute;
+    top: 10px;
+    left: 88px;
+}
+
+.webuploader-container div:first-child+div {
+    height: 36px !important;
+}
+
+.webuploader-pick {
+    padding: 0px 15px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    background: #409fff !important;
+}
+
+.layui-input-block .item .webuploadinfo {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 40%;
+    vertical-align: middle;
+    border: 1px solid rgb(230, 230, 230);
+    height: 30px;
+    line-height: 30px;
+    padding: 0 5px;
+}
+
+.layui-input-block .item .webuploadstate {
+    position: absolute;
+    top: 6px;
+    left: 41%;
+    width: 50px;
+}
+
+.layui-input-block .item .webuploadItemButtons {
+    width: auto;
+    display: inline-block;
+    clear: both;
+    text-align: right;
+    margin-left: 80px;
+}
+
+.layui-laydate table tr .layui-this {
+    background-color: #409fff !important;
+}
+
+.layui-btn:hover {
+    background: #409fff !important;
+}

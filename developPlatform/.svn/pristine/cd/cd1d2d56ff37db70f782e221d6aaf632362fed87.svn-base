@@ -1,0 +1,57 @@
+package com.tengzhi.business.sc.finishedPicking.notice.dao.impl;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.tengzhi.base.security.common.model.SessionUser;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Repository;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.business.base.publicinterfac.IUserConstants;
+import com.tengzhi.business.sc.finishedPicking.notice.dao.finishedPickingNoticeDao;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Repository
+public class finishedPickingNoticeDaoNoticeDaoImpl extends BasicsDaoImpl<String, String>
+		implements finishedPickingNoticeDao {
+
+	@Override
+	public List<Map<String, Object>> findOrderNo(String type) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String sql = "select  *  from e_xs_contract a where a.ht_stype = '" + type
+				+ "' and ht_flag='核准' and data_corp='"+securityUser.getCorpId()+"'";
+		return super.queryToMap(sql);
+	}
+
+	@Override
+	public Result findSerialNumber(BaseDto dto) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		Map<String, String> map=dto.getParamsMap();
+		String sqlWhere = " " ;
+		if (ObjectUtil.isNotEmpty(map.get("cpcodeId"))) {
+			sqlWhere += " and code ='" + map.get("cpcodeId") + "' ";
+		}
+		if (ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+			sqlWhere += " and cpcodename ='" + map.get("cpcodeName") + "' ";
+		}
+		String type= map.get("type");
+		String sqlStr="";
+		if("YL".equals(type)) {
+			sqlStr="f_get_param_name('原料产地',cpcode_size_en)";
+		}else {
+			sqlStr="cpcode_size_en";
+		}
+		String sql = "select *,"+sqlStr+" as cd   from (select code,cpcodename,cpcode_size,cpcodebzname,cpcode_size_en,sum(sl) sl from v_ck_mx   where  dtype='" + type + "' "+sqlWhere+" group by code,cpcodename,cpcode_size,cpcodebzname,cpcode_size_en) t";
+		String countSql = "select count(1) from (select * from v_ck_mx where  dtype='" + type + "') t";
+		Map<String, Object> map1=new HashMap<String, Object>();
+		return super.QueryPageList(sql, countSql, map1, dto);
+	}
+
+}

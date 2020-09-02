@@ -1,0 +1,246 @@
+package com.tengzhi.business.platform.enroll.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * 个人表
+ * @author lsh
+ *
+ */
+@Entity
+@Table(name = "g_personal")
+public class G_personal {
+private String district;
+private String customerExp;
+private String personNote;
+private String supplyName,supplyImg, lastyearMoney,idCard,name,mainJob,numberScope,DeliveryDateScope,accuracyRequire,spaceRequire,weightRequire
+,autoRequire,targetScope,explain ,headImg,personName,status,submitter,role,supplyLevel,supplyUid;
+private Boolean  isProxy,isPublic, isPlatform;
+private int supplyDay;
+private BigDecimal supplyJe;
+
+
+
+
+@Transient
+private   String password ;
+
+
+private Date registerDate;
+
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
+	public String getCustomerExp() {
+		return customerExp;
+	}
+
+	public void setCustomerExp(String customerExp) {
+		this.customerExp = customerExp;
+	}
+
+	public String getSupplyName() {
+		return supplyName;
+	}
+
+	public void setSupplyName(String supplyName) {
+		this.supplyName = supplyName;
+	}
+
+	@Id
+public String getPersonNote() {
+	return personNote;
+}
+public void setPersonNote(String personNote) {
+	this.personNote = personNote;
+}
+public String getSupplyImg() {
+	return supplyImg;
+}
+public void setSupplyImg(String supplyImg) {
+	this.supplyImg = supplyImg;
+}
+public String getLastyearMoney() {
+	return lastyearMoney;
+}
+public void setLastyearMoney(String lastyearMoney) {
+	this.lastyearMoney = lastyearMoney;
+}
+public String getIdCard() {
+	return idCard;
+}
+public void setIdCard(String idCard) {
+	this.idCard = idCard;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public String getMainJob() {
+	return mainJob;
+}
+public void setMainJob(String mainJob) {
+	this.mainJob = mainJob;
+}
+
+public String getNumberScope() {
+	return numberScope;
+}
+public void setNumberScope(String numberScope) {
+	this.numberScope = numberScope;
+}
+public String getDeliveryDateScope() {
+	return DeliveryDateScope;
+}
+public void setDeliveryDateScope(String deliveryDateScope) {
+	DeliveryDateScope = deliveryDateScope;
+}
+public String getAccuracyRequire() {
+	return accuracyRequire;
+}
+public void setAccuracyRequire(String accuracyRequire) {
+	this.accuracyRequire = accuracyRequire;
+}
+public String getSpaceRequire() {
+	return spaceRequire;
+}
+public void setSpaceRequire(String spaceRequire) {
+	this.spaceRequire = spaceRequire;
+}
+public String getWeightRequire() {
+	return weightRequire;
+}
+public void setWeightRequire(String weightRequire) {
+	this.weightRequire = weightRequire;
+}
+public String getAutoRequire() {
+	return autoRequire;
+}
+public void setAutoRequire(String autoRequire) {
+	this.autoRequire = autoRequire;
+}
+public String getTargetScope() {
+	return targetScope;
+}
+public void setTargetScope(String targetScope) {
+	this.targetScope = targetScope;
+}
+public String getExplain() {
+	return explain;
+}
+public void setExplain(String explain) {
+	this.explain = explain;
+}
+public Boolean getIsProxy() {
+	return isProxy;
+}
+public void setIsProxy(Boolean isProxy) {
+	this.isProxy = isProxy;
+}
+public Boolean getIsPublic() {
+	return isPublic;
+}
+public void setIsPublic(Boolean isPublic) {
+	this.isPublic = isPublic;
+}
+public Date getRegisterDate() {
+	return registerDate;
+}
+public void setRegisterDate(Date registerDate) {
+	this.registerDate = registerDate;
+}
+public String getHeadImg() {
+	return headImg;
+}
+public void setHeadImg(String headImg) {
+	this.headImg = headImg;
+}
+public String getPersonName() {
+	return personName;
+}
+public void setPersonName(String personName) {
+	this.personName = personName;
+}
+
+public String getStatus() {
+	return status;
+}
+public void setStatus(String status) {
+	this.status = status;
+}
+public String getSubmitter() {
+	return submitter;
+}
+public void setSubmitter(String submitter) {
+	this.submitter = submitter;
+}
+public String getRole() {
+	return role;
+}
+public void setRole(String role) {
+	this.role = role;
+}
+
+public String getSupplyLevel() {
+	return supplyLevel;
+}
+
+public void setSupplyLevel(String supplyLevel) {
+	this.supplyLevel = supplyLevel;
+}
+
+public String getSupplyUid() {
+	return supplyUid;
+}
+
+public void setSupplyUid(String supplyUid) {
+	this.supplyUid = supplyUid;
+}
+
+public int getSupplyDay() {
+	return supplyDay;
+}
+
+public void setSupplyDay(int supplyDay) {
+	this.supplyDay = supplyDay;
+}
+
+public BigDecimal getSupplyJe() {
+	return supplyJe;
+}
+
+public void setSupplyJe(BigDecimal supplyJe) {
+	this.supplyJe = supplyJe;
+}
+
+public Boolean getIsPlatform() {
+	return isPlatform;
+}
+
+public void setIsPlatform(Boolean isPlatform) {
+	this.isPlatform = isPlatform;
+}
+
+@Transient
+public String getPassword() {
+	return password;
+}
+
+public void setPassword(String password) {
+	this.password = password;
+}
+
+}

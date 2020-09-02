@@ -1,0 +1,17 @@
+package com.tengzhi.business.sc.task.sctack.dao;
+
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwGx;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwGx.MScScrwGx_PK;
+
+public interface MScScrwGxDao extends BasedaoRepository<MScScrwGx, MScScrwGx_PK> {
+
+	 @Modifying
+	 @Query(value =" delete from MScScrwGx where scMo = :scMo ")
+	 void deleteRwgx(@Param(value = "scMo") String scMo);
+
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>专家管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+       <label class="hmq-label" text="日期">
+        <input class="mini-datepicker" name="srchRq1" ateFormat="yyyy-MM-dd" width="110"/>
+    </label>
+    <label class="hmq-label" text="至">
+        <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+    </label>
+        <label class="hmq-label" text="专家名称">
+            <input class="mini-textbox" name="expert_name"/>
+        </label>
+          <label class="hmq-label" text="类型">
+            
+              <select name="expert_type" class="mini-combobox" emptyText="全部">
+            <option value="">全部</option>
+           
+            <option value="售前专家">售前专家</option>
+             <option value="售后专家">售后专家</option>
+              <option value="工艺专家">工艺专家</option>
+             
+        </select>
+        </label>
+
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch-grid" idField="expertNote" url="/platform/expert/list.html">
+        <div property="columns">
+         <div width="40px" type="indexcolumn" headerAlign="center">序号</div>
+            <div tz:datagrid="column" field="registerDate" width="60px" align="center">注册日期</div>
+             <div tz:datagrid="column" field="expertNote" align="center" width="180px"> 身份证号码</div>
+            <div tz:datagrid="column" field="expertName" align="center" width="60px">专家名称</div>
+            <div tz:datagrid="column" field="expertType" align="center" width="60px">专家类型</div>
+            <div tz:datagrid="column" field="level" align="center" width="40px">等级</div>
+             <div tz:datagrid="column" field="dialect" align="center" width="50px">方言</div>
+             <div tz:datagrid="column" field="knowProduct" align="left" width="60px">熟悉产品</div>            
+<!--             <div tz:datagrid="column" field="jobAge" align="right"  width="20px">年限</div>
+ -->             <div tz:datagrid="column" field="strengths" align="left"  width="160px">优点</div>
+             <div tz:datagrid="column" field="introduce" align="left"  width="300px">介绍</div>
+             <div tz:datagrid="column" field="serviceScope" align="right"  width="50px">服务范围</div>
+              <div tz:datagrid="column" field="status" align="center"   width="40px">状态</div>
+           <!--   <div tz:datagrid="column" withd="100%"></div> -->
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch-grid");
+
+    grid.on("DrawCell", function (e) {
+        if ("registerDate" == e.field && null != e.value) {
+            e.cellHtml = mini.formatDate(new Date(e.value), 'yyyy-MM-dd');
+        }
+    }); 
+
+    function search_option() {
+       	var data  =  form.getData(true);
+      	data.srchRq2 = form.getData(true).srchRq2
+    	data.srchRq1 = form.getData(true).srchRq1
+    	if(!!data.srchRq2){
+    		data.srchRq2 = form.getData(true).srchRq2+" 23:59:59";
+    	}
+    	if(!!data.srchRq1){
+    		data.srchRq1 = form.getData(true).srchRq1+" 00:00:00";
+    	}
+    	grid.load({params:JSON.stringify(data)});
+    	
+    	
+       // grid.load({params: JSON.stringify(form.getData(true))});
+    }
+
+   
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+package com.tengzhi.business.system.user.controller;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.tools.captcha.utils.CaptchaUtil;
+import com.tengzhi.business.system.user.service.LoginService;
+
+@Controller
+@RequestMapping("/login")
+public class LoginController {
+
+    @Autowired
+    LoginService loginService;
+
+    /**
+     * 登录页面
+     *
+     * @return
+     */
+    @GetMapping
+    public ModelAndView login(ModelAndView mv,@RequestParam(required=false) String corp) {
+        mv.setViewName("system/login");
+        mv = loginService.getSetting(corp,mv);
+
+        return mv;
+    }
+    
+    @RequestMapping("/loginCheck")
+    public ModelAndView loginCheck(ModelAndView mv) {
+        mv.setViewName("redirect:/system/main");
+        return mv;
+    }
+
+
+    /**
+     * 图形验证码
+     * 请求的验证码会记录在session的"captcha"键值对中
+     * 通过CatchaUtil.ver(验证码,HttpServletRequest)可以验证验证码正确性 通
+     * 过CatchaUtil.clear()可以清除验证码缓存
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
+    @GetMapping(value = "/captcha", produces = "image/gif")
+    public void captchaPicutre(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        CaptchaUtil.out(104, 40, 4, request, response);
+    }
+
+	/**
+	 * 手机验证码
+	 * @param mobile 手机号码
+	 * @param corp 公司账套
+	 * @return
+	 */
+    @PostMapping(value = "/captcha")
+    @ResponseBody
+    public Result captchaMobile(@RequestParam String mobile, @RequestParam(required = false) String corp) {
+        try {
+            loginService.sendLoginSms(mobile, corp);
+            return Result.resultOk("发送成功");
+        } catch (Exception e) {
+            return Result.resultError(e);
+        }
+    }
+}

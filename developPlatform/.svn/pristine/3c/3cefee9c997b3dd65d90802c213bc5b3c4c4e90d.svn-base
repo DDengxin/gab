@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>员工管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="工号">
+            <input class="mini-textbox" name="workerId" width="100"/>
+        </label>
+        <label class="hmq-label" text="姓名">
+            <input class="mini-textbox" name="workerName" width="100"/>
+        </label>
+        <label class="hmq-label" text="档案公司">
+            <input class="mini-comboBox" name="workerCorpid" url="/personnel/eHrWorker/selectCorp" showNullItem="true" nullItemText="全部"
+                   width="100" onvaluechanged="onChangeCorp"/>
+        </label>
+        <label class="hmq-label" text="档案部门">
+            <input id="workerDept" name="workerDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                   showClose="true" oncloseclick="onCloseClickClearValue"/>
+           <!-- url="/system/dept/combobox/getDeptTreeList"-->
+        </label>
+        <label class="hmq-label" text="类型">
+            <input class="mini-comboBox" name="workerType" url="/personnel/eHrWorker/selectYglx" showNullItem="true" nullItemText="全部" width="100"/>
+        </label>
+        <label class="hmq-label" text="职务">
+            <input class="mini-comboBox" name="workerDuty"  showNullItem="true" nullItemText="全部" width="140"/>
+        </label>
+        <label class="hmq-label" text="岗位">
+            <input class="mini-comboBox" name="workerPost"  showNullItem="true" nullItemText="全部" width="140"/>
+        </label>
+
+        <label class="hmq-label" text="编制公司">
+            <input class="mini-comboBox" name="orgCorp" url="/personnel/eHrWorker/selectCorp" showNullItem="true" nullItemText="全部"
+                   width="100" onvaluechanged="onChangeOrgCorp"/>
+        </label>
+        <label class="hmq-label" text="编制部门">
+            <input id="orgDept" name="orgDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                   showClose="true" oncloseclick="onCloseClickClearValue"/>
+            <!-- url="/system/dept/combobox/getDeptTreeList"-->
+        </label>
+        <label class="hmq-label" text="状态">
+            <select class="mini-comboBox" name="workerFlag"   width="80">
+                <option value="">全部</option>
+                <option value="启用">启用</option>
+                <option value="禁用">禁用</option>
+            </select>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" sortField="workerId"
+         idField="workerId" showPageInfo="false" parentField="parentId" resultAsTree="true" iconField="rightIconCls"
+         expandOnLoad="0" showTreeLines="false" ShowTreeicon="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="workerId" name="workerId" align="center" width="80">工号</div>
+            <div tz:datagrid="column" field="workerName" name="workerName" align="left" width="80">姓名</div>
+            <div tz:datagrid="column" field="workerCorpid" displayField="workerCorpName" name="workerCorpid" width="100" align="center">档案公司</div>
+            <div tz:datagrid="column" field="workerDept" displayField="workerDeptName" name="workerDept" width="140" align="left">档案部门</div>
+
+            <div tz:datagrid="column" field="workerDuty" name="workerDuty" displayField="workerDutyName" width="100" align="left">职务</div>
+            <div tz:datagrid="column" field="workerType" name="workerType" displayField="workerTypeName" width="100" align="left">类型</div>
+            <div tz:datagrid="column" field="workerPost" name="workerPost" displayField="workerPostName" width="100" align="left">岗位</div>
+            <div tz:datagrid="column" field="workerSex" name="workerSex" align="center" width="60">性别</div>
+            <div tz:datagrid="column" field="workerBackground" name="workerBackground" displayField="workerXlName" align="left" width="80">学历</div>
+            <div tz:datagrid="column" field="workerRace" name="workerRace" align="left" width="40" visible="false">民族</div>
+            <div tz:datagrid="column" field="workerPhone" name="workerPhone" width="160" align="center">电话</div>
+            <!-- <div tz:datagrid="column" field="workerTerritory" name="workerTerritory" align="left" width="60">地区</div>-->
+            <div tz:datagrid="column" field="workerFlag" name="workerFlag" align="center" width="60">状态</div>
+            <div tz:datagrid="column" field="workerOrganizationCorp" displayField="orgCorpName" name="workerOrganizationCorp" width="100" align="center">编制公司</div>
+            <div tz:datagrid="column" field="workerOrganizationDept" displayField="orgDeptName" name="workerOrganizationDept" width="140" align="left">编制部门</div>
+            <div tz:datagrid="column" width="100%"></div>
+            <!--<div tz:datagrid="column" field="workerRegistered" name="workerRegistered" align="center" width="60">户口类型</div>-->
+            <!--<div tz:datagrid="column" field="workerInsurance" name="workerInsurance" displayField="workerinsurancename" align="center" width="40">保险</div>-->
+            <!--<div tz:datagrid="column" field="workerAddress" name="workerAddress" align="center">家庭地址</div>-->
+            <!-- <div tz:datagrid="column" field="workerAccount" name="workerAccount" align="center" width="100" visible="false">银行账号</div>
+             <div tz:datagrid="column" field="workerCard" name="workerCard" align="center" width="100" visible="false">身份证</div>
+             <div tz:datagrid="column" field="workerSchool" name="workerSchool" align="center" width="100" visible="false">毕业院校</div>-->
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    //grid.frozenColumns ( 1, 6 );
+
+    function onChangeCorp(){
+        var corpId = form.getField("workerCorpid").getValue();
+        form.getField("workerDuty").setUrl("/personnel/eHrWorker/selectGzzw/{0}".format(corpId));
+        form.getField("workerPost").setUrl("/personnel/eHrWorker/selectGzgw/{0}".format(corpId));
+        form.getField("workerDept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(corpId));
+    }
+    function onChangeOrgCorp(){
+        var corpId = form.getField("orgCorp").getValue();
+        form.getField("orgDept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(corpId));
+    }
+    //拦截加载事件，加载树形结构
+/*    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });*/
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            e.cellHtml = e.value ? '是' : '否';
+        }
+        if (e.field == "workerSex") {
+            e.cellHtml = 'true' == e.value ? '男' : '女';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, height: '550px', width: '1000px'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row, height: '600px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: row, height: '600px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $["delete"]("eHrWorkerList.html/{0}".format(row.workerId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            data: "root",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

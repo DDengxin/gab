@@ -1,0 +1,34 @@
+package com.tengzhi.business.sc.task.sctack.vo;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.tengzhi.business.sc.task.sctack.model.MScScrwGx;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwWl;
+
+public class MScScrwWlVo implements Serializable {
+	
+	MScScrwGx  mScScrwGx;
+    List<MScScrwWl> mScScrwWlList;
+
+    
+	public MScScrwGx getmScScrwGx() {
+		return mScScrwGx;
+	}
+
+	public void setmScScrwGx(MScScrwGx mScScrwGx) {
+		this.mScScrwGx = mScScrwGx;
+	}
+
+	public List<MScScrwWl> getmScScrwWlList() {
+		return mScScrwWlList;
+	}
+
+	public void setmScScrwWlList(List<MScScrwWl> mScScrwWlList) {
+		this.mScScrwWlList = mScScrwWlList;
+	}
+
+    
+
+
+}

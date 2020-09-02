@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,editormd,upload'})}">
+        <title>公司管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="docId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr colspan="3">
+                <td title>操作手册名称:</td>
+                <td content  colspan="7">
+                    <input class="mini-textbox" name="docName" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>操作手册描述:</td>
+                <td content colspan="7">
+                    <input class="mini-textarea" name="description" height="50"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>操作手册内容:</td>
+                <td content colspan="7">
+                    <div class="editormd" id="arContent-editormd">
+                        <textarea class="editormd-markdown-textarea" id="editormd" name="arContent"></textarea>
+                        <!-- 第二个隐藏文本域，用来构造生成的HTML代码，方便表单POST提交，这里的name可以任意取，后台接受时以这个name键为准 -->
+                        <textarea class="editormd-html-textarea" id="content" name="ar-editormd-html-textarea" type="hidden"></textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>附件:</td>
+                <td content colspan="7">
+                    <div id="uploader"></div>
+                    <input id="docFileId" name="docFileId" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+
+    $(window).on("load", function (e) {
+        //初始化markdown编辑器
+        window.ArContentEditor = editormd("arContent-editormd", {
+            placeholder: '本编辑器支持Markdown编辑，左边编写，右边预览',  //默认显示的文字，这里就不解释了
+            //width: "100%",
+            height: 640,
+            syncScrolling: "single",
+            path: hmq.getPath("/static/script/editor/lib/"),   //就是editor的lib目录
+            //theme: "default",//工具栏主题
+            //previewTheme: "default",//预览主题
+            //editorTheme: "default",//编辑主题
+            saveHTMLToTextarea: true, //保存html到本地的textarea
+            emoji: true, //是否允许图标
+            taskList: true, //
+            tocm: true,         // Using [TOCM]
+            tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+            flowChart: true,             // 开启流程图支持，默认关闭
+            sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+            imageUpload: true,     //开启图片上传
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"], //允许上传的图片格式
+            imageUploadURL: "/editormd/upload", //上传的路径，就是mvc的controller路径
+            toolbarIcons: function () {  //自定义工具栏，后面有详细介绍
+                return editormd.toolbarModes['full']; // full, simple, mini
+            }
+        });
+    });
+
+
+    function SetData(options) {
+        mini.getByName("action").setValue(options.action);
+        if ('add' == options.action) {
+            var fileId =getFileId();
+            mini.get("docFileId").setValue(fileId);
+            $("#uploader").filesUpload({
+                pickerid: fileId,
+                filecount: 50,
+            });
+        } else if (!!~['view','edit'].indexOf(options.action)) {
+            $.get("docByDataId",{doc_id:options.data.docId},function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+
+                    $(form.el).find('[name=arContent]').val(res.data.docMarkdown);
+                    $(form.el).find('[name=ar-editormd-html-textarea]').val(res.data.docHtml);
+
+                    var fileId =getFileId();
+                    if(mini.get("docFileId").getValue()){
+                        fileId=mini.get("docFileId").getValue();
+                    }else{
+                        mini.get("docFileId").setValue(fileId);
+                    }
+                    $("#uploader").filesUpload({
+                        pickerid: fileId,
+                        filecount: 50,
+                    });
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var data = form.getData();
+            data.docMarkdown = $(form.el).val('[name=arContent]').text();
+            data.docHtml= $(form.el).val('[name=ar-editormd-html-textarea]').text();
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("docDataSava",JSON.stringify(data),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+</script>
+</html>

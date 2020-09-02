@@ -1,0 +1,60 @@
+<!--/*前端模板【个人中心】模板*/-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <head>
+        <th:block th:replace="~{gab/common/CommonHead :: head(_,~{::link},~{::script},${'basic'})}">
+            <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/manage/manage.css}" />
+            <script type="text/javascript" th:src="@{/static/gab/js/manage/manage.js}"></script>
+        </th:block>
+        <th:block layout:fragment="header"></th:block>
+    </head>
+    <body>
+        <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+        <div class="manage">
+            <div class="manage_content">
+                <h2>会员管理</h2>
+                <h3>我的企业</h3>
+                <div class="sidebar">
+                    <dl>
+                        <dt>账号管理</dt>
+                        <dd>
+                            <a href="#">我的资料</a>
+                        </dd>
+                        <dd>
+                            <a href="/gab/manage/accountAuthentication.html">账号认证</a>
+                        </dd>
+                        <dd>
+                            <a href="/gab/manage/business.html">我的企业</a>
+                        </dd>
+                        <dd>
+                            <a href="/gab/manage/corporateCertification.html">企业认证</a>
+                        </dd>
+                        <dd>
+                            <a href="/gab/manage/address.html">地址管理</a>
+                        </dd>
+                        <dd>
+                            <a href="/gab/manage/security.html">账号安全</a>
+                        </dd>
+                    </dl>
+                    <dl>
+                        <dt>交易管理</dt>
+                        <dd>
+                            <a href="/gab/manage/ownOrders.html">我的订单</a>
+                        </dd>
+                        <dd>
+                            <a href="#">我的收藏</a>
+                        </dd>
+                        <dd>
+                            <a href="#">我的评价</a>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="right">
+                    <th:block layout:fragment="right-content"></th:block>
+                </div>
+            </div>
+        </div>
+        <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}"></th:block>
+    </body>
+    <th:block layout:fragment="footer"></th:block>
+</html>

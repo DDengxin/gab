@@ -1,0 +1,554 @@
+package com.tengzhi.business.sale.saleProduct.saleDelivery.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.publicinterfac.IUserConstants;
+import com.tengzhi.business.cg.da.sysCustomer.service.SysCustomerService;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.mesGz.gzck.vo.ECKOutVo;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut.ECkOut_PK;
+import com.tengzhi.business.sale.saleProduct.saleContract.dao.EXsContractDao;
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContract;
+import com.tengzhi.business.sale.saleProduct.saleDelivery.dao.SaleDeliveryDao;
+import com.tengzhi.business.sale.saleProduct.saleDelivery.service.SaleDeliveryService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.params.service.SysParamService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
+
+@Service
+@Transactional
+public class SaleDeliveryServiceImpl implements SaleDeliveryService {
+
+	@Autowired
+	private SaleDeliveryDao saleDeliveryDao;
+	
+	@Autowired
+	private EXsContractDao eXsContractDao;
+	
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private SysParamService sysParamService;
+	
+	@Override
+	public BasePage<EckOut> findAll(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		
+		String sqlWhere = " where a.out_code=b.cpcode_id and out_act in (select param_id from sys_param where param_name ='"+IUserConstants.xsck+"' )   ";
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+			sqlWhere+=" and a.out_flag = '"+map.get("srchFlag")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			sqlWhere+=" and a.out_rq >='"+map.get("srchRq1")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			sqlWhere+=" and a.out_rq <='"+map.get("srchRq2")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNote"))) {
+			sqlWhere+=" and a.out_note like '%"+map.get("srchNote")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCustomer"))) {
+			sqlWhere+=" and a.out_customer = '"+map.get("srchCustomer")+"'";
+		}
+		//业务员权限过滤
+		sqlWhere += " and a.out_customer = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(null);
+
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+			sqlWhere+=" and a.out_flag = '"+map.get("srchFlag")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outType"))) {
+			sqlWhere+=" and a.out_type = '"+map.get("outType")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			sqlWhere+=" and a.out_code = '"+map.get("srchCode")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+			sqlWhere += " and b.cpcode_name = '"+map.get("srchName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			sqlWhere += " and b.cpcode_size = '"+map.get("srchSize")+"'";
+		}
+		String sql = "select f_getname('GETDWEXP',out_customer,'',a.data_corp)out_customer,out_rq ,out_note  ,f_get_param_name('库房档案',out_lib,'cn')out_lib,"
+				+ "out_act ,sum(out_js) out_js ,sum(out_sl) out_sl,sum(out_zl) out_zl,out_flag ,f_getname('GETUSERNAME',a.data_man,'',a.data_corp)data_man ,MAX(a.data_date) data_date,a.data_corp  "
+				+ " from  e_ck_out a ,e_js_cpcode b " + sqlWhere
+				+ "  group by out_rq,out_note,out_customer,out_act,out_flag,a.data_man,a.data_corp,out_lib  ";
+		return saleDeliveryDao.QueryPageLists(baseDto,sql );
+	}
+
+	@Override
+	public  Map<String, Object> getKcList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		String sqlWhere = "     ";
+		String codeList = "";
+		//if(ObjectUtil.isNotEmpty(map.get("outCustomer")))sqlWhere+=" and a.out_note = '"+map.get("outCustomer")+"'";
+		if(ObjectUtil.isNotEmpty(map.get("outLib"))) {
+			sqlWhere+=" and a.lib = '"+map.get("outLib")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outType"))) {
+			sqlWhere+=" and a.cpcode_type = '"+map.get("outType")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outContract"))) {
+			sqlWhere+="  and c.ht_no = '"+map.get("outContract")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("notItem"))) {
+			if(!"true".equals(map.get("notItem"))) { //
+				if(ObjectUtil.isNotEmpty(map.get("outContract"))) {
+					sqlWhere+="  and a.in_contract = c.ht_no ";
+				}
+			}else {//非订单
+				if(ObjectUtil.isNotEmpty(map.get("srchItem"))) {
+					sqlWhere+=" and a.in_contract = '"+map.get("srchItem")+"'";
+				}
+			}
+			if(ObjectUtil.isNotEmpty(map.get("outCode"))) {
+				codeList = map.get("outCode").replace(",", "','");
+				sqlWhere+=" and a.code in ('"+codeList+"')";
+			}
+		}
+		String fhStype = map.get("fhStype");
+		String sql = "";
+		
+		if("DBZFH".equals(fhStype)) {
+			sql = "	select '"+map.get("outContract")+"' contract,a.code,a.cpcode_name,a.cpcode_size,cpcode_xp,sum(a.js)js,sum(a.sl)sl, a.in_bpack bpack,a.cpcode02 out_hs,d.ht_price out_price,c.ht_currency out_bz,c.ht_tax out_tax,a.cpcode_type out_type,cpcodeflname cpcode_fl,in_kw out_kw,kwname,in_ph out_ph,d.ht_customer_associated_remarks,d.ht_sm from v_xnkc_item a,e_xs_contract c , e_xs_contract_detailed d  where  c.ht_no=d.ht_no  and a.code=d.ht_code "+ sqlWhere +
+					" group by a.in_contract  ,a.code,a.cpcode_name,a.cpcode_size,cpcode_xp, a.in_bpack  ,a.cpcode02  ,d.ht_price  ,c.ht_currency  ,c.ht_tax  ,a.cpcode_type  ,cpcodeflname,in_kw ,kwname,in_ph,ht_customer_associated_remarks,d.ht_sm ";
+
+		}else {
+			sql = "	select '"+map.get("outContract")+"' contract,a.code,a.cpcode_name,a.cpcode_size,cpcode_xp,a.js,a.sl,a.pack,a.in_bpack bpack,a.cpcode02 out_hs,d.ht_price out_price,c.ht_currency out_bz,c.ht_tax out_tax,a.cpcode_type out_type,cpcodeflname cpcode_fl,in_kw out_kw,kwname,in_ph out_ph,d.ht_customer_associated_remarks,d.ht_sm from v_xnkc_item a,e_xs_contract c , e_xs_contract_detailed d  where    c.ht_no=d.ht_no and a.code=d.ht_code  "+ sqlWhere ;
+
+		}
+		
+
+		rmap.put("data", saleDeliveryDao.QueryListMap(sql, null));
+		rmap.put("status", true);
+		return rmap;
+	}
+
+	@Override
+	public EckOut findByNote(String outNote) {
+		EckOut in=new EckOut();
+		String sqlString=" select  distinct a.out_note,a.out_customer,a.out_lib,a.out_rq,f_getname('GETDWEXP',a.out_customer,'',a.data_corp)customer,out_type from e_ck_out a where   out_note ='"+outNote+"' ";
+		BasePage<EckOut> list=saleDeliveryDao.QueryNoPageLists(sqlString);
+		if(list.getContent().size()>0) { 
+			  in=list.getContent().get(0);
+		} 
+		return in;
+	}
+
+	@Override
+	public  BasePage<EckOut> getOutList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sqlWhere = "   ";
+		if(ObjectUtil.isNotEmpty(map.get("outNote"))) {
+			sqlWhere+=" and out_note = '"+map.get("outNote")+"'";
+		}
+		String sql = "select out_contract  ,out_code,cpcode_name,cpcode_size,cpcode_size_en,cpcode_xp,out_js,out_sl,out_pack,out_bpack,out_hs, out_price, out_bz, out_tax,f_getparamname('GETBYCPCODEFL', b.cpcode_fl, '', '技术', out_type, '') cpcode_fl,out_ph,out_kw,f_get_param_name('仓库库位',out_kw,'')kwname,(select ht_customer_associated_remarks from e_xs_contract_detailed where ht_no=out_contract and ht_code=out_code)ht_customer_associated_remarks,out_remarks from e_ck_out a ,e_js_cpcode b  where a.out_code=b.cpcode_id  "+ sqlWhere ;
+		if(ObjectUtil.isNotEmpty(map.get("fhStype"))) {
+			if("DBZFH".equals(map.get("fhStype"))) {
+				sql =  "select out_contract  ,out_code,cpcode_name,cpcode_size,cpcode_size_en,cpcode_xp,sum(out_js)out_js,sum(out_sl)out_sl,out_bpack,out_hs, out_price, out_bz, out_tax,f_getparamname('GETBYCPCODEFL', b.cpcode_fl, '', '技术', out_type, '') cpcode_fl,out_ph,out_kw,f_get_param_name('仓库库位',out_kw,'')kwname,(select ht_customer_associated_remarks from e_xs_contract_detailed where ht_no=out_contract and ht_code=out_code)ht_customer_associated_remarks,out_remarks from e_ck_out a ,e_js_cpcode b  where a.out_code=b.cpcode_id  "+ sqlWhere 
+						+" group by out_contract  ,out_code,cpcode_name,cpcode_size,cpcode_xp,cpcode_size_en,out_bpack,out_hs, out_price, out_bz, out_tax,  b.cpcode_fl, out_type ,out_ph,out_kw" ;
+			}
+		}
+		 
+		//String sql = "select out_contract outContract ,out_code outCode,cpcode_name cpcodeName,cpcode_size cpcodeSize,out_js outJs,out_sl outSl,out_pack outPack,out_bpack outBpack from e_ck_out a,e_js_cpcode b where a.out_code=b.cpcode_id"+ sqlWhere ;
+		return saleDeliveryDao.QueryPageLists(baseDto,sql );
+	}
+	@Override
+	public Result save(ECKOutVo eCkOutVo) throws Exception {
+	
+		String fhStype = eCkOutVo.geteCkOut().getFhStype();
+		
+		List<EckOut> addECkOuts = new ArrayList<EckOut>();//添加数据
+		List<EckOut> modifyedECkOuts = new ArrayList<EckOut>();
+		List<EckOut> deletedECkOuts = new ArrayList<EckOut>();
+		
+		BigDecimal initBigDecimal=new BigDecimal("0");
+		String parameterId=sysParamService.getParamId(eCkOutVo.geteCkOut().getOutType(),IUserConstants.xsck);
+		SysParams  sysParams=sysParamService.findByParameterId(parameterId, "仓库收发");
+		String note = sysGenNoteService.getyyMMNote4(ECkOut.class, parameterId);
+		SessionUser securityUser=SessionUser.SessionUser();
+		if("XBZFH".equals(fhStype)) {
+			//小包装
+			eCkOutVo.geteCkOut().setOutNote(note);
+			eCkOutVo.geteCkOut().setOutFlag("登记");
+			eCkOutVo.geteCkOut().setDataMan(securityUser.getUserId());
+			eCkOutVo.geteCkOut().setDataDate(new Date());
+			eCkOutVo.geteCkOut().setDataCorp(securityUser.getCorpId());
+			eCkOutVo.geteCkOut().setOutAct(parameterId);
+			for (int i = 0; i < eCkOutVo.getAddedList().size(); i++) {
+				EckOut model = eCkOutVo.getAddedList().get(i);
+				model.setOutNote(note);
+				model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+				model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+				model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+				model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+				model.setDataMan(securityUser.getUserId());
+				model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+				model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+				model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+				model.setOutKfcode(model.getOutCode());
+				//数量，重量，件数*paramvalue
+				model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+				model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+				model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+				// 默认大包装号和包装号相等，后续可能需要根据产品规则生成
+				//model.setOutBpack(model.getOutPack());
+				addECkOuts.add(model);
+			}
+			
+			// 修改
+			if (!eCkOutVo.getModifyedList().isEmpty()) {
+				for (int i = 0; i < eCkOutVo.getModifyedList().size(); i++) {
+					EckOut model = eCkOutVo.getModifyedList().get(i);
+					model.setOutNote(note);
+					model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+					model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+					model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+					model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+					model.setDataMan(securityUser.getUserId());
+					model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+					model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+					model.setOutKfcode(model.getOutCode());
+					model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+					//数量，重量，件数*paramvalue
+					model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+					model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+					model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+					// 判断保存的包装号有没有重复
+					if (checkExists(model, eCkOutVo.getModifyedList())) {
+						return Result.error("第" + (i + 1) + "行包装号重复，不能保存！");
+					}
+					modifyedECkOuts.add(model);
+				}
+			} 
+			
+			deletedECkOuts=eCkOutVo.getDeletedList();
+			
+		}else {
+			//大包装号
+			//新增
+			for (int i = 0; i < eCkOutVo.getAddedList().size(); i++) {
+				EckOut eck = eCkOutVo.getAddedList().get(i);
+				List<EckOut> models = getDetailByBpack(eck.getOutBpack(),eck.getOutContract());
+				for(EckOut model:models) {
+					model.setOutNote(note);
+					model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+					model.setOutFlag("登记");
+					model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+					model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+					model.setOutType(eck.getOutType());
+					model.setDataMan(securityUser.getUserId());
+					model.setDataDate(new Date());
+					model.setDataCorp(securityUser.getCorpId());
+					model.setOutAct(parameterId);
+					model.setOutKfcode(model.getOutCode());
+					model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+					addECkOuts.add(model);
+				}
+				
+			}
+			//删除
+			for (int i = 0; i < eCkOutVo.getDeletedList().size(); i++) {
+				EckOut eck = eCkOutVo.getDeletedList().get(i);
+				List<EckOut> models = getDetailByBpack(eck.getOutBpack(),eck.getOutContract());
+				for(EckOut item:models) {
+					deletedECkOuts.add(item);
+				}
+				
+			}
+			
+			
+		}
+		// 业务逻辑判断end //开始保存到数据库
+		
+		if (!addECkOuts.isEmpty()){
+			addECkOuts.forEach(model -> {
+				saleDeliveryDao.save(model);
+			});
+		}
+		if (!modifyedECkOuts.isEmpty()) {
+			modifyedECkOuts.forEach(model -> {
+				saleDeliveryDao.dynamicSave(model, saleDeliveryDao.findById(new ECkOut_PK(note, model.getOutPack())).orElse(null));
+			});
+		}
+		if (!deletedECkOuts.isEmpty()) {
+			eCkOutVo.getDeletedList().forEach(model -> {
+				ECkOut_PK pk = new ECkOut_PK(eCkOutVo.geteCkOut().getOutNote(), model.getOutPack());
+				saleDeliveryDao.deleteById(pk);
+			});
+		} // end		
+		
+		return Result.resultOk(eCkOutVo.geteCkOut());
+	}
+
+	@Override
+	public Result update(ECKOutVo eCkOutVo) {
+		
+		String fhStype = eCkOutVo.geteCkOut().getFhStype();
+		
+		BigDecimal initBigDecimal=new BigDecimal("0");
+		List<EckOut> addECkOut = new ArrayList<EckOut>();
+		List<EckOut> modifyedECkOuts = new ArrayList<EckOut>();
+		List<EckOut> deletedECkOuts = new ArrayList<EckOut>();
+		
+		String parameterId=sysParamService.getParamId(eCkOutVo.geteCkOut().getOutType(),IUserConstants.xsck);
+		SysParams  sysParams=sysParamService.findByParameterId(parameterId, "仓库收发");
+		SessionUser securityUser=SessionUser.SessionUser();
+		eCkOutVo.geteCkOut().setDataMan(securityUser.getUserId());
+		eCkOutVo.geteCkOut().setDataDate(new Date());
+		eCkOutVo.geteCkOut().setDataCorp(securityUser.getCorpId());
+		eCkOutVo.geteCkOut().setOutFlag("登记");
+		eCkOutVo.geteCkOut().setOutAct(parameterId);
+		// 业务逻辑判断start
+		// 新增
+		if("XBZFH".equals(fhStype)) {
+			//小包装
+			for (int i = 0; i < eCkOutVo.getAddedList().size(); i++) {
+				EckOut model = eCkOutVo.getAddedList().get(i);
+				model.setOutNote(eCkOutVo.geteCkOut().getOutNote());
+				model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+				model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+				model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+				model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+				model.setDataMan(securityUser.getUserId());
+				model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+				model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+				model.setOutKfcode(model.getOutCode());
+				model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+				//数量，重量，件数*paramvalue
+				model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+				model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+				model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+				// 默认大包装号和包装号相等，后续可能需要根据产品规则生成
+				model.setOutBpack(model.getOutPack());
+				addECkOut.add(model);
+			}
+			// 修改
+			if (!eCkOutVo.getModifyedList().isEmpty()) {
+				for (int i = 0; i < eCkOutVo.getModifyedList().size(); i++) {
+					EckOut model = eCkOutVo.getModifyedList().get(i);
+					model.setOutNote(eCkOutVo.geteCkOut().getOutNote());
+					model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+					model.setOutAct(eCkOutVo.geteCkOut().getOutAct());
+					model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+					model.setOutFlag(eCkOutVo.geteCkOut().getOutFlag());
+					model.setDataMan(securityUser.getUserId());
+					model.setDataDate(eCkOutVo.geteCkOut().getDataDate());
+					model.setDataCorp(eCkOutVo.geteCkOut().getDataCorp());
+					model.setOutKfcode(model.getOutCode());
+					model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+					//数量，重量，件数*paramvalue
+					model.setOutJs(model.getOutJs()== null ? initBigDecimal :model.getOutJs().multiply(sysParams.getParamValue()));
+					model.setOutSl(model.getOutSl()== null ? initBigDecimal :model.getOutSl().multiply(sysParams.getParamValue()));
+					model.setOutZl(model.getOutZl() == null ? initBigDecimal :model.getOutZl().multiply(sysParams.getParamValue()));
+					// 判断保存的包装号有没有重复
+					/*
+					 * if (checkExists(model, eCkOutVo.getModifyedList())) { return Result.error("第"
+					 * + (i + 1) + "行包装号重复，不能保存！"); }
+					 */
+	
+					modifyedECkOuts.add(model);
+				}
+			}
+		}else {
+			//大包装号
+			//新增
+			for (int i = 0; i < eCkOutVo.getAddedList().size(); i++) {
+				EckOut eck = eCkOutVo.getAddedList().get(i);
+				List<EckOut> models = getDetailByBpack(eck.getOutBpack(),eck.getOutContract());
+				for(EckOut model:models) {
+					model.setOutNote(eCkOutVo.geteCkOut().getOutNote());
+					model.setOutRq(eCkOutVo.geteCkOut().getOutRq());
+					model.setOutFlag("登记");
+					model.setOutCustomer(eCkOutVo.geteCkOut().getOutCustomer());
+					model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+					model.setOutType(eck.getOutType());
+					model.setDataMan(securityUser.getUserId());
+					model.setDataDate(new Date());
+					model.setDataCorp(securityUser.getCorpId());
+					model.setOutAct(parameterId);
+					model.setOutKfcode(model.getOutCode());
+					model.setOutLib(eCkOutVo.geteCkOut().getOutLib());
+					addECkOut.add(model);
+				}
+				
+			}
+			//删除
+			for (int i = 0; i < eCkOutVo.getDeletedList().size(); i++) {
+				EckOut eck = eCkOutVo.getDeletedList().get(i);
+				List<EckOut> models = getDetailByBpack(eck.getOutBpack(),eck.getOutContract());
+				for(EckOut item:models) {
+					deletedECkOuts.add(item);
+				}
+				
+			}
+			
+			
+		}
+		// 业务逻辑判断end
+		// 开始保存到数据库
+		if (!addECkOut.isEmpty()) {
+			addECkOut.forEach(model -> {
+				saleDeliveryDao.save(model);
+			});
+		}
+
+		if (!modifyedECkOuts.isEmpty()) {
+			System.out.println(1111);
+			modifyedECkOuts.forEach(model -> {
+				saleDeliveryDao.dynamicSave(model, saleDeliveryDao
+						.findById(new ECkOut_PK(eCkOutVo.geteCkOut().getOutNote(), model.getOutPack())).orElse(null));
+			});
+		}
+
+		if (!eCkOutVo.getDeletedList().isEmpty()) {
+			eCkOutVo.getDeletedList().forEach(model -> {
+				ECkOut_PK pk = new ECkOut_PK(eCkOutVo.geteCkOut().getOutNote(), model.getOutPack());
+				saleDeliveryDao.deleteById(pk);
+			});
+		}
+		
+		return Result.resultOkMsg("修改成功");
+
+	}
+
+	@Override
+	public Result deleteByNote(String outNote) {
+		saleDeliveryDao.deleteByNote(outNote);
+		return Result.resultOkMsg("删除");
+	}
+	
+	@SuppressWarnings("unused")
+	private boolean checkExists(EckOut model, List<EckOut> eCkOuts) {
+		boolean isflag = false;
+		for (int i = 0; i < eCkOuts.size(); i++) {
+			EckOut indexrow = eCkOuts.get(i);
+			//if (!indexrow.getId().equals(model.getId())) {
+				if (indexrow.getOutPack().equals(model.getOutPack())) {
+					isflag = true;
+					break;
+				}
+			//}
+		}
+		return isflag;
+	}
+
+	@Override
+	public List<Map> getItemSelectList(String customer ,String outType ) {
+		String sqlString="select  distinct a.ht_no combid,a.ht_no combtext  from e_xs_contract a where    a.ht_customer ='"+customer+"'and a.ht_stype = '"+outType+"' and a.ht_flag='核准' ";
+		/* + " and ht_flag='核准'  "; */
+		return saleDeliveryDao.QueryListMap(sqlString, null);
+	}
+
+	@Override
+	public List<Map> getCodeSelectList( String contract) {
+		String sqlString="  select ht_code combid, b.cpcode_name||'φ'||b.cpcode_size||'数量:'||ht_sl combtext  from e_xs_contract_detailed a,e_js_cpcode b  where a.ht_code=b.cpcode_id   and a.ht_no ='"+contract+"'    ";
+		return saleDeliveryDao.QueryListMap(sqlString, null);
+	}
+
+	@Override
+	public Result confirm(String outNote) {
+		saleDeliveryDao.updateFlag(outNote,"确认");
+		return Result.resultOkMsg("修改成功");
+	}
+
+	@Override
+	public Result cancel(String outNote) {
+			saleDeliveryDao.updateFlag(outNote,"登记");
+			return Result.resultOkMsg("修改成功");
+	}
+
+	@Override
+	public Result getFlag(String outNote,String flag) {
+		String flagString = saleDeliveryDao.getFlag(outNote);
+		if(flag.equals(flagString)){
+			return Result.resultOkMsg("操作成功");
+		}else {
+			return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+		}
+		
+	}
+
+	@Override
+	public Map<String, Object> getItemDetailList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		String sqlWhere = "     ";
+		//if(ObjectUtil.isNotEmpty(map.get("outCustomer")))sqlWhere+=" and a.out_note = '"+map.get("outCustomer")+"'";
+		if(ObjectUtil.isNotEmpty(map.get("outLib"))) {
+			sqlWhere+=" and a.lib = '"+map.get("outLib")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("notItem"))) {
+			if(!"true".equals(map.get("notItem"))) {
+				if(ObjectUtil.isNotEmpty(map.get("outContract"))) {
+					sqlWhere+=" and a.in_contract = '"+map.get("outContract")+"'";
+				}
+			}
+			if(ObjectUtil.isNotEmpty(map.get("outCode"))) {
+				sqlWhere+=" and a.code = '"+map.get("outCode")+"'";
+			}
+			
+		}
+		String sql = "select select a.in_contract contract,a.code,a.cpcode_name,a.cpcode_size,a.js,a.sl,a.pack,a.in_bpack ,a.cpcode02 out_hs,d.ht_price out_price,c.ht_currency out_bz,c.ht_tax out_tax,a.cpcode_type out_type,cpcodeflname cpcode_fl from v_xnkc_item a,e_xs_contract c , e_xs_contract_detailed d  where   a.in_contract = c.ht_no  and c.ht_no=d.ht_no and a.code=d.ht_code  "+ sqlWhere ;
+
+		rmap.put("data", saleDeliveryDao.QueryListMap(sql, null));
+		rmap.put("status", true);
+		return rmap;
+	}
+
+	@Override
+	public List<EckOut> getDetailByBpack(String bpack,String contract) {
+
+		return saleDeliveryDao.QueryListModel(EckOut.class, "   select code out_code,sl out_sl,js out_js ,pack out_pack,in_bpack out_bpack,ht_price out_price,xs.ht_tax out_tax,xs.ht_currency out_bz,xs.ht_no out_contract from v_ck_mx mx ,e_xs_contract xs where    in_bpack= :1  and xs.ht_no = :2", bpack,contract);
+	}
+
+	@Override
+	public ModelAndView table(ModelAndView mv, String outNotes)   {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		String sql = "select '日期:'||min(out_rq)||'至'||max(out_rq) rqstr,'仓库：'||f_get_param_name('库房档案',out_lib) libname, f_getname('GETCORPNAME', '','',data_corp) corpName,"
+				+ "  f_get_param_name('仓库收发',out_act) actname,'制单：'||'"+sessionUser.getRealName()+"' manname,'打印时间：'||to_char(now(),'yyyy-mm-dd hh24:mi:ss') now,data_corp,(f_get_param_name('产品大类', out_type,'')||f_get_param_name('仓库收发', out_act,'')) typeAndAct "
+				+ " from e_ck_out where out_note in ('"+outNotes+"')   and  out_act in (select param_id from sys_param where param_name ='"+IUserConstants.xsck+"' )    group by out_type,out_lib,out_act,data_corp   limit 1 ";
+		List<Map> table = saleDeliveryDao.QueryListMap(sql);
+		if(table.size()>0) {
+			mv.addObject("note", table.get(0).get("note"));
+			mv.addObject("rq", table.get(0).get("rqstr"));
+			mv.addObject("corpName", table.get(0).get("corpname"));
+			mv.addObject("typeAndAct", table.get(0).get("typeandact"));
+			mv.addObject("manName", table.get(0).get("manname"));
+			mv.addObject("libName", table.get(0).get("libname"));
+			mv.addObject("now", table.get(0).get("now"));
+			String mxSql = "select ck.out_note outnote, f_getparamname('GETBCPCODENAME',cp.cpcode_name,'','技术',cpcode_type,'')||'￠'||(coalesce(cp.cpcode_size,''))||'*'|| case when cpcode_type ='CP' and length(cpcode_size_en)>0 then  cpcode_size_en||'mm'  when  length(cpcode_xp)>0 then cpcode_xp||f_get_param_name('计量单位',cpcode_bz,'') else '' end cpname , "
+					+ " round(ck.out_sl,2)out_sl,out_pack,f_get_param_name('仓库库位',out_kw,'')out_kw,out_ph,f_getname('GETDWEXP',out_customer,'',ck.data_corp)customer,f_get_param_name('计量单位',cpcode_bz,'')cpcode_bz,ht_customer_associated_remarks remarks "
+					+ " from e_ck_out ck left join e_xs_contract_detailed ed  on ck.out_code=ed.ht_code and ck.out_contract=ed.ht_no ,e_js_cpcode cp where     ck.out_code=cp.cpcode_id  and out_note in ('"+outNotes+"')  and out_act in (select param_id from sys_param where param_name ='"+IUserConstants.xsck+"' )  order by out_rq,out_note ";
+			List<Map> tableMx = saleDeliveryDao.QueryListMap(mxSql);
+			if(tableMx.size()>0) {
+				mv.addObject("mx", tableMx);
+				mv.addObject("mxCount", tableMx.size());
+				double sum = 0;
+				for(int i = 0 ; i < tableMx.size() ; i++) {
+					sum += Double.parseDouble(tableMx.get(i).get("out_sl").toString());
+				}
+				mv.addObject("sum", sum);
+			}
+		}
+		
+		return mv;
+	}
+}

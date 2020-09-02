@@ -1,0 +1,124 @@
+package com.tengzhi.business.platform.shopping.model;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.persistence.*;
+import java.util.Date;
+
+@Entity
+@Table(name = "e_cw_customer_address")
+public class GShopAddr {
+    private String customerId;
+    private String address;
+    private String contacts;
+
+    private int sortOrd;
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date genTime;
+    private String genUserId;
+    private String customerThreeName;
+
+    private String contactMethod;
+    private String dataCorp;
+    @Id
+    private String addressNote;
+
+    @Column(name = "is_default")
+    @JsonProperty(value = "is_default")
+    private Boolean isDefault;
+
+    public String getAddressNote() {
+        return addressNote;
+    }
+
+    public void setAddressNote(String addressNote) {
+        this.addressNote = addressNote;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getCustomerThreeName() {
+        return customerThreeName;
+    }
+
+    public void setCustomerThreeName(String customerThreeName) {
+        this.customerThreeName = customerThreeName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(String contacts) {
+        this.contacts = contacts;
+    }
+
+    public int getSortOrd() {
+        return sortOrd;
+    }
+
+    public void setSortOrd(int sortOrd) {
+        this.sortOrd = sortOrd;
+    }
+
+    public Date getGenTime() {
+        return genTime;
+    }
+
+    public void setGenTime(Date genTime) {
+        this.genTime = genTime;
+    }
+
+    public String getGenUserId() {
+        return genUserId;
+    }
+
+    public void setGenUserId(String genUserId) {
+        this.genUserId = genUserId;
+    }
+
+    public String getContactMethod() {
+        return contactMethod;
+    }
+
+    public void setContactMethod(String contactMethod) {
+        this.contactMethod = contactMethod;
+    }
+
+    public String getDataCorp() {
+        return dataCorp;
+    }
+
+    public void setDataCorp(String dataCorp) {
+        this.dataCorp = dataCorp;
+    }
+
+    public Boolean getIsDefault() {
+        return isDefault;
+    }
+
+    public Boolean IsDefault() {
+        return isDefault;
+    }
+
+    public void setIsDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+
+}

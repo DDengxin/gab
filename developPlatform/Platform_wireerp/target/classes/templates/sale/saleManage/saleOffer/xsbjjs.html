@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>客户报价【技术】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1" method="post">
+        <div  style="padding:2px;border-bottom:0;">
+            <input id="action" name="action" class="mini-hidden" />
+        </div>
+    </form>
+    <div tz:datagrid="datagrid" id="datagrid" idField="item" sortField="item" sortOrder="asc" style="width:100%;height:300px;"
+         url="/sale/saleManage/saleOffer/getOfferDetailList"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+         showPager="false" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+         showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" allowSortColumn="false">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn" width="35"></div>
+            <div tz:datagrid="column" name="action" width="50" align="center" renderer="onActionRenderer" cellStyle="padding:0;">#</div>
+            <div tz:datagrid="column" field="code" name="code" align="right" width="100">编码
+                <input id="code" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="type" name="type" align="right" width="60">种类
+                <input id="type" property="editor" class="mini-combobox" url="/system/parameter/getParamsSelectList/技术/线材种类"/>
+            </div>
+            <div tz:datagrid="column" field="amount" name="amount" align="right" width="60">数量
+                <input id="amount" property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" field="sur" name="sur" align="right" width="60">表面
+                <input id="price" property="editor" class="mini-combobox"/>
+            </div>
+            <div tz:datagrid="column" header="公差" headerAlign="center">
+                <div tz:datagrid="column" property="columns">
+                    <div tz:datagrid="column" field="tccd" width="60" align="center" headerAlign="center" allowSort="true">正
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                    <div tz:datagrid="column" field="bccd" width="60" align="center" headerAlign="center" allowSort="true">负
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="炉号" headerAlign="center">
+                <div tz:datagrid="column" property="columns">
+                    <div tz:datagrid="column" field="lhlb" width="70" align="center" headerAlign="center" allowSort="true">炉号类别
+                        <input property="editor" class="mini-combobox"style="width:100%;"   url=""  textField="combtext" valueField="combid" />
+                    </div>
+                    <div tz:datagrid="column" field="zdlh" width="90" align="center" headerAlign="center" allowSort="true">指定炉号
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                    <div tz:datagrid="column" field="cfyq" width="120" align="center" headerAlign="center" allowSort="true">成分要求
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="硬度" headerAlign="center">
+                <div tz:datagrid="column" property="columns">
+                    <div tz:datagrid="column" field="ydbz" width="70" align="center" headerAlign="center" allowSort="true">标准
+                        <input id="ydbz" property="editor" class="mini-combobox"style="width:100%;"   url="/system/parameter/getParamsSelectListByTypeParent/检测参数/XCYDBZ"  />
+                    </div>
+                    <div tz:datagrid="column" field="ydyq" width="120" align="center" headerAlign="center" allowSort="true">要求
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="擦油" headerAlign="center">
+                <div tz:datagrid="column" property="columns">
+                    <div tz:datagrid="column" field="cybz" width="80" align="center" headerAlign="center" allowSort="true">标准
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                    <div tz:datagrid="column" field="cysm" width="120" align="center" headerAlign="center" allowSort="true">说明
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="收线" headerAlign="center">
+                <div tz:datagrid="column" property="columns">
+                    <div tz:datagrid="column" field="sxfx" width="70" align="center" headerAlign="center" allowSort="true">方向
+                        <input property="editor" class="mini-combobox"style="width:100%;"   url="/system/parameter/getParamsSelectListByTypeParent/检测参数/XCYDBZ"  />
+                    </div>
+                    <div tz:datagrid="column" field="sxqj" width="70" align="center" headerAlign="center" allowSort="true">圈径
+                        <input property="editor" class="mini-combobox"style="width:100%;"   url="/system/parameter/getParamsSelectListByTypeParent/检测参数/XCYDBZ"  />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="检验" headerAlign="center">
+                <div tz:datagrid="column" property="columns">
+                    <div tz:datagrid="column" field="jyxm1" width="70" align="center" headerAlign="center" allowSort="true">项目
+                        <input property="editor" class="mini-combobox"style="width:100%;"   url="/system/parameter/getParamsSelectListByTypeParent/检测参数/XCJYXM"  />
+                    </div>
+                    <div tz:datagrid="column" field="jyyq1" width="70" align="center" headerAlign="center" allowSort="true">要求
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="包装" headerAlign="center">
+                <div property="columns">
+                    <div tz:datagrid="column" name="pack" field="pack" width="90" align="center" headerAlign="center"allowSort="true">包装方式
+                        <input property="editor"  class="mini-combobox" textField="combtext" valueField="combid"   url=""    style="width:100%;" />
+                    </div>
+                    <div tz:datagrid="column" field="packsl" width="60" align="center" headerAlign="center" allowSort="true">包装数量
+                        <input property="editor" class="mini-textbox"style="width:100%;"  vtype="float"/>
+                    </div>
+                    <div tz:datagrid="column" field="bzbq" width="90" align="center" headerAlign="center" allowSort="true">包装标签
+                        <input property="editor" class="mini-combobox"style="width:100%;"   url=""  />
+                    </div>
+                    <div tz:datagrid="column" field="tbz" width="60" align="center" headerAlign="center" allowSort="true">上差
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                    <div tz:datagrid="column" field="bbz" width="60" align="center" headerAlign="center" allowSort="true">下差
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="订单" headerAlign="center">
+                <div property="columns">
+                    <div tz:datagrid="column" field="cpyt" width="70" align="center" headerAlign="center" allowSort="true">用途
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                    <div tz:datagrid="column" field="scbz" width="90" align="center" headerAlign="center"allowSort="true">备注
+                        <input property="editor" class="mini-textbox"style="width:100%;" />
+                    </div>
+                </div>
+            </div>
+            <div tz:datagrid="column" field="item" width="70" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+            <div tz:datagrid="column" field="itemMo" width="70" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+            <div tz:datagrid="column" field="masterId" width="70" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get('datagrid');
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        var uid = record._uid;
+        var s ='<a class="Edit_Button" href="javascript:addmx(\'' + uid + '\')">编辑</a>';
+        return s;
+    }
+    function addmx(e) {
+        var btnEdit = this;
+        var r = grid.getSelected();
+        mini.open({
+            url : "/sale/saleManage/saleOffer/wxbjmx.html",
+            title : "外销明细新增",
+            width : 850,
+            height : 440,
+            onload : function() {
+                var iframe = this.getIFrameEl();
+                //r.saleFreight=mini.get("saleFreight").getValue();
+                iframe.contentWindow.Setdata(r);//数据传递到其他页面
+            },
+            ondestroy : function(action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var rows = iframe.contentWindow.GetData();
+                    dataRows = mini.clone(rows); //必须
+                    var row = grid.getSelected();
+                    grid.updateRow(row,dataRows);//其他页面数据传回此行
+                    btnEdit.setText(dataRows.code);
+                    btnEdit.setValue(dataRows.code);
+                }
+            }
+        });
+    }
+    /**
+     保存
+     */
+    function SaveData() {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed', false);
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("xsbjjs.html", JSON.stringify({
+                eXsOffer : form.getData(true),
+                eXsOfferDetail: entrydata,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh',false);
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+
+    }
+
+    /**
+     * 回调函数
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+
+            var row = options.data.row;
+            if ('edit' == options.action) {
+                grid.load({
+                    params: JSON.stringify({note:row.note})
+                });
+            }
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+    }
+</script>
+</html>

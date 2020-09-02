@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>短信记录</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="手机号码">
+            <input class="mini-textbox" name="phone"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="uuid">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="phone" width="120" align="center">手机号码</div>
+            <div tz:datagrid="column" field="content" width="100%">短信内容</div>
+            <div tz:datagrid="column" field="sendTime" width="150" align="center">发送时间</div>
+            <div tz:datagrid="column" field="success" width="70" align="center">结果</div>
+            <div tz:datagrid="column" field="operationTime" width="150" align="center">操作时间</div>
+            <div tz:datagrid="column" field="type" width="70">类型</div>
+            <div tz:datagrid="column" field="code" width="70">验证码</div>
+            <div tz:datagrid="column" field="expired" width="70" align="center">过期</div>
+            <div tz:datagrid="column" field="operationByUser" displayField="operationByUserName" width="70">操作人</div>
+            <div tz:datagrid="column" field="expiredTime" width="80" align="right">过期时间(s)</div>
+            <div tz:datagrid="column" field="response" width="250">响应原文</div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     * 编辑
+     * @param e
+     **/
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "/system/emailConfig/add.html", action: 'edit', data: row, height: '200px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/system/emailConfig/{0}".format(row.id), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //渲染行
+    grid.on('drawcell', function (e) {
+        switch (e.field) {
+            case 'success':
+                e.cellHtml = e.value ? '发送成功' : '发送失败';
+                break;
+            case 'expired':
+                console.log(e.value);
+                e.cellHtml = e.value ? '已过期' : '未过期';
+                break;
+            case 'sendTime':
+            case 'operationTime':
+                e.cellHtml = mini.formatDate(new Date(e.value), 'yyyy-MM-dd HH:mm:ss');
+                break;
+            default:
+                break;
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>实际库存</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="dtype"/>
+        <label class="hmq-label" text="库房">
+            <input class="mini-combobox" name="lib" width="100px"/>
+        </label>
+       	<label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="code" width="110"/>
+        </label>
+        <label class="hmq-label" for="cpcodeName" text="名称">
+			<input id="cpcodeName" name="cpcodeName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" allowInput="true" textField="combtext" valueField="combid"  parentField="pid" value="无" onbeforenodeselect="beforenodeselect" popupWidth="240"  popupHeight="180"/> 
+		</label>
+        <label class="hmq-label" for="cpcodeSize" text="规格">
+			<input class="mini-textbox" id="cpcodeSize" name="cpcodeSize" width="110" />
+		</label>
+		<label class="hmq-label" for="cpcodeFl" text="分类">
+			<div id="cpcodeFl" name="cpcodeFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true"  showClose="true" oncloseclick="onCloseClick" style="width:180px;" emptyText="全部" popupMaxHeight="400">
+		    	<div property="columns">
+		     		<div header="全部" field="text"></div>
+		    	</div>
+		   </div>
+		</label>
+        <label class="hmq-label" text="合同号">
+            <input class="mini-textbox" name="inContract" width="110"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+
+    </th:block>
+
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="wlCode" sortField="wlCode" sortOrder="asc"  allowCellEdit="true"
+         allowCellSelect="true" multiSelect="true" onrowdblclick="addRow" sortMode="client" url="/ck/yw/warehouseKc/getVStock">
+        <div property="columns">
+            <div tz:datagrid="column" field="optionrow" width="45" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+            <div tz:datagrid="column" field="code" align="center" width="100">品号</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcodeName" align="left" width="120">名称</div>
+            <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize" align="left" width="120">规格</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+            <div tz:datagrid="column" name="cpcodeFl" field="cpcodeFl" displayField="cpcodeFlName" width="120" align="left">大类</div>
+            <div tz:datagrid="column" name ="cpcodeXp" field="cpcodeXp" displayField="cpcodeXpName"  width="80">产品标重</div>
+            <div tz:datagrid="column" field="lib" displayField="inlibname" width="100" align="center">库房</div>
+            <div tz:datagrid="column" field="sl" width="100" align="right" numberFormat="#,0.0000">数量</div>
+            <div tz:datagrid="column" field="zl" width="100" align="right" numberFormat="#,0.0000">重量</div>
+            <div tz:datagrid="column" field="cpcodeBz" displayField="cpcodebzname" align="left" width="60">单位</div>
+            <div tz:datagrid="column" field="cpcode02" align="center" width="80">核算方式</div>
+            <div tz:datagrid="column" field="inCustomer" displayField="incustomername" width="140" align="center">客户</div>
+            <div tz:datagrid="column" field="inContract" width="130" align="center" allowSort="true">合同编码</div>
+            <div tz:datagrid="column" field="" width="100%"></div>
+        </div>
+    </div>
+</div>
+<div tz:datagrid="datagrid" id="return_grid" style="width:100%;height:30%;" sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var return_grid = mini.get("return_grid");
+    var form = new mini.Form("form1");
+    grid.bindSearchForm(form);
+
+    //通过上grid渲染下grid列数据
+    var columns = grid.getColumns();
+    return_grid.set({
+        columns: columns
+    });
+    return_grid.hideColumn("indexcolumn");
+
+
+    var page_options = {
+        multiSelect: false,
+        dtype: '', //物料类型
+        lib:''//库房
+
+    };
+    /**
+     * 页面初始化
+     * @param{options}
+     **/
+    function SetData(options) {
+        page_options = $.extend(page_options, options.data);
+        grid.setMultiSelect(page_options.multiSelect);
+        form.setData(page_options, true);
+
+        //动态列转换
+        hmq.business.dynamicProductParams(page_options.dtype, {
+            miniDataGrid: [grid,return_grid],
+            miniForm: form,
+            success: function (map, res) {
+               
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+        search_option();
+        form.getField("lib").setUrl("/system/parameter/getParamsSelectListByParentId/仓库/{0}".format(page_options.dtype));
+    }
+    function beforenodeselect(e) {
+ 		//禁止选中父节点
+ 		if (e.isLeaf == false) e.cancel = true;
+ 	}  
+    /**
+     * 查询
+     */
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     * 增加行(上grid - > 下grid)
+     */
+    function addRow() {
+        var row = mini.clone(grid.getSelected());
+        if (null != row && isNotExistsRow(return_grid, row)) {
+            return_grid.addRow(row, 0);
+        }
+        grid.removeRow(grid.getSelected());
+    }
+
+    /**
+     * 移除行(下grid -> 上grid)
+     */
+    function removeRow() {
+        var row = mini.clone(return_grid.getSelected());
+        if (null != row && isNotExistsRow(grid, row)) {
+            grid.addRow(row, 0);
+        }
+        return_grid.removeRow(return_grid.getSelected());
+    }
+
+    /**
+     * 判断grid中是否已经存在相应的行对象
+     * @param grid Grid对象
+     * @param record 行数据
+     * @returns {boolean} true:已存在,false：不存在
+     */
+    function isNotExistsRow(grid, record) {
+        return return_grid.findRows(function (row) {
+            return row.code == record.code && row.inCustomer == record.inCustomer && row.inContract == record.inContract;
+        }) <= 0;
+    }
+
+    /**
+     * 单元格渲染事件
+     * @param e
+     * @returns {string}
+     */
+    function onActionRenderer(e) {
+        var grid_id = e.sender.id;
+        if (grid_id == "srch_grid") {
+            return ' <a class="mini-button"  style="width:30px;color:red;" href="javascript:addRow()">' + "+" + '</a>';
+        } else if (grid_id == "return_grid") {
+            return ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">' + "-" + '</a>';
+        }
+    }
+
+    /**
+     * 获取上grid选中的数据
+     * @returns {*}
+     * @constructor
+     */
+    function GetData() {
+        var row = grid.getSelected();
+        return row;
+    }
+
+    /**
+     * 获取下grid全部的数据
+     * @returns {*}
+     * @constructor
+     */
+    function GetMutiData() {
+        var rows = return_grid.getData();
+        return rows;
+    }
+
+    function confirm() {
+        CloseWindow("ok");
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+
+</script>
+</body>
+</html>

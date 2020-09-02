@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" >
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>科目</title>
+    </th:block>
+</head>
+<body>
+<form id="form1" method="post">
+    <div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+    
+        <table style="width:100%;">
+            <tr>
+                <td style="white-space:nowrap;">
+                   <label>名称:</label>
+                    <input id="fname" name="fname" class="mini-textbox" style="width:100px;"/>
+                    <input id="fitemclassid" name="fitemclassid" class="mini-hidden" />
+<!--                    <label>类型:</label>-->
+<!--                    <select  id="qtable" name="qtable" class="mini-combobox" style="width:90px;"-->
+<!--                        textField="combtext" valueField="combid" showNullItem="true"-->
+<!--                           emptyText="全部" nullItemText="全部" popupHeight="110">-->
+<!--                           <option value="ba_cw_pz_customer">客户</option>-->
+<!--                           <option value="ba_cw_pz_supplier">供应商</option>-->
+<!--                           <option value="ba_cw_pz_employee">职员</option>-->
+<!--                           <option value="ba_cw_pz_project">项目</option>-->
+<!--                           <option value="ba_cw_pz_department">部门</option>-->
+<!--                           <option value="ba_cw_pz_inventory">存货</option>-->
+<!--                            <option value="ba_cw_pz_qt">其他</option>-->
+<!--                    </select>-->
+                </td>
+                <td style="white-space:nowrap;" align="right">
+                    <a class="mini-button" iconCls="icon-search" onclick="search_option()">查询</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" class="mini-datagrid" style="width:100%;height:100%;"
+         sizeList="[50,100,200]" pageSize="100" multiSelect="true" sortMode="client"
+         onrowdblclick="onRowDblClick">
+        <div property="columns">
+            <div type="indexcolumn" headerAlign="center">序号</div>
+            <div field="fid" width="70" align="center" headerAlign="center" allowSort="true" visible="false" >唯一值</div>
+            <div field="fnumber" width="90" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div field="fname" width="240" align="left" headerAlign="center" allowSort="true" > 名称</div>
+            <div field="fspec" width="90" align="center" headerAlign="center" allowSort="true">规格</div>
+            <div field="fassistunit" width="100" align="center" headerAlign="center" allowSort="true">单位</div>         
+            <div width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    var surl = "/finance/voucher/auxiliaryitems";
+	function search_option() {
+        grid.setUrl(surl+"/getAssistingGridlist");
+        var parms = form.getData(true);
+		grid.load({
+			params : mini.encode(parms)
+		});
+	}
+
+    function setData(data) {
+    	console.log(data);
+        data = mini.clone(data);
+        if (data.fitemclassid) {
+
+            mini.get("fitemclassid").setValue(data.fitemclassid);
+        }
+    }
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "worker_rzrq") {
+            return mini.formatDate(new Date(e.record.worker_rzrq),
+                "yyyy-MM-dd");
+        }
+        if (e.field == "worker_zzrq") {
+            if (record.worker_zzrq == null) {
+                return null;
+            } else {
+                return mini.formatDate(new Date(e.record.worker_zzrq),
+                    "yyyy-MM-dd");
+            }
+        }
+    }
+
+	 function add() {
+ 			mini.open({
+ 				url : "/cggl/cgda/ghdwadd.html",
+ 				title : "供应商新增",
+ 				width : 650,
+ 				height : 320,
+ 				onload : function() {
+ 					var iframe = this.getIFrameEl();
+ 					var data = {
+ 						action : "new"
+ 					};
+ 					iframe.contentWindow.SetData(data);
+ 				},
+ 				ondestroy : function(action) {
+ 					if (action != "close") {
+ 						search_option();
+ 					}
+ 				}
+ 			});
+ 		}
+
+	function GetData() {
+		var row = grid.getSelected();
+		return row;
+	}
+
+	function onRowDblClick(e) {
+		CloseWindow("ok");
+	}
+	function CloseWindow(action) {
+		if (window.CloseOwnerWindow)
+			return window.CloseOwnerWindow(action);
+		else
+			window.close();
+	}
+</script>
+</body>
+</html>

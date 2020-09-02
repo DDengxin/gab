@@ -1,0 +1,43 @@
+package com.tengzhi.business.platform.shopping.dao.impl;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.shopping.dao.AddrDao;
+import com.tengzhi.business.platform.shopping.dao.AddrSqlDao;
+import com.tengzhi.business.platform.shopping.model.GShopAddr;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public class AddrSqlDaoImpl extends BasicsDaoImpl<GShopAddr, String> implements AddrSqlDao {
+
+	@Autowired
+	private AddrDao addrDao;
+	
+	@Override
+	public List<Map<String, Object>> findAllByUserId() {
+		SessionUser user = SessionUser.SessionUser();
+		String sql = "select * from e_cw_customer_address " + SqlJoint.where(e -> {
+			e.eq("gen_user_id", user.getUserId());
+			e.eq("data_corp", SessionUser.getDefaultCorp());
+		}, true);
+		return addrDao.QueryhumpMap(sql + " order by sort_ord");
+	}
+
+	@Override
+	public GShopAddr findByAddrId(String addressNote) {
+		return addrDao.findById(addressNote).orElse(null);
+	}
+
+	@Override
+	public List<Map<String, Object>> findDefaultAddr() {
+		String sql = "select * from  e_cw_customer_address where is_default = true";
+		return addrDao.QueryhumpMap(sql);
+
+	}
+
+}

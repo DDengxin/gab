@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>库存查询(明细)</title>
+    </th:block>
+    <script type="text/javascript" th:src="@{/static/javascript/LodopPrint.js?version=1}"></script>
+    <object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="0" height="0">
+        <embed id="LODOP_EM" type="application/x-print-lodop" width="0" height="0"/>
+    </object>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input th:value="${stype}" class="mini-hidden" name="stype" id="stype"/>
+        <table>
+            <tr>
+                <td>
+                    <label class="hmq-label" text="库房">
+                        <div id="srchLib" name="srchLib" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:150px;" emptyText="全部">
+                            <div property="columns">
+                                <div header="全部" field="text"></div>
+                            </div>
+                        </div>
+                        <label class="hmq-label" text="库位">
+                            <input class="mini-textbox" id="srchKw" name="srchKw" width="110"/>
+                        </label>
+                    </label>
+                    <label class="hmq-label" text="编码">
+                        <input class="mini-textbox" name="srchCode" width="110"/>
+                    </label>
+                    <label class="hmq-label" for="srchName" text="名称">
+                        <input id="srchName" name="srchName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" allowInput="true" textField="combtext" valueField="combid" parentField="pid" value="无"
+                               onbeforenodeselect="disableParentSelection" popupWidth="240" popupHeight="180"/>
+                    </label>
+                    <label class="hmq-label" for="cpcodeSize" text="规格">
+                        <input class="mini-textbox" id="cpcodeSize" name="srchSize" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="包装号">
+                        <input class="mini-textbox" name="srchPack" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="合同号">
+                        <input class="mini-textbox" name="srchContract" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="入库单位">
+                        <input id="srchSupplier" name="srchSupplier" emptyText="全部" allowInput="true" class="mini-buttonedit" onbuttonclick="onSupplierClick"/>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="hmq-label" text="批号">
+                        <input class="mini-textbox" name="srchInPh" width="110"/>
+                    </label>
+                    <label class="hmq-label" for="srchFl" text="分类">
+                        <div id="srchFl" name="srchFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" emptyText="全部" popupMaxHeight="400">
+                            <div property="columns">
+                                <div header="全部" field="text"></div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="hmq-label" for="cpcodeSizeEn" text="品牌">
+                        <input class="mini-textbox" id="cpcodeSizeEn" name="srchCpcodesizeen" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="备注">
+                        <input class="mini-textbox" name="srchRemarks" id="srchRemarks" width="260"/>
+                    </label>
+                </td>
+            </tr>
+        </table>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_top_grid" pager="#pager1" pageSize="100" showPager="true" sortMode="client" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="inlib" displayField="inlibname" width="150" align="left">库房</div>
+            <div tz:datagrid="column" field="inKw" displayField="kwname" width="80" align="center">库位</div>
+            <div tz:datagrid="column" field="code" width="100" align="center">编码</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcodename" align="left" width="190">名称</div>
+            <div tz:datagrid="column" name="cpcodeSize" field="cpcodesize" align="left" width="190">规格</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodesizeen" width="90" align="left">品牌</div>
+            <div tz:datagrid="column" name="cpcodeFl" field="cpcodefl" displayField="cpcodeflname" width="90" align="left">分类</div>
+            <div tz:datagrid="column" name="cpcodeXp" field="cpcodexp" width="80">产品标重</div>
+            <div tz:datagrid="column" name="sl" field="sl" width="80" align="right" summaryType="sum" numberFormat="#,0.0000" dataType="double">数量</div>
+            <div tz:datagrid="column" field="cpcodebz" align="center" width="60">单位</div>
+            <div tz:datagrid="column" field="inph" name="inPh" width="130" align="center">批号</div>
+            <div tz:datagrid="column" field="inluono" name="inLuono" width="130" align="center">炉号</div>
+            <div tz:datagrid="column" field="pack" width="130" align="center">包装号</div>
+            <div tz:datagrid="column" field="inprice" width="80" align="right" numberFormat="#,0.0000" visible="false">入库单价</div>
+            <div tz:datagrid="column" field="incustomer" displayField="incustomername" width="130" align="left">入库单位</div>
+            <div tz:datagrid="column" field="inremarks" width="200" align="left">备注</div>
+            <div tz:datagrid="column" field="incontract" width="120" align="center">合同号</div>
+            <div tz:datagrid="column" field="inrq" width="100" align="center" renderer="onActionRenderer">日期</div>
+            <div tz:datagrid="column" field="inact" displayField="actname" width="80" align="center">入库方式</div>
+            <div tz:datagrid="column" field="intypename" displayField="intypename" width="90" align="center">大类</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_top_grid");
+    var surl = "/ck/yw/warehouseKc";
+    var stype = mini.get("stype").getValue();
+    grid.setUrl(surl + "/getSrchMxList");
+    grid.bindSearchForm(form);
+
+    mini.get("srchLib").setUrl("/system/parameter/getParamsSelectListByParentId/仓库/{0}".format(stype));
+
+
+    //动态列转换
+    hmq.business.dynamicProductParams(stype, {
+        miniForm:form,
+        miniDataGrid: grid,
+        success: function (map, res) {
+            $(form.el).find('[for=srchName]').text(map.cpcodeName);
+            form.getField("srchName").load(map.cpcodeNameUrl);
+
+            $(form.el).find('[for=srchFl]').text(map.cpcodeFl);
+            form.getField("srchFl").setUrl(map.cpcodeFlUrl);
+        },
+        error: function (res) {
+            hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+        }
+    });
+
+
+
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "inrq" && record.inrq != null) {
+            return mini.formatDate(new Date(record.inrq), "yyyy-MM-dd");
+        }
+
+    }
+
+    /**
+     汇总
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "inlib") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "sl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "js") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "zl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "inje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+
+    }
+
+    /**
+     * @Author: gxl
+     * @description: 供货单位选择页面
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+
+    //打印弹出页面
+    function print_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            printLabel(row.pack, "PREVIEW","STOCK");
+            /* e.sender.miniopen({
+               title:'【成品库存】明细-打印',
+               url:"/ck/yw/warehouseKc/print.html",
+               width: 500,height: 400,
+               action:'mx',
+               data:row
+           }); */
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function excel_option(e) {
+        assembling({
+            grid: grid,
+            form: form,
+            url: "/ck/yw/warehouseKc/exportExcel",
+            json: ['inprice']
+        });
+    }
+
+</script>
+</html>

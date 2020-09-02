@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>外来物品【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="note" name="note"  class="mini-hidden"/>
+        <input id="wcFlag" name="wcFlag"  class="mini-hidden"/>
+        <input id="dataCorp" name="dataCorp"  class="mini-hidden"/>
+        <input id="dataMan" name="dataMan"  class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>日 期:</td>
+                <td content>
+                    <input id="rcRq" name="rcRq" class="mini-datepicker" required value="new Date()" />
+                </td>
+                <td title>物品来源:</td>
+                <td content>
+                    <input id="wpOrigin" name="wpOrigin" class="mini-textbox" required  />
+                </td>
+                <td title>物品类别:</td>
+                <td content>
+                    <select id="wpType" name="wpType" class="mini-combobox" required >
+                        <option value="车间生产用品">车间生产用品</option>
+                        <option value="客户暂放物品">客户暂放物品</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>经办人:</td>
+                <td content>
+                    <input id="jbMan" name="jbMan" class="mini-buttonedit" onbuttonclick="onButtonEditMan" allowInput="false" />
+                </td>
+                <td title>经办部门:</td>
+                <td content>
+                    <input id="jbDept" name="jbDept" popupMaxHeight="240px" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList"
+                           showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+            </tr>
+            <!--<tr>
+                <td title>是否出厂:</td>
+                <td content>
+                    <select id="isOut" name="isOut" class="mini-combobox" required onvaluechanged="onChangeOut">
+                        <option  value="不再出厂">不再出厂</option>
+                        <option  value="会再出厂">会再出厂</option>
+                    </select>
+                </td>
+                <td title>出厂确认:</td>
+                <td content>
+                    <input id="ccMan" name="ccMan" class="mini-buttonedit" onbuttonclick="onButtonEditMan"/>
+                </td>
+                <td title>出厂日期:</td>
+                <td content>
+                    <input id="ccRq" name="ccRq" class="mini-datepicker" value="new Date()" />
+                </td>
+            </tr>-->
+            <tr>
+                <td title>进厂说明:</td>
+                <td content colspan="5">
+                    <input id="rcSm" name="rcSm" class="mini-textarea" required/>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div tz:datagrid="datagrid" id="datagrid" idField="sid" sortField="sid" sortOrder="asc" style="width:100%;height:250px;"
+         url="/xt/getInOut/wlwp/getWlwpMx"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+         showPager="false" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+         showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" allowSortColumn="false">
+        <input id="sid" name="sid" class="mini-hidden"/>
+        <div property="columns">
+            <div tz:datagrid="checkcolumn" width="35"></div>
+            <div tz:datagrid="column" field="wpName" name="wpName" align="left" width="120">物品名称
+                <input id="wpName" property="editor" class="mini-textbox" showTime="true" />
+            </div>
+            <div tz:datagrid="column" field="wpSl" name="wpSl" align="right" width="60">数量
+                <input id="wpSl" property="editor" class="mini-textbox"  showTime="true"/>
+            </div>
+            <div tz:datagrid="column" field="wpUnit" name="wpUnit" align="left" width="60">单位
+                <input id="wpUnit" property="editor" class="mini-textbox" />
+            </div>
+            <div tz:datagrid="column" field="isOut" name="isOut" align="center" width="80">是否出厂
+                <select property="editor" class="mini-combobox" >
+                    <option  value="不再回厂">不再出厂</option>
+                    <option  value="会再回厂">会再出厂</option>
+                </select>
+            </div>
+            <div tz:datagrid="column" field="ccMan" name="ccMan" displayField="ccManName" align="center" width="100">出厂确认
+                <input property="editor" class="mini-buttonedit" onbuttonclick="onButtonEditMan" />
+            </div>
+            <div tz:datagrid="column" field="ccRq" name="ccRq" align="center" width="100">出厂日期
+                <input property="editor" class="mini-datepicker" />
+            </div>
+            <div tz:datagrid="column" field="wpSm" name="wpSm" align="left" width="180">备注
+                <input id="wpSm" property="editor" class="mini-textbox"/>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("datagrid");
+
+    /**
+     新增行
+     */
+    function addRow() {
+        var index = grid.getData().length;
+        var newRow = {
+            name: "",
+        };
+        grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("sid").getValue();
+        var rows = grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                grid.removeRows(rows, true);
+            }
+        }
+    }
+    /**
+     人员选择
+     */
+    function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                    mini.get("jbDept").setValue(data.workerDept);
+                }
+            }
+        });
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed', false);
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                eXtWlwp: form.getData(true),
+                eXtWlwpMx: entrydata,
+                removedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     * 回调函数
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+
+            //普通口径
+            var formData = options.data.formData;
+            var row = options.data.row;
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+                data = mini.clone(options);
+                form.setChanged(false);
+            } else if ('edit' == options.action) {
+                $.get("getById/{0}".format(row.note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        var data = mini.decode(res.data);
+                        //mini.get("ccMan").setValue(data.ccMan);
+                        //mini.get("ccMan").setText(data.ccmanname);
+                        mini.get("jbMan").setValue(data.jbMan);
+                        mini.get("jbMan").setText(data.manname);
+                        /*var isOut = data.isOut;
+                        if(isOut=="不再出厂"){
+                            form.getField("ccMan").disable();
+                            form.getField("ccRq").disable();
+                            mini.get("ccRq").setValue("");
+                        }else if(isOut=="会再出厂"){
+                            form.getField("ccMan").enable();
+                            form.getField("ccRq").enable();
+                            mini.get("ccRq").setValue(new Date());
+                        }*/
+                        grid.load({
+                            params: JSON.stringify({note: form.getField('note').getValue()})
+                        });
+                    }
+                });
+            }
+        } else {
+            //审批口径
+            $.get("add.html/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("noticeFile").getValue(),
+                        filecount: 50,
+                        download: true,
+                        view: "view",
+                    });
+                }
+            }, null, null, {
+                complete: function () {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //表单只读
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+    }
+    grid.on("cellbeginedit",function(e){    //可以在这事件里处理，可以精确控制到每个单元格。
+        var field = e.field;
+        var record = e.record;
+        if(field=="ccMan"|| field=="ccRq"){
+            if(record.isOut=="不再出厂"){
+                e.cancel=true;   //阻止编辑
+            }
+        }
+    })
+</script>
+</html>

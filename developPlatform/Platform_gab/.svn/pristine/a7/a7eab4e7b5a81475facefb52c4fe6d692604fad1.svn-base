@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>客户管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+
+			<label class="hmq-label" text="日期"> <input
+				class="mini-datepicker" name="srchRq1" ateFormat="yyyy-MM-dd"
+				width="110" />
+			</label>
+			<label class="hmq-label" text="至"> <input
+				class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd"
+				width="110" />
+			</label>
+			<label class="hmq-label" text="客户名称"> <input
+				class="mini-textbox" name="personName" />
+			
+
+		</th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch-grid" url="/platform/personal/list" idField="personNote" >
+        <div property="columns">
+         <div width="30px" type="indexcolumn" headerAlign="center">序号</div>
+            <div tz:datagrid="column" field="registerDate"  width="60px"  align="center">注册日期</div>
+             <div tz:datagrid="column" visible="false" field="personNote" align="center" with="300px"  style="width: 300px;">客户编码</div> 
+              <div tz:datagrid="column" field="idCard" align="center" width="100px">营业执照编号</div>
+               <div tz:datagrid="column" field="userId" visible="false" with="100px"></div>
+                <div tz:datagrid="column" field="isPlatform"  visible="false"  ></div>
+            <div tz:datagrid="column" field="personName" with="100px">客户名称</div>
+            <div tz:datagrid="column" field="supplyName" with="80px">单位名称</div>
+            <div tz:datagrid="column" field="customerExp" align="left" width="80px">单位简称</div>
+            <div tz:datagrid="column" field="district" align="left"  width="40px">单位地区</div>
+             <div tz:datagrid="column" field="supplyLevel" align="center" width="40px">单位等级</div>
+              <div tz:datagrid="column" field="status" align="center"  width="40px">状态</div>
+            <div tz:datagrid="column" withd="100%"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch-grid");
+
+    grid.on("DrawCell", function (e) {
+        if ("registerDate" == e.field && null != e.value) {
+            e.cellHtml = mini.formatDate(new Date(e.value), 'yyyy-MM-dd');
+        }
+    });
+
+    function search_option() {
+       	var data  =  form.getData(true);
+    	data.srchRq2 = form.getData(true).srchRq2
+    	data.srchRq1 = form.getData(true).srchRq1
+    	if(!!data.srchRq2){
+    		data.srchRq2 = form.getData(true).srchRq2+" 23:59:59";
+    	}
+    	if(!!data.srchRq1){
+    		data.srchRq1 = form.getData(true).srchRq1+" 00:00:00";
+    	}
+    	
+        grid.load({params: JSON.stringify(data)});
+    }
+    //是否是平台用户
+    function  isPlatformUser(row){
+    
+    	return  row.isPlatform;
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "../specialist/need/neededit.html", action: 'add', data: row, width: 900, height: 470});
+
+     
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if(row.isPlatform == false ){
+        	hmq.tipDanger("该记录非平台注册用户，无法修改");
+        	return
+        } 
+        if (row.status != "登记"  ) {
+            hmq.tipDanger('该单不是“登记”状态,不能操作！');
+            return
+        }
+        if (row  ) {
+            e.sender.miniopen({url:  "../specialist/need/neededit.html", action: 'edit', data: row, width: 900, height: 470});// width: 900, height: 300
+        } else {
+            hmq.tipDanger("请选择一条记录， ");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.status != "登记"  ) {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return
+            }
+            if(row.isPlatform == false ){
+            	hmq.tipDanger("该记录非平台注册用户，无法删除");
+            	return
+            } 
+            
+            
+            mini.confirm("注意:确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $.delete("/platform/personal/deleteByPerson/{0}/{1}".format(row.personNote,row.userId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option() {
+        var row = grid.getSelected();
+        if(row.isPlatform == false ){
+        	hmq.tipDanger("该记录非平台注册用户，无法操作");
+        	return
+        } 
+        if (row) {
+            if (row.status != "登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return
+            }
+            //菜单ID
+            var menuId = hmq.getQueryString('menu_id');
+            //标题
+            var title = "客户管理";
+            //业务单号
+            var businessId = row.personNote;
+            hmq.business.approvalConfirm({
+                businessId: row.personNote,
+                titile:"客户管理",
+                url: '/platform/specialist/need/needApproval.html', 
+                error: function (res) {
+                    if (404 == res.code) {
+                       
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+    }
+
+    function cancel_option() {
+        var row = grid.getSelected();
+        if(row.isPlatform == false ){
+        	hmq.tipDanger("该记录非平台注册用户，无法操作");
+        	return
+        } 
+        if (row.status != "确认") {
+            hmq.tipDanger('该单不是“确认”状态,不能操作！');
+            return
+        }
+        if (row) {
+        	   hmq.business.approvalCancel({
+                   businessId: row.personNote,
+                   error: function (res) {
+                       hmq.tipDanger(res.msg);
+                   }
+               });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+
+</body>
+</html>

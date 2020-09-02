@@ -1,0 +1,46 @@
+package com.tengzhi.business.platform.specialist.chamberactivities.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.platform.specialist.chamberactivities.model.chamberActivities;
+
+import java.util.List;
+import java.util.Map;
+
+
+public interface ChamberActivitiesService {
+
+
+    BasePage<Map<String, Object>> findAll(BaseDto baseDto) throws Exception;
+
+
+    chamberActivities findById(String Id);
+
+
+    chamberActivities save(chamberActivities chamberActivities);
+
+
+    void update(chamberActivities chamberActivities);
+
+
+    void deleteById(String Id);
+
+    void showById(String Id);
+
+
+    boolean judgeUnique(chamberActivities chamberActivities);
+
+
+	List<Map<String, Object>> getgChamberActivities();
+
+
+	Map<String, Object> getChamberActivities(String pageSize, String pageIndex);
+
+
+	Map<String, Object> getOne(String article_id);
+
+
+	List<Map<String, Object>> getLimit(String limit);
+
+
+}

@@ -1,0 +1,121 @@
+package com.tengzhi.business.mesPersonnel.producetSchedule.staffing.service.impl;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.mesPersonnel.producetSchedule.staffing.dao.StaffingDao;
+import com.tengzhi.business.mesPersonnel.producetSchedule.staffing.model.Staffing;
+import com.tengzhi.business.mesPersonnel.producetSchedule.staffing.service.StaffingService;
+@Service
+@Transactional
+public class StaffingServiceImpl implements StaffingService{
+	@Autowired
+	private StaffingDao straffingDao;
+
+	@Override
+	public BasePage<Map<String,Object>> findAll(BaseDto baseDto) throws IOException {
+		String where = " where data_corp = '"+SessionUser.SessionUser().getCorpId()+"'";
+		Map<String, String> map = baseDto.getParamsMap();
+		if(StringUtils.isNotBlank(map.get("workerId"))){
+			where += " and work_id = '"+map.get("workerId")+"'";
+		}
+		String sql="SELECT work_id \"workId\",work_name \"workName\",to_char(work_rq,'yyyy-MM-dd') \"workRq\",work_dept \"workDept\",f_getname('GETDEPTNAME', work_dept, '', data_corp) \"deptName\",work_bb \"workBb\",f_get_param_name('生产班别',work_bb,'"+   SessionUser.getCurrentCorpId()   +"','人事',false) \"bbName\",work_ct \"workCt\",f_getname('GETJTNAMES', work_ct, '', '') \"ctName\",to_char(data_date,'yyyy-MM-dd') \"dataDate\",data_man \"dataMan\",f_getname('GETUSERNAME', data_man, '', data_corp) \"manName\" FROM m_ry_ygdg "+where+" order by work_rq desc";
+		return straffingDao.QueryPageList(sql,"select count(*) from ("+sql+") t",baseDto);
+	}
+
+	@Override
+	public Result save(Staffing staffing) throws Exception {
+		Date date = new Date();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		staffing.setWorkRq(cal.getTime());
+		Staffing s = straffingDao.findWork(staffing.getWorkId(),staffing.getWorkRq(),staffing.getWorkBb());
+		if(s!=null&&s.getWorkId().equals(staffing.getWorkId())) {
+			return Result.resultError(500, "员工一天分配的车台不能相同");
+		}
+		SessionUser sessionUser=SessionUser.SessionUser();
+		staffing.setDataCorp(sessionUser.getCorpId());
+		staffing.setDataDate(cal.getTime());
+		staffing.setDataMan(sessionUser.getUserId());
+        straffingDao.save(staffing);
+		return Result.resultOk(staffing.getWorkId());
+	}
+
+	@Override
+	public Staffing findWork(String workId,String workRq,String workBb) throws ParseException {
+		DateFormat format= new SimpleDateFormat("yyyy-MM-dd");
+		Date date=format.parse(workRq);
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		String dateString = formatter.format(date);
+		Date newDate = formatter.parse(dateString);
+		return straffingDao.findWork(workId,date,workBb);
+	}
+
+	@Override
+	public void update(Staffing staffing) {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		straffingDao.delete(staffing);
+		staffing.setWorkRq(new Date());
+		staffing.setDataCorp(sessionUser.getCorpId());
+		staffing.setDataDate(new Date());
+		staffing.setDataMan(sessionUser.getUserId());
+        straffingDao.update(staffing);
+	}
+
+	@Override
+	public void delete(String workId,String workRq,String workBb) throws ParseException {
+		DateFormat format= new SimpleDateFormat("yyyy-MM-dd");
+		Date date=format.parse(workRq);
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		String dateString = formatter.format(date);
+		Date newDate = formatter.parse(dateString);
+		straffingDao.deleteData(workId,date,workBb);
+	}
+
+	@Override
+	public boolean judgeUnique(Staffing staffing) {
+		return straffingDao.findAll(Specifications.where((c)->{
+			c.eq("dgId", staffing.getWorkId());
+		})).size()<=0;
+	}
+
+	@Override
+	public List<Map> getTreeList(String mod, String type) {
+		String sqlString="select param_id combid,param_name combtext,parent_id pid from  sys_param  where param_mod='"+mod+"' and param_type='"+type+"' and param_status='true' and parent_id='SCBB' ";
+		return straffingDao.QueryListMap(sqlString, null);
+	}
+
+	@Override
+	public List<Map> getTypeList(String mod, String type) {
+		String sqlString="select machine_id combid,machine_name combtext from  m_sb_jt  where machine_flag='"+mod+"' and machine_dtype='SCSB'";
+		return straffingDao.QueryListMap(sqlString, null);
+	}
+
+	@Override
+	public List<Map> getDeptList() {
+		String sql="select dept_id,dept_name,parent_id,parent_name from sys_dept";
+		 return straffingDao.QueryListMap(sql, null);
+	}
+
+}

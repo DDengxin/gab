@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>业务类别</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="业务表">
+            <input class="mini-combobox" id="ftable" name="ftable" onvaluechanged="tableName" allowInput="true" ajaxType="post" valueField="tabname" textField="comment"
+                    url="/finance/voucher/bscategory/findAllTables" clearOnLoad="true" valueFromSelect="true"
+            />
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" style="width: 100%; height: 100%;"
+         idField="freportitem" url="/finance/voucher/bscategory/getList"
+         sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" showPageInfo="false" sortField="freportitem" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div field="dataCorp" width="100" align="left" headerAlign="center" allowSort="true">公司账套</div>
+            <div field="fevbusid" width="100" align="left" headerAlign="center" allowSort="true">类型编码</div>
+            <div field="fname" width="100" align="left" headerAlign="center" allowSort="true">业务名称</div>
+            <div field="ftype" width="100" align="left" headerAlign="center" allowSort="true">业务类型</div>
+            <div field="fisbill" width="100" align="left" headerAlign="center" allowSort="true">是否业务</div>
+            <div field="fisqm" width="100" align="left" headerAlign="center" allowSort="true">是否期末</div>
+            <div visible="false" field="famount" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="ftable" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="funit" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="ftaxrate" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fsum" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="ftax" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fmoney" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fprice" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fqty" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fsupplierid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fprojectid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fitemid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fitemclassid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="finventoryid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fempid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fdeptid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fcustomid" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  field="fcur" width="100" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div visible="false"  width="100%" headerAlign="center" allowSort="true" align="left"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_grid = mini.get("srch_grid");
+    srch_grid.bindSearchForm(form);
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        srch_grid.load();
+    }
+
+    /**设置公式*/
+    function edit_option(e){
+        var row = srch_grid.getSelected();
+        if(row){
+            e.sender.miniopen({url: "add.html", action: 'edit', data:{rowData : row} });
+        }else{
+            hmq.tipDanger("请选择一条记录！");
+        }
+    }
+    /**设置公式*/
+    function add_option(e){
+
+            e.sender.miniopen({url: "add.html", action: 'add' });
+     }
+
+    /**
+     * 删除
+     **/
+    function delete_option(){
+        var row = srch_grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/finance/voucher/bscategory/{0}".format(row.fevbusid), function (res) {
+                        if (200 === res.code) {
+                            srch_grid.reload();
+                        } else {
+
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+
+
+</body>
+</html>

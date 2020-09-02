@@ -1,0 +1,10 @@
+package com.tengzhi.business.sc.da.cardAbnormal.dao;
+
+/**
+ * @Auther: huangbiao
+ * @Date: 2020/8/5 0005 11:33
+ * @Description:
+ */
+
+public interface EHrAttendanceAbnormalDao {
+}

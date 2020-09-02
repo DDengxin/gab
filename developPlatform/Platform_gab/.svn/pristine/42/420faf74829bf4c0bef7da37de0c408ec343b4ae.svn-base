@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>需求发布</title>
+</th:block>
+<script type="text/javascript" th:src="@{/static/gab/js/formConfig.js}"></script>
+</head>
+<body>
+	<form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<input class="mini-hidden" id="menuId" name="menuId" />
+				<input class="mini-hidden" id="srchForm" name="srchForm" />
+				<label class="hmq-label" text="日期">
+					<input class="mini-datepicker" id="srchRq1" name="srchRq1"  format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss"  width="110" />
+				</label>
+				<label class="hmq-label" text="至">
+					<input class="mini-datepicker" id="srchRq2" name="srchRq2"  format="yyyy-MM-dd H:mm:ss"  width="110" />
+				</label>
+				<label class="hmq-label" for="cpcodeName" text="需求名称">
+					<input class="mini-textbox" id="srchName" name="srchName" />
+				</label>
+				<label class="hmq-label" for="cpcodeXp" text="分类">
+					<input class="mini-combobox" id="srchType" name="cpcodeXp" textField="text" valueField="id" onvaluechanged="search_option"/>
+				</label>
+				<label class="hmq-label" text="状态">
+					<select class="mini-combobox" id="srchFlag" name="srchFlag" emptyText="全部">
+						<option value="">全部</option>
+						<option value="登记">登记</option>
+						<option value="确认">确认</option>
+						<option value="投标中">投标中</option>
+						<option value="已完成">已完成</option>
+					</select>
+				</label>
+			</th:block>
+		</th:block>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="needNote" url="/platform/specialist/need/sreach">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn" width="48">序号</div>
+				<div tz:datagrid="column" field="needNote" width="150" align="center">需求编码</div>
+				<div tz:datagrid="column" field="cpname" name="cpcodeName" width="100" align="left">需求名称</div>
+				<div tz:datagrid="column" field="cpgg" name="cpcodeSize" width="100" align="left">需求字段（工位）</div>
+				<div tz:datagrid="column" field="cplength" name="cpcodeSizeEn" width="100" align="left">需求字段（动力）</div>
+				<div tz:datagrid="column" field="cpfl" name="cpcodeFl" width="100" align="left">需求字段（分类）</div>
+				<div tz:datagrid="column" field="cpbz" displayField="typeName" name="cpcodeXp" width="100" align="center">应用行业</div>
+				<div tz:datagrid="column" field="introduce" name="introduce" width="400" align="left">需求介绍</div>
+				<div tz:datagrid="column" field="apply"  name="apply" width="400" align="left">应用需求</div>
+				<div tz:datagrid="column" field="dutyCycle" width="100" align="right">任务周期</div>
+				<div tz:datagrid="column" field="endTime" displayField="endChar" width="100" align="center">截止时间</div>
+				<div tz:datagrid="column" field="needProvince" name="needProvince" width="100" align="center">需求省份</div>
+				<div tz:datagrid="column" field="needCity" name="needCity"  width="100" align="center">需求城市</div>
+				<div tz:datagrid="column" field="needPlan"name="needPlan" width="100" align="center" renderer="onActionRenderer">需求方案</div>
+				<div tz:datagrid="column" field="needImg" name=needImg width="100" align="center" renderer="onActionRenderer">需求图片</div>
+				<div tz:datagrid="column" field="needFile"name="needFile" width="100" align="center" renderer="onActionRenderer">需求附件</div>
+				<div tz:datagrid="column" field="needFlag" name="needFlag"  width="100" align="center">需求状态</div>
+				<div tz:datagrid="column" field="applyMan" displayField="applyName" width="100" align="center">发布人</div>
+				<div tz:datagrid="column" field="applyDate" displayField="applyChar" width="100" align="center">发布时间</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    setNeedGrid();
+    
+    function search_option() {
+    	setDynamicGrid();
+       	grid.load({params:JSON.stringify(form.getData(true))});
+    }
+
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', data: mini.get("srchForm").getValue(),width:1080,height:600});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+        	if(row.needFlag=="登记"){
+        		e.sender.miniopen({url: 'add.html', action: 'edit', data: {row:row,form:mini.get("srchForm").getValue()},width:1080,height:600});
+        	}else{
+        		hmq.tipDanger("非登记状态不能修改");
+        	}
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+        	if (row.needFlag!="登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+              	return 
+            }
+            mini.confirm("注意:确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteByNote/{0}".format(row.needNote),function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    
+    function confirm_option(){
+    	var row = grid.getSelected();
+        if (row) {
+        	if (row.needFlag!="登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+              	return 
+            }
+            //菜单ID
+            var menuId = hmq.getQueryString('menu_id');
+            //标题
+            var title = row.cpname;
+            //业务单号
+            var businessId = row.needNote;
+            $['put']("/system/workflow/process/startFinishFirstStep", JSON.stringify({
+                menuId: menuId,
+                title: title,
+                url: "/platform/specialist/need/examination.html",
+                businessId: businessId
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '提交成功', {
+                        exec: function () {
+                           search_option();
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '提交失败');
+                }
+            }, null, {
+                loading: true,
+                contentType: 'application/json',
+                error: function () {
+                    mini.unmask();
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+    }
+    
+    function cancel_option(){
+    	var row = grid.getSelected();
+    	if (row.needFlag!="确认") {
+            hmq.tipDanger('该单不是“确认”状态,不能操作！');
+          	return 
+        }
+        if (row) {
+        	hmq.business.approvalCancel({
+        		 businessId:row.needNote
+        	 })
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    
+    function onActionRenderer(e) {
+		var html = "";
+    	if(e.field == "needPlan"){
+			html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 需求方案  '+ '</a> ';
+    	}else if(e.field == "needImg"){
+    		html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 需求图片  '+ '</a> ';
+    	}else if(e.field == "needFile"){
+    		html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 需求附件  '+ '</a> ';
+    	}
+    	return html;
+	}
+    
+	function file_view(line_primary){
+		miniopen({url:'file.html',action:'file',data:line_primary,width:400,height:390,title:'附件下载'});
+	}
+    
+	function GetQueryValue(queryName) {	
+        var query = decodeURI(window.location.search.substring(1));
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == queryName) { return pair[1]; }
+        }
+        return null;
+    }
+
+	//动态加载列
+	dynamicForm.initGrid(grid);
+    function setDynamicGrid(){
+    	dynamicForm.dynamicForm({
+            grid: grid,// 表格对象
+            index: 7,// 插入位置
+            classify: mini.get("srchType").value,// 分类
+    	});
+    }
+	
+	//动态加载产品/服务列名
+    function setNeedGrid(){
+    	var cpcodeType = hmq.getQueryString("cpcodeType");
+    	if(cpcodeType=="HW"){
+    	    grid.updateColumn("introduce", {header: "服务介绍"});
+    	    grid.updateColumn("apply", {header: "服务需求"});
+    	    grid.updateColumn("needProvince", {header: "服务省份"});
+    	    grid.updateColumn("needCity", {header: "服务城市"});
+    	    grid.updateColumn("needPlan", {header: "服务方案"});
+    	    grid.updateColumn("needImg", {header: "服务图片"});
+    	    grid.updateColumn("needFile", {header: "服务附件"});
+    	    grid.updateColumn("needFlag", {header: "服务状态"});
+    	}
+    	mini.get("srchForm").setValue(cpcodeType);
+        if (hmq.isNotEmpty(cpcodeType)) {
+            hmq.business.dynamicProductParams(cpcodeType, {
+                miniForm:form,
+                miniDataGrid: grid,
+                success: function (map, res) {
+                	mini.get("srchType").select(0);
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }
+    }
+	
+    mini.get("menuId").setValue(GetQueryValue("menu_id"));
+</script>
+</body>
+</html>

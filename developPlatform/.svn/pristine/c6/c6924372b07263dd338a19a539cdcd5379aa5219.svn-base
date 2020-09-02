@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>所属菜单选择器</title>
+	</th:block>
+</head>
+<body>
+<input name="roleId" class="mini-hidden"/>
+<form id="form1" method="post">
+	<div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderStyle="border:0;">
+		<table style="width: 100%;">
+			<tr>
+				<td style="white-space: nowrap;" align="left" >
+					<label class="hmq-label" text="菜单模块">
+						<input class="mini-combobox" name="rightModule" url="/system/right/combobox/rightModule"/>
+					</label>
+					<label class="hmq-label" text="系统">
+						<input class="mini-textbox" name="rightName"/>
+					</label>
+
+				</td>
+				<td style="white-space: nowrap;" align="right">
+					<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+					<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+				</td>
+			</tr>
+		</table>
+	</div>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+	<div tz:datagrid="treegrid"  id="srch_grid"  treeColumn="right_name" sortField="rightOrd"  idField="right_id"  parentField="parent_id"  url="auth.html"
+		 resultAsTree="true" iconField="right_icon_cls"  expandOnLoad="true" multiSelect="true" showTreeLines="true"
+		 showPager="false"  showExpandButtons="false">
+		<div property="columns">
+			<div tz:datagrid="checkcolumn"></div>
+			<div  tz:datagrid="column" field="right_name" name="right_name" width="100%">授权名称</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form("form1");
+	var grid = mini.get("srch_grid");
+	mini.getByName("rightModule").select(0);
+
+	function SetData(options) {
+		$("[name=roleId]").val(options.data.roleId);
+		search_option();
+	}
+
+	mini.getByName("rightModule").on("valuechanged", function (e) {
+		search_option();
+	});
+
+	grid.on('load', function(e) {
+		grid.loadList(JSON.parse(e.text).data);
+	});
+
+	grid.on('update',function(e){
+		var rows = grid.findRows(function (row) {
+			if(!$.isEmptyObject(row.validation)) return true;
+		});
+		String.load="Load";
+		grid.selects(rows);
+		delete String.load;
+	});
+	//禁止收缩
+	grid.on('beforecollapse',function(e){
+		e.cancel = true;
+	})
+	/**
+	 * 本地筛选
+	 **/
+	function search_option() {
+		grid.load({params:JSON.stringify({roleId:$("[name=roleId]").val(),rightName:$("[name=rightName]").val(),rightModule:$("[name=rightModule]").val()})});
+	}
+
+	grid.on("select",function(e){
+		if(String.load!="Load") checkChildren(e.record,true);
+		var nodes = grid.getAncestors(grid.getRowByUID(e.record._uid));
+	      for (var i = 0; i < nodes.length; i++) {
+	        grid.selectNode(nodes[i], false);
+	      }
+	});
+
+
+	grid.on("deselect",function(e){
+		checkChildren(e.record,false);
+	})
+
+	function checkChildren(e,bool) {
+		if (e.hasOwnProperty("children")) {
+			for (var i = 0; i < e.children.length; i++) {
+				if (bool == true) {
+					grid.selectNode(grid.getRowByUID(e.children[i]._uid));
+				}else if(bool==false){
+					grid.deselect(grid.getRowByUID(e.children[i]._uid));
+				}
+				checkChildren(e.children[i]);
+			}
+		}
+	}
+
+	function confirm(e) {
+		$.post("auth_add.html",JSON.stringify({roleId:$("[name=roleId]").val(),rightModule:$("[name=rightModule]").val(),rightMap:grid.getSelecteds()}),
+			function (res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功');
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			},
+			null,
+			{contentType: 'application/json'}
+		);
+	}
+
+	//关闭
+	function closeWindow(action) {
+		if (window.CloseOwnerWindow) {
+			return window.CloseOwnerWindow(action);
+		} else {
+			window.close();
+		}
+	}
+</script>
+</body>
+</html>

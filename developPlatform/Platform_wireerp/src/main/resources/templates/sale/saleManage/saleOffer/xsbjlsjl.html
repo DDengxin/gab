@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售报价历史记录</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" id="masterId" name="masterId"/>
+        <label class="hmq-label" text="产地">
+            <input class="mini-combobox" id="originPlace" name="originPlace" width="120"
+                   url="/system/parameter/getParamsSelectList/技术/线材产地"/>
+        </label>
+        <label class="hmq-label" text="材质">
+            <input class="mini-combobox" id="ylcz" name="ylcz" width="120"
+                   url="/system/parameter/getParamsSelectList/技术/线材材质"/>
+        </label>
+        <label class="hmq-label" text="规格">
+            <input class="mini-textbox" id="ylgg" name="ylgg" width="120"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+</th:block>
+
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="datagrid" style="width:100%;height:60%;" idField="itemMo"
+         sizeList="[50,100,200]" pageSize="100" url="/sale/saleManage/saleOffer/getHistoryList"
+         onrowdblclick="onRowDblClick"
+         pager="#pager1" showPager="false" sortField="itemMo" sortOrder="asc">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="optionrow" align="center" width="60" headerAlign="center" renderer="onActionRenderer"></div>
+            <div tz:datagrid="column" field="code" name="code" align="left" width="150">编码</div>
+            <div tz:datagrid="column" field="type" align="center" width="80">类型</div>
+            <div tz:datagrid="column" field="amount" align="right" width="100">数量</div>
+            <div tz:datagrid="column" field="price" align="right" width="100">单价</div>
+            <div tz:datagrid="column" field="pack" align="right" width="100">包装方式</div>
+            <div tz:datagrid="column" field="rq" align="right" width="100">日期</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+    <div id="return_grid" class="mini-datagrid" sortMode="client" style="width:100%;height:40%;" multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("datagrid");
+    var return_grid = mini.get("return_grid");
+    var columns = grid.getColumns();
+    return_grid.set({
+        columns : columns
+    });
+    grid.bindSearchForm(form);
+
+    function SetData(data) {
+        data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+        mini.get("masterId").setValue(data.masterId);
+        search_option();
+    }
+    function onActionRenderer(e) {
+        var grid_id = e.sender.id;
+        var s = "";
+        if (grid_id == "datagrid") {
+            s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:addRow()">+</a>';
+        }
+        if (grid_id == "return_grid") {
+            s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">-</a>';
+        }
+        return s;
+    }
+    function addRow() {
+        var row = grid.getSelected();
+        row = mini.clone(row); //必须
+        grid.removeRow(grid.getSelected());
+        return_grid.addRow(row);
+    }
+    function removeRow(rowdata) {
+        var items = return_grid.getSelecteds();
+        return_grid.removeRows(items);
+    }
+    function search_option() {
+        grid.load();
+    }
+
+    function confirm(e) {
+        return_grid.selectAll(true);
+        var rows = return_grid.getSelecteds();
+        if (rows.length <= 0) {
+            hmq.tipDanger('请选择一条数据');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+    function GetData() {
+        return grid.getSelected();
+    }
+
+    function onRowDblClick(e) {
+        addRow();
+    }
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

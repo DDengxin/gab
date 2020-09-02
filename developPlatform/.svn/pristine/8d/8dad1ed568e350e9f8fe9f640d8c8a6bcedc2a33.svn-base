@@ -1,0 +1,189 @@
+package com.tengzhi.business.base.publicinterfac;
+
+import cn.hutool.core.util.StrUtil;
+import com.tengzhi.base.security.common.tool.spring.SpringUtil;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.params.service.SysParamService;
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * 行业分类参数获取
+ * 通过行业分类编码获取
+ * 行业参数ID(exp:YL)
+ * 行业参数描述(exp:原料)
+ * 行业参数分类(exp: 原料分类)
+ * 行业参数大类(exp:物料大类)
+ * 材质参数分类(exp:原料材质)
+ * 材质参数编码(exp:YLMC)
+ * 检验参数编码(exp：YLJJ)
+ * 编码规则:(exp:手动编码)
+ *
+ * @author: gaodu
+ * @date: 2020/6/24 20:58
+ **/
+public class ProductType {
+    private static SysParamService sysParamService = null;
+    public static String WL = "WL";
+    public static String CP = "CP";
+
+    //参数ID
+    private String paramId;
+    //参数名称
+    private String paramName;
+    //参数类型
+    private String paramType;
+    //产品大类paramType
+    private String productCategoryParamType;
+    //产品名称paramType
+    private String productNameParamType;
+    //产品名称paramId
+    private String productNameParamId;
+    //检验参数paramId
+    private String testParamId;
+    //是否自动编码(根据行业分类钟的第二个参数确定)
+    private String automaticCoding;
+
+
+    ProductType(String paramId, String paramName, String paramType, String productCategoryParamType, String productNameParamType, String productNameParamId, String testParamId) {
+        this.paramId = paramId;
+        this.paramName = paramName;
+        this.paramType = paramType;
+        this.productCategoryParamType = productCategoryParamType;
+        this.productNameParamType = productNameParamType;
+        this.productNameParamId = productNameParamId;
+        this.testParamId = testParamId;
+    }
+
+    /**
+     * 行业分类ID
+     * 对应技术-参数类型中行业分类下的数据的paramId
+     *
+     * @return
+     */
+    public String getParamId() {
+        return paramId;
+    }
+
+    /**
+     * 行业分类名称
+     * 对应技术-参数类型中行业分类下的数据的paramName
+     *
+     * @return
+     */
+    public String getParamName() {
+        return paramName;
+    }
+
+    /**
+     * 行业分类类型
+     * 对应技术-参数类型中行业分类下的数据的paramType
+     *
+     * @return
+     */
+    public String getParamType() {
+        return paramType;
+    }
+
+    /**
+     * 该行业对应产品大类的类型
+     * 对应技术-产品大类中的paramType
+     *
+     * @return
+     */
+    public String getProductCategoryParamType() {
+        return productCategoryParamType;
+    }
+
+    /**
+     * 该行业对应产品名称的类型
+     * 对应技术-产品名称中的paramType
+     *
+     * @return
+     */
+    public String getProductNameParamType() {
+        return productNameParamType;
+    }
+
+    /**
+     * 该行业对应产品名称的父级ID
+     * 对应技术-产品名称中的paramId
+     *
+     * @return
+     */
+    public String getProductNameParamId() {
+        return productNameParamId;
+    }
+
+    /**
+     * 该行业对应检验档案的父级ID
+     * 对应技术-检验档案中的paramId
+     *
+     * @return
+     */
+    public String getTestParamId() {
+        return testParamId;
+    }
+
+    public String getAutomaticCoding() {
+        return automaticCoding;
+    }
+
+    public boolean isAutomaticCoding() {
+        return !"手动编码".equalsIgnoreCase(String.valueOf(automaticCoding).trim());
+    }
+
+    private void setAutomaticCoding(String automaticCoding) {
+        this.automaticCoding = automaticCoding;
+    }
+
+    /**
+     * 从paramId获取参数配置
+     *
+     * @param paramId      行业参数ID
+     * @param defaultValue 默认值
+     * @return
+     */
+    public static ProductType valueOfParamId(Object paramId, String defaultValue) {
+        if (null == paramId || StringUtils.isEmpty(paramId.toString())) {
+            paramId = null == defaultValue ? StringUtils.EMPTY : defaultValue;
+        }
+        if (null == sysParamService) {
+            sysParamService = SpringUtil.getBean(SysParamService.class);
+        }
+        //读取参数配置
+        SysParams sysParam = sysParamService.findByParameterId(String.valueOf(paramId), "行业分类");
+        String[] paramValueList = StrUtil.split(sysParam.getParamValue1(), ',', true, true).toArray(new String[0]);
+        //默认参数
+        String[] paramList = new String[]{
+                String.valueOf(paramId),
+                sysParam.getParamName(),
+                sysParam.getParamName() + "分类",
+                sysParam.getParamName() + "大类",
+                sysParam.getParamName() + "材质",
+                paramId + "MC",
+                paramId + "JJ"
+        };
+        //合并参数
+        for (int i = 0; i < paramList.length; i += 1) {
+            if (paramValueList.length >= i + 1 && StringUtils.isNotEmpty(paramValueList[i])) {
+                paramList[i] = paramValueList[i];
+            }
+        }
+        ProductType productType = new ProductType(paramList[0], paramList[1], paramList[2], paramList[3], paramList[4], paramList[5], paramList[6]);
+        //填充编码规则
+        productType.setAutomaticCoding(sysParam.getParamValue2());
+        return productType;
+    }
+
+    /**
+     * 从paramId获取参数配置
+     *
+     * @param paramId 行业参数ID
+     * @return
+     */
+    public static ProductType valueOfParamId(Object paramId) {
+        return valueOfParamId(paramId, null);
+    }
+
+
+}

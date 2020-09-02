@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>腾龙材质</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input id="srchRq1" name="srchRq1" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input id="srchRq2" name="srchRq2" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="材质编码">
+            <input id="srchCode" name="srchCode" class="mini-textbox" width="110"/>
+        </label>
+        <label class="hmq-label" text="材质类别">
+            <select id="srchLb" name="srchLb" class="mini-combobox" width="110" >
+                <option value="">全部</option>
+                <option value="不锈钢">不锈钢</option>
+                <option value="不锈铁">不锈铁</option>
+            </select>
+        </label>
+        <label class="hmq-label" text="产地">
+            <input id="srchCd" name="srchCd" class="mini-combobox" width="100" url="/system/parameter/getParamsSelectList/技术/原料产地" />
+        </label>
+        <label class="hmq-label" text="状态">
+            <select id="srchFlag" name="srchFlag" class="mini-combobox" width="100">
+                <option value="">全部</option>
+                <option value="启用">启用</option>
+                <option value="受理">受理</option>
+                <option value="成立">成立</option>
+                <option value="登记">登记</option>
+                <option value="分管领导">分管领导</option>
+                <option value="确认">确认</option>
+            </select>
+        </label>
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="code" sort url="/js/tlcz/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="rq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="code" width="100" align="center">材质编码</div>
+            <div tz:datagrid="column" field="tlcz" width="120" align="left">腾龙材质</div>
+            <div tz:datagrid="column" field="czLb" width="100" align="center">类别</div>
+            <div tz:datagrid="column" field="czStype" width="100" align="center">分类</div>
+            <div tz:datagrid="column" field="czThfl" width="100" align="center">退火分类</div>
+            <div tz:datagrid="column" field="cd" displayField="cdName" width="100" align="center">产地</div>
+            <div tz:datagrid="column" field="gccz" width="120" align="left">钢厂材质</div>
+            <div tz:datagrid="column" field="sm" width="200" align="left">备注</div>
+            <div tz:datagrid="column" field="flag" width="80" align="center">状态</div>
+            <div tz:datagrid="column" field="dataDate" width="100" align="center">操作日期</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form =new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option(){
+        grid.load();
+    }
+
+    /**
+     * 新增
+     * @param e
+     */
+    function add_option(e){
+        var row = grid.getSelected();
+        e.sender.miniopen({url : 'add.html',action : 'add', data : {row : row,formData : form.getData()},width :520,height : 320});
+    }
+
+    /**
+     * 编辑
+     * @param e
+     */
+    function edit_option(e){
+        var row = grid.getSelected();
+        if(row){
+            e.sender.miniopen({url : 'add.html', action : 'edit', data: {row: row, formData: form.getData()}, width : 520, height : 320});
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     * @param e
+     */
+    function delete_option(e){
+        var row = grid.getSelected();
+        if(row){
+            mini.confirm("注意:确定要删除吗？","删除信息",function(action){
+                if(action=="ok"){
+                    $['delete']("delete/{0}".format(row.code),function(res){
+                        if(200==res.code){
+                            grid.reload();
+                        }else{
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+
+</html>

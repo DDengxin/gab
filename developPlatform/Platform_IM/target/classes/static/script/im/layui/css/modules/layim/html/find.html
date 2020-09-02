@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="utf-8">
+  <title>添加群聊</title>
+  <link rel="stylesheet" href="../../../layui.css">
+  <script src="../../../../layui.js"></script>
+  <style type="text/css">
+    .layui-find-list li img {
+      position: absolute;
+      left: 15px;
+      top: 8px;
+      width: 36px;
+      height: 36px;
+      border-radius: 100%;
+    }
+    .layui-find-list li {
+      position: relative;
+      height: 90px;;
+      padding: 5px 15px 5px 60px;
+      font-size: 0;
+      cursor: pointer;
+    }
+    .layui-find-list li * {
+      display: inline-block;
+      vertical-align: top;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+    }
+    .layui-find-list li span {
+      margin-top: 4px;
+      max-width: 155px;
+    }
+
+    .layui-find-list li p {
+      display: block;
+      line-height: 18px;
+      font-size: 12px;
+      color: #999;
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+    }
+    .back{
+      cursor:pointer;
+    }
+    .lay_page{position: fixed;bottom: 0;margin-left: -15px;margin-bottom: 20px;background: #fff;width: 100%;}
+    .layui-laypage{width: 15%;margin:0 auto;display: block}
+  </style>
+</head>
+<body>
+
+<div class="layui-form">
+  <div class="layui-container" style="padding:8px">
+
+    <div class="layui-row layui-col-space3">
+      <div class="layui-col-xs2"></div>
+      <div class="layui-col-xs7 ">
+        <input type="text" name="title" lay-verify="title" autocomplete="off"
+               placeholder="请输入群名称" class="layui-input">
+      </div>
+      <div class="layui-col-xs1 ">
+        <button class="layui-btn btncolor find">查找</button>
+      </div>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title">
+      <legend>群组查找</legend>
+    </fieldset>
+    <div id="LAY_view"></div>
+
+
+    <textarea title="消息模版" id="LAY_tpl" style="display:none;">
+            <div class="layui-row ">
+                {{#  layui.each(d.data, function(index, item){ }}
+                    <div class="layui-col-xs3 layui-find-list">
+                        <li data-uid="{{ item.id}}" data-name="{{item.groupname}}" >
+                            <img src="../../../../../img/team.png">
+                            <span>{{item.groupname}}</span>
+                            {{# if(item.isvalid==0){ }}
+                                <p><button class="layui-btn layui-btn-mini layui-btn-xs btncolor add" data-type="添加" onclick="clicks(item.id,item.groupname)" ><i class="layui-icon">&#xe654;</i>加群</button></p>
+                            {{# } else if(item.isvalid==1){ }}
+                               <p class="c_red">已经是群成员</p>
+                            {{# } else { }}
+                               <p class="c_red">等待验证</p>
+                            {{# }
+                            }}
+                        </li>
+                    </div>
+                {{#  }); }}
+            </div>
+        </textarea>
+    <div class="lay_page" id="LAY_page"></div>
+
+  </div>
+</div>
+
+<script>
+  layui.use([ 'layim','laypage','form'], function(){
+    var layim = layui.layim,layer = layui.layer
+            ,laytpl = layui.laytpl,form = layui.form
+            ,$ = layui.jquery,laypage = layui.laypage;
+    $('body').on('click', '.add', function () {
+      var othis = $(this);
+      var groupId = othis.parents("li").data('uid');
+      var groupName = othis.parents("li").data('name');
+      layim.add({
+        type: 'group'
+        , username: groupName
+        , avatar: '../../../../../img/team.png'
+        , submit: function (group, remark, index) {
+          layer.msg('申请已发送，请等待群主确认', {
+            icon: 1, shade: 0.5
+          }, function () {
+            layer.close(index);
+          });
+          //通知对方
+          $.ajax({
+            url: "/Im/applyGroup",// 跳转到 action
+            data: JSON.stringify({groupId: groupId, remark: remark}),
+            type: "post",
+            contentType: 'application/json',
+            success: function (res) {
+              if (res.code === 500) {
+                layer.msg(res.msg, {
+                  time: 3000, //3s后自动关闭
+                });
+              }
+              othis.parent().html('等待验证');
+            },
+            error: function () {
+              layer.msg("网络请求失败", {
+                time: 3000, //3s后自动关闭
+              });
+            }
+          });
+        }
+      });
+
+    });
+    $("body").keydown(function(event){
+      if(event.keyCode==13){
+        $(".find").click();
+      }
+    });
+    $('body').on('click', '.find', function () {
+      $("#LAY_page").css("display","block");
+      //获取输入框val
+      var othis = $(this), input = othis.parents('.layui-col-space3').find('input').val();
+      if (input) {
+        $.get("/Im/SearchConut",{value:input}, function(data){
+          var res = data;
+          if(res.code != 0){
+            return layer.msg(res.msg);
+          }
+          laypage.render({
+            elem: 'LAY_page'
+            ,count: res.count
+            ,limit: 12
+            ,groups:5
+            ,prev: '<i class="layui-icon">&#58970;</i>'
+            ,next: '<i class="layui-icon">&#xe65b;</i>'
+            ,jump: function(obj, first){
+              $.get("/Im/Search",{value:input,page:obj.curr||1,limit:obj.limit},function(res){
+                var data = res;
+                var html = laytpl(LAY_tpl.value).render({
+                  data: data.data
+                });
+                $('#LAY_view').html(html);
+              });
+            }
+          });
+        });
+      }else{
+        layer.msg('请输入群名称',{
+          time: 3000,
+        });
+      }
+    });
+  });
+
+</script>
+
+</body>
+</html>

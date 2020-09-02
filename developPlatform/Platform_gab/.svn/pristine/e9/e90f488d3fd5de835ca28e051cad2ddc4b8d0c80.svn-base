@@ -1,0 +1,24 @@
+package com.tengzhi.business.system.user.config;
+
+import com.tengzhi.base.security.common.authorize.AuthorizeStaticConfig;
+import com.tengzhi.base.security.common.enums.AuthorityRoleEnum;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.stereotype.Component;
+
+/**
+ * 优先级配置低，默认去拦截所有请求
+ * @author lgl
+ */
+@Component
+@Order(Integer.MAX_VALUE - 100)
+public class GabAuthorizeStaticConfigImpl implements AuthorizeStaticConfig {
+	@Override
+	public void config(HttpSecurity httpSecurity) throws Exception {
+		httpSecurity.authorizeRequests()
+				//gab路径必须携带PLATFORM_GAB权限
+				.antMatchers("/gab/").hasAnyRole(AuthorityRoleEnum.GAB_USER.getName())
+				.anyRequest().hasRole(AuthorityRoleEnum.PLATFORM_USER.getName());
+		;
+	}
+}

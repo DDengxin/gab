@@ -1,0 +1,21 @@
+#【【【友润机械】】】生产环境Tomcat端口配置
+server:
+  port: 80
+
+spring:
+  profiles:
+    include: prod-base #引入其他配置文件
+  datasource:
+    url: jdbc:postgresql://122.112.193.222:5432/tz_yrjx?currentSchema=yrjx&allowMultiQueries=true #部署数据库连接
+    password: 'yr@jx@2020' #密码
+    username: 'yrjx' #账号
+
+
+kkfileview:
+  ip: 124.70.219.156
+  port: 8082
+
+collocate:
+  business:
+    userName: 1001 #超级用户
+    defaultCorp: YR #登录页面展示的默认账套

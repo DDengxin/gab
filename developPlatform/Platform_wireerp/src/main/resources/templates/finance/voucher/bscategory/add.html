@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>业务类型</title>
+    </th:block>
+    <style type="text/css">
+        /*grid操作图标样式调整*/
+        .mini-grid-cell-inner{
+            padding-top:0px;
+        }
+        .mini-grid-cell-inner .iconfont{
+            line-height: 1;
+            padding-top: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input class="mini-hidden" name="fevbusid"/>
+        <input class="mini-hidden" name="freportitem"/>
+       <table class="hmq-modify-table">
+
+           <tr>
+               <td title>业务表</td>
+               <td content>
+                   <input class="mini-combobox" id="ftable" name="ftable" onvaluechanged="tableName" allowInput="true" ajaxType="post" valueField="tabname" textField="comment"
+                          required url="/finance/voucher/bscategory/findAllTables" clearOnLoad="true" valueFromSelect="true"
+                   />
+               </td>
+               <td title>业务大类</td>
+               <td content>
+                   <input class="mini-combobox" id="ftype" name="ftype" allowInput="true" />
+               </td>
+               <td title>类型名称</td>
+               <td content>
+                   <input class="mini-textbox" id="fname" name="fname" />
+
+               </td>
+               <td title>期末类型</td>
+               <td content>
+                   <select class="mini-combobox" id="fisqm" name="fisqm">
+                       <option value="1">是</option>
+                       <option value="0">否</option>
+                   </select>
+
+
+               </td>
+               <td title>业务数据</td>
+               <td content>
+                   <select class="mini-combobox" id="fisbill" name="fisbill" >
+                       <option value="1">是</option>
+                       <option value="0">否</option>
+                   </select>
+
+               </td>
+           </tr>
+           <tr>
+               <td title>含税金额字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fsum" name="fsum" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>税额字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="ftax" name="ftax" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>未税字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fmoney" name="fmoney" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>税率字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="ftaxrate" name="ftaxrate" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+
+
+           </tr>
+           <tr>
+               <td title>数量字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fqty" name="fqty" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>币种字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fcur" name="fcur" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>客户字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fcustomid" name="fcustomid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>供应商字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true"  id="fsupplierid" name="fsupplierid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+
+
+           </tr>
+           <tr>
+               <td title>部门字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fdeptid" name="fdeptid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>职员字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fempid" name="fempid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>单位字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="funit" name="funit" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>单价字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fprice" name="fprice" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+
+
+           </tr>
+           <tr>
+
+               <td title>存货字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="finventoryid" name="finventoryid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>项目字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fprojectid" name="fprojectid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>自定义项目类型:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fitemclassid" name="fitemclassid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+               <td title>自定义项目字段:</td>
+               <td content>
+                   <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fitemid" name="fitemid" allowInput="true" ajaxType="post" valueField="field"
+                          textField="comment"   url=""
+                   />
+               </td>
+
+           </tr>
+        </table>
+<!--        																				fsettlecode	fsettleno	fsettledate	ftransdate	ftransno	fmatch	ftransbal	ftransbalfor	fid	fcontrol	faccountid2	funit	flimited	fisitem	fcustom	fsupplier	femp	fproject	fdept	finventory	fisqtyaux	fisbank											-->
+    </form>
+    <div id="bottom_grid"
+         style="width:100%;height:250px;"
+         showEmptyText="true" alwaysShowEmptyText="true"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+         editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true" onCellbeginedit="onCellbeginedit"
+         showPager="false" allowSortColumn="flase" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="50" headerAlign="center" type="indexcolumn">序号</div>
+            <div field="fid" visible="false"></div>
+            <div field="dataCorp" visible="false"></div>
+            <div field="fevbusid" visible="false"></div>
+            <div header="条件字段" field="fbindfield" width="100">
+                <div property="editor" ajaxType="post"   valueField="field" textField="comment"  allowInput="true" valuefromselect="true" popupWidth="100"  class="mini-combobox" showClose="true" height="38" width="30"></div>
+            </div>
+            <div header="字段限定值" field="fbindvalue" width="400">
+                <div property="editor" ajaxType="post"  valueField="field" textField="comment"  allowInput="true"  popupWidth="100"  class="mini-combobox" showClose="true" height="38" width="30"></div>
+            </div>
+
+            <div field="action" width="160" align="center" renderer="onActionRenderer" sortField="action" displayField="action" headerAlign="center" allowSort="true"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var bottom_grid = mini.get('bottom_grid');
+    bottom_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:modifyRow(\'add\', null)">增加一条</a>');
+
+
+    function onvaluechanged(e){
+        bottom_grid.clearRows();
+        var type = form.getField("type").getValue();
+        var headStr = "科目",fnumber="科目代码",fnumberfullname="凭证科目";
+        if(type && type=='2') {
+            headStr = '名称',fnumber="编码",fnumberfullname="名称";
+        }
+        bottom_grid.updateColumn("faccountid", {header: headStr});
+    }
+
+    function onButtonEdit(e){
+        var type = form.getField("type").getValue();
+        if(type && type=='2'){
+
+        }else{
+            mini.open({
+                targetWindow: window.parent,
+                url: "/finance/voucher/vouch/accountselect.html",
+                title: "科目选择列表",
+                width: 650,
+                height: 380,
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        data = mini.clone(data); //必须
+                        if (data) {
+                            btnEdit.setValue(data.faccountid);
+                            btnEdit.setText(data.fname);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
+    function onCellbeginedit(e){
+        let url;
+        var editor = e.editor;
+        var record=e.record;
+        var ftable = form.getField("ftable").getValue();
+        if(e.field == 'fbindfield'){
+           url = "/finance/voucher/bscategory/findTableField?tableName=" + ftable;
+            editor.setUrl(url);
+        }
+        if(e.field == 'fbindvalue'){
+            if(record.fbindfield){
+            url = "/finance/voucher/bscategory/findTableFieldDistinctValue?tableName=" + ftable+"&fieldName="+record.fbindfield;
+            editor.setUrl(url);
+            }else{
+              hmq.tipDanger("请先选择限定字段");
+            }
+        }
+    }
+    function tableName() {
+
+        var table = mini.get("ftable").getValue();
+        mini.get("fsum").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("ftax").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fmoney").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("ftaxrate").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fqty").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fcur").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fcustomid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fsupplierid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fdeptid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fempid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("funit").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fprice").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("finventoryid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fprojectid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fitemclassid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+        mini.get("fitemid").setUrl("/finance/voucher/bscategory/findTableField?tableName=" + table);
+
+
+    }
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            form.setData(options.data.rowData);
+            tableName();
+            form.setData(options.data.rowData);
+            $.get("getById/{0}".format(options.data.rowData.fevbusid), function (res) {
+                if (200 === res.code) {
+                    if(res.data && res.data.data.length > 0){
+                        bottom_grid.addRows(res.data.data,0);
+                        bottom_grid.accept();
+                    }
+                }
+           });
+        }
+    }
+
+
+    function SaveData() {
+        bottom_grid.validate();
+        if (bottom_grid.isValid() == false) {
+            var error = bottom_grid.getCellErrors()[0];
+            hmq.tipDanger("系统提示", error.errorText, "danger");
+            bottom_grid.beginEditCell(error.record, error.column);
+            return;
+        }
+        var entryData = bottom_grid.getChanges();
+        $['post']("add.html", JSON.stringify({
+                bscategory : form.getData(true),
+                entries : entryData
+        }),
+        function (res) {
+            if (200 === res.code) {
+                hmq.tipSuccess(res.msg || '保存成功', {
+                    exec: function () {
+                        CloseWindow('refresh');
+                    }
+                });
+            } else {
+                hmq.tipDanger(res.msg || '保存失败');
+            }
+        }, null, {
+                contentType: 'application/json'
+        });
+    }
+
+
+
+
+    /**
+     * 渲染行
+     **/
+    function onActionRenderer(e) {
+        if ('action' == e.field) {
+            return '<span class="fa fa-fw fa-2x iconfont icon-tianjia3 hmq-success" title="新增" onclick="modifyRow(\'add\',\'{_uid}\')"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x iconfont icon-shanchu2 hmq-danger"  title="删除" onclick="modifyRow(\'remove\',\'{_uid}\')"></span>'.format(e.record) ;
+        }
+    }
+
+    function modifyRow(action, row_uid) {
+        var grid = bottom_grid;
+        if (form.validate() && form.isValid()) {
+            switch (action) {
+                case 'add':
+                    var index = grid.getSelected() ? grid.indexOf(grid.getSelected()) + 1 : 0
+                    grid.addRow({}, index);
+                    grid.cancelEdit();
+                    grid.beginEditRow(row);
+                    break;
+                case 'remove':
+                    var row = grid.getRowByUID(row_uid);
+                    grid.removeRow(row, true);
+                    break;
+            }
+        }
+    }
+
+
+
+</script>
+</html>

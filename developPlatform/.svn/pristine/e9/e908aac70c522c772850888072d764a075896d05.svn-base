@@ -1,0 +1,94 @@
+package com.tengzhi.business.sale.saleProduct.saleContract.vo;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.StreamSupport;
+
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContract;
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContractDetailed;
+
+public class EXsContractVo implements Serializable {
+
+	EXsContract eXsContract;
+	List<EXsContractDetailed> eXsContractDetailed,
+    addedList = new ArrayList<>(),
+    modifyedList = new ArrayList<>(),
+    deletedList = new ArrayList<>();
+	private String taskid;
+	private String opinion;
+	private String businessId;
+	private String instanceId;
+	public EXsContract geteXsContract() {
+		return eXsContract;
+	}
+	public void seteXsContract(EXsContract eXsContract) {
+		this.eXsContract = eXsContract;
+	}
+	public List<EXsContractDetailed> geteXsContractDetailed() {
+		return eXsContractDetailed;
+	}
+	public void seteXsContractDetailed(List<EXsContractDetailed> eXsContractDetailed) {
+		this.eXsContractDetailed = eXsContractDetailed;
+	}
+	public List<EXsContractDetailed> getAddedList() {
+		return addedList;
+	}
+	public void setAddedList(List<EXsContractDetailed> addedList) {
+		this.addedList = addedList;
+	}
+	public List<EXsContractDetailed> getModifyedList() {
+		return modifyedList;
+	}
+	public void setModifyedList(List<EXsContractDetailed> modifyedList) {
+		this.modifyedList = modifyedList;
+	}
+	public List<EXsContractDetailed> getDeletedList() {
+		return deletedList;
+	}
+	public void setDeletedList(List<EXsContractDetailed> deletedList) {
+		this.deletedList = deletedList;
+	}
+	public String getTaskid() {
+		return taskid;
+	}
+	public void setTaskid(String taskid) {
+		this.taskid = taskid;
+	}
+	public String getOpinion() {
+		return opinion;
+	}
+	public void setOpinion(String opinion) {
+		this.opinion = opinion;
+	}
+	public String getBusinessId() {
+		return businessId;
+	}
+	public void setBusinessId(String businessId) {
+		this.businessId = businessId;
+	}
+	public String getInstanceId() {
+		return instanceId;
+	}
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+	public static EXsContractVo initEXsContractVo(EXsContractVo eXsContractVo){
+        //创建流低级方法(基于迭代器)
+        StreamSupport.stream(eXsContractVo.geteXsContractDetailed().spliterator(),false).forEach(eXsContractDetailed -> {
+            switch (eXsContractDetailed.get_state()) {
+                case "added":
+                	eXsContractDetailed.setHtNo(eXsContractVo.geteXsContract().getHtNo());
+                	eXsContractVo.getAddedList().add(eXsContractDetailed);
+                    break;
+                case "modified":
+                	eXsContractVo.getModifyedList().add(eXsContractDetailed);
+                    break;
+                case "removed":
+                	eXsContractVo.getDeletedList().add(eXsContractDetailed);
+                    break;
+            }
+        });
+        return eXsContractVo;
+    }
+}

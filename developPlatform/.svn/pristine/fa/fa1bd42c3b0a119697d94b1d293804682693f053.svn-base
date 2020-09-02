@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目档案【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <input   id="xmCode" name="xmCode" class="mini-hidden"  />
+    <input class="mini-hidden" name="workerDept"  id="workerDept"/>
+    <form id="form1">
+               <table class="hmq-modify-table">
+            <tr>
+                <td title>项目编号</td>
+                <td content><input class="mini-textBox" emptyText="单位编码自动生产"
+                    allowInput="false" name="xmId"/></td>
+                <td title>项目名称</td>
+                <td content colspan="3">
+                    <input class="mini-textBox" name="xmName"/>
+                </td>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>项目类型</td>
+                <td >
+                    <input class="mini-combobox" required="true" name="xmXtype" url="/system/parameter/getParamsSelectListByParentId/项目/项目类型/XMLX"/>
+                </td>
+                <td title>项目大类</td>
+                <td content>
+                    <input class="mini-combobox" required="true" name="xmType" url="/system/parameter/getParamsSelectListByParentId/项目/项目大类/XMDL">
+                </td>
+                <td title>开始时间</td>
+                <td content>
+                    <input name="startDate" id="startDate" class="mini-datepicker" value="new Date()">
+                </td>
+            </tr>
+            <tr>
+                <td title>结束时间</td>
+                <td content><input name="endDate" id="endDate" allowInput="false" class="mini-datepicker"/>
+                </td>
+                <td title>项目部门</td>
+                <td >
+                    <input id="xmDept" name="xmDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                           onbeforenodeselect="disableParentSelection"  popupWidth="240" popupHeight="180" onvaluechanged="onDeptValueChanged"
+                           showClose="true" oncloseclick="onCloseClickClearValue"/>
+                <td title>项目负责人</td>
+                <td >
+                    <input class="mini-buttonedit" onbuttonclick="onPersonClick" name="xmMan" id="xmMan"  required="true"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>项目说明</td>
+                <td content colspan="5" >
+                    <input class="mini-textarea" name="xmSm" height="180"/>
+                </td>
+            </tr>
+
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    mini.get("xmDept").load("/system/dept/combobox/getDeptTreeList");
+    var form = new mini.Form('form1');
+
+    function valuechanged() {
+        let v = mini.get("customerProvince").getText();
+    }
+
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.xmId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    console.log(res.data);
+                    var data =res.data;
+                    mini.get("xmMan").setText(data.xmMan);
+                    mini.get("xmCode").setText(data.xmCode);
+                    mini.get("xmDept").setValue(data.workerDept);
+
+                }
+           });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+    /*  负责人选择 */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/xmda/xmman.html",
+            title: "【负责人】选择页面",
+            width: 750,
+            data: {
+                workdept:mini.get("xmDept").getValue()
+            },
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerId);
+                    btnEdit.setValue(data.workerName);
+                    btnEdit.setText(data.workerName);
+                    mini.get("xmDept").setValue(data.workerDept);
+                }
+            }
+        });
+    }
+    /*  产品编码选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/xmda/xmcode.html",
+            title: "产品编码选择页面",
+            width: 750,
+            height: 620,
+            data:'S',
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+</script>
+</html>

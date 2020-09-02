@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+	<title>专家管理</title>
+</th:block>
+<style type="text/css">
+
+
+.show {
+	display: block !important;
+}
+.webuploadItemButtons{padding-right:43px;}
+	.webuploadItemButtons+.webuploadItemButtons{padding-right:0 !important;display:inline-block !important;width:auto !important;float:right;margin-top:-22px}
+     
+</style>
+</head>
+<body>
+	<div>
+	
+	<input class="mini-hidden" name="action" readonly="readonly">
+		<form id="userform" class="supply-center">
+			<table class="hmq-modify-table"
+				style="padding-bottom: 0px !important;">
+				<tr>
+					<td title>用户账户:</td>
+					<td content><input class="mini-textbox" name="userId"  vtype ="required" 
+						readonly="readonly"></td>
+					<td title>用户名称:</td>
+					<td content><input class="mini-textbox" name="nickName"  vtype ="required" >
+					</td>
+					<td title>手机号:</td>
+					<td content><input class="mini-textbox" name="mobile"       onvalidation="onTelValidation"  ></td>
+					
+
+				</tr>
+				
+				<tr>
+				
+				<td title>邮箱：</td>
+					<td content><input class="mini-textbox" name="email"   vtype="email">
+					</td>
+					<!-- <td title>专家类型：</td>
+					<td content>
+					<select name="type" class="mini-combobox"
+						emptyText="请选择类型" onvaluechanged="ModifyExpertTypeChangeed()">
+							<option value="售前专家">售前专家</option>
+							<option value="售后专家">售后专家</option>
+							<option value="工艺专家">工艺专家</option>
+					</select>
+					</td> -->
+				<td title class="hidepassword">密码:</td>
+					<td class="hidepassword" content><input class="mini-textbox" name="password"  vtype ="required"></td>
+				</tr>
+				
+				
+				
+			</table>
+		</form>
+
+
+
+		<div id="tabs" class="mini-tabs" activeIndex="0"
+			style="width: 100%; height: 600px;" plain="false">
+			<div name="售前专家" title="售前专家">
+				<!-- 售前专家  -->
+				<form id="beforeExpert">
+				<input class="mini-hidden" value="售前专家"  name="expertType" />
+      
+					<table class="hmq-modify-table"
+						style="padding-bottom: 0px !important;">
+						<tr>
+							<td title>单位名称:</td>
+							<td content><input class="mini-combobox" name="bindSupplyid"
+								url="/platform/enroll/getAllsupplyxx" /></td>
+								<td title>身份证号:</td>
+							<td content colspan="3"><input class="mini-textbox" name="idCard"></td>
+						</tr>
+						<tr>
+							<td title>专长优势:</td>
+							<td content><input class="mini-textbox" name="strengths"></td>
+							<td title>等级:</td>
+							<td content><input class="mini-textbox" name="level"></td>
+							<td title>主要职业:</td>
+							<td content><input class="mini-textbox" name="mainJob"></td>
+							<td title>销售经验:</td>
+							<td content><input class="mini-textbox"
+								name="saleExperience"></td>
+						</tr>
+						<tr>
+							<td title>最高学历:</td>
+							<td content><input class="mini-textbox" name="education"></td>
+							<td title>特色方言:</td>
+							<td content><input class="mini-textbox" name="dialect"></td>
+							<td title>最熟悉的产品:</td>
+							<td content><input class="mini-textbox" name="knowProduct"></td>
+							<td title>服务半径:</td>
+							<td content><input class="mini-textbox" name="serviceScope"></td>
+						</tr>
+						<tr>
+							<td title>工作年限:</td>
+							<td content><input class="mini-textbox" name="jobAge"></td>
+						</tr>
+						<tr>
+							<td title>用户头像:</td>
+							<td content colspan="7">
+								<div class="saleBeforeImg"></div> <input  name="headImg" class="mini-hidden" />
+							</td>
+						</tr>
+
+						<tr>
+							<td title>专长介绍:</td>
+							<td content colspan="7"><input class="mini-textarea"
+								name="introduce" height="280" /></td>
+						</tr>
+						<tr>
+							<td title>是否接受一周左右的出差:<input class="mini-checkbox"
+								name="isWeekEvection"></td>
+							<td content></td>
+							<td title>是否接受只有邮政到达的偏远地区:<input class="mini-checkbox"
+								name="isRemote"></td>
+							<td content></td>
+							<td title>在生产一线是否工作过 :<input class="mini-checkbox"
+								name=isFrontline></td>
+							<td content></td>
+							<td title>是否可出国出差:<input class="mini-checkbox"
+								name=isGoAbroad></td>
+							<td content></td>
+						</tr>
+					</table>
+				</form>
+
+			</div>
+			<div name="售后专家" title="售后专家">
+				<div class="mini-fit">
+					<!-- 售后专家  -->
+					<form id="afterExpert">
+				<input class="mini-hidden" value="售后专家"  name="expertType" />
+
+						<table class="hmq-modify-table"
+							style="padding-bottom: 0px !important;">
+							<tr>
+								<td title>单位名称:</td>
+								<td content><input class="mini-combobox" name="bindSupplyid"
+									url="/platform/enroll/getAllsupplyxx" /></td>
+								<td title>身份证号:</td>
+							<td content colspan="3"><input class="mini-textbox" name="idCard"></td>
+							</tr>
+							<tr>
+								<td title>专长优势:</td>
+								<td content><input class="mini-textbox" name="strengths"></td>
+								<td title>等级:</td>
+								<td content><input class="mini-textbox" name="level"></td>
+								<td title>主要职业:</td>
+								<td content><input class="mini-textbox" name="mainJob"></td>
+								<td title>销售经验:</td>
+								<td content><input class="mini-textbox"
+									name="saleExperience"></td>
+							</tr>
+							<tr>
+								<td title>最高学历:</td>
+								<td content><input class="mini-textbox" name="education"></td>
+								<td title>特色方言:</td>
+								<td content><input class="mini-textbox" name="dialect"></td>
+								<td title>最熟悉的产品:</td>
+								<td content><input class="mini-textbox" name="knowProduct"></td>
+								<td title>服务半径:</td>
+								<td content><input class="mini-textbox" name="serviceScope"></td>
+							</tr>
+							<tr>
+								<td title>工作年限:</td>
+								<td content><input class="mini-textbox" name="jobAge"></td>
+								<td title>动手能力:</td>
+								<td content><input class="mini-textbox" name="doIt"></td>
+							</tr>
+							<tr>
+								<td title>用户头像:</td>
+								<td content colspan="7">
+									<div class="saleAfterImg"></div> <input   name="headImg" class="mini-hidden" />
+								</td>
+							</tr>
+
+							<tr>
+								<td title>自身专长介绍:</td>
+								<td content colspan="7"><input class="mini-textarea"
+									name="introduce" height="280" /></td>
+							</tr>
+							<tr>
+								<td title>是否接受一周左右的出差:<input class="mini-checkbox"
+									name="isWeekEvection"></td>
+								<td content></td>
+								<td title>是否接受只有邮政到达的偏远地区:<input class="mini-checkbox"
+									name="isRemote"></td>
+								<td content></td>
+								<td title>在生产一线是否工作过 :<input class="mini-checkbox"
+									name=isFrontline></td>
+								<td content></td>
+								<td title>是否可出国出差:<input class="mini-checkbox"
+									name=isGoAbroad></td>
+								<td content></td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+			<div name="工艺专家" title="工艺专家">
+				<div class="mini-fit">
+					<!-- 工艺专家 -->
+					<form id="artExpert">
+				<input class="mini-hidden" value="工艺专家"  name="expertType" />
+
+						<table class="hmq-modify-table"
+							style="padding-bottom: 0px !important;">
+							<tr>
+								<td title>单位名称:</td>
+								<td content><input class="mini-combobox" name="bindSupplyid"
+									url="/platform/enroll/getAllsupplyxx" /></td>
+								<td title>身份证号:</td>
+							<td content colspan="3"><input class="mini-textbox" name="idCard"></td>
+							</tr>
+							<tr>
+								<td title>专长优势:</td>
+								<td content><input class="mini-textbox" name="strengths"></td>
+								<td title>等级:</td>
+								<td content><input class="mini-textbox" name="level"></td>
+								<td title>从业年限:</td>
+								<td content><input class="mini-textbox" name="jobAge"></td>
+								<td title>年龄:</td>
+								<td content><input class="mini-textbox" name="age"></td>
+							</tr>
+							<tr>
+								<td title>主要职业:</td>
+								<td content><input class="mini-textbox" name="mainJob"></td>
+								<td title>销售经验:</td>
+								<td content><input class="mini-textbox"
+									name="saleExperience"></td>
+							</tr>
+							<tr>
+								<td title>用户头像:</td>
+								<td content colspan="7">
+									<div class="artImg"></div>
+									 <input  name="headImg" class="mini-hidden" />
+								</td>
+							</tr>
+							<tr>
+								<td title>自身专长介绍:</td>
+								<td content colspan="7"><input class="mini-textarea"
+									name="introduce" height="280" /></td>
+							</tr>
+						</table>
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+
+
+
+
+
+	</div>
+	<div class=" hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save"
+			id="saveBtn">保存</a>
+			
+					  <a class="mini-button" id="colseBtn" onclick="CloseWindow" iconCls="icon-cancel">关闭</a> 
+			
+	</div>
+	<th:block th:replace="~{model/Approval :: Approval() }">
+	</th:block>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var tabs = mini.get('tabs');
+	function ApprovalAgreeHandler() {
+		_ApprovalActionHandler_('/platform/expert/agree');///system/workflow/process/agree
+	}
+
+	//售前专家
+	var beforeExpert_form = new mini.Form('beforeExpert');
+	//售后专家
+	var afterExpert_form = new mini.Form('afterExpert');
+	//工艺专家
+	var artExpert_form = new mini.Form('artExpert');
+	//用户基础信息
+	var user_form = new mini.Form('userform');
+  //获取类型
+    function  getType (title ){
+    return   {'售前专家' :  [{"form":beforeExpert_form,"id":"saleBeforeImg",text:"headImg"}], 
+    	"售后专家": [{"form":afterExpert_form,"id":"saleAfterImg",text:"headImg"}],
+    	"工艺专家":[{"form":artExpert_form,"id":"artImg",text:"headImg"}] }[title] || '';
+    }
+	
+	
+	tabs.on("activechanged", function (e) {
+		var  title  =  e.name;
+		var   obj  ={"flag":true}		
+		var data  = getType(title);
+		obj["data"] = data;
+		// $.extend(object1, object2);
+		fileUpLoad(obj);
+	
+    });
+	//新增上传图片
+      function  fileUpLoad(obj){
+    	  if(!$.isEmptyObject( obj ) ){
+    			//新增上传图片
+  			var flag = obj.flag;
+  			$.each(obj.data, function(index, temp) {
+  				var fileId = getFileId();
+  				var  form =temp.form;
+  				var  pic =  temp.text;
+  				var   id = temp.id;
+  				//判断图片控件是否已经初始化
+                  var  is_init_img = form.getField(pic).getValue();
+  				if(( !!is_init_img == false ) && flag  ){
+  					//新增图片
+  					form.getField(pic).setValue(fileId);
+  					　　	$("#" + form.el.id + " ." + id).filesUpload({
+  							pickerid : fileId,
+  							filecount : 1,
+  						});
+  				}else {
+  					//修改数据回显图片
+  					$("#" + form.el.id + " ." + id).resetUploader({
+  						pickerid : is_init_img,
+  						filecount : 1,
+  						view : !!obj.view ? obj.view : "edit",
+  					});
+  				}
+  				
+  			
+
+  			});
+
+		}
+
+	}
+
+
+
+	//查询数据
+	function findByIdExpert(options) {
+		var expertNote = !!options.data.expertNote ? options.data.expertNote
+				: null;
+		var action = options.action;
+		//修改图片
+		var obj = {flag : false};
+		
+		if (action == "sh") {
+			expertNote = options.data.businessId
+			obj["view"] = "view";
+		}
+		$.get("expertInfo/{0}".format(expertNote), function(res) {
+			if (200 === res.code) {
+				if (!!res.data == false) {
+					hmq.tipDanger('该账号非专家用户！');
+					return;
+				}
+				user_form.setData(res.data.sysuser);
+				var data  =res.data.expert;
+				// 根据专家类型自动选择tab页
+				var data = res.data.expert;
+				if (data.expertType == '售前专家') {
+					tabs.activeTab(0);
+					beforeExpert_form.setData(data);
+				} else if (data.expertType  == '售后专家') {
+					tabs.activeTab(1);
+					afterExpert_form.setData(data)
+				} else if (data.expertType  == '工艺专家') {
+					tabs.activeTab(2);
+					artExpert_form.setData(data)
+				} else {
+
+				}
+				obj["data"] = getType(data.expertType);
+				
+				fileUpLoad(obj);
+
+			}
+		});
+
+	}
+
+	function SetData(options) {
+		$('[name=action]').val(options.action);
+
+		if (true !== options.isApproval) {
+			//普通口径
+			if ('add' == options.action) {
+				user_form.getField('userId').readOnly = false;
+			} else if ('edit' == options.action) {
+				$(".hidepassword").hide();
+				findByIdExpert(options);
+			} else if ('view' == options.action) {
+			
+			} else {
+				// 客户身份修改数据，数据回想
+				mini.get("colseBtn").hide();
+
+			}
+
+		} else {
+			//审批口径
+			$(".hidepassword").hide();
+			findByIdExpert(options);
+			setFormReadOnly(beforeExpert_form);
+			setFormReadOnly(afterExpert_form);
+			setFormReadOnly(artExpert_form);
+			setFormReadOnly(user_form);
+			//隐藏按钮区域
+			$('.hmq-toolbar').hide();
+
+		}
+
+	}
+	
+	   function isTelNumber(v) {
+		   var myreg =  /^[1][3,4,5,7,8][0-9]{9}$/;
+           var re = new RegExp(myreg);
+           if (re.test(v)) return true;
+           return false;
+       }
+	  function onTelValidation(e){
+		    if (e.isValid) {
+                if (isTelNumber(e.value) == false) {
+                    e.errorText = "必须输入正确的手机号码";
+                    hmq.tipDanger( e.errorText);
+                    e.isValid = false;
+                }
+            }
+	  }
+
+	/**
+	 * 保存数据
+	 * @constructor
+	 */
+	function SaveData() {
+		if (user_form.validate() && user_form.isValid()) {
+			var method = "post";
+			var data = {};
+			data.sysuser = user_form.getData();
+			data.expert = null;
+			var type = tabs.getActiveTab().name;
+
+			data.expert = {
+				'售前专家' : beforeExpert_form.getData(),
+				'售后专家' : afterExpert_form.getData(),
+				'工艺专家' : artExpert_form.getData()
+			}[type] || '';
+			var url = {
+				'add' : "add"
+			}[type] || 'expertedit';
+
+			var action = $('[name=action]').val();
+			var url = {
+				'add' : 'add'
+			}[action] || 'expertedit';
+			$[method](url, JSON.stringify(data), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

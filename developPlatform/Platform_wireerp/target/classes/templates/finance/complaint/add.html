@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购客诉【新增】</title>
+    </th:block>
+</head>
+<body>
+	<div class="mini-fit">
+	    <form id="form1" class="basics">
+	        <table class="hmq-modify-table">
+	            <tr>
+	                <td title>客诉单号:</td>
+	                <td content>
+	                    <input id="ksNote" name="ksNote" class="mini-textbox" readonly="readonly" emptyText="自动生成"/>
+					    <input id="action" name="action" class="mini-hidden"/>
+					    <input id="stype" name="stype" class="mini-hidden"/>
+					    <input id="ksType" name="ksType" class="mini-hidden"/>
+	                </td>
+	                <td title>客诉日期:</td>
+	                <td content>
+	                    <input class="mini-datepicker" id="ksRq" name="ksRq" required/>
+	                </td>
+	                <td title>客诉单位:</td>
+	                <td content>
+	                     <input class="mini-buttonedit" id="ksDw" name="ksDw" emptyText="全部" allowInput="false" onbuttonclick="onDwClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+	                </td>
+	                <td title>业务合同:</td>
+	                <td content>
+	                    <input class="mini-buttonedit" id="ksHt" name="ksHt" onbuttonclick="htselectlist" allowInput="false" />
+	                </td>
+	            </tr>
+	            <tr>
+	                <td title>产品品号:</td>
+	                <td content>
+	                    <input class="mini-buttonedit" id="ksCode" name="ksCode" onbuttonclick="cpselectlist" allowInput="false" />
+	                </td>
+	                <td title>产品名称:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="cpcodeName" name="cpcodeName" enabled="false"/>
+	                </td>
+	                <td title>产品规格:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="cpcodeSize" name="cpcodeSize" enabled="false"/>
+	                </td>
+	                <td title>产品大类:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="cpcodeType" name="cpcodeType" enabled="false"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td title>发货单号:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="ckNote" name="ckNote"/>
+	                </td>
+	                <td title>出货日期:</td>
+	                <td content>
+	                    <input class="mini-datepicker" id="ckDate" name="ckDate" required/>
+	                </td>
+	                <td title>出货数量:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="ckSl" name="ckSl" vtype="float"/>
+	                </td>
+	                <td title>客诉数量:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="ksSl" name="ksSl" vtype="float"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td title>客诉事由:</td>
+	                <td content colspan="7">
+	                    <input class="mini-textarea" id="ksSy" name="ksSy" height=50/>
+	                </td>
+	            </tr>
+	    	</table>
+		</form>
+		<form id="form2" class="acceptance">
+			<table class="hmq-modify-table">
+	            <tr>
+	                <td title>业务受理:</td>
+	                <td content>
+	                    <input class="mini-buttonedit" id="slMan" name="slMan" emptyText="请选择" allowInput="false" onbuttonclick="onSupplierClick"  />
+	                </td>
+	                <td title>受理日期:</td>
+	                <td content>
+	                    <input class="mini-datepicker" id="slDate" name="slDate" dateFormat="yyyy-MM-dd" required/>
+	                </td>
+	                <td title>受理分类:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="" name=""/>
+	                </td>
+	                <td title>协同部门:</td>
+	                <td content>
+	                    <input class="mini-treeselect" id="" name="" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" emptyText="请选择" popupWidth="240" popupHeight="180" required/>
+	                </td>
+	            </tr>
+	            <tr class="acceptance">
+	                <td title>受理意见</td>
+	                <td content colspan="7">
+	                    <input class="mini-textarea" id="slSm" name="slSm" height=50/>
+	                </td>
+	            </tr>
+	        </table>
+	    </form>
+	    <div class="mini-fit dispose">
+	        <div tz:datagrid="datagrid" id="detail-grid" allowMoveColumn="false" showPager="false" allowSortColumn="flase" allowCellEdit="true" editNextOnEnterKey="true" editNextRowCell="true" allowCeldatagridlEdit="true" allowCellSelect="true" oncellvalidation="onCellValidation">
+	            <div property="columns">
+	                <div tz:datagrid="indexcolumn" width="30">序号</div>
+	                <div tz:datagrid="column" type="combobox" field="ksDept" align="center">协同部门
+	                	<input property="editor" id="ksDept" name="ksDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" emptyText="请选择" popupWidth="240" popupHeight="180" required/>
+	                </div>
+	                <div tz:datagrid="column" field="" align="center">接收
+	                	<input property="editor" id="" name="" emptyText="请选择" allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"  />
+	                </div>	
+	                <div tz:datagrid="column" field="ksFx" align="center" width="120">分析
+	                	<input property="editor" id="ksFx" name="ksFx" class="mini-textbox"/>
+	                </div>
+	                <div tz:datagrid="column" field="ksType" align="center" width="120">结果
+	                	<input property="editor" id="ksType" name="ksType" class="mini-combobox" url="/system/parameter/combobox/params?parentId=KSZR" emptyText="请选择" />
+	                </div>
+	                <div tz:datagrid="column" field="ksGj" align="center" width="120">改进
+	                	<input property="editor" id="ksGj" name="ksGj" class="mini-textbox"/>
+	                </div>
+	                <div tz:datagrid="column" field="ksCk" align="center" width="60">审核
+	                    <input property="editor" id="ksCk" name="ksCk" emptyText="请选择" allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"  />
+	                </div>
+	                <div tz:datagrid="column" field="ksId" align="center" width="0"></div>
+	                <div tz:datagrid="column" field="ksNote" align="center" width="0"></div>
+	            </div>
+	        </div>
+	    </div>
+	    <form id="form3" class="closeout">
+	        <table class="hmq-modify-table">
+	            <tr>
+	                <td title>客诉结案:</td>
+	                <td content>
+	                    <input class="mini-combobox" id="ksJg" name="ksJg" url="/system/parameter/combobox/params?parentId=KSJL" textField="text" valueField="id" emptyText="请选择" />
+	                </td>
+	                <td title>结案日期:</td>
+	                <td content>
+	                    <input class="mini-datepicker" id="jaDate" name="jaDate" required/>
+	                </td>
+	                <td title>客诉分类:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="slType" name="slType"/>
+	                </td>
+	                <td title>客诉金额:</td>
+	                <td content>
+	                    <input class="mini-textbox" id="ksJe" name="ksJe"  vtype="float"/>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td title>结案说明:</td>
+	                <td content colspan="7">
+	                    <input class="mini-textarea" id="jaSm" name="jaSm" height=50/>
+	                </td>
+	            </tr>
+	        </table>
+	    </form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+	    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+	    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	    <span class="disposeBtn">
+	    	<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+	  		<a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+	    </span>
+	</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form1 = new mini.Form('form1');
+    var form2 = new mini.Form('form2');
+    var form3 = new mini.Form('form3');
+    var grid = mini.get("detail-grid");
+    
+    /**
+     * 初始化页面
+     */
+    function SetData(options) {
+        var formData = options.data.formData;
+        var row = options.data.row;
+        if ('add' == options.action) {
+            mini.getByName('ksRq').setValue(new Date());
+            $(".acceptance").css("display","none");
+            $(".dispose").css("display","none");
+            $(".closeout").css("display","none");
+            $(".disposeBtn").css("display","none");
+            mini.getByName('action').setValue(options.action);
+            mini.getByName('stype').setValue(formData.stype);
+            mini.getByName('ksType').setValue(formData.stype);
+        } else if ('edit' == options.action) {
+        	$(".acceptance").css("display","none");
+            $(".dispose").css("display","none");
+            $(".closeout").css("display","none");
+            $(".disposeBtn").css("display","none");
+        	SetForm(options.action,formData,row);
+        } else if('acceptance' == options.action){
+        	form1.setEnabled(false);
+            $(".dispose").css("display","none");
+            $(".closeout").css("display","none");
+            $(".disposeBtn").css("display","none");
+        	SetForm(options.action,formData,row);
+        }else if('dispose' == options.action){
+        	form1.setEnabled(false);
+        	form2.setEnabled(false);
+            $(".closeout").css("display","none");
+        	SetForm(options.action,formData,row);
+        }else if('closeout' == options.action){
+        	$(".disposeBtn").css("display","none");
+        	form1.setEnabled(false);
+        	form2.setEnabled(false);
+        	grid.setEnabled(false);
+        	SetForm(options.action,formData,row);
+        }
+    }
+
+    /**
+     * 设置form
+     */
+     function SetForm(action,formData,row){
+        $.get("getOne/{0}".format(row.ksNote), function (res) {
+            if (200 === res.code) {
+                form1.setData(res.data);
+                mini.getByName('action').setValue(action);
+                mini.getByName('stype').setValue(formData.stype);
+                mini.getByName('ksType').setValue(formData.stype);
+                mini.get("ksDw").setValue(res.data.ksDw);
+                $.get("getDw/{0}".format(res.data.ksDw), function (res) {
+                	mini.get("ksDw").setText(res.data);
+                });
+                mini.get("ksHt").setValue(res.data.ksHt);
+                mini.get("ksHt").setText(res.data.ksHt);
+                mini.get("ksCode").setValue(res.data.ksCode);
+                mini.get("ksCode").setText(res.data.ksCode);
+                $.get("getCpcode/{0}".format(res.data.ksCode), function (res) {
+                	mini.get("cpcodeName").setValue(res[0].cpcode_name);
+                	mini.get("cpcodeSize").setValue(res[0].cpcode_size);
+                	mini.get("cpcodeType").setValue(res[0].cpcode_type);
+                });
+                if(action == "dispose"){
+                	form2.setData(res.data);
+                	mini.get("slMan").setValue(res.data.slMan);
+                	$.get("getMan/{0}".format(res.data.slMan), function (res) {
+                    	mini.get("slMan").setText(res.data);
+                    });
+                	grid.setUrl("/finance/complaint/gridSearch?ksNote="+mini.get("ksNote").getValue());
+                	grid.load();
+                }
+                if(action == "closeout"){
+                	form2.setData(res.data);
+                	mini.get("slMan").setValue(res.data.slMan);
+                	$.get("getMan/{0}".format(res.data.slMan), function (res) {
+                    	mini.get("slMan").setText(res.data);
+                    });
+                	grid.setUrl("/finance/complaint/gridSearch?ksNote="+mini.get("ksNote").getValue());
+                	grid.load();
+                }
+            }
+        });
+    }
+    
+    /**
+     * 品号选择
+     */
+    function cpselectlist(){
+    	var stype = mini.getByName("stype").getValue();
+    	var ksHt = mini.getByName("ksHt").getValue();
+    	if(!!ksHt){
+    		miniopen({
+     			targetWindow: window.top,
+     	        url: "/finance/complaint/cpselectlist.html",
+     			title : "品号选择列表",
+     			width : 950,
+     			height : 520,
+     			onload : function() {
+     				var iframe = this.getIFrameEl();
+     				var data = {
+     					ksHt : ksHt,
+     					stype : stype
+     				};
+     				iframe.contentWindow.SetData(data);
+     			},
+     			ondestroy : function(action) {
+     				if (action == "ok") {
+     					var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        mini.get("ksCode").setValue(data.ht_code);
+                        mini.get("ksCode").setText(data.ht_code);
+                        $.get("getCpcode/{0}".format(data.ht_code), function (res) {
+                        	mini.get("cpcodeName").setValue(res[0].cpcode_name);
+                        	mini.get("cpcodeSize").setValue(res[0].cpcode_size);
+                        	mini.get("cpcodeType").setValue(res[0].cpcode_type);
+                        });
+     				}
+     			}
+         	});
+    	}else{
+    		hmq.tipDanger('清先选择业务合同');
+    	}
+     }
+    
+    /**
+     * 合同选择
+     */
+    function htselectlist(){
+    	var stype = mini.getByName("stype").getValue();
+    	miniopen({
+ 			targetWindow: window.top,
+ 	        url: "/finance/complaint/htselectlist.html",
+ 			title : "合同选择列表",
+ 			width : 950,
+ 			height : 520,
+ 			onload : function() {
+ 				var iframe = this.getIFrameEl();
+ 				var data = {
+ 					stype : stype
+ 				};
+ 				iframe.contentWindow.SetData(data);
+ 			},
+ 			ondestroy : function(action) {
+ 				if (action == "ok") {
+ 					var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("ksHt").setValue(data.htNo);
+                    mini.get("ksHt").setText(data.htNo);
+ 				}
+ 			}
+     	});
+     }
+    
+    /**
+     * 供应商/客户选择
+     */
+    function onDwClick(e) {
+        var btnEdit = e.sender;
+        var stype = mini.getByName('stype').getValue();
+    	var type = "S";
+    	if(stype=="采购"){
+    		type = "S";
+    	}else if(stype=="销售"){
+    		type = "C";
+    	}
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【客诉单位】选择页面",
+            width: 750,
+            data: type,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+     /**
+      * 员工选择
+      */
+     function onSupplierClick() {
+	        var btnEdit = this;
+	        return miniopen({
+	            targetWindow: window.top,
+	            url:"/personnel/checkWorkAttendance/leave/worker.html",
+	            title: "员工选择",
+	            width: 750,
+	            data:{},
+	            height: 620,
+	            ondestroy: function (action) {
+	                if (action == "ok") {
+	                    var iframe = this.getIFrameEl();
+	                    var data = iframe.contentWindow.GetData();
+	                    btnEdit.setValue(data.workerId);
+	                    btnEdit.setText(data.workerName);
+	                }
+	            }
+	        });
+	    }
+     
+    /**
+     * 单元格验证
+     */
+    function onCellValidation(e) {
+        if (e.field == "paramValue") {
+            if (e.value == "" || isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "Grid表格不能为空！";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+    }
+
+
+    /**
+     * 保存数据
+     */
+    function SaveData() {
+    	var action = $('[name=action]').val();
+        if(action=="add"){
+        	add();
+        }else if(action=="edit"){
+        	edit();
+        }else if(action=="acceptance"){
+        	acceptance();
+        }else if(action=="dispose"){
+        	dispose();
+        }else if(action=="closeout"){
+        	closeout();
+        }
+    }
+    
+   /**
+    * 新增数据
+    */
+    function add(){
+    	$.post("add.html", JSON.stringify(form1.getData(true)),function (res) {
+            if (200 === res.code) {
+                hmq.tipSuccess(res.msg || '保存成功', {
+                    exec: function () {
+                        CloseWindow('refresh');
+                    }
+                });
+            } else {
+                hmq.tipDanger(res.msg || '保存失败');
+            }
+        }, null, {
+            contentType: 'application/json'
+        });
+    }
+   
+
+    /**
+	 * 修改数据
+	 */ 
+    function edit(){
+    	$.put("add.html", JSON.stringify(form1.getData(true)),
+    		function (res) {
+    	    	if (200 === res.code) {
+    	        	hmq.tipSuccess(res.msg || '保存成功', {
+    	        		exec: function () {
+    	        			CloseWindow('refresh');
+    	    			}
+    	 			});
+    	     	} else {
+    	        	hmq.tipDanger(res.msg || '保存失败');
+    	    	}
+    	 	}, null, {
+    	    	contentType: 'application/json'
+    	});
+    }
+    
+    /**
+	 * 受理
+	 */ 
+	function acceptance(){
+		var data = form2.getData(true);
+		data.ksNote = mini.get("ksNote").getValue();
+		$.put("acceptance", JSON.stringify(data),function (res) {
+			if (200 === res.code) {
+				hmq.tipSuccess(res.msg || '保存成功', {
+					exec: function () {
+						CloseWindow('refresh');
+					}
+				});
+			} else {
+				hmq.tipDanger(res.msg || '保存失败');
+			}
+		}, null, {
+        	contentType: 'application/json'
+		});
+	}
+    
+	/**
+	 * 处理
+	 */
+	function dispose(){
+		var data = grid.getData();
+		var ksNote = mini.get("ksNote").getValue();
+		$.get("disposeFlag/{0}".format(ksNote), function (val) {
+			if(val.code === 200){
+				 $['delete']("deleteMx/{0}".format(ksNote), function (del) {
+					if(del.code === 200){
+						for(let i = 0;i<data.length;i++){
+							var mx = data[i];
+							mx.ksNote = ksNote;
+							$.post("dispose", JSON.stringify(mx),function (res) {
+					            if (200 === res.code) {
+					                hmq.tipSuccess(res.msg || '保存成功', {
+					                    exec: function () {
+					                        CloseWindow('refresh');
+					                    }
+					                });
+					            } else {
+					                hmq.tipDanger(res.msg || '保存失败');
+					            }
+					        }, null, {
+					            contentType: 'application/json'
+					        });
+						}
+					}
+				});
+			}
+		});
+	}
+	
+	/**
+	 * 结案
+	 */
+	function closeout(){
+		var data = form3.getData(true);
+		data.ksNote = mini.get("ksNote").getValue();
+		$.put("closeout", JSON.stringify(data),function (res) {
+			if (200 === res.code) {
+				hmq.tipSuccess(res.msg || '保存成功', {
+					exec: function () {
+						CloseWindow('refresh');
+					}
+				});
+			} else {
+				hmq.tipDanger(res.msg || '保存失败');
+			}
+		}, null, {
+        	contentType: 'application/json'
+		});
+	}
+	
+	/**
+     * 增加行
+     */
+    function addRow(){
+    	var index =grid.getData().length;
+		var newRow = {};
+    	grid.addRow(newRow, index+1);
+    }
+    
+    /**
+     * 删除行
+     */
+    function delRow(){
+		var rows = grid.getSelecteds();
+		if(rows.length>0){
+			grid.removeRows(rows,true);
+		}else{
+			hmq.tipDanger('请选择需要删除的行！');
+		}
+    }
+	
+</script>
+</html>

@@ -1,0 +1,436 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import cn.hutool.core.convert.Convert;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.yw.purchaseContract.model.ECgContract;
+import com.tengzhi.business.cg.yw.purchaseContract.model.ECgContractDetailed;
+import com.tengzhi.business.cg.yw.purchaseContract.vo.ECgContractVo;
+import com.tengzhi.business.finance.voucher.dao.*;
+import com.tengzhi.business.finance.voucher.model.Account;
+import com.tengzhi.business.finance.voucher.model.EFVoucher;
+import com.tengzhi.business.finance.voucher.service.AuxiliaryItemsService;
+import com.tengzhi.business.finance.voucher.service.VouchService;
+import com.tengzhi.business.finance.voucher.vo.EFVouchVo;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.right.model.SysRight;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class VouchServiceImpl implements VouchService {
+	@Autowired
+	private VouchDao vouchDao;
+	@Autowired
+	private VouchEntryDao vouchEntryDao;
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	@Autowired
+	CertificateWordDao certificateWordDao;
+	@Autowired
+	AccountDao accountDao;
+	@Override
+	public BasePage<EFVoucher> findAll(BaseDto baseDto,String fusebstable){
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+
+		return vouchDao.QueryPageList(baseDto, Specifications.where((c) -> {
+			c.eq("fitemclassid", map.get("srchfitemclassid"));
+			c.eq("fusebstable", fusebstable);
+			c.eq("dataCorp",securityUser.getCorpId());
+		}));
+	}
+	@Override
+	public ModelAndView addhtml(ModelAndView mv, String ht_no) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "select fvalue,fkey from e_f_voucher_systemprofile where  data_corp = '"+corpid+"' ";
+		List<Map> table = vouchDao.QueryListMap(sql);
+		for(Map map:table) {
+			mv.addObject(map.get("fkey").toString(), map.get("fvalue"));
+		}
+		return mv;
+	}
+	@Override
+	public List<Map> getCurrentMonthNextfvoucherNumber(BaseDto baseDto) {
+		List<Map> list = new ArrayList<Map>();
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		Map m=baseDto.getParamsMap();
+		return vouchDao.QueryListMap("select *  from f_voucher_findnumber('"+m.get("fgroup")+"' , '"+m.get("fdate")+"' , '"+corpid+"' )");
+
+	}
+	@Override
+	public List<Map> getLeafSubjectList() {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "select (SELECT fname from e_f_voucher_acctgroup where fgroupid=a.fgroupid and data_corp='"+corpid+"'  limit 1 )fgroupidname,concat_ws('',a.fnumber,a.fname ) fnumbername,concat_ws('',a.fnumber,a.ffullname )  fnumberfullname,a.* from  e_f_voucher_ac as a  where a.data_corp='"
+				+ corpid + "' and faccountid not in (select distinct fparentid from e_f_voucher_ac)";
+		return vouchDao.QueryListMap(sql);
+	}
+	@Override
+	public Result getSubjectById(String id) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+//		String sql = "select (SELECT STUFF(( SELECT ','+FCUR+'|'+fname+'|'+CONVERT(nvarchar,cast(frate   as   numeric(20,4))) from ba_cw_pz_currency   where corp_id='"
+//				+ corpid
+//				+ "' and CHARINDEX(','+FCUR+',' ,','+a.FCUR+',')>0 FOR XML PATH('') ), 1, 1, '')) xzfcur,"
+//				+ "  fcur,fcur kmfcur,corp_id,faccountid,fnumber,fname,flevel,fdetail,fparentid,frootid,fdc,fhelpercode,fgroupid,fitemclassid,ffullname,fisdelete,fcustom,fsupplier,fdept,femp,fisrateadj,fisqtyaux,funit,fiscash,fisbank,fistrans,finventory,fisjrnl,fisitem,fplaccountid,fproject,flimited,fqt from e_f_voucher_ac a where a.faccountid='"
+//				+ id + "'";
+		String sql = "select  fcur,fcur kmfcur,data_corp,faccountid,fnumber,fname,flevel,fdetail,fparentid,frootid,fdc,fhelpercode,fgroupid,fitemclassid,ffullname,fisdelete,fcustom,fsupplier,fdept,femp,fisrateadj,fisqtyaux,funit,fiscash,fisbank,fistrans,finventory,fisjrnl,fisitem,fplaccountid,fproject,flimited,fqt from e_f_voucher_ac a where a.faccountid='"
+				+ id + "'  and data_corp='"+corpid+"'";
+
+
+		return Result.resultOk(vouchDao.QueryToFirstMap(sql));
+	}
+
+
+
+//	@Override
+//	public Result getAccountCurrency(String id) {
+//		SessionUser securityUser=SessionUser.SessionUser();
+//		String corpid=securityUser.getCorpId();
+////		String sql = "select (SELECT STUFF(( SELECT ','+FCUR+'|'+fname+'|'+CONVERT(nvarchar,cast(frate   as   numeric(20,4))) from ba_cw_pz_currency   where corp_id='"
+////				+ corpid
+////				+ "' and CHARINDEX(','+FCUR+',' ,','+a.FCUR+',')>0 FOR XML PATH('') ), 1, 1, '')) xzfcur,"
+////				+ "  fcur,fcur kmfcur,corp_id,faccountid,fnumber,fname,flevel,fdetail,fparentid,frootid,fdc,fhelpercode,fgroupid,fitemclassid,ffullname,fisdelete,fcustom,fsupplier,fdept,femp,fisrateadj,fisqtyaux,funit,fiscash,fisbank,fistrans,finventory,fisjrnl,fisitem,fplaccountid,fproject,flimited,fqt from e_f_voucher_ac a where a.faccountid='"
+////				+ id + "'";
+//		String sql = "select  fcur,fcur kmfcur,data_corp,faccountid,fnumber,fname,flevel,fdetail,fparentid,frootid,fdc,fhelpercode,fgroupid,fitemclassid,ffullname,fisdelete,fcustom,fsupplier,fdept,femp,fisrateadj,fisqtyaux,funit,fiscash,fisbank,fistrans,finventory,fisjrnl,fisitem,fplaccountid,fproject,flimited,fqt from e_f_voucher_ac a where a.faccountid='"
+//				+ id + "'  and data_corp='"+corpid+"'";
+//
+//
+//		return Result.resultOk(vouchDao.QueryToFirstMap(sql));
+//	}
+
+	@Override
+	public List<SelectVo> getFGROUPID() {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+//		List<SelectVo> list = vouchDao.QueryToVo(SelectVo.class, "select fgenerateid id , fname \"text\" from e_f_voucher_certificateword a  where finternalind='t_Voucher'  and data_corp='"+securityUser.getCorpId()+"'");
+		List<SelectVo> list = vouchDao.QueryToVo(SelectVo.class, "select fgenerateid id , fname \"text\" from e_f_voucher_certificateword a  where finternalind='t_Voucher'  and data_corp='"+securityUser.getCorpId()+"'");
+//		List<SelectVo> list = new ArrayList<SelectVo>();
+//		sysRight.forEach(item -> {
+//			list.add(new SelectVo(item.getRightName(), item.getRightName()));
+//		});
+		return list;
+	}
+
+//	@Override
+//	public EFVoucher findById(Long Id) {
+//		return vouchDao.findById(Id).orElse(null);
+//	}
+
+//	@Override
+//	public EFVoucher save(EFVoucher eFVoucherAuxiliaryitems)throws Exception   {
+//		SessionUser securityUser=SessionUser.SessionUser();
+//		eFVoucherAuxiliaryitems.setDataCorp(securityUser.getCorpId());
+//		boolean x=eFVoucherAuxiliaryitems.getFusebstable().equals("Y")?judgeUniqueset(eFVoucherAuxiliaryitems):judgeUniqueother(eFVoucherAuxiliaryitems);
+//		if(x){
+//			eFVoucherAuxiliaryitems.setFitemid(sysGenNoteService.getNote("auxiliaryitems","1","",4));
+//			return vouchDao.save(eFVoucherAuxiliaryitems);
+//		} else {
+//			throw new Exception("项目名称已存在");
+//		}
+//
+//	}
+//
+//	@Override
+//	public void update(EFVoucher EFVoucher) {
+//		vouchDao.dynamicSave(EFVoucher, vouchDao.findById(EFVoucher.getFvoucherid()).orElse(null));
+//	}
+
+//	@Override
+//	public boolean judgeUniqueset(EFVoucher efva) {
+//		return vouchDao.findAll(Specifications.where((c) -> {
+//			SessionUser securityUser=SessionUser.SessionUser();
+//			c.eq("dataCorp",securityUser.getCorpId());
+//			c.eq("fitemclassid", efva.getFvoucherid());
+//		})).size() <= 0;
+//	}
+
+//	@Override
+//	public boolean judgeUniqueother(EFVoucher efva) {
+//		return vouchDao.findAll(Specifications.where((c) -> {
+//			SessionUser securityUser=SessionUser.SessionUser();
+//			c.eq("dataCorp",securityUser.getCorpId());
+//			c.eq("fitemclassid", efva.getFvoucherid());
+//			c.eq("fnumber", efva.getFnumber());
+////			c.eq("fname", efva.getFname());
+//		})).size() <= 0;
+//	}
+
+//	@Override
+//	public Result deleteById(Long Id) {
+//
+//		vouchDao.deleteById(Id);
+//			return Result.resultOkMsg("删除成功");
+//
+//	}
+
+
+
+
+//	@Override
+//	public List<EFVoucher> findAll() {
+//		return vouchDao.findAll();
+//	}
+
+
+
+	@Override
+	public BasePage<Map<String, Object>> getExplanationList(BaseDto baseDto) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+
+		String sql = "select * from ba_cw_pz_remark a   "+ "order by fid desc" ;
+
+		return vouchDao.QueryMapPageList(baseDto, sql, true);
+
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getSubjectList(BaseDto baseDto) throws Exception {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "select (SELECT top 1 fname from e_f_voucher_acctgroup where fgroupid=a.fgroupid )fgroupidname,cast(a.fnumber as nvarchar(100))+fname fnumbername,cast(a.fnumber as nvarchar(100))+ffullname fnumberfullname,a.* from  e_f_voucher_ac a  where a.corp_id='"
+				+ corpid + "'";
+
+		return vouchDao.QueryMapPageList(baseDto, sql, true);
+	}
+
+
+
+
+
+	public List getSubjectTreeList() {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "select  (SELECT top 1 fname from e_f_voucher_acctgroup where fgroupid=a.fgroupid )fgroupidname,cast(a.fnumber as nvarchar(100))+'|'+fname fnumbername,a.* from  e_f_voucher_ac a   where a.corp_id='"
+				+ corpid + "' ";
+		return vouchDao.QueryListMap(sql + " order by fnumber");
+
+	}
+
+
+
+	@Override
+	public BasePage<Map<String, Object>>  getAssistingGridlist(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+
+		String qtable = map.get("qtable").toString();
+		String sql = "select * ,'" + qtable + "' itemclassid " + (qtable.equalsIgnoreCase("ba_cw_pz_inventory") ? " " : ",case fisdelete when 1 then '禁用' else '启用' end flag ") + " from " + qtable
+				+ " a  " ;
+
+		return vouchDao.QueryMapPageList(baseDto, sql, true);
+
+	}
+
+
+
+
+
+
+
+
+	public List<SelectVo> getAccountCurrency(String code) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "select distinct FCUR combid ,FNAME combtext from ba_cw_pz_currency where corp_id='" + corpid
+				+ "' and charindex(fcur,(select FCUR from e_f_voucher_ac where faccountid='" + code + "'))>0 order by FCUR  ";
+		List<SelectVo> list = vouchDao.QueryToVo(SelectVo.class,sql);
+		
+		return list;
+	}
+
+	public List<SelectVo> getCurrency() {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "select distinct FCUR combid ,FNAME combtext from ba_cw_pz_currency where corp_id='" + corpid+ "' order by FCUR  ";
+		List<SelectVo> list = vouchDao.QueryToVo(SelectVo.class,sql);
+		return list;
+	}
+
+	public Result getCurrencyRate(String code) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "select frate from BA_CW_PZ_CURRENCY where corp_id='" + corpid+ "'  and fcur='" + code + "' ";
+
+		return Result.resultOk(vouchDao.QueryFirstString(sql));
+	}
+
+	public List<SelectVo> getVoucherWord(String code) throws Exception {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "SELECT cast(a.fgenerateid as varchar(30)) combid ,a.fname combtext from T_bs_generatecode a  where finternalind='t_Voucher' and corp_id='"
+				+ corpid + "'  order by fisdefault desc";
+		List<SelectVo> list = vouchDao.QueryToVo(SelectVo.class,sql);
+		return list;
+	}
+
+	public List<SelectVo> getYearPeriod() {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+
+		String sql = " declare @begin datetime,@end datetime " + " set @begin=(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'startyear' and corp_id = '" + corpid
+				+ "')+right('000000000'+(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'startperiod' and corp_id = '" + corpid + "'),2)+'01' "
+				+ " set @end=(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'CurrentYear' and corp_id = '" + corpid
+				+ "')+right('000000000'+(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'CurrentPeriod' and corp_id = '" + corpid + "'),2)+'01' " + " declare @months int "
+				+ " set @months=DATEDIFF(month,@begin,@end) " + " select convert(varchar(6),DATEADD(month,number,@begin) ,112) AS combid, "
+				+ " convert(varchar(4),DATEADD(month,number,@begin) ,112)+'第'+cast(DATEPART(mm,DATEADD(month,number,@begin)) as varchar(2))+'期' AS combtext " + " from master.dbo.spt_values "
+				+ " where type='p' AND number<=@months  order by combid desc";
+		List<SelectVo> list = vouchDao.QueryToVo(SelectVo.class,sql);
+		return list;
+	}
+
+	public List<SelectVo> getYearQuarter() {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpid=securityUser.getCorpId();
+		String sql = "declare @begin datetime,@end datetime "
+				+ " set @begin=(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'startyear' and corp_id = '"
+				+ corpid
+				+ "')+right('000000000'+(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'startperiod' and corp_id = '"
+				+ corpid
+				+ "'),2)+'01' "
+				+ " set @end=(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'CurrentYear' and corp_id = '"
+				+ corpid
+				+ "')+right('000000000'+(select fvalue from T_BS_SYSTEMPROFILE where fkey = 'CurrentPeriod' and corp_id = '"
+				+ corpid
+				+ "'),2)+'01' "
+				+ " declare @quarters int "
+				+ " set @quarters=DATEDIFF(qq,@begin,@end) "
+				+ " select convert(varchar(6),DATEADD(qq,number,@begin) ,112) +','+convert(varchar(6),DATEADD(mm,DATEPART(Quarter,DATEADD(qq,number,@begin))*3-Month(DATEADD(qq,number,@begin)),DATEADD(qq,number,@begin)),112) AS combid, "
+				+ " convert(varchar(4),DATEADD(qq,number,@begin) ,112)+'第'+cast(DATEPART(qq,DATEADD(qq,number,@begin)) as varchar(2))+'季度' AS combtext " + " from master.dbo.spt_values "
+				+ " where type='p' AND number<=@quarters ";
+		List<SelectVo> list = vouchDao.QueryToVo(SelectVo.class,sql);
+		return list;
+	}
+
+
+
+
+
+	@Override
+	public EFVoucher saveData(EFVouchVo efVouchVo)throws Exception {
+		Long note=vouchDao.getVoucherid();
+		SessionUser securityUser=SessionUser.SessionUser();
+		efVouchVo.getEfVoucher().setFvoucherid(note);
+		efVouchVo.getEfVoucher().setFischecked(0);
+		efVouchVo.getEfVoucher().setFuserno(securityUser.getUserId());
+		efVouchVo.getEfVoucher().setFusername(securityUser.getUsername());
+		efVouchVo.getEfVoucher().setFcreatetime(new Date());
+		efVouchVo.getEfVoucher().setFtranstype("自增");
+		efVouchVo.getEfVoucher().setDataCorp(securityUser.getCorpId());
+		efVouchVo.getEfVoucher().setFvoucherno(certificateWordDao.findById(efVouchVo.getEfVoucher().getFgroupid()).orElse(null).getFname()+"");
+
+		if (!efVouchVo.getAddedList().isEmpty()){
+			efVouchVo.getAddedList().forEach( item -> {
+				Account acc = accountDao.findById(item.getFaccountid()).orElse(null);
+
+				item.setFvoucherid(note);
+				item.setFentryid(vouchEntryDao.getEntryid());
+				item.setDataCorp(securityUser.getCorpId());
+				if (0 == acc.getFcustom()) {
+					item.setFcustomid(0l);
+				}
+				if (null == acc.getFcur()) {
+					item.setFcur("RMB");
+				}
+				item.setFcontrol(0);
+				// 0-贷方,1- 借方
+//				if (null != item.getDebit() && item.getDebit() != 0) {
+//					item.setFdc(Short.parseShort("1"));
+//					// 本位币金额
+//					if (null == item.getFamount())
+//						item.setFamount(item.getDebit());
+//				} else {
+//					item.setFdc(Short.parseShort("-1"));
+//					if (null == item.getFamount())
+//						item.setFamount(item.getCredit());
+//				}
+				if (acc.getFisrateadj() == 0) {
+					item.setFamountfor(item.getFamount());
+					item.setFrate(new BigDecimal(1));
+				}
+
+//				if (x == 0) {
+//					// 对方科目就是现在所提及的会计科目的对应科目。是指同一经济业务中借方或者贷方对应的贷方或者借方的科目
+//					item.setFaccountid2(item.getFaccountid());
+//				} else {
+//					// model.setFexplanation(modelx.getFexplanation());
+//					item.setFaccountid2(modelx.getFaccountid());
+//				}
+				item.setFtransbal(item.getFamount());
+				item.setFtransbalfor(item.getFamountfor());
+				item.setDataCorp(securityUser.getCorpId());
+				vouchEntryDao.save(item);
+
+			});
+		}
+		if (!efVouchVo.getDeletedList().isEmpty()) {
+			vouchEntryDao.deleteAll(efVouchVo.getDeletedList());
+		}
+		if(!efVouchVo.getModifyedList().isEmpty()){
+			efVouchVo.getModifyedList().forEach( item ->{
+				Account acc = accountDao.findById(item.getFaccountid()).orElse(null);
+
+				item.setFvoucherid(note);
+				if(null==item.getFentryid()) item.setFentryid(vouchEntryDao.getEntryid());
+				if (0 == acc.getFcustom()) {
+					item.setFcustomid(0l);
+				}
+				if (null == acc.getFcur()) {
+					item.setFcur("RMB");
+				}
+				item.setFcontrol(0);
+				// 0-贷方,1- 借方
+//				if (null != item.getDebit() && item.getDebit() != 0) {
+//					item.setFdc(Short.parseShort("1"));
+//					// 本位币金额
+//					if (null == item.getFamount())
+//						item.setFamount(item.getDebit());
+//				} else {
+//					item.setFdc(Short.parseShort("-1"));
+//					if (null == item.getFamount())
+//						item.setFamount(item.getCredit());
+//				}
+				if (acc.getFisrateadj() == 0) {
+					item.setFamountfor(item.getFamount());
+					item.setFrate(new BigDecimal(1));
+				}
+
+//				if (x == 0) {
+//					// 对方科目就是现在所提及的会计科目的对应科目。是指同一经济业务中借方或者贷方对应的贷方或者借方的科目
+//					item.setFaccountid2(item.getFaccountid());
+//				} else {
+//					// model.setFexplanation(modelx.getFexplanation());
+//					item.setFaccountid2(modelx.getFaccountid());
+//				}
+				item.setFtransbal(item.getFamount());
+				item.setFtransbalfor(item.getFamountfor());
+				item.setDataCorp(securityUser.getCorpId());
+				vouchEntryDao.dynamicSave(item,vouchEntryDao.findById(item.getFentryid()).orElse(null));
+			});
+		}
+		EFVoucher   voucher=vouchDao.save(efVouchVo.getEfVoucher());
+
+		return  voucher;
+	}
+
+
+
+}

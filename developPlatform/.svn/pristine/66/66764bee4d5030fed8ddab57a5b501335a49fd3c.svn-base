@@ -1,0 +1,3 @@
+﻿<html layout:decorator="system/_main" xmlns:layout="http://www.w3.org/1999/xhtml">
+<!--/*/当前main页面的实际代码在_main页面中（Spring thymeleaf layout），为了方便二次开发和覆写/*/-->
+</html>

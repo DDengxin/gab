@@ -1,0 +1,25 @@
+.container{
+    width: 100%;
+    overflow: hidden;
+    margin-top: 103px;
+    padding-bottom: 150px;
+}
+.container .content{
+    width: 100%;
+    overflow: hidden;
+}
+.content img{
+    width: 914px;
+    height: 556px;
+    margin: 0 auto;
+}
+.content p{
+    width: 100%;
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+}
+.content p b{
+    color: #e80000;
+    font-weight: bold;
+}

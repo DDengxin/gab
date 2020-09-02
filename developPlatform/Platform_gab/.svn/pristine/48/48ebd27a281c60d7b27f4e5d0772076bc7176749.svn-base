@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title></title>
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/expertDetails.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/expertDetails.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/babel.min.js}"></script>
+
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+	<div class="expert_content">
+		<div class="expert_content_list">
+			<h2>工艺专家</h2>
+			<div class="list_left">
+				<div class="left_expert">
+					<p>
+						<b class="expert_name"></b>
+						<i class="supplyname"></i>
+					</p>
+					<p class="saleExperience"></p>
+					<p class="level"></p>
+					<p class="mainJob"></p>
+					<p class="strengths"></p>
+					<div class="bottom">
+						<ul>
+							<li>
+								回复速度：
+								<b>快速</b>
+							</li>
+							<li>
+								方案交期：
+								<b>3</b>
+								天
+							</li>
+							<li>
+								可靠性：
+								<b>98%</b>
+							</li>
+							<li>
+								服务态度：
+								<b>99.8%</b>
+							</li>
+						</ul>
+					</div>
+					<div class="collect">
+						<i class="iconfont icon-xingxing"></i>
+						添加到收藏
+					</div>
+				</div>
+
+				<div class="introduce">
+					<h3>专家介绍</h3>
+					<div class="expert_introduce"></div>
+
+
+				</div>
+
+				<div class="example">
+					<h3>
+						技术案例
+						<a id="teachmore_href" href="/gab/expertDetailsTech.html?present=technology">更多</a>
+					</h3>
+					<ul id=technology>
+						
+					</ul>
+				</div>
+
+				<div class="example">
+					<h3>
+						学术论文
+						<a id="learnmore_href" href="/gab/expertDetailsTech.html?present=academic">更多</a>
+					</h3>
+					<ul  id="learning">					
+					</ul>
+				</div>
+
+				<div class="example">
+					<h3>
+						经验分享
+						<a id="experiencemore_href" href="/gab/expertDetailsTech.html?present=share">更多</a>
+					</h3>
+					<ul id="experience">
+						
+					</ul>
+				</div>
+			</div>
+		
+			<!--右侧区域 start   -->
+		<th:block th:replace="~{gab/common/CommonExpertDetailRight:: CommonExpertDetailRight}"></th:block>	
+		<!-- 右侧区域end -->
+		
+		</div>
+	</div>
+
+
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+
+</body>
+
+<script type="text/javascript">
+	//获取url地址栏中的参数
+	function GetQueryValue(queryName) {
+		var query = decodeURI(window.location.search.substring(1));
+		var vars = query.split("&");
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split("=");
+			if (pair[0] == queryName) {
+				return pair[1];
+			}
+		}
+		return null;
+	}
+	
+	$.ajax({
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		url : '/gab/getByidExpert?id=' + GetQueryValue("id"),
+		success : function(e) {
+			var data = e;
+			var e = e.data[0];  //headimgsrc  people-img
+			$('h2').text(e.expert_type);
+
+			$(".people-img").attr('src',e.headimgsrc);
+			$(".saleExperience").html("从业年限: " + (!!e.job_age ? e.job_age : "")+"年");
+			$(".level").html("资质等级: " + (!!e.level ? e.level : ""));
+			$(".mainJob").html("主要职业: " + (!!e.main_job ? e.main_job : ""));
+			$(".strengths").html("专长优势: " + (e.strengths ? e.strengths : ""));
+			$(".expert_introduce").html(  (e.introduce ? e.introduce : ""));
+			$(".expert_name").html(!!e.expert_name ? e.expert_name : "");
+			$('title').html(!!e.expert_name ? e.expert_name : "");
+			$(".supplyname").html(!!e.supplyname ? e.supplyname : "");
+			//渲染学术
+			var art =  data.art;
+			console.log(art);
+			var random_data = data.random_data;
+			var  learning = $("#learning");
+			//技术案例
+			var  technology  = $("#technology"); 
+			//经验分享
+			var  experience  = $("#experience"); 
+			var  recommend = $("#recommend-ul");
+			var  learn_html = "";
+			var  technology_html = "";
+			var   experience_html = "";
+			var   recommend_html = "";
+			if (art.length==0){
+				learn_html+="<div class=\"noData\"><h1>暂无此栏目内容，敬请期待</h1></div>";
+				technology_html += "<div class=\"noData\"><h1>暂无此栏目内容，敬请期待</h1></div>";
+				experience_html +="<div class=\"noData\"><h1>暂无此栏目内容，敬请期待</h1></div>"
+			}else {
+				
+				
+				
+				
+				$.each(art, function (i, obj) {
+					if (obj.classify == "学术论文") {
+						learn_html += "<li><i>></i><a href='/gab/expertDetailsTechDetails.html?id=" + e.expert_note + "&reqId=" + obj.article_id + "&classify=学术论文'>" + obj.title + "</a><span>" + obj.whether_to_pay + "文档</span></li>";
+					} else if (obj.classify == "技术案例") {
+						technology_html += "	<li><i>></i><a href='/gab/expertDetailsTechDetails.html?id=" + e.expert_note + "&reqId=" + obj.article_id + "&classify=技术案例'>" + obj.title + "</a><span>" + obj.whether_to_pay + "文档</span></li>";
+					} else if (obj.classify == "经验分享") {
+						experience_html += "<li><i>></i><a href='/gab/expertDetailsTechDetails.html?id=" + e.expert_note + "&reqId=" + obj.article_id + "&classify=经验分享'>" + obj.title + "</a><span>" + obj.whether_to_pay + "文档</span></li>";
+					} else {
+
+					}
+
+				});
+				
+				if(!!learn_html == false ){
+					learn_html+="<div class=\"noData\"><h1>暂无此栏目内容，敬请期待</h1></div>"
+				}
+				if(!!technology_html == false ){
+					technology_html += "<div class=\"noData\"><h1>暂无此栏目内容，敬请期待</h1></div>"	
+				}
+				if(!!experience_html == false ) {
+					experience_html +="<div class=\"noData\"><h1>暂无此栏目内容，敬请期待</h1></div>"
+				}
+				
+				
+
+				//random_data
+				$.each(random_data, function (i, obj) {
+					recommend_html += `<li>
+						<a href="#">
+						<img src="${obj.headimgsrc}" alt="">
+						<div class="fr">
+							<p>
+								<b>${obj.nick_name}</b>
+								<span>${obj.supplyname}</span>
+							</p>
+							<p>
+								工作经验：
+								<i>${obj.sale_experience}</i>
+							</p>
+							<p class="advantage">${obj.strengths}</p>
+						</div>
+					</a>`;
+
+				});
+
+			}
+			  learning.html( learn_html);
+			  technology.html(technology_html);
+			  experience.html(experience_html);
+			  recommend.html(!!recommend_html?recommend_html:"无可推荐专家，等待更新！");
+			
+		},
+		//请求失败，包含具体的错误信息
+		error : function(e) {
+
+		}
+	});
+</script>
+
+
+
+</html>

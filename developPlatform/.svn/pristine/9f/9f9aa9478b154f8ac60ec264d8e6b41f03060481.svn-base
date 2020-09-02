@@ -1,0 +1,77 @@
+package com.tengzhi.business.finance.capitalManager.capitalRegister.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.finance.capitalManager.capitalRegister.model.EFVoucherCapitalRegister;
+import com.tengzhi.business.finance.capitalManager.capitalRegister.service.CapitalRegisterService;
+import com.tengzhi.business.finance.voucher.service.VouchService;
+import com.tengzhi.business.project.projectProcess.projectTask.model.EXmXmrw;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+
+@RestController
+@RequestMapping("/finance/capitalManager/capitalRegister/")
+public class CapitalRegisterController {
+
+
+    @Autowired
+    private CapitalRegisterService service;
+    @Autowired
+    private VouchService vouchService;
+
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        mv =vouchService.addhtml(mv,"");
+        return mv;
+    }
+
+    /**
+     * 新增一条记录
+     * **/
+    @PostMapping(value = "add.html")
+    public Result add(@RequestBody  EFVoucherCapitalRegister mode) throws Exception{
+        return Result.resultOk(service.save(mode));
+    }
+
+    @GetMapping("getById/{fcardid}")
+    public Result getById(@PathVariable String fcardid){
+        return Result.resultOk(service.findById(fcardid));
+    }
+
+    /**
+     * 删除对象数据
+     * @param fcardid
+     * **/
+    @DeleteMapping(value = "deleteById/{fcardid}")
+    public Result delete(@PathVariable(value = "fcardid") String fcardid) {
+        service.deleteByNote(fcardid);
+        return Result.resultOk();
+    }
+
+
+    /**
+     *
+     *修改数据
+     * @param model
+     * */
+    @PutMapping("add.html")
+    public Result modify(@RequestBody  EFVoucherCapitalRegister model) {
+        service.update(model);
+        return Result.resultOk();
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @return
+     */
+    @PostMapping(value = "list.html")
+    public Result getList(BaseDto baseDto) throws IOException {
+        return service.getList(baseDto).getResult();
+    }
+
+}

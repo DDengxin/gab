@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+		<title>需求市场</title>
+	</th:block>
+
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/needsList.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/needsList.js}"></script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+	<div class="needs_content">
+		<div class="needs_content_list">
+			<h2>
+				需求市场
+				<a href="javascript:void(0);" onclick="verifyLogin({type:'url',url:'/gab/demand/requirement.html'})"><i
+						class="layui-icon layui-icon-addition"></i>发布需求</a>
+			</h2>
+			<table border="1" cellspacing="0" cellpadding="0">
+				<tr>
+					<td>所有分类</td>
+					<td id="allTypeUl"></td>
+				</tr>
+				<tr>
+					<td>订单状态</td>
+					<td>
+						<ul class="conditions">
+							<li class="selected" onclick="needFlagChange('')">无限制</li>
+							<li onclick="needFlagChange('投标中')">投标中</li>
+							<li onclick="needFlagChange('已截止')">已截止</li>
+							<li onclick="needFlagChange('已完成')">已完成</li>
+						</ul>
+					</td>
+				</tr>
+			</table>
+			<div class="screen">
+				<div class="fl">
+					<ul>
+						<li class="liin">
+							综合
+							<span>
+								<b id="syn-up" class="iconfont icon-shangjiantoushixinxiao"></b>
+								<b id="syn-down" class="iconfont icon-xiajiantoushixinxiao"></b>
+							</span>
+						</li>
+						<li>
+							发布时间
+							<span>
+								<b id="time-up" class="iconfont icon-shangjiantoushixinxiao"></b>
+								<b id="time-down" class="iconfont icon-xiajiantoushixinxiao"></b>
+							</span>
+						</li>
+						<li style="display: none;">
+							订单金额
+							<span>
+								<b id="money-up" class="iconfont icon-shangjiantoushixinxiao"></b>
+								<b id="money-down" class="iconfont icon-xiajiantoushixinxiao"></b>
+							</span>
+						</li>
+						<li>
+							截止时间
+							<span>
+								<b id="end-up" class="iconfont icon-shangjiantoushixinxiao"></b>
+								<b id="end-down" class="iconfont icon-xiajiantoushixinxiao"></b>
+							</span>
+						</li>
+					</ul>
+				</div>
+				<div class="fr">
+					<input id="searchContent" type="text" placeholder="请输入搜索内容">
+					<b id="search">搜索</b>
+				</div>
+			</div>
+			<div class="show_items">
+				<ul id="needMarketUl"></ul>
+			</div>
+			<div id="page"></div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}"></th:block>
+</body>
+<script id="needMarket" type="text/html">
+     {{#layui.each(d.list, function(index, item){ }}
+          <li>
+              <div class="needs_title">
+                   <p>{{item.cpcodeName}}</p>
+				  {{# if (item.typeName === null) { }}
+				  <p>暂无<b>{{item.needFlag}}</b></p>
+				  {{# } else { }}
+				  <p>{{item.typeName}}<b>{{item.needFlag}}</b></p>
+				  {{# }  }}
+              </div>
+              <div class="needs_details">
+                   <p>需求地区：<b>{{item.needProvince}}{{item.needCity}}</b></p>
+                   <p>截止时间：<b>{{item.endTime}}</b></p>
+              </div>
+              <a href="/gab/needs.html?needNote={{item.needNote}}">查看详情</a>
+          </li>
+          {{#  });
+     }}
+	{{#  if(d.list.length === 0){ }}
+		<div class="noData"><h1>暂无数据</h1></div>
+	{{#  } }}	
+</script>
+<script id="needTypes" type="text/html">
+	<ul class="conditions">
+		<li class="selected allType" onclick="needTypeChange('')">无限制</li>
+		{{#layui.each(d.list, function(index, item){ }}
+    		<li class="allType" onclick="needTypeChange('{{item.id}}')">{{item.text}}</li>
+    		{{#  });
+   		}}
+		<!--<a href="javascript:void(0);">更多></a>-->
+	</ul>
+</script>
+
+</html>

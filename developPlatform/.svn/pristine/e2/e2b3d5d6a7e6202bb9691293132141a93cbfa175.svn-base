@@ -1,0 +1,604 @@
+package com.tengzhi.business.system.params.service.Impl;
+
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.impl.BaseServiceImpl;
+import com.tengzhi.base.property.Property;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.common.ProductType;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.params.model.SysParams.SysParams_PK;
+import com.tengzhi.business.system.params.service.SysParamService;
+import com.tengzhi.business.system.right.dao.SysRightDao;
+import com.tengzhi.business.system.right.model.SysRight;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+/**
+ * @author gaodu
+ */
+@Service
+@Transactional
+public class SysParamServerImpl extends BaseServiceImpl implements SysParamService {
+    @Autowired
+    private Property property;
+
+
+    @Autowired
+    private SysParamDao sysParamDao;
+    @Autowired
+    private SysRightDao sysRightDao;
+    AtomicInteger i = new AtomicInteger(0);
+
+    @Override
+    public BasePage<SysParams> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysParamDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.eq("paramId", map.get("paramId"));
+            c.eq("paramName", map.get("paramName"));
+            c.eq("paramMod", map.get("paramMod"));
+        }));
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        ;
+        String where = SqlJoint.whereSuffixAnd((c) -> {
+            c.eq("param_id", map.get("paramId"));
+            c.eq("param_name", map.get("paramName"));
+            c.eq("param_mod", map.get("paramMod"));
+            c.eq("param_xtype", map.get("paramXtype"));
+        });
+        String sql = " select *,f_getname('GETCORPEXP',null,null,org_id) org_id_name from sys_param where 1=1 and '"+ SessionUser.SessionUser().getCorpId() +"' = any(string_to_array( org_id,',')) " + where;
+        return sysParamDao.QueryMapPageList(baseDto, sql, true);
+
+    }
+
+
+    @Override
+    public SysParams save(SysParams sysParam) throws Exception {
+        if (judgeUnique(sysParam)) {
+            sysParam.setParamId(sysParam.getParamId().toUpperCase());
+            sysParam.setParamId(sysParam.getParamId().trim());
+            SessionUser securityUser = SessionUser.SessionUser();
+            sysParam.setCreatorId(securityUser.getUserId());
+            sysParam.setModifierId(securityUser.getUserId());
+            sysParam.setCreator(securityUser.getNickName());
+            sysParam.setModifier(securityUser.getNickName());
+            sysParam.setCreationTime(new Timestamp(System.currentTimeMillis()));
+            sysParam.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            if(StringUtils.isBlank(sysParam.getOrgId())){
+                throw new RuntimeException("请绑定公司账套");
+            }
+            //sysParam.setOrgId(securityUser.getCorpId());
+            if ("ROOT".equalsIgnoreCase(sysParam.getParamId())) {
+                sysParam.setParentName("无");
+            } else {
+                //sysParam.setParentName(sysParamDao.findParentName(sysParam.getParentId(), sysParam.getParamType()));
+                //SysParams.setParentName(sysParamDao.findByParamId(SysParams.getParentId()).getParamName());
+            }
+            sysParam.Validate();
+            return sysParamDao.save(sysParam);
+        } else {
+            throw new Exception("类型名称已存在");
+        }
+    }
+
+    @Override
+    public void update(SysParams sysParams) {
+        SessionUser securityUser = SessionUser.SessionUser();
+        sysParams.setModifierId(securityUser.getUserId());
+        sysParams.setModifier(securityUser.getNickName());
+        sysParams.setModifyTime(new Timestamp(System.currentTimeMillis()));
+        if(StringUtils.isBlank(sysParams.getOrgId())){
+            throw new RuntimeException("请绑定公司账套");
+        }
+        if ("ROOT".equalsIgnoreCase(sysParams.getParentId())) {
+            sysParams.setParentName("无");
+        } else {
+            sysParams.setParentName(sysParamDao.findParentName(sysParams.getParentId(), sysParams.getParamType()));
+
+        }
+        sysParamDao.executeUpdate("update SysParams set paramId = ?1,paramType = ?2 where paramId = ?3 and paramType = ?4",
+                sysParams.getParamId(), sysParams.getParamType(), sysParams.getParamId(), sysParams.getOldParamType());
+
+        sysParamDao.dynamicSave(sysParams, sysParamDao.findById(new SysParams_PK(sysParams.getParamId(), sysParams.getParamType())).orElse(null));
+    }
+
+    @Override
+    public List<SysParams> getParams(String Id, String paramType) {
+        String corpId = property.getBusiness().getDefaultCorp();
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, "select * from sys_param where param_id like :1 and param_type like :2  and ?3 = any(string_to_array( org_id,',')) ", Id + "%", paramType + "%",corpId);
+        return sysParams;
+    }
+
+    @Override
+    public Result deleteByParameterId1(Map<String, Object> map) {
+        String oId = ObjectUtil.isEmpty(map.get("paramId")) ? "-1" : map.get("paramId").toString();
+        sysParamDao.delLogByOrgId1(oId);
+        Recursive1((List<Map<String, Object>>) map.get("list"));
+        return Result.resultOkMsg("11");
+    }
+
+    @Override
+    public Result deleteByParameterId2(Map<String, Object> map) {
+        String oId = ObjectUtil.isEmpty(map.get("paramId")) ? "-1" : map.get("paramId").toString();
+        sysParamDao.delLogByOrgId2(oId);
+        Recursive2((List<Map<String, Object>>) map.get("list"));
+        return Result.resultOkMsg("11");
+    }
+
+
+    @Override
+    public boolean judgeUnique(SysParams sysParams) {
+        return sysParamDao.findAll(Specifications.where((c) -> {
+            c.eq("paramId", sysParams.getParamId());
+            c.eq("paramType", sysParams.getParamType());
+
+        })).size() <= 0;
+    }
+
+
+    @Override
+    public List<SelectVo> getMainParams() {
+        List<SysRight> sysRight = sysRightDao.QueryListModel(SysRight.class, "select * from sys_right where parent_id='ROOT' ORDER BY right_ord asc");
+        List<SelectVo> list = new ArrayList<SelectVo>();
+        sysRight.forEach(item -> {
+            list.add(new SelectVo(item.getRightName(), item.getRightName()));
+        });
+        return list;
+    }
+
+    @Override
+    public Set<SelectVo> getNodeParams(String MainId) {
+        Set<SelectVo> rset = new HashSet<>();
+        Set<String> list = new TreeSet<>();
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, "select  * from sys_param where param_mod = :1  and :2 = any(string_to_array( org_id,',')) ", MainId,SessionUser.SessionUser().getCorpId());
+        sysParams.forEach(item -> {
+            list.add(item.getParamType());
+        });
+        list.forEach(u -> {
+            rset.add(new SelectVo(u, u));
+        });
+        return rset;
+    }
+
+
+    @Override
+    public List<SelectVo> getTypeParams(String paramMod, String paramxType) {
+        List<SelectVo> rset = new ArrayList<>();
+        String sql = " select  param_type id,param_type \"text\" "
+                + " from sys_param "
+                + " where param_mod = :1 and param_xtype = :2  "
+                +" and :3 = any(string_to_array( org_id,',')) "
+                + " group by param_type ";
+
+        List<Map> sysParamList = sysParamDao.QueryListMap(sql, paramMod, paramxType,SessionUser.SessionUser().getCorpId());
+
+        sysParamList.forEach(item -> {
+            rset.add(new SelectVo(String.valueOf(item.get("id")), String.valueOf(item.get("text"))));
+        });
+        return rset;
+    }
+
+    @Override
+    public List<SelectVo> NodeParamsAll() {
+        List<SelectVo> list = new ArrayList<SelectVo>();
+        List<SysRight> sysRight = sysRightDao.QueryListModel(SysRight.class, "select * from sys_right where parent_id='ROOT' ORDER BY right_ord asc");
+        sysRight.forEach(item -> {
+            List<SysRight> _sysRight = sysRightDao.QueryListModel(SysRight.class, "select * from sys_right where parent_id=:1 ORDER BY right_ord asc", item.getRightId());
+            _sysRight.forEach(_item -> {
+                list.add(new SelectVo(_item.getRightName(), _item.getRightName()));
+            });
+        });
+        return list;
+    }
+
+
+    @Override
+    public List<SelectVo> ParamsAll(String paramMod, String paramType) {
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, "select * from sys_param where param_mod like :1 and param_type like :2 and :3 = any(string_to_array( org_id,',')) ", paramMod + "%", paramType + "%",SessionUser.SessionUser().getCorpId());
+        List<SelectVo> list = new ArrayList<SelectVo>();
+        sysParams.forEach(item -> {
+            list.add(new SelectVo(item.getParamName(), item.getParamName()));
+        });
+        return list;
+    }
+
+
+    //递归删除
+    private void Recursive(List<Map<String, Object>> list) {
+        if (list != null) {
+            list.forEach(item -> {
+                String oId = ObjectUtil.isEmpty(item.get("paramId")) ? "-1" : item.get("paramId").toString();
+                String paramType = ObjectUtil.isEmpty(item.get("paramType")) ? "-1" : item.get("paramType").toString();
+                sysParamDao.delLogByOrgId(oId, paramType);
+                Recursive((List<Map<String, Object>>) item.get("children"));
+            });
+        }
+    }
+
+
+    @Override
+    public Result deleteByParameterId(Map<String, Object> map) throws Exception {
+        String oId = ObjectUtil.isEmpty(map.get("paramId")) ? "-1" : map.get("paramId").toString();
+        String paramStatus = ObjectUtil.isEmpty(map.get("paramStatus")) ? "-1" : map.get("paramStatus").toString();
+        String paramType = ObjectUtil.isEmpty(map.get("paramType")) ? "-1" : map.get("paramType").toString();
+        int count = Recursive1001((List<Map<String, Object>>) map.get("list"));
+        if ("false".equals(paramStatus) && count == 0) {
+            sysParamDao.delLogByOrgId(oId, paramType);
+            Recursive((List<Map<String, Object>>) map.get("list"));
+            return Result.resultOkMsg("删除成功");
+        } else {
+            i.set(0);
+            return Result.error("类型已经启动不能删除");
+        }
+
+    }
+
+
+    //递归删除
+    private int Recursive1001(List<Map<String, Object>> list) {
+        if (list != null) {
+            list.forEach(item -> {
+                String paramStatus = ObjectUtil.isEmpty(item.get("paramStatus")) ? "-1" : item.get("paramStatus").toString();
+                if ("-1".equals(paramStatus)) {
+                    i.set(1);
+                }
+                if ("true".equalsIgnoreCase(paramStatus)) {
+                    i.set(1);
+                }
+                Recursive1001((List<Map<String, Object>>) item.get("children"));
+            });
+        }
+        return i.get();
+    }
+
+
+    //递归删除
+    private void Recursive1(List<Map<String, Object>> list) {
+        if (list != null) {
+            list.forEach(item -> {
+                sysParamDao.delLogByOrgId1(ObjectUtil.isEmpty(item.get("paramId")) ? "-1" : item.get("paramId").toString());
+                Recursive1((List<Map<String, Object>>) item.get("children"));
+            });
+        }
+    }
+
+    //递归删除
+    private void Recursive2(List<Map<String, Object>> list) {
+        if (list != null) {
+            list.forEach(item -> {
+                sysParamDao.delLogByOrgId2(ObjectUtil.isEmpty(item.get("paramId")) ? "-1" : item.get("paramId").toString());
+                Recursive2((List<Map<String, Object>>) item.get("children"));
+            });
+        }
+    }
+
+    @Override
+    public List<SysParams> findComboboxParams(String parentId) {
+        return sysParamDao.findComboboxParams(parentId);
+    }
+
+
+    @Override
+    public SysParams findByParameterId(String parameterId, String parameterType) {
+        return sysParamDao.findById(new SysParams_PK(parameterId, parameterType)).orElse(null);
+    }
+
+
+    @Override
+    public Result updateStatus(Map<String, Object> map) throws Exception {
+        String paramId = ObjectUtil.isEmpty(map.get("paramId")) ? "-1" : map.get("paramId").toString();
+        String paramType = ObjectUtil.isEmpty(map.get("paramType")) ? "-1" : map.get("paramType").toString();
+        String status = ObjectUtil.isEmpty(map.get("status")) ? "-1" : map.get("status").toString();
+        sysParamDao.updateStatus(paramId, paramType, status);
+        RecursiveUpdateStatus((List<Map<String, Object>>) map.get("list"), status);
+        return Result.resultOkMsg("11");
+    }
+
+    //递归更新状态
+    private void RecursiveUpdateStatus(List<Map<String, Object>> list, String status) {
+        if (list != null) {
+            list.forEach(item -> {
+                String paramId = ObjectUtil.isEmpty(item.get("paramId")) ? "-1" : item.get("paramId").toString();
+                String paramType = ObjectUtil.isEmpty(item.get("paramType")) ? "-1" : item.get("paramType").toString();
+                sysParamDao.updateStatus(paramId, paramType, status);
+                RecursiveUpdateStatus((List<Map<String, Object>>) item.get("children"), status);
+            });
+        }
+    }
+
+    @Override
+    public List<SelectVo> getParamsSelectList(String paramMod, String paramType) {
+        List<SelectVo> result = new ArrayList<>();
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, "select  * from sys_param where param_mod = :1 and param_type = :2 and :3 = any(string_to_array( org_id,','))  and param_status='true'  order by param_ord  ", paramMod, paramType,SessionUser.SessionUser().getCorpId());
+        sysParams.forEach(item -> {
+            result.add(new SelectVo(item.getParamId(), item.getParamName()));
+        });
+        return result;
+    }
+
+    @Override
+    public List<SelectVo> getParamsSelectList(String paramMod, String paramType, boolean relatedBusiness) {
+        List<SelectVo> result = getParamsSelectList(paramMod, paramType);
+        if (relatedBusiness) {
+            //业务员特殊处理，只查找当前用户允许访问的业务员
+            if ("销售".equals(paramMod) && "业务员".equals(paramType)) {
+                SessionUser sessionUser = SessionUser.SessionUser();
+                List<String> businessPersonnelIdList = sessionUser.getBusinessPersonnelIdList();
+                Iterator<SelectVo> iterator = result.iterator();
+                while (iterator.hasNext()) {
+                    SelectVo tmp = iterator.next();
+                    if (businessPersonnelIdList.indexOf(tmp.getId()) < 0) {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<SelectVo> getParamsSelectListByParentId(String paramMod, String paramType, String ParentId) {
+        String corpId="";
+        String sql = "select param_id,param_name,param_ord "
+                + " from sys_param "
+                + " where  param_mod = :1 and param_type = :2  and parent_id = :3 and :4 = any(string_to_array( org_id,','))  and param_status='true' "
+                + " group by param_id,param_name,param_ord  "
+                + " order by param_ord ";
+
+        if(SessionUser.SessionUser()==null){
+            corpId = property.getBusiness().getDefaultCorp();
+        }else{
+            corpId =  SessionUser.SessionUser().getCorpId();
+        }
+
+
+
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramMod, paramType, ParentId,corpId);
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SelectVo> getParamsSelectListByTypeParent(String paramType, String ParentId) {
+        String sql = "select param_id,param_name,param_ord "
+                + " from sys_param "
+                + " where param_type = :1  and parent_id = :2 and :3 = any(string_to_array( org_id,',')) and param_status='true' "
+                + " group by param_id,param_name,param_ord  "
+                + " order by param_ord ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramType, ParentId,SessionUser.SessionUser().getCorpId());
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SelectVo> getParamsSelectListByParentId(String paramMod, String ParentId) {
+        String sql = " select  param_id,param_name,param_ord "
+                + " from sys_param "
+                + " where  param_mod = :1 and parent_id = :2 and :3 = any(string_to_array( org_id,',')) and param_status='true' "
+                + " group by param_id,param_name,param_ord  "
+                + " order by param_ord ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramMod, ParentId, SessionUser.SessionUser().getCorpId());
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Map> getParamsTreeList(String paramMod, String ParentId) {
+        String sql = "select param_id combid,param_name combtext,parent_id pid,param_id \"id\",param_name \"text\" "
+                + " from  v_sysparamtree "
+                + " where  position('" + ParentId + "' in level_text) >0 ";
+        return sysParamDao.QueryListMap(sql);
+    }
+
+    @Override
+    public List<SelectVo> getParamsTreeListByParamModAndParamType(String paramMod, String paramType) {
+        String sql = " select  param_id,param_name,param_ord,parent_id "
+                + " from sys_param "
+                + " where  param_mod = :1 and param_type = :2 and :3 = any(string_to_array( org_id,',')) and param_status='true' "
+                + " group by param_id,param_name,param_ord,parent_id  "
+                + " order by param_ord ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramMod, paramType,SessionUser.SessionUser().getCorpId());
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName()) {{
+            setPid(item.getParentId());
+        }}).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public String getParamId(String cgStype, String paramName) {
+        return sysParamDao.getParamId(cgStype, paramName);
+    }
+
+    @Override
+    public String getParamValue(String paramType, String paramId) {
+        return sysParamDao.getParamValue(paramType, paramId);
+    }
+
+    @Override
+    public String getParamValue1(String paramType, String paramId) {
+        return sysParamDao.getParamValue1(paramType, paramId);
+    }
+
+    @Override
+    public String getParamValue2(String paramType, String paramId) {
+        return sysParamDao.getParamValue2(paramType, paramId);
+    }
+
+    @Override
+    public String getParamValue3(String paramType, String paramId) {
+        return sysParamDao.getParamValue3(paramType, paramId);
+    }
+
+
+    @Override
+    public List<SelectVo> getParamSecondLevelList(String paramMod) {
+        String sql = " select  param_id,param_mod "
+                + " from v_sysparamtree "
+                + " where  param_mod = :1 and level =1 ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramMod);
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<SelectVo> getParamsSelectListByValue3(String paramMod, String paramValue3) {
+        String sql = " select  param_id,param_name "
+                + " from sys_param where "
+                + " param_type = :1   and param_value3 = :2 and :3 = any(string_to_array( org_id,',')) and param_status='true'  "
+                + " group by param_id,param_name ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramMod, paramValue3,SessionUser.SessionUser().getCorpId());
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SelectVo> getParamsSelectListByValue2(String paramMod, String paramValue2) {
+        String sql = " select  param_id,param_name "
+                + " from sys_param where "
+                + " param_type = :1   and param_value2 = :2  and :3 = any(string_to_array( org_id,',')) and param_status='true'  "
+                + " group by param_id,param_name ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramMod, paramValue2,SessionUser.SessionUser().getCorpId());
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public Result getByAddName(String cpcodeType) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        //通过枚举获取产品类型(默认为物料)
+        ProductType productType = ProductType.valueOfParamId(cpcodeType, ProductType.WL);
+        if (null == productType) {
+            throw new RuntimeException(String.format("没有找到该行业(%s),请检查配置!", cpcodeType));
+        }
+        List<SysParams> sysParamList = productType.getChildrenNode();
+        sysParamList
+                .stream()
+                .filter(sysParams -> StringUtils.isNotBlank(sysParams.getParamValue1()))
+                .forEach(sysParam -> {
+                    String fieldKey = sysParam.getParamValue1();
+                    String fieldUrlKey = String.format("%sUrl", fieldKey);
+                    String fieldTypeKey = String.format("%sType", fieldKey);
+
+                    map.put(fieldKey, sysParam.getParamName());
+
+                    String url = null;
+                    //字段类型仅为“combobox”、“treeselect”时存在请求url
+                    if (ArrayUtil.contains(new String[]{"combobox", "treeselect"}, sysParam.getParamValue2())) {
+                        if (StringUtils.isEmpty(sysParam.getParamValue3())) {
+                            System.err.println(String.format("行业分类【%s】参数【%s】未配置参数值3，下拉框请求路径跳过渲染", productType.getParamName(), sysParam.getParamId()));
+                            return;
+                        }
+                        String urlPrefix = "/system/parameter/getParamsSelectList/技术/";
+                        if ("treeselect".equals(sysParam.getParamValue2())) {
+                            urlPrefix = "/system/parameter/getIndustryDynamicFieldParameters/技术/";
+                        }
+                        url = String.format("%s%s", urlPrefix, sysParam.getParamValue3());
+                    }
+                    map.put(fieldUrlKey, url);
+                    //控件类型，默认为textbox
+                    map.put(fieldTypeKey, StrUtil.isBlank(sysParam.getParamValue2()) ? "textbox" : sysParam.getParamValue2());
+                });
+        map.put("paramId", productType.getParamId());
+        map.put("paramType", productType.getParamType());
+        map.put("paramXtype", productType.getParamXtype());
+        map.put("cpcodeIsAutomaticCoding", productType.isAutomaticCoding());
+        return Result.resultOk(map);
+    }
+
+    @Override
+    public List<Map> getKwTreeList(String paramValue1) {
+        String sql = "with recursive tmp0 as (" +
+                "SELECT param_id,param_name,parent_id,param_type,0 AS level " +
+                "FROM sys_param " +
+                "where param_xtype ='仓库库位' and param_value1='" + paramValue1 + "'  and '"+ SessionUser.SessionUser().getCorpId() +"' = any(string_to_array( org_id,',')) " +
+                "union " +
+                "SELECT t1.param_id,t1.param_name,t1.parent_id,t1.param_type,(t0.level + 1) AS level " +
+                "FROM sys_param t1,tmp0 t0 " +
+                "where t0.param_id=t1.parent_id  and '"+ SessionUser.SessionUser().getCorpId() +"' = any(string_to_array( t1.org_id,',')) " +
+                ")" +
+                "SELECT param_id combid,param_name combtext,parent_id pid,param_type,level " +
+                "FROM tmp0 where level >0  order by param_id ";
+        return sysParamDao.QueryListMap(sql);
+    }
+
+    @Override
+    public List<SelectVo> getParamByParentAndLevel(String paramXtype, String parentId, String level) {
+        String where = "";
+        if (">".equals(level)) {
+            where = " where level > 0 ";
+        } else {
+            where = " where level = '" + level + "' ";
+        }
+        String sql = " with recursive tmp0 as (" +
+                "SELECT param_id,param_name,parent_id,param_type,0 AS level   " +
+                "FROM sys_param  " +
+                "where param_xtype ='" + paramXtype + "' and param_id='" + parentId + "'  and '"+ SessionUser.SessionUser().getCorpId() +"' = any(string_to_array( org_id,',')) " +
+                "union " +
+                "SELECT t1.param_id,t1.param_name,t1.parent_id,t1.param_type,(t0.level + 1) AS level   " +
+                "FROM sys_param t1,tmp0 t0 " +
+                "where t0.param_id=t1.parent_id  and t1.param_xtype ='" + paramXtype + "'   and '"+ SessionUser.SessionUser().getCorpId() +"' = any(string_to_array( t1.org_id,',')) " +
+                ") " +
+                "SELECT param_id ,param_name ,parent_id ,param_type,level   " +
+                "FROM tmp0 " + where + "  order by param_id ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql);
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SelectVo> treeList(String paramMod, String paramType) {
+        String sql = " select * from sys_param where 1=1 and param_status = 'true'  and '"+ SessionUser.SessionUser().getCorpId() +"' = any(string_to_array( org_id,',')) ";
+        sql += SqlJoint.whereSuffixAnd((c) -> {
+            c.eq("param_mod", paramMod);
+            c.eq("param_type", paramType);
+        });
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql);
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SysParams> findByParentIdAndParamXtype(String paramId, String paramXtype) {
+        return sysParamDao.findByParentIdAndParamXtype(paramId, paramXtype);
+    }
+
+    @Override
+    public String getParamsValue1(String parent_id, String param_id) {
+        return sysParamDao.getKeyParamValue1(parent_id, param_id);
+    }
+
+    @Override
+    public List<SelectVo> getParamsSelectListByValue1AndValue3(String paramType, String paramValue1, String paramValue3) {
+        String sql = " select  param_id,param_name "
+                + " from sys_param where "
+                + " param_type = :1   and param_value1 = :2 and param_value3 = :3 and :4 = any(string_to_array( org_id,',')) and param_status='true'  "
+                + " group by param_id,param_name ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql, paramType, paramValue1, paramValue3,SessionUser.SessionUser().getCorpId());
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SelectVo> getCorpChainOrCorpProduction(String stype) {
+        String sql = "";
+        if("SC".equals(stype)){
+            sql="select  param_ord,param_id,param_name   from sys_param where   param_type = '行业分类'   and param_mod='技术'  and param_id not in('ZZ') and param_id = any(string_to_array( (select corp_production from sys_org where  org_id ='"+SessionUser.SessionUser().getCorpId()+"'),','))  ";
+        }else{
+            sql="select  param_ord,param_id,param_name   from sys_param where   param_type = '行业分类'   and param_mod='技术'  and param_id not in('ZZ') and param_id = any(string_to_array( (select corp_supply_chain from sys_org where  org_id ='"+SessionUser.SessionUser().getCorpId()+"'),','))  ";
+        }
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql);
+        return sysParams.stream().map(item -> new SelectVo(item.getParamId(), item.getParamName())).collect(Collectors.toList());
+    }
+}

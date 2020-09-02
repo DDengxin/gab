@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>用户管理【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1" enctype="multipart/form-data">
+        <input name="userId" class="mini-hidden">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>用户类型:</td>
+                <td content>
+                    <input class="mini-combobox" required name="userLinkWorker" id="userLinkWorker" emptyText="请选择"
+                           url="encodeURI('/dict/boolean?t=员工用户&f=临时用户')" value="false" onvaluechanged="onUserLinkWorkerChanged"/>
+                </td>
+                <td title>工号:</td>
+                <td content>
+                    <input class="mini-buttonedit"
+                           emptyText="请选择" allowInput="true" name="jobNumber" required="true"
+                           onbuttonclick="onJobNumberButtonClickHandler"
+                    />
+                </td>
+                <td title>员工姓名:</td>
+                <td content>
+                    <input class="mini-textbox" required name="realName"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>所属公司:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+                           emptyText="请选择..." allowInput="false" name="orgId" required/>
+                </td>
+                <td title>所属部门:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onDeptClickHander" required
+                           emptyText="请选择..." allowInput="false" name="deptId" id="deptId"/>
+                </td>
+                <td colspan="2" rowspan="5" class="hmq-text-center">
+                    <label for="SYS">
+                        <input type="hidden" class="mini-hidden" name="face"/>
+                        <img class="hmq-img-responsive hmq-img-thumbnail" style="height:144px;" id="sys_img" name="sys_img" alt="头像" src="/static/img/common/default-face.jpg" default-img="/static/img/common/default-face.jpg"/>
+                    </label>
+                    <input type="file" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" style="display: none;" id="SYS" name="SYS">
+                </td>
+            </tr>
+            <tr>
+                <td title>所属岗位:</td>
+                <td content>
+                    <input class="mini-comboBox" name="positionId" id="positionId"/>
+                </td>
+                <td title>用户排序:</td>
+                <td content>
+                    <input class="mini-spinner" maxValue="1000" value="1" name="userOrd"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>昵称:</td>
+                <td content>
+                    <input class="mini-textbox" required name="nickName"/>
+                </td>
+                <td title>密码:</td>
+                <td content>
+                    <input class="mini-password" required name="password"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>性别:</td>
+                <td content>
+                    <input class="mini-combobox" required name="gender" value="true" url="encodeURI('/dict/boolean?t=男&f=女')"/>
+                </td>
+                <td title>手机号码:</td>
+                <td content>
+                    <input class="mini-textbox" name="mobile" vtype="mobile"/>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>邮箱:</td>
+                <td content>
+                    <input class="mini-textbox" name="email" vtype="email"/>
+                </td>
+                <td title>默认账套:</td>
+                <td content>
+                    <input class="mini-combobox" required name="defaultOrgId" url="/system/org/combobox/getOrgList"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>启用状态:</td>
+                <td content>
+                    <input class="mini-combobox" required name="isForbidden" value="false" url="encodeURI('/dict/boolean?t=否&f=是')"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>查询账套:</td>
+                <td content colspan="5">
+                    <input class="mini-combobox" required name="orgIds" multiSelect="true" url="/system/org/combobox/getOrgList"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>业务权限:</td>
+                <td content colspan="5">
+                    <input class="mini-combobox" name="businessPersonnelIds" url="encodeURI('/system/parameter/getParamsSelectList/销售/业务员?relatedBusiness=false')"
+                           multiSelect="true" emptyText="请选择" showNullItem="true" nullItemText="仅本人" popupMaxHeight="240px"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>签名:</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="sign"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        mini.getByName('action').setValue(options.action);
+        form.getField('userLinkWorker').doValueChanged();
+        if ('add' == options.action) {
+            form.setData({
+                //orgId:TZ_SETTING.corpId,
+                orgIds: TZ_SETTING.corpId,
+                defaultOrgId: TZ_SETTING.corpId
+            }, false);
+        } else if ('edit' == options.action) {
+            setFormEnabled(form, "userLinkWorker,jobNumber,orgId", false);
+            $.get("user.html/{0}".format(options.data.userId), function (res) {
+                if (200 === res.code) {
+                    mini.get("positionId").setUrl("/personnel/eHrWorker/selectGzgw/{0}".format(res.data.orgId));
+                    form.setData(res.data);
+                    form.getField('jobNumber').setText(res.data.jobNumber);
+                    form.getField('orgId').setText(res.data.orgName);
+                    form.getField('deptId').setText(res.data.deptName);
+                    form.getField('password').setValue(null);
+                    form.getField('password').setRequired(false);
+                    form.getField('userLinkWorker').doValueChanged();
+
+                    //mini.get("positionId").setValue(res.data.positionId);
+                    $.get("bool.html/{0}".format(options.data.userId), function (res) {
+                        if (!!res.data.avatar_url) {
+                            $("#sys_img").attr("src", "/system/user/getImg/" + options.data.userId);
+                        }
+                    });
+
+                }
+            });
+        }
+    }
+
+    //图片与file控件的联动
+    $('#SYS').change(function () {
+        let fileObj = this.files[0];
+        let fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#sys_img').attr('src', fileReader.result)
+        }
+    });
+
+    /**
+     *
+     **/
+    function SaveData() {
+        form.validate();
+        if (form.isValid()) {
+            //获取原生对象
+            var formData = new FormData($("#form1")[0]);
+            formData.append('pid', $("[name=jobNumber]").val());
+            formData.append('positionName', mini.get("positionId").getText());
+            var url = 'add' == mini.getByName('action').getValue() ? 'add.html' : 'updata';
+            $['post'](url, formData,
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    cache: false,
+                    processData: false,
+                    contentType: false
+                });
+
+
+        }
+    }
+
+    /**
+     *  机构选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "./org/hierarchyOrgTree.html",
+            title: "【机构】选择",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.corpExp);
+                    mini.get("positionId").setUrl("/personnel/eHrWorker/selectGzgw/{0}".format(data.orgId));
+                    mini.get("deptId").setValue("");
+                    mini.get("deptId").setText("");
+                }
+            }
+        });
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        if (form.getField('orgId').getValue() != "") {
+            var btnEdit = e.sender;
+            return miniopen({
+                targetWindow: window.top,
+                url: "/system/dept/hierarchyDeptTree.html",
+                title: "【部门】选择",
+                width: 500,
+                height: 620,
+                data: {
+                    currentOrgId: false,
+                    dataCorp: form.getField('orgId').getValue()
+                },
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        btnEdit.setValue(data.deptId);
+                        btnEdit.setText(data.deptName);
+                        if (data.deptName == "无") {
+                            form.getField("positionId").setValue(null);
+                            form.getField("positionId").setText("无");
+                        }
+                    }
+                }
+            });
+        } else {
+            hmq.tipDanger('请先选择所属机构');
+        }
+    }
+
+    /**
+     *  岗位选择
+     * */
+    function onPositionClickHander(e) {
+        if (form.getField("deptId").getValue() != "") {
+            var btnEdit = e.sender;
+            return miniopen({
+                targetWindow: window.top,
+                url: "./position/hierarchyPositionTree.html",
+                title: "【岗位】选择",
+                width: 500,
+                height: 620,
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        btnEdit.setValue(data.positionName);
+                        btnEdit.setText(data.positionName);
+                    }
+                }
+            });
+        } else {
+            hmq.tipDanger('请先选择所属部门');
+        }
+    }
+
+    function onUserLinkWorkerChanged(e) {
+        if ('true' === String(e.sender.getValue())) {
+            //只允许选择工号
+            form.getField('jobNumber').setAllowInput(false);
+            form.getField('jobNumber').setEmptyText("请选择");
+            setFormEnabled(form, "realName,orgId,deptId,positionId,gender", false);
+        } else if ('false' === String(e.sender.getValue())) {
+            //可以输入工号
+            if (mini.getbyName('action').getValue() == 'add') {
+                form.getField('jobNumber').setAllowInput(true);
+                form.getField('jobNumber').setEmptyText("请输入");
+                setFormEnabled(form, "realName,orgId,deptId,positionId,gender", true);
+            }
+        } else {
+            //setFormEnabled(form,"realName,orgId,deptId,positionId,gender",false);
+            setFormEnabled(form, "realName,orgId,gender", false);
+        }
+
+    }
+
+    /**
+     * 员选择
+     * @param e
+     * @returns {mini.Window}
+     */
+    function onJobNumberButtonClickHandler(e) {
+        if (mini.getbyName('userLinkWorker').getValue() != "") {
+
+            if ('true' == form.getField("userLinkWorker").getValue()) {
+                var btnEdit = this;
+                return miniopen({
+                    targetWindow: window.top,
+                    url: "/personnel/eHrWorker/hierarchyWorkerTree.html",
+                    title: "【员工】选择",
+                    width: 750,
+                    data: {},
+                    height: 620,
+                    ondestroy: function (action) {
+                        if (action == "ok") {
+                            var iframe = this.getIFrameEl();
+                            var data = iframe.contentWindow.GetData();
+                            form.setData({
+                                userId: data.workerId,
+                                orgId: data.workerCorpid,
+                                deptId: data.workerDept,
+                                positionId: data.workerPost,
+                                nickName: data.workerName,
+                                realName: data.workerName,
+                                gender: data.workerSex,
+                                email: data.workerEmail,
+                                mobile: data.workerPhone,
+                                isForbidden: form.getField('isForbidden').getValue(),
+                                userOrd: form.getField('userOrd').getValue(),
+                                userLinkWorker: 'true'
+
+                            });
+                            btnEdit.setValue(data.workerId);
+                            btnEdit.setText(data.workerId);
+                            form.getField("orgId").setText(data.workerCorpName);
+                            form.getField("deptId").setText(data.workerDeptName);
+                            form.getField("positionId").setText(data.workerpostname);
+                        }
+                    }
+                });
+            } else {
+                hmq.tipDanger('请直接输入工号');
+            }
+
+        } else {
+            hmq.tipDanger('请选择用户类型');
+        }
+    }
+
+
+</script>
+</html>

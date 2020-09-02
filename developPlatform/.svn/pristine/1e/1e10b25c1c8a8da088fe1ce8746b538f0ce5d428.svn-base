@@ -1,0 +1,130 @@
+package com.tengzhi.base.security.common.model;
+
+import java.util.Collection;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.tengzhi.business.system.setting.model.SysSet;
+import com.tengzhi.business.system.user.model.SysUser;
+
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
+
+/**
+ * @author: gaodu
+ **/
+public class SessionUser extends SecurityUser {
+	private SysUser sysUser;
+
+	private SysSet cgsqSysSet;
+	// 区分手动构造，和系统构造SessionUser
+	private String code;
+
+	/**
+	 * 构造函数
+	 * 
+	 * @param username
+	 * @param password
+	 * @param authorities
+	 */
+	public SessionUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+		super(username, password, authorities);
+	}
+	
+	/**
+	 * 构造函数
+	 * 
+	 * @param username
+	 * @param password
+	 * @param authorities
+	 */
+	public SessionUser(String username, String userid, String password,
+			Collection<? extends GrantedAuthority> authorities) {
+		super(username,userid, password, authorities);
+	}
+
+	/**
+	 * 构造参数
+	 * 
+	 * @param username
+	 * @param password
+	 * @param enabled
+	 * @param accountNonExpired
+	 * @param credentialsNonExpired
+	 * @param accountNonLocked
+	 * @param authorities
+	 */
+	public SessionUser(String username, String password, boolean enabled, boolean accountNonExpired,
+			boolean credentialsNonExpired, boolean accountNonLocked,
+			Collection<? extends GrantedAuthority> authorities) {
+		super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
+	}
+
+	public SysUser getSysUser() {
+		return sysUser;
+	}
+
+	public void setSysUser(SysUser sysUser) {
+		this.sysUser = sysUser;
+	}
+
+	public SysSet getCgsqSysSet() {
+		return cgsqSysSet;
+	}
+
+	public void setCgsqSysSet(SysSet cgsqSysSet) {
+		this.cgsqSysSet = cgsqSysSet;
+	}
+
+	/**
+	 * 获取SessionUser对象
+	 * 
+	 * @return
+	 */
+	public static SessionUser SessionUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (null == authentication || null == authentication.getPrincipal()) {
+			ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder
+					.getRequestAttributes();
+			HttpServletRequest request = servletRequestAttributes.getRequest();
+			if(request.getSession().getAttribute("authentication")!=null) {
+				return (SessionUser) request.getSession().getAttribute("authentication");
+			}else {
+				return null;
+			} 
+		} else {
+			SessionUser  user=null;
+			if(authentication.getPrincipal()!=null&&!"anonymousUser".equals(authentication.getPrincipal())) {
+				  user=((SessionUser) authentication.getPrincipal());
+			}
+			return user;
+		}
+	}
+
+	/**
+	 * 【业务】获取当前登录关联的业务人员
+	 * 
+	 * @return
+	 */
+	public List<String> getBusinessPersonnelIdList() {
+		return StrUtil.split(StrUtil.nullToDefault(getBusinessPersonnelIds(), StringUtils.EMPTY), ',', true, true);
+	}
+
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+}

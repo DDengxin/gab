@@ -1,0 +1,84 @@
+package com.tengzhi.business.platform.shopping.service.impl;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.shopping.dao.AddrDao;
+import com.tengzhi.business.platform.shopping.dao.AddrSqlDao;
+import com.tengzhi.business.platform.shopping.model.GShopAddr;
+import com.tengzhi.business.platform.shopping.service.AddrService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+
+
+@Service
+@Transactional
+public class AddrServiceImpl implements AddrService {
+
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private AddrDao addrDao;
+	
+	@Autowired
+	private AddrSqlDao addrSqlDao;
+	
+	@Override
+	public List<Map<String, Object>> findAllByUserId() {
+		return addrSqlDao.findAllByUserId();
+	}
+
+	@Override
+	public Result saveAddress(GShopAddr gShopAddr) {
+		SessionUser sessionUser = SessionUser.SessionUser();
+		String addrId = sysGenNoteService.getNote("e_cw_customer_address","GADDR","yyyyMM",4);
+		gShopAddr.setAddressNote(addrId);
+		gShopAddr.setAddressType("GAB");
+		gShopAddr.setGenUserId(sessionUser.getUserId());
+		gShopAddr.setGenTime(new Date());
+		gShopAddr.setCustomerId(" ");
+		gShopAddr.setCustomerThreeName(" ");
+		gShopAddr.setDefaultBool("false");
+		return Result.resultOk(addrDao.save(gShopAddr));
+	}
+	
+	@Override
+	public Result updateAddress(GShopAddr gShopAddr) {
+		SessionUser sessionUser = SessionUser.SessionUser();
+		gShopAddr.setAddressType("GAB");
+		gShopAddr.setGenUserId(sessionUser.getUserId());
+		gShopAddr.setGenTime(new Date());
+		gShopAddr.setCustomerId(" ");
+		gShopAddr.setCustomerThreeName(" ");
+		gShopAddr.setDefaultBool("false");
+		addrDao.update(gShopAddr);
+		return Result.resultOk();
+	}
+	
+	@Override
+	public Result updateDefault(String addressNote) {
+		addrDao.setAllFalse(addressNote);
+		addrDao.setTrue(addressNote);
+		return Result.resultOk();
+	}
+
+	@Override
+	public Result findAddress(String addressNote) {
+		return Result.resultOk(addrSqlDao.findByAddrId(addressNote));
+	}
+
+	@Override
+	public Result delAddress(String addressNote) {
+		SessionUser sessionUser = SessionUser.SessionUser();
+		addrDao.deleteById(addressNote,sessionUser.getUserId());
+		return Result.resultOk();
+	}
+}

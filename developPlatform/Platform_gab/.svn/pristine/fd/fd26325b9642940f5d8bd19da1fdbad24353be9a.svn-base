@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>厂商申请</title>
+	<script type="text/javascript" th:src="@{/static/script/miniui/boot.js}"></script>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/application.css}" />
+	<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+	<div class="application_content">
+		<div class="application_content_list">
+			<h2>会员注册</h2>
+			<div class="tabchange">
+				<ul id="tablist">
+					<li class="tabin">我是供应厂商</li>
+					<li>我是专家团队</li>
+					<li>我是需求用户</li>
+				</ul>
+				<div class="content-box">
+					<!-- 供应厂商 -->
+					<div class="content contentin" id="Firm">
+						<form name="application-firm" id="applicationFirm" class="layui-form" lay-filter="firm">
+							<div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">厂商类型<i>*</i></label>
+									<div class="layui-input-inline">
+										<select name="type" lay-verify="required">
+											<option value=""></option>
+											<option value="夹具厂商">夹具厂商</option>
+											<option value="辅件厂商">辅件厂商</option>
+											<option value="整合厂商">整合厂商</option>
+											<option value="特色经贸商">特色经贸商</option>
+										</select>
+									</div>
+									<div class="layui-form-mid layui-word-aux">请选择厂商类型</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">用户名<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="userId" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的用户名</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">公司简称<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="customerExp" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的公司简称</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">手机号码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="mobile" required lay-verify="phone"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的手机号码</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">验证码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="randCode" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-btn layui-btn-danger">获取验证码</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的验证码</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">设置密码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="password" name="password" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请设置您的密码</div>
+								</div>
+							</div>
+							<div class="fr">
+								<img src="../../static/gab/images/sj.jpg" alt="">
+							</div>
+
+							<div class="btn">
+								<div class="btn_content">
+									<input type="button" lay-submit lay-filter="firm" id="firm-reg" value="立即申请">
+									<div class="sub-content">
+										<input type="checkbox" id="rem-firm" name="firmAgree" lay-skin="primary"
+											checked>
+										我已阅读并同意
+										<a href="#">《商家入驻用户协议》</a>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- 专家团队 -->
+					<div class="content" id="Expert">
+						<form name="application-expert" id="applicationExpert" class="layui-form" lay-filter="expert">
+							<div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">专家类型<i>*</i></label>
+									<div class="layui-input-inline">
+										<select name="expertType" lay-verify="required">
+											<option value=""></option>
+											<option value="工艺专家">工艺专家</option>
+											<option value="售前专家">售前专家</option>
+											<option value="售后专家">售后专家</option>
+										</select>
+									</div>
+									<div class="layui-form-mid layui-word-aux">请选择专家类型</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">用户名<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="userId" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的用户名</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">公司简称<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="customerExp" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的公司简称</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">手机号码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="mobile" required lay-verify="phone"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的手机号码</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">验证码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="randCode" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-btn layui-btn-danger">获取验证码</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的验证码</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">设置密码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="password" name="password" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请设置您的密码</div>
+								</div>
+							</div>
+							<div class="fr">
+								<img src="../../static/gab/images/sj.jpg" alt="">
+							</div>
+
+							<div class="btn">
+								<div class="btn_content">
+									<input type="button" lay-submit lay-filter="expert" id="ex-reg" value="立即申请">
+									<div class="sub-content">
+										<input type="checkbox" id="rem-needs" name="exAgree" lay-skin="primary" checked>
+										我已阅读并同意
+										<a href="#">《商家入驻用户协议》</a>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- 需求用户 -->
+					<div id="Personal" class="content">
+						<form name="application-user" id="applicationUser" class="layui-form" lay-filter="user">
+							<div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">用户名<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="userId" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的用户名</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">手机号码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="mobile" required lay-verify="phone"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的手机号码</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">验证码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="text" name="randCode" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-btn layui-btn-danger">获取验证码</div>
+									<div class="layui-form-mid layui-word-aux">请输入您的验证码</div>
+								</div>
+
+								<div class="layui-form-item">
+									<label class="layui-form-label">设置密码<i>*</i></label>
+									<div class="layui-input-inline">
+										<input type="password" name="password" required lay-verify="required"
+											autocomplete="off" class="layui-input">
+									</div>
+									<div class="layui-form-mid layui-word-aux">请设置您的密码</div>
+								</div>
+							</div>
+							<div class="fr">
+								<img src="../../static/gab/images/sj.jpg" alt="">
+							</div>
+
+							<div class="btn">
+								<div class="btn_content">
+									<input type="button" lay-submit lay-filter="user" id="user-reg" value="立即申请">
+									<div class="sub-content">
+										<input type="checkbox" id="rem-user" name="agree" lay-skin="primary" checked>
+										我已阅读并同意
+										<a href="#">《商家入驻用户协议》</a>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+<script type="text/javascript" th:src="@{/static/gab/js/application.js}"></script>
+
+</html>

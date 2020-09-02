@@ -1,0 +1,92 @@
+package com.tengzhi.business.system.sms.service.impl;
+
+import cn.hutool.core.lang.Validator;
+import cn.hutool.http.HttpRequest;
+import com.tengzhi.base.property.Property;
+import com.tengzhi.base.security.common.tool.spring.SpringUtil;
+import com.tengzhi.base.tools.log.Log;
+import com.tengzhi.business.system.sms.service.SmsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
+
+@Service
+public class SmsServiceImpl implements SmsService {
+
+    private static Property property;
+    @Autowired
+    private Property private_property;
+
+
+    private static String api = null;
+    private static String user = null;
+    private static String password = null;
+    private static String productid = null;
+    private static String signature = null;
+
+    /**
+     * 获取短信签名
+     *
+     * @return
+     */
+    public static String getSignature() {
+        return signature;
+    }
+
+    @PostConstruct
+    private void init() {
+        property = private_property;
+        //初始化短信配置
+        try {
+            if (null == property.getSms()) {
+                throw new Exception("获取短信配置文件失效,请检查配置;");
+            }
+            api = property.getSms().getApi();
+            user = property.getSms().getUser();
+            password = property.getSms().getPasssword();
+            productid = property.getSms().getProductid();
+            signature = property.getSms().getSignature();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.error(e);
+        }
+    }
+
+    /**
+     * 发送短信
+     *
+     * @param mobile  手机号码
+     * @param content 内容
+     * @throws Exception 异常
+     */
+    @Override
+    public String send(String mobile, String content) throws Exception {
+
+        if (!Validator.isMobile(mobile)) {
+            throw new Exception("手机号码格式不正确!");
+        } else {
+            HashMap<String, Object> paramMap = new HashMap<>();
+            paramMap.put("username", user);
+            paramMap.put("password", password);
+            paramMap.put("mobile", mobile);
+            paramMap.put("content", content);
+            paramMap.put("productid", productid);
+            paramMap.put("dstime", "");
+            paramMap.put("xh", "");
+            String result = HttpRequest.post(api)
+                    .header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8")
+                    .form(paramMap)
+                    .timeout(2000)
+                    .execute()
+                    .body();
+            if ("1".equals(String.valueOf(result).split(",")[0])) {
+                return result;
+            } else {
+                throw new Exception(result);
+            }
+        }
+    }
+
+}

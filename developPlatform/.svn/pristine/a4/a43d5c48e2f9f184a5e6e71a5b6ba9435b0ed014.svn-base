@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售合同</title>
+    </th:block>
+    <script type="text/javascript" th:src="@{/static/javascript/LodopPrint.js?version=4}"></script>
+    <object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="0" height="0">
+        <embed id="LODOP_EM" type="application/x-print-lodop" width="0" height="0"/>
+    </object>
+    <style type="text/css">
+        .button-gx-right {
+            width: 70px;
+            height: 100%;
+            float: right;
+            border: 1px;
+            text-align: center;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+        }
+
+        .button-gx-right > .mini-button {
+            padding: 30% 0px !important;
+        }
+
+        .button-gx-right-wl {
+            width: 70px;
+            height: 100%;
+            float: right;
+            border: 1px;
+            text-align: center;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            border-top: 1px solid #ddd;
+
+        }
+
+        .button-gx-right-wl > .mini-button {
+            padding: 20.9% 0px !important;
+        }
+
+        #btnbar {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            margin-top: -0.8%;
+        }
+    </style>
+</head>
+
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期类别">
+            <select id="srchRqType"  name="srchRqType" class="mini-combobox" width="90" >
+                <option value="SC">生产交期</option>
+                <option value="KH">客户交期</option>
+            </select>
+        </label>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="类别">
+            <input class="mini-combobox" id="htStype" name="htStype" width="70px" url="/system/parameter/getCorpChainOrCorpProduction/SC" onvaluechanged="onValueChangeType" value="XC" readonly="readonly"/>
+        </label>
+        <label class="hmq-label" text="任务单号">
+            <input class="mini-textbox" name="srchScmo" width="120"/>
+        </label>
+        <label class="hmq-label" text="明细单号">
+            <input class="mini-textbox" name="srchHtmo" width="130"/>
+        </label>
+    </th:block>
+
+</th:block>
+<!--撑满页面-->
+
+        <div class="mini-fit">
+            <div tz:datagrid="datagrid" id="srch_grid" idField="scMo" sortField="rq" sortOrder="desc"
+                 sizeList="[50,100,200]" pageSize="100" allowCellEdit="true" allowCellSelect="true"
+                  sortMode="client" pager="#pager1" showPager="true">
+                <div property="columns">
+                    <div tz:datagrid="indexcolumn" width="35">序号</div>
+                    <div tz:datagrid="column" field="pdrq" width="90" align="center">排单日期</div>
+                    <div tz:datagrid="column" field="scjq" width="90" align="center">客户交期</div>
+                    <div tz:datagrid="column" field="rq" width="90" align="center">回复交期</div>
+                    <div tz:datagrid="column" field="xtjq" width="90" align="center">协调交期</div>
+                    <div tz:datagrid="column" field="tzjq" width="90" align="center">调整交期</div>
+                    <div tz:datagrid="column" field="sczq" width="90" align="center">生产周期</div>
+                    <div tz:datagrid="column" field="sctqq" width="90" align="center">生产提前期</div>
+                    <div tz:datagrid="column" field="scMo" width="110" align="center">任务单号</div>
+                    <div tz:datagrid="column" field="htNo" width="130" align="left">合同单号</div>
+                    <div tz:datagrid="column" field="htMo" width="130" align="left">合同明细</div>
+                    <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" displayField="cpcodeXpName" align="left" width="70">标重</div>
+                    <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" align="left" width="100">名称</div>
+                    <div tz:datagrid="column" field="sizeAndSizeEn"  align="left" width="70">规格和长度</div>
+
+                    <div tz:datagrid="column" field="standard" displayField="standardName" width="150" align="left">种类</div>
+                    <div tz:datagrid="column" field="scsl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">生产数量
+                    </div>
+
+                    <div tz:datagrid="column" field="scflag" width="60" align="center">状态</div>
+                    <div tz:datagrid="column" field="xcxm01" width="80" align="left">下公差</div>
+                    <div tz:datagrid="column" field="xcxm02" width="80" align="left">上公差</div>
+                    <div tz:datagrid="column" field="xcxm03" width="80" align="left">下强度</div>
+                    <div tz:datagrid="column" field="xcxm04" width="80" align="left">上强度</div>
+                    <div tz:datagrid="column" field="xcxm05" width="80" align="left">产品表面</div>
+                    <div tz:datagrid="column" field="xcxm06" width="80" align="left">包装方式</div>
+                    <div tz:datagrid="column" field="xcxm07" width="80" align="left">包装下差</div>
+                    <div tz:datagrid="column" field="xcxm08" width="80" align="left">包装上差</div>
+                    <div tz:datagrid="column" field="xcxm09" width="80" align="left">擦油说明</div>
+                    <div tz:datagrid="column" field="xcxm10" width="80" align="left">硬度标准</div>
+                    <div tz:datagrid="column" field="xcxm11" width="80" align="left">硬度说明</div>
+                    <div tz:datagrid="column" field="xcxm12" width="80" align="left">收线方向</div>
+                    <div tz:datagrid="column" field="xcxm13" width="80" align="left">收线圈径</div>
+                    <div tz:datagrid="column" field="xcxm14" width="80" align="left">炉号类别</div>
+                    <div tz:datagrid="column" field="xcxm15" width="80" align="left">执行标准</div>
+                    <div tz:datagrid="column" field="xcxm16" width="80" align="left">指定炉号</div>
+                    <div tz:datagrid="column" field="xcxm17" width="80" align="left">成分要求</div>
+                    <div tz:datagrid="column" field="xcxm18" width="80" align="left">检验项目</div>
+                    <div tz:datagrid="column" field="xcxm19" width="80" align="left">检验要求</div>
+                    <div tz:datagrid="column" field="xcxm20" width="80" align="left">产品用途</div>
+                    <div tz:datagrid="column" field="xcxm21" width="80" align="left">产品描述</div>
+                    <div tz:datagrid="column" field="xcxm22" width="80" align="left">订单原料</div>
+                    <div tz:datagrid="column" field="xcxm23" width="80" align="left">原料价格</div>
+
+
+
+
+
+                    <div tz:datagrid="column" field="scyq" width="220" align="left">生产要求</div>
+                  <!--  <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" align="left" width="100">种类</div>
+                          <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" displayField="cpcodeSizeName" align="left" width="70">规格</div>
+                    <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" displayField="cpcodeSizeEnName" align="left" width="70">长度</div>
+                  <div tz:datagrid="column" field="dataRq" name="dataRq" align="center" width="120">操作日期
+                    </div>
+                    <div tz:datagrid="column" field="dataMan" name="dataMan" align="center" width="80">操作人
+                    </div>-->
+                    <div tz:datagrid="column" width="100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srchgrid = mini.get("srch_grid");
+    srchgrid.bindSearchForm(form);
+    srchgrid.setUrl("/sc/pd/scpd/getSrchTopLeftList");
+
+
+    onValueChangeType();
+
+    function onValueChangeType() {
+        var htStype = mini.get("htStype").getValue();
+        //动态列转换
+        if (hmq.isNotEmpty(htStype)) {
+            hmq.business.dynamicProductParams(htStype, {
+                miniDataGrid: srchgrid,
+                miniForm: form,
+                formMapping: {
+                    cpcodeFl: 'cpcodeFl',
+                    cpcodeName: 'cpcodeName',
+                    cpcodeSize: 'cpcodeSize'
+                },
+                success: function (map, res) {
+                    srchgrid.load();
+                    srchgrid.load({
+                        "params": mini.encode({
+                            cptype: mini.get("htStype").getValue()
+                        })
+                    });
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }
+        //end
+    }
+
+    //半成品end
+
+    function search_option() {
+        srchgrid.load();
+
+    }
+
+    function cancel_option() {
+        var row = srchgrid.getSelected();
+        if (row) {
+            mini.confirm("是否取消该数据吗？", "提示信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/sc/task/sctask/delete/{0}".format(row.scMo), function (res) {
+                        if (200 === res.code) {
+                            srchgrid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * @Author: zs
+     * @description: 打印弹出页面
+     */
+    function print_option(e) {
+        var row = srch_topleftgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "print.html", action: 'print', data: row, width: 700, height: 570});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+
+</body>
+
+</html>

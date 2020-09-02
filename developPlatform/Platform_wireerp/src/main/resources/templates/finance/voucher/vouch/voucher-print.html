@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" >
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>科目</title>
+	</th:block>
+</head>
+<body >
+	<form id="form1" method="post" >
+		<div class="mini-toolbar" style="border-bottom:0;">
+			<input id="corp_id" name="corp_id" class="mini-hidden" />
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<label>日期: </label>
+						<input id="srchRq1" name="srchRq1" class="mini-datepicker" style="width:100px;" showClearButton="false" />
+						<label>至: </label>
+						<input id="srchRq2" name="srchRq2" class="mini-datepicker" style="width:100px;" showClearButton="false" />
+						<label>纸张类型:</label>
+						<select id="papertype" name="papertype" class="mini-combobox" style="width:110px;" textField="combtext" valueField="combid" showNullItem="true" nullItemText="请选择" emptyText="请选择"
+							popupHeight="200" onvaluechanged="query()">
+							<option value="a4">a4</option>
+							<option value="b5">a5</option>
+						</select>
+						<label>凭证字号:</label>
+						<input id="srch_no" name="srch_no" class="mini-textbox" style="width:120px;" />
+					<a class="mini-button" iconCls="icon-search" id="btnsearch" onclick="query()">查询</a>
+					</td>
+					
+				</tr>
+			</table>
+		</div>
+	</form>
+	<!--撑满页面-->
+	<DIV class="mini-fit">
+		<div style="height: 100%">
+			<iframe id="reportFrame" frameborder="0" width=100% height=100%></iframe>
+		</div>
+	</DIV>
+	<div class="mini-toolbar" style="padding:2px;border-bottom:1;height: 30px;">
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div style="width:380px;"></div>
+				</td>
+				
+				<td style="white-space:nowrap;" align="right" id="btnbar" />
+			</tr>
+		</table>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+
+	var corpid = TZ_SETTING.corpId ;
+	var grid = mini.get("srch_grid");
+	var form = new mini.Form("form1");
+
+	function query() {
+		var surl = null;
+		var rq1 =  mini.get("srch_rq1").getFormValue();
+		var rq2 = mini.get("srch_rq2").getFormValue();
+		var srch_no = mini.get("srch_no").getFormValue();
+		var papertype = mini.get("papertype").getValue();
+		if (papertype == "a4") {
+			surl = "../../../../ReportServer?reportlet=/cwgl/voucher/voucher_print_a4.cpt&rq1="+rq1+"&rq2="+rq2+"&corpid=" + corpid;//打印 全部
+			if (srch_no != null&&srch_no!= '') {
+				surl=surl+"&where="+" and a.fvoucherno='"+srch_no+"'";
+			}
+			surl =FR.cjkEncode(FR.cjkEncode(surl));
+		}
+		if (papertype == "b5") {
+			surl = "../../../../ReportServer?reportlet=/cwgl/voucher/voucher_print_b5.cpt&rq1="+rq1+"&rq2="+rq2+"&corpid=" + corpid;//打印 全部
+			if (srch_no != null&&srch_no!= '') {
+				surl=surl+"&where="+" and a.fvoucherno='"+srch_no+"'";
+			}
+			surl = FR.cjkEncode(surl);
+		}
+		console.log(surl);
+		if (surl) {
+			$("#reportFrame").attr("src", surl);
+		}
+	}
+
+	function SetData(data) {
+	}
+</script>
+
+
+</html>

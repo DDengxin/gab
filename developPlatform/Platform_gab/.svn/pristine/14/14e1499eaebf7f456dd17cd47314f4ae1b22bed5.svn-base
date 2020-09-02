@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>需求市场</title>
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/needs.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/needs.js}"></script>
+</head>
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+
+	<div class="needs_content">
+		<div class="needs_content_list" >
+			<h2>需求市场</h2>
+			<div class="list_left">
+				<div class="left_needs" id="sb">
+					<p th:text="${Need.cpcodeName}">
+						快速非标夹治具订制规格：
+						<i>152*100</i>
+					</p>
+
+<!--					<i name="cpcodeName_Name" ></i><i th:text="'：'+${Need.cpcodeName}"></i>-->
+					<p><i name="cpcodeSize_Name" ></i><i th:text="'：'+${Need.cpcodeSize}"></i></p>
+					<p><i name="cpcodeSizeEn_Name" ></i><i th:text="'：'+${Need.cpcodeSizeEn}"></i></p>
+					<p id="cpcodeFl_Name"><i name="cpcodeFl_Name" ></i><i th:text="'：'+${Need.cpcodeFl}"></i></p>
+					<p th:if="${not #strings.isEmpty(Need.typeName)}"><i name="cpcodeXp_Name"></i><i th:text="'：'+${Need.typeName}"></i></p>
+					<p th:if="${#strings.isEmpty(Need.typeName)}"><i name="cpcodeXp_Name"></i><i th:text="'：暂无'"></i></p>
+
+
+
+<!--夹具工位					-->
+
+
+					<p th:text="需求地区： + ${Need.needProvince} + ${Need.needCity}"></p>
+
+<!--					<p>-->
+<!--						公司名称：-->
+<!--						<a href="http://www.tengzhicn.com" th:text="${Need.corpName}">腾111智信息技术有限公司</a>-->
+<!--						<a th:text="${company.supply_name}"></a>-->
+<!--					</p>-->
+					<p th:text="任务周期： + ${Need.dutyCycle} + 天"></p>
+					<p th:text="发布时间： + ${Need.dataDate}"></p>
+<!-- 					<p th:text="数量： + ${Need.needAmount}">数量：3000个</p> -->
+					<p th:text="截止时间： + ${Need.endTime}"></p>
+
+					<div class="bottom">
+						<ul>
+							<li>
+								<a href="#">投标中</a>
+							</li>
+							<li>
+								<a class="offer" href="javascript:void(0);">立即报价</a>
+							</li>
+						</ul>
+					</div>
+					<div class="show">
+						<img th:src="${Need.imgSrc}" alt="" default-img="/static/gab/images/wt.png">
+					</div>
+				</div>
+				<div class="introduce">
+					<h3 name="introduceName">需求介绍</h3>
+					<div th:text="${Need.introduce}"></div>
+				</div>
+
+				<!-- <div class="introduce">
+					<h3 name="applyName"></h3>
+					<div th:text="${Need.introduce}"></div>
+				</div> -->
+
+
+
+
+
+				<div class="example">
+					<h3>该用户往期需求</h3>
+					<ul th:each="item,index:${manNeed}">
+						<li>
+							<i>></i>
+							<a th:href="@{'/gab/needs.html?needNote='+${item.needNote}}" th:text="${item.cpcodeName}"></a>
+						</li>
+					</ul>
+					<ul th:if="${manNeedSize} == 0">
+						<li style="color: gray;">
+							暂无往期需求
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="list_right">
+				<div class="details_content">
+					<div class="needs_recommend">
+						<h4>相似需求推荐</h4>
+						<ul th:each="item,index:${TypeRecommend}">
+							<li>
+								<a th:href="@{'/gab/needs.html?needNote='+${item.needNote}}"><span th:text="${item.cpcodeName}"></span></a>
+							</li>
+						</ul>
+						<ul th:if="${TypeRecommendSize} == 0">
+							<li style="color: gray;">
+								暂无推荐
+							</li>
+						</ul>
+					</div>
+					<div class="firm_recommend">
+						<h4>厂商推荐</h4>
+						<ul th:each="item,index:${FirmRecommend}">
+							<li>
+								<a href="#">
+									<img th:src="${item.headImg}" default-img="/static/gab/images/wt.png"
+									alt="">
+									<div>
+										<p th:text="${item.company}">深圳市冠泰精密科技有限公司</p>
+										<p class="firm_intro" th:text="${item.supplyInfo}">专注精密手板模型定制生产-CNC加工/3D打印专注精密手板模型定制生产-CNC定制生产</p>
+									</div>
+								</a>
+							</li>
+						</ul>
+						<ul th:if="${FirmRecommendSize} == 0">
+							<li style="color: gray;">
+								暂无推荐
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+
+
+<script th:inline="javascript">
+
+	(function () {
+		var  cpcodeXp = "[[${Need.cpcodeXp}]]" ;
+		var    needNote =    "[[${Need.needNote}]]";
+		$.get("/platform/form/getdynamicFormValue/"+cpcodeXp+"/"+needNote+"/g_need",function (res) {
+			if (200 === res.code) {
+				for(var key in res.data){
+					if(res.data.hasOwnProperty(key)){
+						$("#cpcodeFl_Name").append("<p>"+key+"："+res.data[key]+"</p>")
+					}
+				}
+			}
+		});
+	})()
+
+</script>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售发货</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="outType" id="outType"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNote"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input name="srchDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                   url="/system/dept/combobox/getDeptTreeList"
+                   showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" idField="outNote" sizeList="[50,100,200]" pageSize="100" onselectionchanged="onSelectionChanged" pager="#pager1"
+                     showPager="false" sortMode="client">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="outRq" width="100" align="center">日期</div>
+                        <div tz:datagrid="column" field="outNote" width="120" align="center">单号</div>
+                        <div tz:datagrid="column" field="outLib" width="80" align="center">库房</div>
+                        <div tz:datagrid="column" field="outCustomer" width="120" align="center">部门</div>
+                        <div tz:datagrid="column" field="outJs" width="100" align="right" numberFormat="#,0.00">件数</div>
+                        <div tz:datagrid="column" field="outSl" width="100" align="right" numberFormat="#,0.0000">数量</div>
+                        <div tz:datagrid="column" field="outFlag" width="100" align="center">状态</div>
+                        <div tz:datagrid="column" field="dataMan" width="100" align="center">操作人</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-toolbar" style="padding: 0px; border-bottom: 1; height: 40px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="white-space: nowrap;">
+                            <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+                        </td>
+                        <td style="white-space: nowrap;" align="right" id="btnbar"/>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="outContract" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                     ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="outCode" sortOrder="asc">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="outContract" width="150" align="left">订单号</div>
+                        <div tz:datagrid="column" field="outCode" align="center" width="100">编码</div>
+                        <div tz:datagrid="column" field="cpcodeName" align="left" width="120">名称</div>
+                        <div tz:datagrid="column" field="cpcodeSize" align="left" width="120">规格</div>
+                        <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" align="left" width="60">品牌</div>
+                        <div tz:datagrid="column" field="cpcodeFl" align="left" width="120">大类</div>
+                        <div tz:datagrid="column" field="outJs" align="right" width="80" numberFormat="#,0.00" summaryType="sum">件数</div>
+                        <div tz:datagrid="column" field="outSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+                        <div tz:datagrid="column" field="outPack" width="150" align="left">包装号</div>
+                        <div tz:datagrid="column" field="outBpack" width="150" align="left">大包装号</div>
+                        <div tz:datagrid="column" field="" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/tooling/materiel";
+    srch_bottomgrid.setUrl(surl + "/getOutList");
+    srch_topgrid.bindSearchForm(form);
+
+    //start
+    var outType = hmq.getQueryString("paramType");
+    if (hmq.isNotEmpty(outType)) {
+        form.getField("outType").setValue(outType);
+        setIdReadOnly("outType");
+        //动态列名
+        $.get("/system/parameter/getParamValue2/产品大类/{0}".format(outType), function (res) {
+            if (200 === res.code) {
+                srch_bottomgrid.updateColumn("cpcodeSizeEn", {header: res.data});
+                /* if(outType=="WL"){
+                    srch_bottomgrid.showColumn(srch_bottomgrid.getColumn("cpcodeSizeEn"));
+                }else{
+                    srch_bottomgrid.hideColumn(srch_bottomgrid.getColumn("cpcodeSizeEn"));
+                } */
+            }
+        });
+
+    }
+
+    //end
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params: mini.encode({
+                    outNote: record.outNote
+                })
+            });
+        }
+    }
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().outNote;
+        }
+    });
+
+    // 页面初始化模块和类型 END
+
+    function search_option() {
+        srch_topgrid.load();
+        srch_bottomgrid.setData([]);
+    }
+
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}, width: 1198, height: 580});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}, width: 1218, height: 580});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function view_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: {row: row, formData: form.getData()}, width: 1218, height: 580});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要删除吗 ？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("delete/{0}".format(row.outNote), function (res) {
+                                if (200 === res.code) {
+                                    search_option();
+                                    //srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalConfirm({
+                        businessId: row.outNote, ////Platform_wireerp/src/main/resources/templates/tooling/materiel/add.html
+                        url: '/tooling/materiel/add.html',
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $['put']("confirm/{0}".format(row.outNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+
+                    /*  	mini.confirm("注意:确定要确认", "删除信息", function (action) {
+                             if (action == "ok") {
+                                 $['put']("confirm/{0}".format(row.outNote), function (res) {
+                                     if (200 === res.code) {
+                                         srch_topgrid.reload();
+                                     } else {
+                                         hmq.tipDanger(res.msg);
+                                     }
+                                 });
+                             }
+                         }); */
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.outNote, '结算'), function (res) {
+                if (200 === res.code) {
+                    hmq.business.approvalCancel({
+                        businessId: row.outNote,
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $.put("cancel/{0}".format(row.outNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });
+
+                    /*    	mini.confirm("注意:确定要取消吗 ？", "删除信息", function (action) {
+                               if (action == "ok") {
+                                   $.put("cancel/{0}".format(row.outNote), function (res) {
+                                       if (200 === res.code) {
+                                           srch_topgrid.reload();
+                                       } else {
+                                           hmq.tipDanger(res.msg);
+                                       }
+                                   });
+                               }
+                           }); */
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "outContract") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "outSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "outJs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+</script>
+
+</body>
+</html>
+
+

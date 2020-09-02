@@ -1,0 +1,268 @@
+package com.tengzhi.business.system.main.controller;
+
+import cn.hutool.core.util.StrUtil;
+import com.tengzhi.annotations.Log;
+import com.tengzhi.base.ehcache.config.ManagerCacheConfig;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.system.main.dao.SysUserTodoDao;
+import com.tengzhi.business.system.main.model.SysUserTodo;
+import com.tengzhi.business.system.main.service.SysMainService;
+import com.tengzhi.business.system.main.vo.MenuVo;
+import com.tengzhi.business.system.org.model.SysOrg;
+import com.tengzhi.business.system.org.service.SysOrgService;
+import com.tengzhi.business.system.right.service.SysRightService;
+import com.tengzhi.business.system.user.service.SysUserService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 首页
+ */
+@RestController
+@RequestMapping("/system")
+@CacheConfig(cacheNames = "ehCacheConfig")
+public class SysMainControler {
+    @Autowired
+    private SysRightService sysRightService;
+
+    @Autowired
+    private SysMainService sysMainService;
+
+    @Autowired
+    private SysUserTodoDao sysUserTodoDao;
+
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private SysOrgService sysOrgService;
+    /**
+     	* 首页框架页面显示
+     * @param mv
+     * @return
+     */
+    @GetMapping("/gateway/*.html")
+    public ModelAndView gatewayPageForwart(ModelAndView mv) {
+        mv.addObject("list", sysMainService.ShowMenu());
+        return mv;
+    }
+    /**
+                 * 即时通讯
+     * @param mv
+     * @return
+     */
+    @GetMapping("/im/*.html")
+    public ModelAndView imPageForwart(ModelAndView mv) {
+    	 SessionUser sessionUser=SessionUser.SessionUser();
+         mv.addObject("userId",sessionUser.getUserId());
+        return mv;
+    }
+
+
+
+
+    @GetMapping(value = "/gateway/todoID.html/{userId}")
+    public Result getById(@PathVariable String userId) {
+        sysUserTodoDao.findById(userId);
+        return Result.resultOk(sysUserTodoDao.findById(userId));
+    }
+
+
+
+
+    @PostMapping(value = "/gateway/todo.html/{date}")
+    public Result gettodoAll(@PathVariable String date) throws ParseException {
+        return Result.resultOk(sysUserTodoDao.QueryListMap("select id,user_id userId,content,substr(to_char(todo_date,'yyyy-MM-dd HH24:MI'),0,19) todoDate,label,status,past  from sys_user_todo where substr(to_char(todo_date,'yyyy-MM-dd HH24:MI'),0,11)='"+date+"'"));
+    }
+
+
+    @PostMapping("/gateway/up/{id}")
+    public Result up(@PathVariable String id){
+        sysMainService.up(id);
+        return Result.resultOk();
+    }
+
+    @PostMapping("/gateway/ap/{id}")
+    public Result ap(@PathVariable String id){
+        sysMainService.ap(id);
+        return Result.resultOk();
+    }
+
+
+    /**
+     * 新增
+     *
+     * @return
+     */
+    @PostMapping("/gateway/add.html")
+    public Result add(@RequestBody SysUserTodo sysuser) throws Exception {
+        sysMainService.add(sysuser);
+        return Result.resultOk();
+    }
+
+
+    @PutMapping("/gateway/add.html")
+    public Result update(@RequestBody SysUserTodo sysuser) throws Exception {
+        sysMainService.update(sysuser);
+        return Result.resultOk();
+    }
+
+    /**
+     * 删除数据
+     *
+     * @return
+     */
+    @DeleteMapping(value = "/gateway/Todo.html/{Id}")
+    public Result delete(@PathVariable String Id) {
+        sysUserTodoDao.deleteById(Id);
+        return Result.resultOk();
+    }
+
+
+
+
+    @PutMapping(value = "/gateway/TodoOK.html/{Id}")
+    public Result OK(@PathVariable String Id) {
+        sysMainService.update(Id);
+        return Result.resultOk();
+    }
+
+
+
+    /**
+     * 请求页面，不加动词默认请求到类注解上的父路径
+     *
+     * @param mv
+     * @return
+     */
+    @GetMapping("/main")
+    public ModelAndView initPage(ModelAndView mv) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        Map<String,Object> s=sysUserService.getAvatarUrl(sessionUser.getUserId());
+        //头像
+        mv.addObject("avatar_url",s.get("avatar_url"));
+        //用户ID
+        mv.addObject("userId",sessionUser.getUserId());
+        //用户名
+        mv.addObject("userName", StrUtil.isEmpty(sessionUser.getRealName())?sessionUser.getNickName():sessionUser.getRealName());
+
+        String corpExp = sessionUser.getCorpId();
+        SysOrg sysOrg = sysOrgService.findByOrgId(sessionUser.getCorpId());
+        if(null != sysOrg){
+            corpExp = (StringUtils.isBlank(sysOrg.getCorpExp()) ?  sysOrg.getOrgName() : sysOrg.getCorpExp());
+        }
+        mv.addObject("corpExp",corpExp);
+    	mv = sysMainService.getSetting(mv);
+        return mv;
+    }
+
+
+    /**
+     * 请求页面，不加动词默认请求到类注解上的父路径
+     *
+     * @param mv
+     * @return
+     */
+    @GetMapping("/main/cycd.html")
+    public ModelAndView initPageMenu(ModelAndView mv) { return mv;}
+
+
+    /**
+     * 查询菜单节点树
+     * @ rightModule 模块（ERP,MES,...）
+     * @return
+     */
+
+    @Cacheable(keyGenerator="keyGeneratorMenu",cacheManager = ManagerCacheConfig.CacheManagerName.EHCACHE_CACHE_MAANGER)
+    @GetMapping("/menu/{rightModule}")
+    @Log("查询菜单节点树")
+    public Result getMenuList(@PathVariable String rightModule)  {
+        System.out.println("1111111111111111111111进入缓存");
+        try {
+			return Result.resultOk(MenuVo.getTreeSysRight(sysRightService.getMenuRightModule(SessionUser.SessionUser().getUserId(), rightModule), "ROOT", MenuVo.TYPE_MENU));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(e);
+        }
+    }
+
+
+    /**
+     * 查询菜单节点树
+     *
+     * @return
+     */
+    @PostMapping("/menu")
+    public Result getMenuList_sc(@RequestParam String keyword) {
+        return Result.resultOk(sysRightService.getMenuRightModule_sc(keyword));
+    }
+
+
+    /**
+     * 查询按钮组
+     *
+     * @return
+     */
+    @Cacheable(keyGenerator="keyGeneratorButton",cacheManager = ManagerCacheConfig.CacheManagerName.EHCACHE_CACHE_MAANGER)
+    @GetMapping("/button/{rightId}")
+    public Result getButtonList(@PathVariable String rightId) {
+        try {
+			return Result.resultOk(MenuVo.getListSysRight(sysRightService.findByParentIdAndRightType(SessionUser.SessionUser().getUserId(),rightId, MenuVo.TYPE_BUTTON)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error(e);
+        }
+    }
+
+
+
+    @PostMapping("AuthMenuSerash")
+    public Result AuthMenuSerash(@RequestBody Map<String,Object> map)throws Exception{
+        return Result.resultOk(sysMainService.sysSerash(map.get("rightModule").toString(),map.get("rightName").toString()));
+    }
+
+
+    @GetMapping("AuthMenu")
+    public Result menu_main_auth(BaseDto baseDto)throws Exception{
+        return sysMainService.AuthRight(baseDto).getResult();
+    }
+
+
+    /**
+    * @Param: [mv]
+    * @return: org.springframework.web.servlet.ModelAndView
+    * @Author: 王翔
+    * @Date: 2020/4/30 0:37
+    * @description: 获取当前用户的常用菜单
+    */
+    @GetMapping("often")
+    public Result menu_main(BaseDto baseDto)throws Exception{
+        return sysMainService.ShowMenu(baseDto).getResult();
+    }
+
+
+    @PostMapping("sava")
+    public Result sava(@RequestBody  List<Map<String,Object>> list)throws Exception{
+        sysMainService.sava(list);
+        return Result.resultOk();
+    }
+
+    /**
+     * @return
+     */
+    @GetMapping(value = "/gateway/echart.html")
+    public Result getDatachart(){
+        return Result.resultOk(sysMainService.getDatachart());
+
+    }
+}
+

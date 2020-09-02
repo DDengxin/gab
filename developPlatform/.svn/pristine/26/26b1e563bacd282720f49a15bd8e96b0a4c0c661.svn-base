@@ -1,0 +1,20 @@
+package com.tengzhi.business.test.personnelfile.dao;
+
+import com.tengzhi.business.test.personnelfile.model.PersonnelFile;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/7/31 0031 17:07
+ * @Description:
+ */
+
+public interface PersonnelFileDao extends JpaRepository<PersonnelFile,String> {
+
+    @Query("SELECT distinct ry_mz FROM test_menu_ryda")
+    List<String> findAllNotion();
+
+}

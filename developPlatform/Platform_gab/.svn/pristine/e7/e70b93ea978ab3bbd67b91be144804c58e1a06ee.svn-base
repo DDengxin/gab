@@ -1,0 +1,104 @@
+
+package com.tengzhi.business.system.user.service.Impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import com.tengzhi.base.security.common.enums.AuthorityRoleEnum;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.enroll.dao.GUserInfoDao;
+import com.tengzhi.business.platform.enroll.model.GUserInfo;
+import com.tengzhi.business.system.setting.dao.SysSetDao;
+import com.tengzhi.business.system.setting.model.SysSet;
+import com.tengzhi.business.system.user.dao.SysUserDao;
+import com.tengzhi.business.system.user.model.SysUser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Primary
+@Service
+public class GabUserDetailServiceImpl extends UserDetailServiceImpl implements UserDetailsService {
+    @Autowired
+    private SysUserDao sysUserDao;
+    @Autowired
+    private GUserInfoDao gUserInfoDao;
+    @Autowired
+    private SysSetDao sysSetDao;
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        SessionUser employee = null;
+        try {
+            employee = (SessionUser) super.loadUserByUsername(username);
+            ArrayList<GrantedAuthority> simpleGrantedAuthoritieList = new ArrayList<>();
+            employee.getAuthorities().iterator().forEachRemaining(row -> {
+                simpleGrantedAuthoritieList.add(row);
+            });
+            simpleGrantedAuthoritieList.add(AuthorityRoleEnum.GAB_USER.toSimpleGrantedAuthority());
+            SessionUser em = new SessionUser(employee.getUsername(), employee.getPassword(), simpleGrantedAuthoritieList);
+            BeanUtil.copyProperties(employee, em, "authorities");
+            //获取绑定的哥爱帮用户信息表
+            em.setgUserInfo(gUserInfoDao.findByErpUseridAndErpCorp(employee.getUserId(), employee.getOriginalCorpId()));
+            return em;
+        } catch (UsernameNotFoundException e) {
+            GUserInfo gUserInfo = gUserInfoDao.findByUserMtel(username);
+            if (null == gUserInfo) {
+                gUserInfo = gUserInfoDao.findByUserId(username);
+            }
+            if (gUserInfo != null) {
+                grantedAuthorities.add(AuthorityRoleEnum.GAB_USER.toSimpleGrantedAuthority());
+                // 扩展自定义用户类
+                employee = new SessionUser(gUserInfo.getUserId(), gUserInfo.getUserPwd(), grantedAuthorities);
+                SysUser sysUser = sysUserDao.findByUserIdAndOrgId(gUserInfo.getErpUserid(), gUserInfo.getErpCorp());
+                employee.setgUserInfo(gUserInfo);
+                if (null != sysUser) {
+                    employee.setSysUser(sysUser);
+
+                    employee.setUserId(sysUser.getUserId());
+                    employee.setJobNumber(sysUser.getJobNumber());
+                    employee.setNickName(sysUser.getNickName());
+                    employee.setMobile(sysUser.getMobile());
+                    employee.setBusinessPersonnelIds(sysUser.getBusinessPersonnelIds());
+                    //设置用户档案所在账套
+                    employee.setOriginalCorpId(sysUser.getOrgId());
+                    //优先设置默认账套
+                    if (StringUtils.isNotEmpty(sysUser.getDefaultOrgId())) {
+                        employee.setCorpId(sysUser.getDefaultOrgId());
+                    } else {
+                        employee.setCorpId(sysUser.getOrgId());
+                    }
+
+                    employee.setEmail(sysUser.getEmail());
+                    employee.setGenTime(sysUser.getGenTime());
+                    employee.setGender(sysUser.getGender());
+                    employee.setRealName(sysUser.getRealName());
+                    employee.setOrgName(sysUser.getOrgName());
+                    employee.setSysUser(sysUser);
+                    /*获取配置项*/
+                    employee.setCgsqSysSet(sysSetDao.findBySysSecodeAndSysCorp("DGSQ", employee.getCorpId()));
+                    if (null == employee.getCgsqSysSet()) {
+                        SysSet sysSet = new SysSet();
+                        sysSet.setSysCorp(employee.getCorpId());
+                        sysSet.setSysSecode("DGSQ");
+                        sysSet.setSysValue("NO");
+                        employee.setCgsqSysSet(sysSet);
+                    }
+                }
+                return employee;
+            } else {
+                throw new UsernameNotFoundException("用户不存在");
+            }
+        }
+    }
+}

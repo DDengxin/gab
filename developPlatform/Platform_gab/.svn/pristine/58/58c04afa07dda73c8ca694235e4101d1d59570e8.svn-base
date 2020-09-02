@@ -1,0 +1,2518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>厂商申请</title>
+	<script type="text/javascript" th:src="@{/static/script/miniui/boot.js}"></script>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/application.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/input_tag.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/input_tag.js}"></script>
+	<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+	<script type="text/javascript" th:src="@{/static/script/webuploader/webuploader.js}"></script>
+	<script type="text/javascript" th:src="@{/static/script/webuploader/uploadFile.js}"></script>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/webuploader.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/uploadFile.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/PCASClass.js}"></script>
+	<style type="text/css">
+		[name=uploaderheadImg],
+		[name=uploadersupplyImg] {
+			width: 880px !important;
+		}
+	</style>
+<!-- 夹具厂商 -->
+<script id="jj" type="text/html">
+		<div id="FixtureSupply" class="jj show">
+								<!-- 企业信息 -->
+								<div class="company-msg">
+									<h3>企业信息</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													介绍
+													<i>*</i>
+												</span>
+												<!-- <textarea name=""    placeholder="请输入" class="layui-textarea"></textarea> -->
+												<textarea name="supplyInfo"   id="jjMessage" cols="103"
+													rows="5"></textarea>
+											</div>
+										</li>
+										<li>
+											<div style="  width: 100%;">
+												<span>
+													用户头像
+													<i>*</i>
+												</span>
+												<!--  <Article id="uploaderSupplierImg1" name="uploaderSupplierImg"></Article>-->
+												<Article id="jjHeadImg" name="uploaderheadImg"></Article>
+												<input id="SupplierImg1" name="headImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													营业执照
+													<i>*</i>
+												</span>
+												<!-- 		<Article id="uploaderSupplier1" name="uploaderSupplier"></Article>-->
+												<Article id="jjSupplyImg" name="uploadersupplyImg"></Article>
+												<input id="Supplier1" name="supplyImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													生产年限
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="productsYears" id="jjTime"  
+														 autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="productsYears" id="jjTime"  > -->
+											</div>
+
+											<div>
+												<span>
+													年产值范围
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="outputValue"   
+														autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="outputValue"  > -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													技术人数
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="manNumber"   
+														autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="manNumber"  > -->
+											</div>
+											<div>
+												<span>
+													设备能力
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="equipAbility"  
+														 autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="equipAbility"  > -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													场地大小
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="localSize"   
+														autocomplete="off" class="layui-input">
+
+												</div>
+												<!-- <input type="text" name="localSize"> -->
+											</div>
+											<div>
+												<span>
+													服务范围
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="serviceScope"  
+														 autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="serviceScope"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													形位公差
+													<i>*</i>
+												</span>
+												<!-- <strong>夹治具精度最高做到形位公差多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="accuracy"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="accuracy" id="jjShapediff"> -->
+											</div>
+											<div>
+												<span>
+													尺寸公差
+													<i>*</i>
+												</span>
+												<!-- <strong>尺寸公差多少 </strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="offsetSize"  autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="offsetSize" id="jjSizediff"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													月均吃单能力
+													<i>*</i>
+												</span>
+												<!-- <strong>月均吃单能力按照中等技能为多少单</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="outputMonth"   autocomplete="off"
+														class="layui-input">
+													<u>范围数值</u>
+												</div>
+												<!-- <input type="text" name="outputMonth"> -->
+											</div>
+											<div>
+												<span>
+													平均交期天数
+													<i>*</i>
+												</span>
+												<!-- <strong>平均交期天数是多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="avgDay"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="avgDay" id="jjDay"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													合格率
+													<i>*</i>
+												</span>
+												<!-- <strong>出厂测试一次性合格率是多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="adoptRate"  autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="adoptRate"> -->
+											</div>
+											 <div>
+												 <span>
+													 地址
+													 <i>*</i>
+												 </span>
+												 <div class="layui-input-inline">
+													 <input type="text" name="supplyAddress"  autocomplete="off"
+														 class="layui-input">
+												 </div>
+												 <!-- <input type="text" name="adoptRate"> -->
+											 </div>
+										 </li>
+									<li>
+										<div>
+											<span>
+												采购保证金
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyJe" oninput = "value=value.replace(/[^\d]/g,'')"
+												 autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div>
+											<span>
+												付款天数
+												<i>*</i>
+
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyDay"   oninput = "value=value.replace(/[^\d]/g,'')"
+													  autocomplete="off" class="layui-input">
+											</div>
+										</div>
+									</li>
+										<li>
+											<div>
+												<span>
+													供应商级别
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="supplyLevel" 
+													 autocomplete="off" class="layui-input">
+												</div>
+											</div>
+		    <div>
+												<span onclick="testeee()">
+													关键字
+													<i>*</i>
+												</span>
+												<div class="input_box" id="jjTags">
+													<p class="keyTips">输入内容后，按回车键增加关键字标签</p>
+													<input type="text" name="keyWord"  autocomplete="off" placeholder="请输入关键字" value="" hidden >
+												</div>
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否有专职营销人员</strong>
+												<input type="radio" name="JjisSale" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否有专职售前技术支持</strong>
+												<input type="radio" name="JjisBeforeSale" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisBeforeSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否有专职售后现场服务人员</strong>
+												<input type="radio" name="JjisAfterSale" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisAfterSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否配备专业的精度检测人员</strong>
+												<input type="radio" name="JjisTest" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisTest" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否是带液、电配套能力</strong>
+												<input type="radio" name="JjisFlag" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisFlag" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否带程控配套能力</strong>
+												<input type="radio" name="JjisMatching" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisMatching" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+									</ul>
+								</div>
+
+								<!-- 企业优势 -->
+								<div class="advantage">
+									<h3>企业优势</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													特长产品类型
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="strengths"   autocomplete="off"
+														class="layui-input">
+												</div>
+											</div>
+											<div>
+												<span>
+													产品工艺
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="productArt"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="productArt" id="jjTechnology"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													产品优势
+													<i>*</i>
+												</span>
+												<div class="com-sel">
+													<select class="com-opt" name="singleOrMix" id="jjGood">
+														<option value="单品">单品</option>
+														<option value="整合">整合</option>
+													</select>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+
+								<!-- 其他信息 -->
+								<div class="other">
+									<h3>其他信息</h3>
+									<ul>
+										<li>
+											<div>
+												<strong>是否提供电子或纸质使用说明书</strong>
+												<input type="radio" name="JjisExplainBook" value="true" checked
+													title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisExplainBook" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否提供出厂检测合格报告</strong>
+												<input type="radio" name="JjisOuttest" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="JjisOuttest" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													账单类型
+													<i>*</i>
+												</span>
+												<!-- <strong>账单类型</strong> -->
+												<div class="com-sel">
+													<select class="com-opt" name="bill" id="jjInvoice">
+														<option value="普通发票">普通发票</option>
+														<option value="工业增值税发票">工业增值税发票</option>
+													</select>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>承担违约订单金额百分比<i>*</i></strong>
+												<div class="layui-input-inline">
+													<input type="text" name="lossRate"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="lossRate" id="jjPercent"> -->
+											</div>
+										</li>
+									</ul>
+								</div>
+
+							</div>
+
+</script>
+<!-- 辅件厂商  测试 1 2 3 4 -->
+<script id="fj" type="text/html">
+<div id="PartSupply" class="fj show">
+								<!-- 企业信息 -->
+								<div class="company-msg">
+									<h3>企业信息</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													介绍
+													<i>*</i>
+												</span>
+												<textarea name="supplyInfo"   cols="103" rows="5"></textarea>
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													用户头像
+													<i>*</i>
+												</span>
+												<Article id="fjSupplyHeadImg" name="uploaderSupplierImg"></Article>
+												<input id="SupplierImg2" name="headImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													营业执照
+													<i>*</i>
+												</span>
+												<Article id="fjSupplyImg" name="uploaderSupplier"></Article>
+												<input id="Supplier2" name="supplyImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													生产年限
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="productsYears"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="productsYears" id="fjTime"> -->
+											</div>
+
+											<div>
+												<span>
+													年产值范围
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="outputValue"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="outputValue"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													技术人数
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="manNumber"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="manNumber"> -->
+											</div>
+											<div>
+												<span>
+													设备能力
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="equipAbility"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="equipAbility"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													场地大小
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="localSize"   autocomplete="off"
+														class="layui-input">
+													<u>平方米</u>
+												</div>
+												<!-- <input type="text" name="localSize"> -->
+											</div>
+											<div>
+												<span>
+													服务范围
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="serviceScope"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="serviceScope">
+												<u>公里数</u> -->
+											</div>
+										</li>
+										
+										<li>
+											<div>
+												<span>
+													月均吃单能力
+													<i>*</i>
+												</span>
+												<!-- <strong>月均吃单能力按照中等技能为多少单</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="outputMonth"   autocomplete="off"
+														class="layui-input">
+													<u>范围数值</u>
+												</div>
+												<!-- <input type="text" name="outputMonth"> -->
+											</div>
+											<div>
+												<span>
+													平均交期天数
+													<i>*</i>
+												</span>
+												<!-- <strong>平均交期天数是多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="avgDay"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="avgDay" id="fjDay"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													形位公差
+													<i>*</i>
+												</span>
+												<!-- <strong>夹治具精度最高做到形位公差多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="accuracy"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="accuracy"  id="fjShapediff"> -->
+											</div>
+											<div>
+												<span>
+													尺寸公差
+													<i>*</i>
+												</span>
+												<!-- <strong>尺寸公差多少 </strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="offsetSize"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="offsetSize" id="fjSizediff"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													合格率
+													<i>*</i>
+												</span>
+												<!-- <strong>出厂测试一次性合格率是多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="adoptRate"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="adoptRate"> -->
+											</div>
+										<div>
+											<span>
+												地址
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyAddress"  autocomplete="off"
+													class="layui-input">
+											</div>
+											<!-- <input type="text" name="adoptRate"> -->
+										</div>
+									  
+									</li>
+									<li>
+										<div>
+											<span>
+												采购保证金
+												<i>*</i>
+
+											</span>
+
+											<div class="layui-input-inline">
+												<input type="text"  name="supplyJe"  
+												 autocomplete="off" class="layui-input" >
+											</div>
+										</div>
+										<div>
+											<span>
+												付款天数
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyDay"  
+													  autocomplete="off" class="layui-input">
+											</div>
+										</div>
+									</li>
+										<li>
+											<div>
+												<span>
+													供应商级别
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="supplyLevel" 
+													 autocomplete="off" class="layui-input">
+												</div>
+											</div>
+    <div>
+												<span>
+													关键字
+													<i>*</i>
+												</span>
+												<div class="input_box" id="fjTags">
+													<p class="keyTips">输入内容后，按回车键增加关键字标签</p>
+													<input type="text" name="keyWord"  autocomplete="off" placeholder="请输入关键字" value="" hidden>
+												</div>
+											</div>
+
+										</li>
+   
+										<li>
+											<div>
+												<strong>是否有专职营销人员</strong>
+												<input type="radio" name="FjisSale" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否有专职售前技术支持</strong>
+												<input type="radio" name="FjisBeforeSale" value="true" checked
+													title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisBeforeSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否有专职售后现场服务人员</strong>
+												<input type="radio" name="FjisAfterSale" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisAfterSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否配备专业的精度检测人员</strong>
+												<input type="radio" name="FjisTest" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisTest" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否是带液、电配套能力</strong>
+												<input type="radio" name="FjisFlag" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisFlag" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否带程控配套能力</strong>
+												<input type="radio" name="FjisMatching" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisMatching" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+									</ul>
+								</div>
+
+								<!-- 其他信息 -->
+								<div class="other">
+									<h3>其他信息</h3>
+									<ul>
+										<li>
+											<div>
+												<strong>是否委托夹具商做售后服务</strong>
+												<input type="radio" name="FjisEntrust" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisEntrust" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否有改制和设计特制订单接单能力</strong>
+												<input type="radio" name="FjisReform" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="FjisReform" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+</script>
+<!-- 整合厂商 -->
+<script id="zh" type="text/html">
+							<div id="MixSupply" class="zh show">
+								<!-- 企业信息 -->
+								<div class="company-msg">
+									<h3>企业信息</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													介绍
+													<i>*</i>
+												</span>
+												<textarea name="supplyInfo" id="zhMessage" cols="103"  
+													rows="5"></textarea>
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													用户头像
+													<i>*</i>
+												</span>
+												<article id="mixSupplyHeadImg" name="uploaderSupplierImg"></article>
+												<input id="SupplierImg3" name="headImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													营业执照
+													<i>*</i>
+												</span>
+												<article id="mixSupplyImg" name="uploaderSupplier"></article>
+												<input id="Supplier3" name="supplyImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													生产年限
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="productsYears"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="productsYears" id="zhTime"> -->
+											</div>
+
+											<div>
+												<span>
+													年产值范围
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="outputValue"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="outputValue"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													技术人数
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="manNumber"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="manNumber"> -->
+											</div>
+											<div>
+												<span>
+													设备能力
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="equipAbility"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="equipAbility"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													场地大小
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="localSize"  autocomplete="off"
+														class="layui-input">
+													<u>平方米</u>
+												</div>
+												<!-- <input type="text" name="localSize"> -->
+											</div>
+											<div>
+												<span>
+													服务范围
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="serviceScope"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="serviceScope">
+												<u>公里数</u> -->
+											</div>
+										</li>
+										
+										<li>
+											<div>
+												<span>
+													月均吃单能力
+													<i>*</i>
+												</span>
+												<!-- <strong>月均吃单能力按照中等技能为多少单</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="outputMonth"   autocomplete="off"
+														class="layui-input">
+													<u>范围数值</u>
+												</div>
+												<!-- <input type="text" name="outputMonth"> -->
+											</div>
+											<div>
+												<span>
+													平均交期天数
+													<i>*</i>
+												</span>
+												<!-- <strong>平均交期天数是多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="avgDay"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="avgDay"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													形位公差
+													<i>*</i>
+												</span>
+												<!-- <strong>夹治具精度最高做到形位公差多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="accuracy"  autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="accuracy" id="zhShapediff"> -->
+											</div>
+											<div>
+												<span>
+													尺寸公差
+													<i>*</i>
+												</span>
+												<!-- <strong>尺寸公差多少 </strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="offsetSize"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="offsetSize" id="zhSizediff"> -->
+											</div>
+										</li>
+
+										<li>
+											<div>
+												<span>
+													合格率
+													<i>*</i>
+												</span>
+												<!-- <strong>出厂测试一次性合格率是多少</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="adoptRate" autocomplete="off"
+														class="layui-input">
+												</div>
+											</div>
+											  <div>
+												  <span>
+													  地址
+													  <i>*</i>
+												  </span>
+												  <div class="layui-input-inline">
+													  <input type="text" name="supplyAddress"  autocomplete="off"
+														  class="layui-input">
+												  </div>
+												  <!-- <input type="text" name="adoptRate"> -->
+											  </div>
+											
+										  </li>
+										<li>
+										<div>
+											<span>
+												采购保证金
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyJe" 
+												 autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div>
+											<span>
+												付款天数
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyDay"  
+													  autocomplete="off" class="layui-input">
+											</div>
+										</div>
+									</li>
+										<li>
+											<div>
+												<span>
+													供应商级别
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="supplyLevel" 
+													 autocomplete="off" class="layui-input">
+												</div>
+											</div>
+     <div>
+												<span>
+													关键字
+													<i>*</i>
+												</span>
+												<div class="input_box" id="zhTags">
+													<p class="keyTips">输入内容后，按回车键增加关键字标签</p>
+													<input type="text" name="keyWord"  autocomplete="off" placeholder="请输入关键字" value="" hidden>
+												</div>
+											</div>
+
+
+										</li>
+
+										<li>
+											<div>
+												<strong>是否有专职营销人员</strong>
+												<input type="radio" name="ZhisSale" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否有专职售前技术支持</strong>
+												<input type="radio" name="ZhisBeforeSale" value="true" checked
+													title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisBeforeSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否有专职售后现场服务人员</strong>
+												<input type="radio" name="ZhisAfterSale" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisAfterSale" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否配备专业的精度检测人员</strong>
+												<input type="radio" name="ZhisTest" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisTest" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否是带液、电配套能力</strong>
+												<input type="radio" name="ZhisFlag" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisFlag" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否带程控配套能力</strong>
+												<input type="radio" name="ZhisMatching" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisMatching" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+									</ul>
+								</div>
+
+								<!-- 企业优势 -->
+								<div class="advantage">
+									<h3>企业优势</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													特长产品类型
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="strengths"   autocomplete="off"
+														class="layui-input">
+												</div>
+											</div>
+											<div>
+												<span>
+													产品工艺
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="productArt"  autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="productArt" id="zhTechnology"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													产品优势
+													<i>*</i>
+												</span>
+												<div class="com-sel">
+													<select class="com-opt" name="singleOrMix"  id="zhGood">
+														<option value="单品">单品</option>
+														<option value="整合">整合</option>
+													</select>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+
+								<!-- 其他信息 -->
+								<div class="other">
+									<h3>其他信息</h3>
+									<ul>
+										<li>
+											<div>
+												<strong>是否提供电子或纸质使用说明书</strong>
+												<input type="radio" name="ZhisExplainBook"  value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisExplainBook" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否提供出厂检测合格报告</strong>
+												<input type="radio" name="ZhisOuttest" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="ZhisOuttest" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													账单类型
+													<i>*</i>
+												</span>
+												<!-- <strong>账单类型</strong> -->
+												<div class="com-sel">
+													<select class="com-opt" name="bill" id="bill">
+														<option value="普通发票">普通发票</option>
+														<option value="工业增值税发票">工业增值税发票</option>
+													</select>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+												售后事项内容
+													<i>*</i>
+												</span>
+												<!-- <strong>周边辅件销售是否负责售后事项内容</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="annexInfo"   autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name=annexInfo id="zhSideSaleInfo"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>承担违约订单金额百分比<i>*</i></strong>
+												<div class="layui-input-inline">
+													<input type="text" name="lossRate"  autocomplete="off"
+														class="layui-input">
+												</div>
+												<!-- <input type="text" name="lossRate"  id="zhPercent"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>可贸易附件品类信息录入<i>*</i></strong>
+												<div class="com-sel">
+													<select class="com-opt" name="sideSaleInfo" id="zhAnnexInfo">
+														<option value="代理">代理</option>
+														<option value="经销">经销</option>
+														<option value="服务调货">服务调货</option>
+													</select>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+</script>
+<!-- 特色经贸商 -->
+<script id="tm" type="text/html">
+							<div id="StrengthSupply" class="tm show">
+								<!-- 企业信息 -->
+								<div class="company-msg">
+									<h3>企业信息</h3>
+									<ul>
+										<ul>
+										<li>
+											<div>
+												<span>
+													介绍
+													<i>*</i>
+												</span>
+												<textarea name="supplyInfo" id="TsMessage"  cols="103"
+													rows="5"></textarea>
+											</div>
+										</li>
+											<li>
+												<div>
+													<span>
+														用户头像
+														<i>*</i>
+													</span>
+													<Article id="strengthSupplyHeadImg" name="uploaderSupplierImg">
+													</Article>
+													<input id="SupplierImg4" name="headImg" type="hidden" />
+												</div>
+											</li>
+											<li>
+												<div>
+													<span>
+														营业执照
+														<i>*</i>
+													</span>
+													<Article id="strengthSupplyImg" name="uploaderSupplier">
+													</Article>
+													<input id="Supplier4" name="supplyImg" type="hidden" />
+												</div>
+											</li>
+											<li>
+												<div>
+													<span>
+														经销产品品牌
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="brand"  autocomplete="off"
+															class="layui-input">
+													</div>
+													<!-- <input type="text" name="brand" id="tmBrand"> -->
+												</div>
+
+												<div>
+													<span>
+														型号类别
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="brandType"  autocomplete="off"
+															class="layui-input">
+													</div>
+													<!-- <input type="text" name="type"> -->
+												</div>
+											</li>
+											<li>
+												<div>
+													<span>
+														技术支持能力
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="techAblitity"
+															autocomplete="off" class="layui-input">
+													</div>
+													<!-- <input type="text" name="techAblitity"> -->
+												</div>
+												<div>
+													<span>
+														资金能力
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="moneyAbility"
+															autocomplete="off" class="layui-input">
+													</div>
+													<!-- <input type="text" name="moneyAbility"> -->
+												</div>
+											</li>
+											<li>
+												<div>
+													<span>
+														服务范围
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="serviceScope"
+															autocomplete="off" class="layui-input">
+													</div>
+													<!-- <input type="text" name="serviceScope"> -->
+												</div>
+												<div>
+													<span>
+														团队服务能力
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="teamAblitity"
+															autocomplete="off" class="layui-input">
+													</div>
+													<!-- <input type="text" name="teamAblitity"> -->
+												</div>
+											</li>
+											<li>
+												<div>
+													<span class="ablitity">
+														产品整合能力
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="mixAblitity"
+															autocomplete="off" class="layui-input">
+													</div>
+													
+												</div>
+
+    
+												<div>
+													<span class="ablitity">
+														人脉整合能力
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="contactsAblitity"
+															autocomplete="off" class="layui-input">
+													</div>
+													<!-- <input type="text" name="ContactsAblitity"> -->
+												</div>
+											</li>
+											<li>
+										<div>
+											<span>
+												采购保证金
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyJe" autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div>
+											<span>
+												付款天数
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyDay" autocomplete="off" class="layui-input">
+											</div>
+										</div>
+									</li>
+										<li>
+											<div>
+												<span>
+													供应商级别
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="supplyLevel" autocomplete="off" class="layui-input">
+												</div>
+											</div>
+   <div>
+												<span>
+													关键字
+													<i>*</i>
+												</span>
+												<div class="input_box" id="tmTags">
+													<p class="keyTips">输入内容后，按回车键增加关键字标签</p>
+													<input type="text" name="keyWord" autocomplete="off" placeholder="请输入关键字" value="" hidden>
+												</div>
+											</div>
+   
+											</li>
+											<li>
+												<div>
+													<span>
+														地址
+														<i>*</i>
+													</span>
+													<div class="layui-input-inline">
+														<input type="text" name="supplyAddress" autocomplete="off"
+															class="layui-input">
+													</div>
+													<!-- <input type="text" name="adoptRate"> -->
+												</div>
+											</li>
+											<li>
+												<div>
+													<strong>是否专职存储和接送货</strong>
+													<input type="radio" name="TmisFullstorage" value="true" checked
+														title="是">
+													<!-- <em>是</em> -->
+													<input type="radio" name="TmisFullstorage" value="false" title="否">
+													<!-- <em>否</em> -->
+												</div>
+												<div>
+													<strong>是否有专职售后维修人员</strong>
+													<input type="radio" name="TmisFullaftersale" value="true" checked
+														title="是">
+													<!-- <em>是</em> -->
+													<input type="radio" name="TmisFullaftersale" value="false"
+														title="否">
+													<!-- <em>否</em> -->
+												</div>
+											</li>
+											<li>
+												<div>
+													<strong>是否专职产品销售</strong>
+													<input type="radio" name="TmisFullsale" value="true" checked
+														title="是">
+													<!-- <em>是</em> -->
+													<input type="radio" name="TmisFullsale" value="false" title="否">
+													<!-- <em>否</em> -->
+												</div>
+											</li>
+										</ul>
+									</ul>
+								</div>
+
+								<!-- 其他信息 -->
+								<div class="other">
+									<h3>其他信息</h3>
+									<ul>
+										<li>
+											<div>
+												<strong>是否有改制和设计特制订单接单能力</strong>
+												<input type="radio" name="TmisReform" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="TmisReform" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+</script>
+<!-- 工艺专家 -->
+<script id="gy" type="text/html">
+
+
+							<div id="ArtExpert" class="gy show">
+								<!-- 专家信息 -->
+								<div class="company-msg">
+									<h3>专家信息</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													专长优势
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="strengths" autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="jobAge"> -->
+											</div>
+											<div>
+												<span>
+													等级
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="level" autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="age" id="gyAge"> -->
+											</div>
+										</li>
+
+
+
+										<li>
+											<div>
+												<span>
+													从业年限
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="jobAge" autocomplete="off" class="layui-input" oninput = "value=value.replace(/[^\d]/g,'')">
+													<u>年</u>
+												</div>
+												<!-- <input type="text" name="jobAge"> -->
+											</div>
+											<div>
+												<span>
+													年龄
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="age" autocomplete="off" class="layui-input" oninput = "value=value.replace(/[^\d]/g,'')">
+												</div>
+												<!-- <input type="text" name="age"  id="gyAge"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													主要职业
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="mainJob" autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="mainJob" id="gyMainJob"> -->
+											</div>
+
+   <div>
+												<span>
+													销售经验
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="saleExperience" autocomplete="off" class="layui-input">
+												</div>
+												
+											</div>
+ 
+
+										</li>
+										<li>
+											<div>
+												<span>
+													用户头像
+													<i>*</i>
+												</span>
+												<Article id="artImg" name="artImg"></Article>
+												<!-- headImg  SupplierImg11  -->
+												<input name="headImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													自身专长介绍
+													<i>*</i>
+												</span>
+												<textarea name="introduce" id="gyMessage"  cols="103"   rows="5"></textarea>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+</script>
+<!-- 售前专家 -->
+<script id="bs" type="text/html">
+							<div id="BeforeExpert" class="bs show">
+								<!-- 专家信息 -->
+								<div class="company-msg">
+									<h3>专家信息</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													专长优势
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="strengths"  autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="jobAge"> -->
+											</div>
+											<div>
+												<span>
+													等级
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="level"  autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="age" id="gyAge"> -->
+											</div>
+										</li>
+
+										<li>
+											<div>
+												<span>
+													主要职业
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text"  name="mainJob"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="mainJob" id="bsMainJob"> -->
+											</div>
+											<div>
+												<span>
+													销售经验
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="saleExperience"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="saleExperience" id="bsSalesYears"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													最高学历
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="education"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="education" id="bsEducation"> -->
+											</div>
+											<div>
+												<span>
+													特色方言
+													<i>*</i>
+												</span>
+												<!-- <strong>特色方言有什么</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="dialect"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="dialect"> -->
+											</div>
+										</li>
+
+										<li>
+											<div>
+												<span>
+													最熟悉的产品
+													<i>*</i>
+												</span>
+												<!-- <strong>最熟悉的产品名称</strong> -->
+												<div class="com-sel">
+													<select class="com-opt" name="knowProduct"  id="bsknow">
+														<option value="编程">编程</option>
+														<option value="编工艺">编工艺</option>
+														<option value="夹具方案设计">夹具方案设计</option>
+														<option value="刀具的选配">刀具的选配</option>
+														<option value="床的熟悉度">床的熟悉度</option>
+													</select>
+												</div>
+											</div>
+											<div>
+												<span>
+													服务半径
+													<i>*</i>
+												</span>
+												<!-- <strong>售前服务半径范围</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="serviceScope"   autocomplete="off" class="layui-input">
+													<u>公里数</u>
+												</div>
+												<!-- <input type="text" name="serviceScope"> -->
+											</div>
+										</li>
+    <li>
+	    <div>
+												<span>
+													工作年限
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="jobAge"   autocomplete="off" class="layui-input">
+												</div>
+											</div>
+    </li>
+
+
+   
+										<li>
+											<div>
+												<span>
+													用户头像
+													<i>*</i>
+												</span>
+												<Article id="saleBeforeImg" name="saleBeforeImg"></Article>
+												<input id="Supplier22" name="headImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													专长介绍
+													<i>*</i>
+												</span>
+												<!-- <span>自身专长介绍</span> -->
+												<textarea name="introduce" id="bsAdvantage"  cols="103"   rows="5"></textarea>
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否接受一周左右的出差</strong>
+												<input type="radio" name="BsisWeekEvection" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="BsisWeekEvection" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否接受只有邮政到达的偏远地区</strong>
+												<input type="radio" name="BsisRemote" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="BsisRemote" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>在生产一线是否工作过</strong>
+												<input type="radio" name="BsisFrontline" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="BsisFrontline" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否可出国出差</strong>
+												<input type="radio" name="BsisGoAbroad" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="BsisGoAbroad" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+</script>
+<!-- 售后专家 -->
+<script id="as" type="text/html">
+							<div id="AfterExpert" class="as show">
+								<!-- 专家信息 -->
+								<div class="company-msg">
+									<h3>专家信息</h3>
+									<ul>
+										<li>
+											<div>
+												<span>
+													专长优势
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="strengths"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="jobAge"> -->
+											</div>
+											<div>
+												<span>
+													等级
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="level"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="age" id="gyAge"> -->
+											</div>
+										</li>
+
+										<li>
+											<div>
+												<span>
+													主要职业
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="mainJob"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="mainJob" id="asMainJob"> -->
+											</div>
+											<div>
+												<span>
+													销售经验
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="saleExperience"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="saleExperience" id="asSalesYears"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													最高学历
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="education"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="education" id="asEducation"> -->
+											</div>
+											<div>
+												<span>
+													特色方言
+													<i>*</i>
+												</span>
+												<!-- <strong>特色方言有什么</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="dialect"   autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="dialect"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													最熟悉的产品
+													<i>*</i>
+												</span>
+												<!-- <strong>最熟悉的产品名称</strong> -->
+												<div class="com-sel">
+													<select class="com-opt" name="knowProduct" id="asknow">
+														<option value="编程">编程</option>
+														<option value="编工艺">编工艺</option>
+														<option value="夹具方案设计">夹具方案设计</option>
+														<option value="刀具的选配">刀具的选配</option>
+														<option value="床的熟悉度">床的熟悉度</option>
+													</select>
+												</div>
+											</div>
+											<div>
+												<span>
+													服务半径
+													<i>*</i>
+												</span>
+												<!-- <strong>售前服务半径范围</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="serviceScope"   autocomplete="off" class="layui-input">
+													<u>公里数</u>
+												</div>
+												<!-- <input type="text" name="serviceScope"> -->
+											</div>
+										</li>
+
+    <li>
+	    <div>
+												<span>
+													工作年限
+													<i>*</i>
+												</span>
+												<div class="layui-input-inline">
+													<input type="text" name="jobAge"   autocomplete="off" class="layui-input">
+												</div>
+											</div>
+    </li>
+   
+										<li>
+											<div>
+												<span>
+													动手能力
+													<i>*</i>
+												</span>
+												<!-- <strong>动手能力</strong> -->
+												<div class="layui-input-inline">
+													<input type="text" name="doIt"  autocomplete="off" class="layui-input">
+												</div>
+												<!-- <input type="text" name="doIt"> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													用户头像
+													<i>*</i>
+												</span>
+												<Article id="saleAfterImg" name="saleAfterImg"></Article>
+												<input id="Supplier222" name="headImg" type="hidden" />
+											</div>
+										</li>
+										<li>
+											<div>
+												<span>
+													自身专长介绍
+													<i>*</i>
+												</span>
+												<!-- <span>自身专长介绍</span> -->
+												<textarea name="introduce" id="asAdvantage" cols="103"   rows="5"></textarea>
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>是否接受一周左右的出差</strong>
+												<input type="radio" name="AsisWeekEvection" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="AsisWeekEvection" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否接受只有邮政到达的偏远地区</strong>
+												<input type="radio" name="AsisRemote" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="AsisRemote" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+										<li>
+											<div>
+												<strong>在生产一线是否工作过</strong>
+												<input type="radio" name="AsisFrontline" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="AsisFrontline" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+											<div>
+												<strong>是否可出国出差</strong>
+												<input type="radio" name="AsisGoAbroad" value="true" checked title="是">
+												<!-- <em>是</em> -->
+												<input type="radio" name="AsisGoAbroad" value="false" title="否">
+												<!-- <em>否</em> -->
+											</div>
+										</li>
+
+									</ul>
+								</div>
+							</div>
+
+</script>
+</head>
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+	<div class="application_content">
+		<div class="application_content_list">
+			<h2>会员注册</h2>
+			<div class="tabchange">
+				<ul id="tablist">
+					<li class="tabin">我是供应厂商</li>
+					<li>我是专家团队</li>
+					<li>我是需求用户</li>
+				</ul>
+				<div class="content-box">
+					<!-- 供应厂商 -->
+					<div class="content contentin">
+						<form name="application-firm" id="applicationFirm" class="layui-form" lay-filter="firm">
+							<div class="base-msg">
+								<h3>基本信息</h3>
+								<ul>
+									<li>
+										<div>
+											<span>
+												用户账户
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="userId" id="fDlName"  required lay-verify="required"
+													 autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="userId" id="fDlName" >
+											<i class="layui-icon layui-icon-tips"></i> -->
+										</div>
+										<div>
+											<span>
+												用户昵称
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="nickName" id="fUserName"  required lay-verify="required"
+													 autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="nickName" id="fUserName"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												手机号码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="mobile" id="fTelphone"  
+													lay-verify="phone" autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="mobile" id="fTelphone"> -->
+										</div>
+										<div>
+											<span>
+												验证码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="randCode" id="fCode" 
+													  autocomplete="off" class="layui-input">
+												<b class="code">获取验证码</b>
+											</div>
+											<!-- <input type="text" name="randCode" id="fCode"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												设置密码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="password" name="password" id="fPwd"  
+													 autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="password" name="password" id="fPwd"> -->
+										</div>
+										<div>
+											<span>
+												电子邮箱
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="email" name="email" id="fEmail"   lay-verify="email"
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="email" name="email" id="fEmail"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												单位名称
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="orgName" id="fOrgName"  required lay-verify="required"
+													 autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="orgName" id="fOrgName"> -->
+										</div>
+										<div>
+											<span>
+												厂商类型
+												<i>*</i>
+											</span>
+											<div class="com-sel">
+												<select class="com-opt" name="type" id="type">
+													<option value="夹具厂商">我是夹具厂商</option>
+													<option value="辅件厂商">我是辅件厂商</option>
+													<option value="整合厂商">我是整合厂商</option>
+													<option value="特色经贸商">我是特色经贸商</option>
+												</select>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												单位简称
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="customerExp" required lay-verify="required"
+												 autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div class="area">
+											<span>
+												单位区域
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" id="gystree" lay-filter="gystree" name="district" class="layui-input district">
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<div id="_vendorInit"></div>
+							<div class="btn">
+								<div class="btn_content">
+									<input type="button" lay-submit lay-filter="firm" id="firm-reg" value="立即申请">
+									<div class="sub-content">
+										<input type="checkbox" id="rem-firm" name="firmAgree" lay-skin="primary"
+											checked>
+										<!-- <input type="checkbox" id="remember" name="agree">
+										<span></span>
+										<label class="agree-label" for="remember"> -->
+										我已阅读并同意
+										<a href="#">《商家入驻用户协议》</a>
+										<!-- </label> -->
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- 专家团队 -->
+					<div class="content">
+						<form name="application-expert" id="applicationExpert" class="layui-form" lay-filter="expert">
+							<div class="base-msg">
+								<h3>基本信息</h3>
+								<ul>
+									<li>
+										<div>
+											<span>
+												用户账户
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="userId" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="userId"> -->
+										</div>
+										<div>
+											<span>
+												用户昵称
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="nickName" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="nickName"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												手机号码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="mobile"   autocomplete="off"
+													lay-verify="phone" class="layui-input">
+											</div>
+											<!-- <input type="text" name="mobile"> -->
+										</div>
+										<div>
+											<span>
+												验证码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="randCode" id="exCode" 
+													  autocomplete="off" class="layui-input">
+												<b class="code">获取验证码</b>
+											</div>
+											<!-- <input type="text" name="randCode"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												设置密码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="password" name="password" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="password" name="password"> -->
+										</div>
+										<div>
+											<span>
+												电子邮箱
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="email" name="email"   autocomplete="off"
+													lay-verify="email" class="layui-input">
+											</div>
+											<!-- <input type="email" name="email"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												单位名称
+												<i>*</i>
+											</span>
+											<div class="com-sel">
+												<select class="com-opt" name="orgId" id="exFirmType"
+													 data-edit-select="1" style="z-index: 1;"
+													onmousedown="if(this.options.length>3){this.size=5}"
+													onblur="this.size=0" onchange="this.size=0">
+													<option value="GYS2020-27-27002">爱奇艺</option>
+													<option value="GYS2020-20-27001">搜狐</option>
+													<option value="GYS2020-47-27003">百度科技</option>
+
+												</select>
+											</div>
+										</div>
+										<div>
+											<span>
+												专家类型
+												<i>*</i>
+											</span>
+											<div class="com-sel">
+												<select class="com-opt" name="expertType" id="expertType">
+													<option value="工艺专家">我是工艺专家</option>
+													<option value="售前专家">我是售前专家</option>
+													<option value="售后专家">我是售后专家</option>
+												</select>
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<div id="_expertsInit">
+							</div>
+							<div class="btn">
+								<div class="btn_content">
+									<input type="button" lay-submit lay-filter="expert" id="ex-reg" value="立即申请">
+									<div class="sub-content">
+										<input type="checkbox" id="rem-needs" name="exAgree" lay-skin="primary" checked>
+										<!-- <input type="checkbox" id="rem-needs" name="exAgree"> -->
+										<!-- <span></span>
+										<label class="agree-label" for="rem-needs"> -->
+										我已阅读并同意
+										<a href="#">《商家入驻用户协议》</a>
+										<!-- </label> -->
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- 需求用户 -->
+					<div id="Personal" class="content">
+						<form name="application-user" id="applicationUser" class="layui-form" lay-filter="user">
+							<div class="base-msg">
+								<h3>基本信息</h3>
+								<ul>
+									<li>
+										<div>
+											<span>
+												用户账户
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="userId" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="userId" id="uDlName"> -->
+										</div>
+										<div>
+											<span>
+												用户昵称
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="nickName" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="nickName" id="uDlnickName"> -->
+										</div>
+									</li>
+
+
+									<li>
+										<div>
+											<span>
+												手机号码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="mobile"   autocomplete="off"
+													lay-verify="phone" class="layui-input">
+											</div>
+											<!-- <input type="text" name="mobile" id="uTelphone"> -->
+										</div>
+										<div>
+											<span>
+												验证码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="randCode" id="uCode"  
+													 autocomplete="off" class="layui-input">
+												<b class="code">获取验证码</b>
+											</div>
+											<!-- <input type="text" name="randCode" id="uCode"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												设置密码
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="password" name="password"   autocomplete="off"
+													 class="layui-input">
+											</div>
+											<!-- <input type="password" name="password" id="uPwd"> -->
+										</div>
+										<div>
+											<span>
+												电子邮箱
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="email" name="email"   autocomplete="off"
+													lay-verify="email" class="layui-input">
+											</div>
+											<!-- <input type="email" name="email" id="uEmail"> -->
+										</div>
+									</li>
+
+
+
+									<li>
+										<div>
+											<span>
+												单位名称
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyName"  
+													  autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div>
+											<span>
+												单位简称
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="customerExp" 
+													  autocomplete="off" class="layui-input">
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="area">
+											<span>
+												单位区域
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" id="xqtree" lay-filter="xqtree" name="district" class="layui-input district" required lay-verify="required">
+											</div>
+										</div>
+									</li>
+
+
+
+								</ul>
+							</div>
+
+							<!-- 个人信息 -->
+							<div class="company-msg">
+								<h3>个人信息</h3>
+								<ul>
+									<li>
+										<div>
+											<span>
+												用户头像
+												<i>*</i>
+											</span>
+											<Article id="pserson" name="uploaderSupplierImg"></Article>
+											<input id="SupplierImg000" name="headImg" type="hidden" />
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												上年度营业额
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="lastyearMoney" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="lastyearMoney" id="uLastyearMoney"> -->
+										</div>
+										<div>
+											<span>
+												身份证号
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="idCard"   autocomplete="off"
+													lay-verify="identity" class="layui-input">
+											</div>
+											<!-- <input type="text" name="idCard" id="uIdCard"> -->
+										</div>
+									</li>
+									<!-- 		<li>
+										<div>
+											<span>
+												所属行业
+												<i>*</i>
+											</span>
+											<div class="com-sel">
+												<select class="com-opt" name="mainJob">
+													<option value="1">信息技术</option>
+													<option value="2">建筑</option>
+												</select>
+											</div>
+										</div>
+										<div>
+											<span>
+												入口分类
+												<i>*</i>
+											</span>
+											<div class="com-sel">
+												<select class="com-opt" name="type">
+													<option value="企业主管">企业主管</option>
+													<option value="采购主管">采购主管</option>
+													<option value="采购专员">采购专员</option>
+													<option value="技术主设计">技术主设计</option>
+													<option value="技术经理">技术经理</option>
+													<option value="方案专员">方案专员</option>
+													<option value="仓库收货">仓库收货</option>
+													<option value="财务收票">财务收票</option>
+												</select>
+											</div>
+										</div>
+									</li> -->
+									<li>
+										<div>
+											<span>
+												数量范围
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="numberScope" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="numberScope"> -->
+										</div>
+										<div>
+											<span>
+												交期范围
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="deliveryDateScope" 
+													  autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="DeliveryDateScope"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												精度要求
+												<i>*</i>
+											</span>
+											<!-- <strong>需求方案精度等级</strong> -->
+											<div class="layui-input-inline">
+												<input type="text" name="accuracyRequire" 
+													autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div>
+											<span>
+												空间要求
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="spaceRequire" 
+													autocomplete="off" class="layui-input">
+											</div>
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												重量要求
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="weightRequire" 
+													autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div>
+											<span>
+												自动化程度
+												<i>*</i>
+											</span>
+											<!-- <strong>需求方案自动化程度要求</strong> -->
+											<div class="layui-input-inline">
+												<input type="text" name="autoRequire" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="autoRequire"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												客户金额
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyJe" 
+												 autocomplete="off" class="layui-input">
+											</div>
+										</div>
+										<div>
+											<span>
+												付款天数
+												<i>*</i>
+											</span>
+											<div class="layui-input-inline">
+												<input type="text" name="supplyDay"  
+													  autocomplete="off" class="layui-input">
+											</div>
+										</div>
+									</li>
+										<li>
+											<div>
+												<span>
+													客户等级
+													<i>*</i>
+												</span>
+												<div class="com-sel">
+    			<select class="com-opt" id="personalSupplyLevel" name="supplyLevel" >
+
+    			</select>
+    			</div>
+											</div>	
+										<div>
+											<span>
+												供应商范围
+												<i>*</i>
+											</span>
+											<!-- <strong>需求目标供应商范围选择</strong> -->
+											<div class="layui-input-inline">
+												<input type="text" name="targetScope" 
+													autocomplete="off" class="layui-input">
+											</div>
+											<!-- <input type="text" name="targetScope"> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<strong>是否需要第三方监理</strong>
+											<input type="radio" name="UrisProxy" value="true" checked title="是">
+											<!-- <em>是</em> -->
+											<input type="radio" name="UrisProxy" value="false" title="否">
+											<!-- <em>否</em> -->
+										</div>
+										<div>
+											<strong>是否公开竞标</strong>
+											<input type="radio" name="UrisPublic" value="true" checked title="是">
+											<!-- <em>是</em> -->
+											<input type="radio" name="UrisPublic" value="false" title="否">
+											<!-- <em>否</em> -->
+										</div>
+									</li>
+									<li>
+										<div>
+											<span>
+												特别说明
+												<i>*</i>
+											</span>
+											<!-- <span>特别交代(说明)</span> -->
+											<textarea name="explain" id="uMessage" 
+												cols="103" rows="5"></textarea>
+										</div>
+									</li>
+								</ul>
+							</div>
+
+							<div class="btn">
+								<div class="btn_content">
+									<input type="button" lay-submit lay-filter="user" id="user-reg" value="立即申请">
+									<div class="sub-content">
+										<!-- <input type="checkbox" name="agree" title="写作" lay-skin="primary" checked> -->
+										<input type="checkbox" id="rem-user" name="agree" lay-skin="primary" checked>
+										<!-- <span></span> -->
+										<!-- <label class="agree-label" for="rem-user"> -->
+										我已阅读并同意
+										<a href="#">《商家入驻用户协议》</a>
+										<!-- </label> -->
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+<script type="text/javascript" th:src="@{/static/gab/js/application.js}"></script>
+
+</html>

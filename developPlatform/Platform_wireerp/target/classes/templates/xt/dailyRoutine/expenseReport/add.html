@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>费用报支【新增】</title>
+    </th:block>
+    <style type="text/css">
+        .button-gx-right {
+            width: 70px;
+            height: 100%;
+            float: right;
+            border: 1px;
+            text-align: center;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+        }
+
+        .button-gx-right > .mini-button {
+            padding: 30% 0px !important;
+        }
+
+        .button-gx-right-wl {
+            width: 70px;
+            height: 100%;
+            float: right;
+            border: 1px;
+            text-align: center;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            border-top: 1px solid #ddd;
+
+        }
+
+        .button-gx-right-wl > .mini-button {
+            padding: 20.9% 0px !important;
+        }
+
+        #btnbar {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            margin-top: -0.8%;
+        }
+    </style>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden" />
+        <input id="bzNote" name="bzNote" class="mini-hidden" />
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>报支日期</td>
+                <td content>
+                    <input class="mini-datepicker" required name="bzRq" id="bzRq" value="new Date()"/>
+                </td>
+                <td title>报支方式</td>
+                <td>
+                    <input class="mini-combobox" name="bzMethod" textField="text" valueField="id"
+                           data="[{id:'BZ',text:'报支'},{id:'YF',text:'预付'}]" />
+                </td>
+                <td title>报支人</td>
+                <td content>
+                    <input class="mini-buttonedit" required id="bzMan" name="bzMan" onbuttonclick="onButtonClickHandler"/>
+                </td>
+                <td title>报支公司</td>
+                <td content>
+                    <input class="mini-combobox" readonly id="bzCorp" name="bzCorp" url="/system/org/combobox/getCorpList"   />
+                </td>
+                <td title>报支部门</td>
+                <td content>
+                    <input class="mini-combobox" readonly id="bzDept" name="bzDept"  />
+
+<!--                    <input id="bzDept" name="bzDept" readonly class="mini-treeselect" multiSelect="false" valueFromSelect="false"-->
+<!--                        onbeforenodeselect="disableParentSelection"  popupWidth="240" popupHeight="180"-->
+<!--                        showClose="true" oncloseclick="onCloseClickClearValue" url="/system/dept/combobox/getDeptTreeList"-->
+<!--                    />-->
+                </td>
+            </tr>
+            <tr>
+                <td title>币种</td>
+                <td content>
+                    <input class="mini-combobox" required  name="bzCurrency" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" value="RMB"/>
+                </td>
+                <td title>发票张数</td>
+                <td content >
+                    <input class="mini-textbox" name="bzInvoiceAmount" vtype="int" />
+                </td>
+                <td title>发票金额</td>
+                <td content >
+                    <input class="mini-textbox" name="bzInvoiceMoney" vtype="float" />
+                </td>
+                <td title>发票号</td>
+                <td content >
+                    <input class="mini-textbox" name="bzInvoiceNumber" emptyText="多张发票以','分隔" />
+                </td>
+                <td title>发票类型</td>
+                <td content  >
+                    <input class="mini-combobox" required id="bzInvoiceType" name="bzInvoiceType" url="/cg/yw/purchaseFile/purchaseContract/getHtInvoice" />
+                </td>
+            </tr>
+            <tr>
+                <td title>报支金额</td>
+                <td content >
+                    <input class="mini-textbox" name="bzMoney" vtype="float" />
+                </td>
+                <td title>报支单位</td>
+                <td content >
+                    <input  class="mini-buttonedit"  name="bzUnit" emptyText="请选择..."
+                           allowInput="false" onbuttonclick="onSupplierClick"/>
+                </td>
+                <td title>报支摘要</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="bzRemarks"  />
+                </td>
+            </tr>
+            <tr>
+                <td title>报支信息</td>
+                <td content colspan="9">
+                    <input class="mini-textarea" name="bzInformation" style="height:60px;" />
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div class="mini-fit" >
+        <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+            <div size="60%" showCollapseButton="true">
+                <div class="mini-fit" >
+                    <div style="width:100%;padding-right:70px;height:100%">
+                        <div tz:datagrid="datagrid" id="cost_grid" style="width: 100%; height: 100%;" idField="bzCostCorp" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true" OnCellBeginEdit="OnCellBeginEdit"
+                              showSummaryRow="true" sortField="bzCostCorp" sortOrder="asc" allowCellEdit="true" allowCellSelect="true"  editNextOnEnterKey="true" editNextRowCell="true" allowSortColumn="false"
+                                url ="/xt/dailyRoutine/expenseReport/getCostList"  >
+                            <div property="columns">
+                                <div tz:datagrid="indexcolumn" width="35">序号</div>
+                                <div tz:datagrid="column" field="bzMo"  align="left" width="80" >
+                                </div>
+                                <div tz:datagrid="column" field="bzCostCorp" displayField="costCorpName" width="110" align="center">费用公司
+                                    <input id="bzCostCorp" property="editor" class="mini-combobox" url="/system/org/combobox/getCorpList" />
+                                </div>
+                                <div tz:datagrid="column" field="bzCostDept" displayFidld="costDeptName" width="120" align="center">费用部门
+                                    <input property="editor"  class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                                           showClose="true" oncloseclick="onCloseClickClearValue" onbeforenodeselect="disableParentSelection"/>
+                                </div>
+                                <div tz:datagrid="column" field="bzCostItemType"  align="left" width="120">费用项目类型
+                                    <input property="editor" class="mini-combobox" url="encodeURI('/system/parameter/getParamsSelectList/协同/费用项目')" />
+                                </div>
+                                <div tz:datagrid="column" field="bzCostTypeValue"  align="left" width="100">费用项目
+                                    <input property="editor" class="mini-textbox"  />
+                                </div>
+                                <div tz:datagrid="column" field="bzCostType"  align="left" width="150">费用类型
+                                    <input property="editor" class="mini-combobox" url="encodeURI('/system/parameter/getParamsSelectList/协同/费用类型')"/>
+                                </div>
+                                <div tz:datagrid="column" field="bzCostMoney"  align="left" width="80">费用金额
+                                    <input property="editor" class="mini-textbox"/>
+                                </div>
+                                <div tz:datagrid="column" field="bzCostRemarks"   align="left" width="300">费用说明
+                                    <input property="editor" class="mini-textbox"/>
+                                </div>
+                                <div tz:datagrid="column" width="100%"></div>
+                            </div>
+                        </div>
+                        <div class="button-gx-right" style="display: table;">
+                            <div style="display: table-cell;vertical-align: middle;">
+                                <a class="mini-button" onclick="addRowCost" iconCls="icon-add" id="addBtnCost"
+                                   style="margin-bottom: 8px;">增行</a>
+                                <a class="mini-button" onclick="delRowCost" iconCls="icon-remove" id="delBtnCost"
+                                   style="margin-bottom: 8px;">删行</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div  showCollapseButton="true">
+                <div class="mini-splitter" style="width:100%;height:100%;">
+                    <div size="45%" showCollapseButton="false">
+                        <div class="mini-fit">
+                            <div style="width:100%;padding-right:70px;height:100%">
+                                <div tz:datagrid="datagrid" id="planned_payment_grid" style="width: 100%; height: 100%;"   showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                                       showSummaryRow="true"   allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowSortColumn="false"
+                                           ondrawsummarycell="onDrawSummaryCell" sortField="bzPlanRq" sortOrder="asc"
+                                            url ="/xt/dailyRoutine/expenseReport/getPaymentList" >
+                                    <div property="columns">
+                                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                                        <div tz:datagrid="column" field="bzPlanRq" displayField="planRqStr" width="110" align="center">日期
+                                            <input property="editor" class="mini-datepicker"/>
+                                        </div>
+                                        <div tz:datagrid="column" field="bzPlanMoney" width="100" align="center">金额
+                                            <input property="editor" class="mini-textbox" />
+                                        </div>
+                                        <div tz:datagrid="column" field="bzPlanFlag"  align="left" width="120">状态</div>
+                                        <div tz:datagrid="column" width="100%"></div>
+                                    </div>
+                                </div>
+                                <div class="button-gx-right" style="display: table;">
+                                    <div style="display: table-cell;vertical-align: middle;">
+                                        <a class="mini-button" onclick="addRowPayment" iconCls="icon-add" id="addBtnPayment"
+                                           style="margin-bottom: 8px;">增行</a>
+                                        <a class="mini-button" onclick="delRowPayment" iconCls="icon-remove" id="delBtnPayment"
+                                           style="margin-bottom: 8px;">删行</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div  showCollapseButton="false">
+                        <div class="mini-fit">
+                            <div tz:datagrid="datagrid" id="actual_payment_grid" style="width: 100%; height: 100%;" idField="sfkNote" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                                 ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="sfkRq" sortOrder="asc">
+                                <div property="columns">
+                                    <div tz:datagrid="indexcolumn" width="35">序号</div>
+                                    <div tz:datagrid="column" field="sfkRq" width="110" align="center">日期</div>
+                                    <div tz:datagrid="column" field="sfkFkje" width="100" align="center">金额</div>
+                                    <div tz:datagrid="column" field="dataMan"  align="left" width="120">付款人员</div>
+                                    <div tz:datagrid="column" field="sfkFkfs"   align="left" width="120">付款方式</div>
+                                    <div tz:datagrid="column" field="sfkBz"  align="left" width="80">付款币种</div>
+                                    <div tz:datagrid="column" field="sfkNote"  align="left" width="120">付款单号</div>
+                                    <div tz:datagrid="column" width="100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mini-toolbar hmq-toolbar">
+        <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+        <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+        <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+    </div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var costgrid = mini.get('cost_grid');
+    var plannedpaymentgrid = mini.get('planned_payment_grid');
+    var actualpaymentgrid = mini.get('actual_payment_grid');
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(!!data.customerExp ? data.customerExp : data.customerName);
+                }
+            }
+        });
+    }
+    function onButtonClickHandler(e) {
+        var btnEdit = this;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/eHrWorker/hierarchyWorkerTree.html",
+            title: "【员工】选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    console.log(data);
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                    // form.getField("bzCorp").setText(data.workerCorpName);
+                    //from.getField("bzCorp").setValue(data.workerCorpid);
+                    mini.get("bzCorp").setValue(data.workerCorpid);
+                    mini.get("bzCorp").setText(data.workerCorpName);
+                    // form.getField("bzDept").setText(data.workerDeptName);
+                   // from.getField("bzDept").setValue(data.workerDept);
+                    mini.get("bzDept").setValue(data.workerDept);
+                    mini.get("bzDept").setText(data.workerDeptName);
+
+                }
+            }
+        });
+    }
+
+    /**
+     新增行
+     */
+    function addRowCost() {
+        var index = costgrid.getData().length;
+        var newRow = {
+
+        };
+        costgrid.addRow(newRow, index + 1);
+    }
+    function addRowPayment() {
+        var index = plannedpaymentgrid.getData().length;
+        var newRow = {
+            bzPlanFlag:"登记"
+        };
+        plannedpaymentgrid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRowCost() {
+        var rows = costgrid.getSelecteds();
+        if (rows.length > 0) {
+            costgrid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+    function delRowPayment() {
+        var rows = plannedpaymentgrid.getSelecteds();
+        if (rows.length > 0) {
+            plannedpaymentgrid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("bzNote").getValue();
+        var rows = costgrid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                grid.removeRows(rows, true);
+            }
+        }
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            costgrid.validate();
+            if (costgrid.isValid() == false) {
+                var error = costgrid.getCellErrors()[0];
+                costgrid.beginEditCell(error.record, error.column);
+                return;
+            }
+            plannedpaymentgrid.validate();
+            if (plannedpaymentgrid.isValid() == false) {
+                var error = plannedpaymentgrid.getCellErrors()[0];
+                plannedpaymentgrid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var entrydata = costgrid.getData();
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var entryPaymentData = plannedpaymentgrid.getData();
+            $(entryPaymentData).each(function (index) {
+                entryPaymentData[index].rightOrd = index;
+                entryPaymentData[index]._state = entryPaymentData[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                report: form.getData(true),
+                reports: entrydata,
+                paymentList:entryPaymentData
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            var row = options.data.row;
+            //普通口径
+            if ('add' == options.action) {
+                costgrid.clearData();
+                plannedpaymentgrid.clearData();
+                $('[name=action]').val(options.action);
+            } else if ('edit' == options.action || 'view' == options.action) {
+
+                $.get("getDataByNote/{0}".format(row.bzNote), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        var data = mini.decode(res.data);
+                        form.getField("bzUnit").setText(data.bzUnitName);
+                        form.getField("bzMan").setText(data.bzManName);
+                        mini.get("bzDept").setValue(data.bzDept);
+                        mini.get("bzDept").setText(data.deptname);
+                      //  mini.get("bzDept").setText(data.bzCostDept);
+                        mini.get("bzCorp").setValue(data.bzCorp);
+                        //mini.get("bzCorp").setText(data.workerCorpName);
+                        costgrid.load({
+                            params: JSON.stringify({bzNote: form.getField('bzNote').getValue()})
+                        });
+                        plannedpaymentgrid.load({
+                            params: JSON.stringify({bzNote: form.getField('bzNote').getValue()})
+                        });
+
+                    }
+                });
+            }
+        } else {//审批口径
+            $.get("getDataByNote/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    var data = mini.decode(res.data);
+
+                }
+            }, null, null, {
+                complete: function () {
+                    //表单只读
+                    setFormReadOnly(form);
+                    //禁用grid编辑
+                    grid.setAllowCellEdit(false);
+                    //隐藏按钮区域
+                    $('.mini-toolbar.hmq-toolbar').hide();
+                }
+            });
+        }
+    }
+
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            //url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                    mini.get("actual_payment_grid").setUrl("/finance/payment/paymentList.html");
+                    actualpaymentgrid.load({
+                        params: JSON.stringify({sfk_dw: data.customerId})
+                    });
+                }
+
+
+            }
+        });
+    }
+
+
+
+    /**
+     汇总方法
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "htCode") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "htSl") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+        }
+        if (e.field == "htJs") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(2) + "</span>";
+        }
+        if (e.field == "htJe") {
+            e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(2) + "</span>";
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field, value = e.value;
+        var editor = e.editor;
+        if (field == "bzCostDept") {
+            var id = record.bzCostCorp;
+            if (id) {
+                editor.setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(id));
+            } else {
+                hmq.tipDanger("请先选择公司！");
+                e.cancel = true;
+            }
+        }
+    }
+    /**
+     数量和单价联动自动生成金额
+     */
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+        var grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = e.value;
+        if (field == "htSl" || field == "htPrice" || field == "htJe") {
+            var price = getMiniValue(record.htPrice, 0);
+            var sl = getMiniValue(record.htSl, 0);
+            var js = getMiniValue(record.htJs, 0);
+            if (field == "htSl") {
+                grid.updateRow(record, {
+                    htJe: value * price
+                });
+            }
+            if (field == "htPrice") {
+                grid.updateRow(record, {
+                    htJe: value * sl
+                });
+            }
+
+        }
+
+
+    }
+
+    function getMiniValue(key, defaultValue) {
+        if (key == null || key == undefined || key == "") {
+            return defaultValue;
+        }
+        return key;
+    }
+
+    function getMiniDate(key) {
+        return mini.formatDate(new Date(key), "yyyy-MM-dd");
+    }
+
+    // 判读是否为空
+    function isNull(key) {
+        if (key == null || key == undefined || key === "") {
+            return true;
+        }
+        return false;
+    }
+
+    function readOnly() {
+        var fields = form.getFields();
+        for (var i = 0, l = fields.length; i < l; i++) {
+            var c = fields[i];
+            if (c.setReadOnly) c.setReadOnly(true);     //只读
+            if (c.setIsValid) c.setIsValid(true);      //去除错误提示
+            if (c.addCls) c.addCls("asLabel");          //增加asLabel外观
+        }
+    }
+
+    /**
+     附件行
+     */
+    function appendRow(rows) {
+        var retRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (!isEixsts(rows[i])) {
+                retRows.push(rows[i]);
+            } else {
+                hmq.tipDanger("数据已添加");
+            }
+        }
+        return retRows;
+    }
+
+    /**
+     判断是否存在
+     */
+    function isEixsts(data) {
+        var row = grid.findRow(function (row) {
+            if (row.htCode == data.cpcodeid)
+                return true;
+        });
+        if (row != null) {
+            return true;
+        }
+        return false;
+    }
+    function onDrawSummaryCellmx(){
+
+    }
+
+</script>
+</html>

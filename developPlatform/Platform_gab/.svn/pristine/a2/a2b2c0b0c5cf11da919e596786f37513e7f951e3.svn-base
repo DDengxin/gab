@@ -1,0 +1,79 @@
+<html layout:decorator="/gab/layout/gabPlatformManage" xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="">
+<th:block layout:fragment="header">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/address.css}">
+    <script type="text/javascript" th:src="@{/static/gab/js/plugs/PCASClass.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/manage/address.js}"></script>
+    <script id="contactsHtml" type="text/html">
+        {{#layui.each(d.list, function(index, item){ }}
+            <li>
+                <div>
+                     {{# if (item.defaultBool == 'true') { }}
+                        <span class="setDefault"><input th:type="hidden" id="defAddressNote" value="{{item.addressNote}}">{{item.contacts}}</span>
+                    {{# } else { }}
+                        <span>{{item.contacts}}</span>
+                    {{# }  }}
+                    <strong>{{item.contacts}} {{item.address}} {{item.contactMethod}}</strong>
+                </div>
+    
+                <div>
+                    {{# if (item.defaultBool == 'true') { }}
+                    <b onclick="defaultAddress(this,'{{item.addressNote}}')" class="alDefault">已设为默认地址</b>
+                    {{# } else { }}
+                    <b onclick="defaultAddress(this,'{{item.addressNote}}')">设为默认地址</b>
+                    {{# }  }}
+                    <b onclick="edit(this,'{{item.addressNote}}')">编辑</b>
+                    <b onclick="deleteAddress(this,'{{item.addressNote}}')">删除</b>
+                </div>
+            </li>
+            {{#  });
+        }}
+    </script>
+</th:block>
+<th:block layout:fragment="right-content">
+    <h4>联系人信息</h4>
+    <ol id="contactsOl"></ol>
+    <div class="addAddress" onclick="addAddress();"><i class="layui-icon layui-icon-addition"></i>新增地址
+    </div>
+    <form class="layui-form needsInp" action="" id="saveAddress">
+        <div class="layui-form-item title">
+            新增联系人信息
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">联&nbsp;&nbsp;系&nbsp;&nbsp;人</label><b>*</b>
+            <div class="layui-input-block">
+                <input type="text" id="contacts" name="contacts" required lay-verify="required" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;区</label><b>*</b>
+            <div class="layui-input-block">
+                <select name="province" lay-ignore></select><select name="city" lay-ignore></select><select name="area"
+                    lay-ignore></select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">街道地址</label><b>*</b>
+            <div class="layui-input-block">
+                <input type="text" id="addressNote" name="addressNote" required lay-verify="required" autocomplete="off"
+                    class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">手&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;机</label><b>*</b>
+            <div class="layui-input-block">
+                <input type="text" id="contactMethod" name="contactMethod" required lay-verify="phone" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="contactsForm">保存联系人</button>
+            </div>
+        </div>
+    </form>
+</th:block>
+<th:block layout:fragment="footer">
+</th:block>
+
+</html>

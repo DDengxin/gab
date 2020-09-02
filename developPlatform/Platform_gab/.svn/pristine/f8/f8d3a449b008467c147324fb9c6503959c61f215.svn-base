@@ -1,0 +1,66 @@
+<html layout:decorator="system/_main" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<!--/*褰撳墠main椤甸潰鐨勫疄闄呬唬鐮佸湪_main椤甸潰涓紙Spring thymeleaf layout锛夛紝涓轰簡鏂逛究浜屾寮�鍙戝拰瑕嗗啓*/-->
+<!--<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+</th:block>-->
+<th:block layout:fragment="fragment-header" >
+    <link rel="stylesheet" th:href="@{/static/gab/css/color.css}">
+</th:block>
+<script layout:fragment="fragment-footer" type="text/javascript">
+    (function () {
+        /**
+         * 缁戝畾鏍囬鐐瑰嚮浜嬩欢,鍒囨崲鍒板摜鐖卞府鍓嶇
+         */
+        $("#navbar-navs #title").click(function () {
+            mini.confirm("鍒囨崲鍒版垜鐨勯椤碉紵", "纭淇℃伅", function (action) {
+                if (action == "ok") {
+                    window.location.href = "/";
+                }
+            });
+        });
+        tabs.on('tabload', function (e) {
+            var options = {
+                targetWindow: window,
+                url: null,        //椤甸潰鍦板潃
+                title: "淇℃伅瀹屽杽",      //鏍囬
+                width: 900,      //瀹藉害
+                height: 470,     //楂樺害
+                allowResize: true,       //鍏佽灏哄璋冭妭
+                allowDrag: true,         //鍏佽鎷栨嫿浣嶇疆
+                showCloseButton: true,   //鏄剧ず鍏抽棴鎸夐挳
+                showModal: false,         //鏄剧ず閬僵
+                loadOnRefresh: false,       //true姣忔鍒锋柊閮芥縺鍙憃nload浜嬩欢
+                onload: function () {       //寮瑰嚭椤甸潰鍔犺浇瀹屾垚
+                    var iframe = this.getIFrameEl();
+                    iframe.contentWindow.SetData(this.iframeData);
+                },
+            };
+            $['get']("/gab/getUserInfo", function (res) {
+                if (200 === res.code) {
+                    //鍒ゆ柇绫诲瀷 锛堜笓瀹讹紝渚涘簲鍟嗭紝瀹㈡埛锛�
+                    if (!jQuery.isEmptyObject(res.user) && (!!res.user.type)) {
+                        var user = res.user;
+                        var userinfo = res.userinfo;
+                        //鍒ゆ柇璧勬枡鏄惁琛ュ厖瀹屾暣
+                        if (userinfo.flag == "鐧昏") {
+                            //鏍规嵁绫诲瀷鎵撳紑涓嶅悓鐨勯〉闈�
+                            var temp = {
+                                '涓撳': {url: "/platform/expert/expertedit.html", expertNote: user["supplyId"]},
+                                '鍘傚晢': {url: "/platform/supplier/supplyedit.html", supplyNote: user["supplyId"], width: 1425, height: 791},
+                                '瀹㈡埛': {url: "/platform/specialist/need/neededit.html", userId: user["userId"]},
+                            }[user.type] || '';
+                            //浼犻�掑埌瀛愰〉闈㈢殑鍙傛暟
+                            options["iframeData"] = {data: temp, action: "complete"};
+                            mini.alert("璇峰厛瀹屽杽淇℃伅", "鎻愮ず", function () {
+                                mini.open($.extend(options, temp));
+                            })
+
+                        }
+
+                    }
+
+                }
+            });
+        });
+    })(document);
+</script>
+</html>

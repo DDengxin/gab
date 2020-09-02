@@ -1,0 +1,161 @@
+package com.tengzhi.business.system.sms.service.impl;
+
+import cn.hutool.core.lang.UUID;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.business.system.sms.dao.SysSmsDao;
+import com.tengzhi.business.system.sms.model.SysSmsLog;
+import com.tengzhi.business.system.sms.service.SmsService;
+import com.tengzhi.business.system.sms.service.SysSmsService;
+import com.tengzhi.business.system.user.model.SysUser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class SysSmsServiceImpl implements SysSmsService {
+    @Autowired
+    private SysSmsDao sysSmsDao;
+    @Autowired
+    private SmsService smsService;
+
+    @Override
+    public BasePage<SysSmsLog> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        Date now = new Date();
+        BasePage<SysSmsLog> result =  sysSmsDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.eq("userId", map.get("userId"));
+            c.like("phone", map.get("phone"));
+            c.eq("success", map.get("success"));
+        }));
+
+        //计算是否超时
+        result.getContent().stream().map(sysSmsLog -> {
+            if (!Boolean.valueOf(true).equals(sysSmsLog.getExpired()) && null != sysSmsLog.getExpiredTime()) {
+                sysSmsLog.setExpired(now.getTime() > sysSmsLog.getSendTime().getTime() + sysSmsLog.getExpiredTime()*1000);
+            }
+            return sysSmsLog;
+        }).collect(Collectors.toList());
+
+        return result;
+    }
+
+    @Override
+    public SysSmsLog findByUuid(String uuid) {
+        return sysSmsDao.findById(uuid).orElse(null);
+    }
+
+    @Override
+    public SysSmsLog findByCorpIdAndUserIdAndPhone(String corpId, String userId, String phone) {
+        return sysSmsDao.findByCorpIdAndUserIdAndPhone(corpId, userId, phone);
+    }
+
+    @Override
+    public void deleteByUuid(String uuid) {
+        sysSmsDao.deleteById(uuid);
+    }
+
+
+    /**
+     * 发送短信
+     *
+     * @param sysSmsLog
+     * @return
+     */
+    @Override
+    public SysSmsLog send(SysSmsLog sysSmsLog) {
+        //替换短信文本内的通配符
+        String code = null;
+
+        sysSmsLog.setContent(sysSmsLog.getContent().replace("{sms.signature}", StringUtils.isNotEmpty(SmsServiceImpl.getSignature()) ? SmsServiceImpl.getSignature() : ""));
+        if (sysSmsLog.getContent().indexOf("{sms.code}") >= 0 && StringUtils.isNotEmpty(sysSmsLog.getCode())) {
+            sysSmsLog.setContent(sysSmsLog.getContent().replace("{sms.code}", sysSmsLog.getCode()));
+        }
+
+        try {
+            sysSmsLog.setResponse(smsService.send(sysSmsLog.getPhone(), sysSmsLog.getContent()));
+            sysSmsLog.setSuccess(true);
+            invalidSmsLog(sysSmsLog);
+        } catch (Exception e) {
+            sysSmsLog.setResponse(e.getMessage());
+            sysSmsLog.setSuccess(false);
+            sysSmsLog.setExpired(true);
+        } finally {
+            SessionUser sessionUser=SessionUser.SessionUser();
+            sysSmsLog.setOperationByUser(null == sessionUser ? "SYSTEM":sessionUser.getJobNumber());
+            sysSmsLog.setOperationTime(new Date());
+            sysSmsLog.setUuid(UUID.randomUUID().toString(true));
+            sysSmsLog.setSendTime(new Date());
+
+            sysSmsDao.save(sysSmsLog);
+        }
+        return sysSmsLog;
+    }
+
+
+    /**
+     * 获取符合条件的短信记录
+     * @param type 短信类型
+     * @param corpId 账套ID
+     * @param userId 用户ID
+     * @param phone 手机号码
+     * @param expired 是否过期(若为null，则不匹配该条件)
+     * @param success 是否发送成功(若为null，则不匹配该条件)
+     * @return
+     */
+    @Override
+    public List<SysSmsLog> getSmsLog(String type, String corpId, String userId, String phone, Boolean expired, Boolean success) {
+        Date now = new Date();
+        return sysSmsDao.findAll(Specifications.where((c) -> {
+            c.eq("type", type);
+            c.eq("corpId", corpId);
+            c.eq("userId", userId);
+            c.eq("phone", phone);
+
+            if (null != expired) {
+                c.eq("expired", expired);
+            }
+            if (null != success) {
+                c.eq("success", success);
+            }
+        })).stream().filter(sysSmsLog -> {
+            if (true == expired && null != sysSmsLog.getExpiredTime()) {
+                //过滤超时条目
+                return now.getTime() < sysSmsLog.getSendTime().getTime() + sysSmsLog.getExpiredTime();
+            } else {
+                return true;
+            }
+        }).collect(Collectors.toList());
+    }
+
+
+    @Override
+    public void invalidSmsLog(String type, String corpId, String userId, String phone) {
+        sysSmsDao.invalidLog(type, corpId, userId, phone);
+    }
+
+    /**
+     * 使得验证码失效
+     *
+     * @param sysSmsLog
+     */
+    @Override
+    public void invalidSmsLog(SysSmsLog sysSmsLog) {
+        sysSmsDao.invalidLog(sysSmsLog.getType(), sysSmsLog.getCorpId(), sysSmsLog.getUserId(), sysSmsLog.getPhone());
+    }
+
+
+
+}
+

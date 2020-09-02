@@ -1,0 +1,218 @@
+package com.tengzhi.business.personnel.checkWorkAttendance.leave.service.impl;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.business.personnel.checkWorkAttendance.leave.dao.LeaveDao;
+import com.tengzhi.business.personnel.checkWorkAttendance.leave.service.LeaveService;
+import com.tengzhi.business.personnel.checkWorkAttendance.leave.vo.Examine;
+import com.tengzhi.business.personnel.checkWorkAttendance.workOvertime.model.CheckWorkAttendance;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.workflow.model.Link;
+import com.tengzhi.business.system.workflow.service.InstanceService;
+
+@Service
+@Transactional
+public class LeaveServiceImpl implements LeaveService {
+	@Autowired
+	private LeaveDao leaveDao;
+
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	@Autowired
+	private InstanceService TZinstanceService;
+
+	private final static String ClassifyId = "YGQJ";
+
+	@Override
+	public BasePage<CheckWorkAttendance> findAll(BaseDto baseDto) throws IOException, ParseException {
+		Map<String, String> map = baseDto.getParamsMap();
+//		return leaveDao.QueryPageList(baseDto, Specifications.where((c) -> {
+//			c.startingWith("qjRq", map.get("qjRq"));
+//			c.startingWith("workerId", map.get("workerId"));
+//			c.startingWith("qjDtype", "请假");
+//			c.startingWith("qjKrq", map.get("qjKrq"));
+//			c.startingWith("qjDrq", map.get("qjDrq"));
+//			c.startingWith("qjNote", map.get("qjNote"));
+//
+//		}));
+		String sqlWhere="  ";
+		if(StringUtils.isNotEmpty(map.get("qjNote"))) {
+			sqlWhere += " and a.qj_note = '"+map.get("qjNote")+"'";
+		}
+		if(StringUtils.isNotEmpty(map.get("workerId"))) {
+			sqlWhere += " and a.worker_id like '%"+map.get("workerId")+"%' ";
+		}
+		if(StringUtils.isNotEmpty(map.get("workerName"))) {
+			sqlWhere += " and b.worker_name like '%"+map.get("workerName")+"%' ";
+		}
+		/*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		if(StringUtils.isNotEmpty(map.get("srchRq1"))) {
+			String rq1 = map.get("srchRq1");
+		    Date srchrq1 = simpleDateFormat.parse(rq1);
+		    sqlWhere += " and a.qj_Krq >='"+srchrq1+"'";
+		}
+		if(StringUtils.isNotEmpty(map.get("srchRq2"))) {
+			String rq2 = map.get("srchRq2");
+		    Date srchrq2 = simpleDateFormat.parse(rq2);
+		    sqlWhere += " and a.qj_Krq <='"+srchrq2+"'";
+		}*/
+		if(StringUtils.isNotEmpty(map.get("srchRq1"))) {
+		    sqlWhere += " and to_char(a.qj_Krq,'yyyy-mm-dd') >='"+map.get("srchRq1")+"'";
+		}
+		if(StringUtils.isNotEmpty(map.get("srchRq2"))) {
+		    sqlWhere += " and to_char(a.qj_Krq,'yyyy-mm-dd') <='"+map.get("srchRq2")+"'";
+		}
+		if(StringUtils.isNotEmpty(map.get("srchWorkerDept"))) {
+			sqlWhere += " and b.worker_dept = '"+map.get("srchWorkerDept")+"'";
+		}
+        
+		
+		
+//		String sql ="select qj_note,qj_rq,worker_id,qj_dtype,qj_ztype,qj_xtype,qj_sy"
+//				+ ",qj_krq,qj_drq,qj_sc,qj_kq,qj_flag,qj_month,data_man,data_date,"
+//				+ "data_corp, f_getname('GETUSERNAME',worker_id,'',data_corp) worker_name,jbqj_id from e_hr_jbqj  "
+//				+ "where qj_dtype='请假'"+sqlWhere;
+		String sql ="select a.qj_note,a.qj_rq,a.worker_id,a.qj_dtype,a.qj_ztype,a.qj_xtype,a.qj_sy"
+				+ ",a.qj_krq,a.qj_drq,a.qj_sc,a.qj_kq,a.qj_flag,a.qj_month,a.data_man,a.data_date,"
+				+ "a.data_corp, b.worker_name,a.jbqj_id,f_getname('GETDWNAME',b.worker_dept,'',a.data_corp) worker_dept_name from e_hr_jbqj a,e_hr_worker b  "
+				+ "where a.worker_id=b.worker_id and a.qj_dtype='请假'"+sqlWhere;
+		return leaveDao.QueryPageLists(baseDto, sql);
+
+	}
+
+	@Override
+	public CheckWorkAttendance save(CheckWorkAttendance checkWorkAttendance) throws Exception {
+		checkWorkAttendance.setJbqjId(UUIDUtil.uuid());
+		SessionUser securityUser=SessionUser.SessionUser();
+		if (judgeUnique(checkWorkAttendance)) {
+			checkWorkAttendance.setDataDate(new Date());
+			checkWorkAttendance.setQjFlag("登记");
+			checkWorkAttendance.setQjDtype("请假");
+			checkWorkAttendance.setDataCorp(securityUser.getCorpId());
+			checkWorkAttendance.setQjRq(new Date());
+			checkWorkAttendance.setDataMan(securityUser.getUsername());
+			checkWorkAttendance.setQjNote((sysGenNoteService.getNote(CheckWorkAttendance.class, "QJ", "yyMMdd", 4)));
+			return leaveDao.save(checkWorkAttendance);
+		} else {
+			throw new Exception("请假编号已存在");
+		}
+	}
+
+	@Override
+	public boolean judgeUnique(CheckWorkAttendance checkWorkAttendance) {
+		return leaveDao.findAll(Specifications.where((c) -> {
+			c.eq("jbqjId", checkWorkAttendance.getJbqjId());
+		})).size() <= 0;
+	}
+
+	@Override
+	public void update(CheckWorkAttendance checkWorkAttendance) {
+		checkWorkAttendance.setDataDate(new Date());
+		leaveDao.dynamicSave(checkWorkAttendance, leaveDao.findByJbqjId(checkWorkAttendance.getJbqjId()));
+	}
+
+	@Override
+	public void deleteByqjId(String jbqjId) {
+
+		leaveDao.deleteById(jbqjId);
+
+	}
+
+	@Override
+	public CheckWorkAttendance findByJbqjId(String jbqjId) {
+		CheckWorkAttendance checkWorkAttendance = leaveDao.findByJbqjId(jbqjId);
+		checkWorkAttendance.setWorkerName(leaveDao.findworkerName(checkWorkAttendance.getWorkerId(),checkWorkAttendance.getDataCorp()));
+		return checkWorkAttendance;
+	}
+	
+	@Override
+	public CheckWorkAttendance getByJbqjNote(String note) {
+		// TODO Auto-generated method stub
+		return leaveDao.getByJbqjNote(note);
+	}
+
+
+	@Override
+	public List<Map<Object, String>> parameType() {
+
+		return leaveDao.parameType();
+
+	}
+
+	@Override
+	public Result submitData(CheckWorkAttendance checkWorkAttendance) {
+		CheckWorkAttendance old=leaveDao.findByJbqjId(checkWorkAttendance.getJbqjId());
+		if (old.getQjFlag() != null && !"登记".equals(old.getQjFlag())) {
+			return Result.error("请勿重复提交");
+		}
+		checkWorkAttendance.setDataDate(new Date());
+		leaveDao.dynamicSave(checkWorkAttendance, old);
+		Map<String, Object> map = new HashMap<String, Object>();
+		SessionUser sessionUser=SessionUser.SessionUser();
+		map.put("register", sessionUser.getJobNumber());
+		Link link = TZinstanceService.Start(ClassifyId, checkWorkAttendance.getQjNote(), checkWorkAttendance.getQjSy(), "/personnel/checkWorkAttendance/leave/examination.html",
+				map);
+		map.put("day", checkWorkAttendance.getQjSc());
+		map.put("director", "1001,1002");
+		TZinstanceService.handle(link, map);
+		return Result.resultOk();
+	}
+
+	@Override
+	public Result disagree(Examine examine) {
+		TZinstanceService.Back(examine.getBacklogId(), examine.getOpinion(),"");
+//		CheckWorkAttendance checkWorkAttendance = leaveDao.findByJbqjId(examine.getBusinessId());
+//		checkWorkAttendance.setQjFlag(handlelink.getLinkName());
+//		leaveDao.dynamicSave(checkWorkAttendance, null);
+		return Result.resultOk();
+	}
+
+	@Override
+	public Result agree(Examine examine) {
+		TZinstanceService.handle(examine.getBacklogId(), examine.getOpinion(),"");
+//		CheckWorkAttendance checkWorkAttendance = leaveDao.findByJbqjId(examine.getBusinessId());
+//		checkWorkAttendance.setQjFlag(handlelink.getLinkName());
+//		leaveDao.dynamicSave(checkWorkAttendance, null);
+		return Result.resultOk();
+	}
+
+	@Override
+	public CheckWorkAttendance findByQjNote(String qjNote) {
+		CheckWorkAttendance checkWorkAttendance = leaveDao.findByQjNote(qjNote);
+		checkWorkAttendance.setWorkerName(leaveDao.findworkerName(checkWorkAttendance.getWorkerId(),checkWorkAttendance.getDataCorp()));
+		return checkWorkAttendance;
+	}
+
+	@Override
+	public Result getFlag(String note,String flag) {
+		String flagString = leaveDao.getFlag(note);
+		if(flag.equals(flagString)){
+			return Result.resultOkMsg("操作成功");
+		}else {
+			return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+		}
+		
+	}
+
+
+}

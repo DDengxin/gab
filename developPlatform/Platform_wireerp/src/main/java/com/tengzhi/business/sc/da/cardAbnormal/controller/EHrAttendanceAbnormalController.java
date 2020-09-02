@@ -1,0 +1,172 @@
+package com.tengzhi.business.sc.da.cardAbnormal.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormal;
+import com.tengzhi.business.sc.da.cardAbnormal.service.EHrAttendanceAbnormalService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/5 0005 11:33
+ * @Description: 异常刷卡控制层
+ */
+
+@RestController
+@RequestMapping(value = "/sc/da/cardAbnormal/")
+public class EHrAttendanceAbnormalController {
+
+    @Autowired
+    private EHrAttendanceAbnormalService eHrAttendanceAbnormalService;
+
+    @GetMapping(value = "*.html")
+    public ModelAndView EHrAttendanceAbnormal(ModelAndView modelAndView){
+        return modelAndView;
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/5 0005 16:50
+     *@Param:       [baseDto]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 获取所有生产人员的打卡异常记录
+     **/
+    @PostMapping(value = "/findAttendanceAbnormalAll")
+    public Result findAttendanceAbnormalAll(BaseDto baseDto){
+        Result resultAll = eHrAttendanceAbnormalService.findAll(baseDto).getResult();
+        return resultAll;
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/7 0007 20:24
+     *@Param:       [note]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 删单操作
+     **/
+    @DeleteMapping(value = "/deleteByNote/{note}")
+    public Result findAttendanceAbnormalAll(@PathVariable(value = "note") String note){
+        Result resultAll = eHrAttendanceAbnormalService.deleteByNote(note);
+        return resultAll;
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 9:24
+     *@Param:       []
+     *@return:      java.util.List<com.tengzhi.business.resouces.vo.SelectVo>
+     *@Description: 获取所有考勤类别：前端收到的为第二个参数KqType的所有数据
+     **/
+    @GetMapping(value = "/findByKqType")
+    public List<SelectVo> findByKqType(){
+        List<SelectVo> byKqTypeParam = eHrAttendanceAbnormalService.findByKqTypeParam();
+        return byKqTypeParam;
+    }
+
+    /**
+     *@role:        
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 19:20
+     *@Param:       []
+     *@return:      java.util.List<com.tengzhi.business.resouces.vo.SelectVo>
+     *@Description: 获取所有考勤原因类别
+     **/
+    @GetMapping(value = "/findByKqYy")
+    public List<SelectVo> findByKqYy(){
+        List<SelectVo> byKqyyParam = eHrAttendanceAbnormalService.findByKqyyParam();
+        return byKqyyParam;
+    }
+
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 17:36
+     *@Param:       [note]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 获取当前选中sid的数据，将用于页面跳转后的传输的数据
+     **/
+    @GetMapping(value = "/findEHrAttendanceAbnormalById/{sid}")
+    public Result findEHrAttendanceAbnormalById(@PathVariable(name = "sid") String sid){
+        Result eHrAttendanceAbnormalById = eHrAttendanceAbnormalService.findEHrAttendanceAbnormalById(Long.valueOf(sid));
+        return eHrAttendanceAbnormalById;
+    }
+
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 17:37
+     *@Param:       [note, flag]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 判断当前选中的单号是否为登记，登记即可修改可以修改
+     **/
+    @PutMapping(value = "/getFlag/{sid}/{flag}")
+    public Result getFlag(@PathVariable(value = "sid") String sid,@PathVariable(value = "flag") String flag) throws Exception {
+        Result flag1 = eHrAttendanceAbnormalService.getFlag(Long.valueOf(sid), flag);
+        return flag1;
+    }
+
+    /**
+     *@role:        
+     *@Author:      huangbiao
+     *@Date:        2020/8/7 0007 10:23
+     *@Param:       [sid]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 更改状态
+     **/
+    @PutMapping(value = "/updateFlag/{sid}/{flag}")
+    public Result updateFlag(@PathVariable(value = "sid") String sid,@PathVariable(value = "flag") String flag){
+        Result result = eHrAttendanceAbnormalService.updateFlag(Long.valueOf(sid),flag);
+        return result;
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/6 0006 17:39
+     *@Param:       [eHrAttendanceAbnormalVo]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 添加、修改、删除一行或多行数据：废弃
+     **/
+/*    @PostMapping(value = "/add.html")
+    public Result addEHrAttendanceAbnormal(@RequestBody EHrAttendanceAbnormalVo eHrAttendanceAbnormalVo){
+        Result result = eHrAttendanceAbnormalService.addUpdateEHrAttendanceAbnormal(eHrAttendanceAbnormalVo);
+        return result;
+    }*/
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/7 0007 20:24
+     *@Param:       [eHrAttendanceAbnormalVo]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 添加、修改、删除一行或多行数据：废弃
+     **/
+/*    @PutMapping(value = "/add.html")
+    public Result updateEHrAttendanceAbnormal(@RequestBody EHrAttendanceAbnormalVo eHrAttendanceAbnormalVo){
+        Result result = eHrAttendanceAbnormalService.addUpdateEHrAttendanceAbnormal(eHrAttendanceAbnormalVo);
+        return result;
+    }*/
+
+    @PostMapping(value = "/add.html")
+    public Result addEHrAttendanceAbnormal(@RequestBody EHrAttendanceAbnormal eHrAttendanceAbnormal){
+        Result result = eHrAttendanceAbnormalService.save(eHrAttendanceAbnormal);
+        return result;
+    }
+
+    @PutMapping(value = "/add.html")
+    public Result updateEHrAttendanceAbnormal(@RequestBody EHrAttendanceAbnormal eHrAttendanceAbnormal){
+        Result result = eHrAttendanceAbnormalService.update(eHrAttendanceAbnormal);
+        return result;
+    }
+
+}

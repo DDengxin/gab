@@ -1,0 +1,42 @@
+package com.tengzhi.business.personnel.eHrWorker.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.personnel.eHrWorker.model.EHrWorker;
+import com.tengzhi.business.resouces.vo.SelectVo;
+
+public interface eHrWorkerService extends BaseService{
+	
+	BasePage<EHrWorker> findAll(BaseDto baseDto) throws IOException;
+	
+	EHrWorker save(EHrWorker eHrWorker) throws Exception;
+	
+	boolean judgeUnique(EHrWorker eHrWorker);
+	
+	void deleteByWorkerId(String workerId) throws Exception;
+	
+    EHrWorker findByWorkerId(String workerId);
+    
+	void update(EHrWorker eHrWorker);
+	
+	List<Map<Object,String>>  selectDept();
+
+	List<SelectVo> getDeptWorker(String deptId);
+	
+	List<SelectVo> getXl(String trueText, String falseText);
+	
+	List<SelectVo> getYglx(String trueText, String falseText);
+	
+	List<SelectVo> getGzgw(String trueText, String falseText);
+	
+	List<SelectVo> getGzzw(String trueText, String falseText);
+	
+	List<SelectVo> getGzbx(String trueText, String falseText);
+	 
+
+}

@@ -1,0 +1,101 @@
+package com.tengzhi.base.thymeleaf.tag.tz.process;
+
+import com.tengzhi.base.thymeleaf.tag.tz.TzProcessorDialect;
+import org.thymeleaf.IEngineConfiguration;
+import org.thymeleaf.context.ITemplateContext;
+import org.thymeleaf.context.WebEngineContext;
+import org.thymeleaf.engine.AttributeName;
+import org.thymeleaf.model.AttributeValueQuotes;
+import org.thymeleaf.model.IModel;
+import org.thymeleaf.model.IModelFactory;
+import org.thymeleaf.model.IProcessableElementTag;
+import org.thymeleaf.processor.element.AbstractAttributeTagProcessor;
+import org.thymeleaf.processor.element.IElementTagStructureHandler;
+import org.thymeleaf.standard.expression.IStandardExpression;
+import org.thymeleaf.standard.expression.IStandardExpressionParser;
+import org.thymeleaf.standard.expression.StandardExpressions;
+import org.thymeleaf.templatemode.TemplateMode;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 标签处理器(setting)
+ *
+ * @author lgl
+ * @createDate
+ */
+@Deprecated
+public class LabelProcess extends AbstractAttributeTagProcessor {
+    public LabelProcess(String dialectPrefix) {
+        super(
+                TemplateMode.HTML,
+                dialectPrefix,
+                null,
+                false,
+                TzProcessorDialect.LABEL,
+                true,
+                TzProcessorDialect.DEFAULT_PRECEDENCE,
+                true);
+    }
+
+
+    /**
+     * exp:<div tz:setting="{
+     * url:abc
+     * }"></div>
+     *
+     * @param context          模板页上下文
+     * @param tag              待处理标签
+     * @param attributeName    属性名 text
+     * @param attributeValue   属性值 {url:abc}
+     * @param structureHandler 元素标签结构处理器
+     */
+    @Override
+    protected void doProcess(ITemplateContext context, IProcessableElementTag tag, AttributeName attributeName,
+                             String attributeValue, IElementTagStructureHandler structureHandler) {
+// 创建将替换自定义标签的 DOM 结构
+
+
+        /**
+         * 获取应用程序的上下文参数
+         */
+        WebEngineContext ctx = (WebEngineContext) context;
+        final String contextPath = ctx.getServletContext().getContextPath();
+
+        //获取该HTML节点上的的指定属性
+        final String name = tag.getAttributeValue("lib");
+
+        /**
+         * 创建引入js库的DOM元素模型
+         */
+        final IModelFactory modelFactory = context.getModelFactory();
+        final IModel model = modelFactory.createModel();
+
+        Map<String, String> attributes_script = null;
+        Map<String, String> attributes_link = null;
+
+        List<Map<String, String>> scripts = new ArrayList<>();
+        List<Map<String, String>> links = new ArrayList<>();
+
+
+        attributes_script = new HashMap<>();
+        attributes_script.put("src", "http://libs.baidu.com/jquery/2.1.1/jquery.min.js");
+        scripts.add(attributes_script);
+
+        model.add(modelFactory.createOpenElementTag("script", scripts.get(0),
+                AttributeValueQuotes.DOUBLE, false));
+        model.add(modelFactory.createCloseElementTag("script"));
+
+
+        final IEngineConfiguration configuration = context.getConfiguration();
+        final IStandardExpressionParser parser = StandardExpressions.getExpressionParser(configuration);
+        final IStandardExpression expression = parser.parseExpression(context, attributeValue);
+        final String title = (String) expression.execute(context);
+
+        structureHandler.setBody(title + "test", false);
+        //structureHandler.setBody(title + MaydayConst.options.get("blog_name"), false);
+    }
+}

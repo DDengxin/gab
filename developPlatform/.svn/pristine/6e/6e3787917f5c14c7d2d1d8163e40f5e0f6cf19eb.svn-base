@@ -1,0 +1,17 @@
+package com.tengzhi.business.system.right.dao;
+
+import java.util.List;
+
+import com.tengzhi.business.system.right.model.SysRight;
+
+public interface SysRightBasicDao  {
+
+   
+    List<SysRight> findByUserid(String userid,String model);
+
+	List<SysRight> findParentIdAndRightType(String userid, String rightId, String typeButton);
+
+
+
+
+}

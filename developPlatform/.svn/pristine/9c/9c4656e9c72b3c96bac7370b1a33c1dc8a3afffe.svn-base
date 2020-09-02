@@ -1,0 +1,64 @@
+package com.tengzhi.business.sc.capacity.specification.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.sc.capacity.specification.dao.MScGgclDao;
+import com.tengzhi.business.sc.capacity.specification.service.MScGgclService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/12 0012 14:50
+ * @Description:
+ */
+
+@Service
+public class MScGgclServiceImpl implements MScGgclService {
+
+    private MScGgclDao mScGgclDao;
+
+    @Autowired
+    public MScGgclServiceImpl(MScGgclDao mScGgclDao) {
+        this.mScGgclDao = mScGgclDao;
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/12 0012 14:53
+     *@Param:       [baseDto]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 查询所有规格产品
+     **/  @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String whereJudge = SqlJoint.whereSuffixWhere((c) ->{
+            c.eq("data_corp", SessionUser.getCurrentCorpId());
+            c.eq("cl_id",map.get("clId"));
+            c.contains("cl_cj",map.get("clCj"));
+            c.contains("ggcl_size",map.get("ggclSize"));
+        });
+        String sqlString = "select cl_id,cl_cj,cl_code,ggcl_size,size_min,size_max,cl_bcl,cl_rbs,cl_rcl,cl_yts,cl_ycl,data_date" +
+                " from m_sc_ggcl"+whereJudge;
+        return mScGgclDao.QueryMapPageList(baseDto, sqlString, true);
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/12 0012 14:54
+     *@Param:       []
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 查询所有车间类型
+     **/
+    @Override
+    public Result findCjType() {
+        return null;
+    }
+}

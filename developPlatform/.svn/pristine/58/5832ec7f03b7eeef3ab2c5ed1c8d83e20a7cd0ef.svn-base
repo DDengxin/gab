@@ -1,0 +1,124 @@
+package com.tengzhi.business.sc.pd.khgy.model;
+
+import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+/**
+ * @Auther: 龚行礼
+ * @Date: 2020/8/24 0013 21:45
+ * @Description:客户工艺
+ */
+
+@Entity
+@Table(name = "m_sc_kfgylist")
+public class MScKfgylist {
+	@Id
+	private String itemMo;
+	private String masterId,tname,tsize,ttype,qd_min,qd_max,yl_bj,yl_dl,yl_ls,gy_yqsm;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date itemRq;
+
+	public String getItemMo() {
+		return itemMo;
+	}
+
+	public void setItemMo(String itemMo) {
+		this.itemMo = itemMo;
+	}
+
+	public String getMasterId() {
+		return masterId;
+	}
+
+	public void setMasterId(String masterId) {
+		this.masterId = masterId;
+	}
+
+	public String getTname() {
+		return tname;
+	}
+
+	public void setTname(String tname) {
+		this.tname = tname;
+	}
+
+	public String getTsize() {
+		return tsize;
+	}
+
+	public void setTsize(String tsize) {
+		this.tsize = tsize;
+	}
+
+	public String getTtype() {
+		return ttype;
+	}
+
+	public void setTtype(String ttype) {
+		this.ttype = ttype;
+	}
+
+	public String getQd_min() {
+		return qd_min;
+	}
+
+	public void setQd_min(String qd_min) {
+		this.qd_min = qd_min;
+	}
+
+	public String getQd_max() {
+		return qd_max;
+	}
+
+	public void setQd_max(String qd_max) {
+		this.qd_max = qd_max;
+	}
+
+	public String getYl_bj() {
+		return yl_bj;
+	}
+
+	public void setYl_bj(String yl_bj) {
+		this.yl_bj = yl_bj;
+	}
+
+	public String getYl_dl() {
+		return yl_dl;
+	}
+
+	public void setYl_dl(String yl_dl) {
+		this.yl_dl = yl_dl;
+	}
+
+	public String getYl_ls() {
+		return yl_ls;
+	}
+
+	public void setYl_ls(String yl_ls) {
+		this.yl_ls = yl_ls;
+	}
+
+	public String getGy_yqsm() {
+		return gy_yqsm;
+	}
+
+	public void setGy_yqsm(String gy_yqsm) {
+		this.gy_yqsm = gy_yqsm;
+	}
+
+	public Date getItemRq() {
+		return itemRq;
+	}
+
+	public void setItemRq(Date itemRq) {
+		this.itemRq = itemRq;
+	}
+}

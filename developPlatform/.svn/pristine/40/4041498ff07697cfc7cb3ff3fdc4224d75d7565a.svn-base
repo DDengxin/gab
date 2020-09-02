@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产登记</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="类别编码">
+            <input class="mini-textbox" name="code"/>
+        </label>
+        <label class="hmq-label" text="类别名称">
+            <input class="mini-textbox" name="name"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" style="width: 100%; height: 100%;"
+         idField="sid" url="/finance/capitalManager/capitalType/list.html"
+         sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" showPageInfo="false" sortField="sid" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div field="sid" visible="false">主键uuid</div>
+            <div field="code" width="100" align="left" headerAlign="center" allowSort="true">资产编码</div>
+            <div field="name" width="300" align="left" headerAlign="center" allowSort="true">资产名称</div>
+            <div field="zjff" width="80" align="center" headerAlign="center" allowSort="true">类别</div>
+            <div field="yjsynx" width="120" align="center" headerAlign="center" allowSort="true">部门</div>
+            <div field="yjjczl" width="120" align="center" headerAlign="center" allowSort="true">原值</div>
+            <div field="gdzckm" width="120" align="center" headerAlign="center" allowSort="true">期初累计折旧</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">期末累计折旧</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">月折旧</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">预计使用期限</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">已使用期</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">残值</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">残值率%</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">减值准备</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">期初净值</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">期末净值</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">折旧方法</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">状态</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">清理期间</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">购入凭证</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">清理凭证</div>
+            <div field="ljzjkm" width="120" align="center" headerAlign="center" allowSort="true">减值准备凭证</div>
+            <div field="remarks" width="120" align="center" headerAlign="center" allowSort="true">备注</div>
+            <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_grid = mini.get("srch_grid");
+    srch_grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        srch_grid.load();
+    }
+
+    /**
+     * 新增
+     **/
+    function add_option(e){
+        var row = srch_grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+
+    /**
+     * 修改
+     **/
+    function edit_option(e){
+        var row = srch_grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'edit', data: row});
+    }
+
+    /**删除*/
+    function delete_option() {
+        var row = srch_grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteById/{0}".format(row.sid), function (res) {
+                        if (200 === res.code) {
+                            srch_grid.reload();
+                            hmq.tipSuccess("删除完成");
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>

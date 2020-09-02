@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>产品信息</title>
+    </th:block>
+</head>
+<body>
+<input class="mini-hidden" name="cpcodeType"/>
+<form id="form_home">
+    <input name="cpcodeType" class="mini-hidden"/>
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="产品编码">
+                <input class="mini-textbox" name="cpcodeId"/>
+            </label>
+            <label class="hmq-label" for="cpcodeName" text="产品名称">
+                <input id="cpcodeName" name="cpcodeName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid"
+                       parentField="pid" value="无" onbeforenodeselect="disableParentSelection" popupWidth="240" popupHeight="180" allowInput="true"/>
+            </label>
+            <label class="hmq-label" for="cpcodeSize"  text="产品规格">
+                <input class="mini-textbox" name="cpcodeSize" id="cpcodeSize"/>
+            </label>
+            <label class="hmq-label" for="cpcodeFl"  text="产品分类">
+                <input class="mini-combobox" name="cpcodeFl" id="cpcodeFl" nullItemText="全部" showNullItem="true">
+            </label>
+            <label class="hmq-label" for="cpcodeCheck"  text="检验分类">
+                <input class="mini-combobox" name="cpcodeCheck" id="cpcodeCheck" nullItemText="全部" showNullItem="true">
+            </label>
+            <label class="hmq-label" for="cpcodeSizeEn"  text="英文名称">
+                <input class="mini-textbox" id="cpcodeSizeEn" name="cpcodeNameEn"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="cpcodeId" url="/js/cpcode/list" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="cpcodeId" width="120">产品编码</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcodeName" displayField="cpcodeNameName" width="120">产品名称</div>
+            <div tz:datagrid="column" name="cpcodeSize"  field="cpcodeSize"  displayField="cpcodeSizeName"   width="70">产品规格</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn"  displayField="cpcodeSizeEnName"  width="120">长度</div>
+            <div tz:datagrid="column" name="cpcodeFl" field="cpcodeFl" displayField="cpcodeFlName" width="80">所属分类</div>
+            <div tz:datagrid="column" field="cpcodeBz" displayField="cpcodeBzName" width="80">计量单位</div>
+            <div tz:datagrid="column" name="cpcodeXp" field="cpcodeXp" displayField="cpcodeXpName" width="80">产品标重</div>
+            <div tz:datagrid="column" field="cpcodePb" width="80">大包配比</div>
+            <div tz:datagrid="column" field="cpcodeDunit" width="80">大包单位</div>
+            <div tz:datagrid="column" field="cpcodeCheck" displayField="cpcodeCheckName" width="100">检验分类</div>
+            <div tz:datagrid="column" field="cpcode01" width="70" align="center">入库方式</div>
+            <div tz:datagrid="column" field="cpcode02" width="70" align="center">核算方式</div>
+            <div tz:datagrid="column" field="cpcode03" width="100">其他参数</div>
+            <div tz:datagrid="column" field="cpcodeFlag" width="60" align="center">状态</div>
+            <div tz:datagrid="column" field="cpcodeNameEn" width="100">英文名称</div>
+            <div tz:datagrid="column" field="cpcodeSm" width="200">特殊要求</div>
+            <div tz:datagrid="column" header="库存预警">
+                <div property="columns">
+                    <div tz:datagrid="column" field="cpcodeUpper" align="right" numberFormat="#0.000"  width="100">上限</div>
+                    <div tz:datagrid="column" field="cpcodeLower" align="right" numberFormat="#0.000" width="100">下限</div>
+                    <div tz:datagrid="column" field="cpcodeStockWarn" width="80">是否预警</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    // 页面初始化模块和类型 START
+
+
+    var cpcodeType = hmq.getQueryString("cpcodeType");
+    if (hmq.isNotEmpty(cpcodeType)) {
+        form.getField("cpcodeType").setValue(cpcodeType);
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniForm:form,
+            miniDataGrid: grid,
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+    }
+    grid.on("DrawCell", function (e) {
+        if (e.field == "cpcodeFlag") {
+            e.cellHtml = 'Y' === e.value ? '启用' : '禁用';
+        }else if('cpcodeStockWarn' == e.field ){
+            e.cellHtml = e.value ? '是' :'否';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        e.sender.miniopen({url: "/js/cpcode/add.html?cpcodeType=" + cpcodeType, action: 'add', data: {cpcodeType: cpcodeType}});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "/js/cpcode/add.html?cpcodeType=" + cpcodeType, action: 'edit', data: {row: row, cpcodeType: cpcodeType}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/js/cpcode/{0}".format(row.cpcodeId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

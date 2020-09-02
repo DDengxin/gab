@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目任务</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="menuType" value="登记"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input  class="mini-textbox" name="xmId" id="xmId"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="rwNote" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="rwRq" align="center" width="100">日期</div>
+            <div tz:datagrid="column" field="rwNote" align="center" width="120">单号</div>
+            <div tz:datagrid="column" field="rwType" displayField="rwTypeName" align="left" width="80">任务类型</div>
+            <div tz:datagrid="column" field="rwResource" displayField="rwResourceName" align="left" width="80">任务来源</div>
+            <div tz:datagrid="column" field="rwTitle" align="left" width="120">任务主题</div>
+            <div tz:datagrid="column" field="rwProject" displayField="rwProjectName" align="left" width="160">所属项目</div>
+            <div tz:datagrid="column" field="rwStage" displayField="rwStageName" align="left" width="80">项目阶段</div>
+            <div tz:datagrid="column" field="rwNode" displayField="rwNodeName" align="left" width="80">项目节点</div>
+            <div tz:datagrid="column" field="rwJhMan" displayField="rwJhManName" align="left" width="70">计划人员</div>
+            <div tz:datagrid="column" field="rwJhStart" align="center" width="90">计划开始</div>
+            <div tz:datagrid="column" field="rwJhEnd" align="center" width="90">计划完成</div>
+            <div tz:datagrid="column" field="rwJhGs" align="right" width="80">计划工时</div>
+            <div tz:datagrid="column" field="rwFlag" align="center" width="80">任务状态</div>
+            <div tz:datagrid="column" field="rwJsDate"  renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm" align="center" width="140">接收时间</div>
+            <div tz:datagrid="column" field="rwKsDate"  renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm" align="center" width="140">开始时间</div>
+            <div tz:datagrid="column" field="rwWcDate"  renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm" align="center" width="140">完成时间</div>
+            <div tz:datagrid="column" field="rwJjcd" displayField="rwJjcdName" align="center" width="80">紧急程度</div>
+            <div tz:datagrid="column" field="rwFile" align="left" width="45" renderer="onActionRenderer" >附件</div>
+            <div tz:datagrid="column" field="rwRemarks" align="left" width="240">任务说明</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("/project/projectProcess/projectTask/getFlag/{0}/{1}".format(row.rwNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("/project/projectProcess/projectTask/getFlag/{0}/{1}".format(row.rwNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("deleteById/{0}".format(row.rwNote), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                    hmq.tipSuccess("删除完成");
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**发布*/
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("/project/projectProcess/projectTask/updateFlag/{0}/{1}/{2}".format(row.rwNote, '登记','发布'), function (res) {
+                if (200 === res.code) {
+                    grid.reload();
+                    hmq.tipSuccess("操作完成");
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**撤销*/
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("/project/projectProcess/projectTask/updateFlag/{0}/{1}/{2}".format(row.rwNote, '发布','登记'), function (res) {
+                if (200 === res.code) {
+                    grid.reload();
+                    hmq.tipSuccess("操作完成");
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "rwFile") {
+            var html = "";
+            if (e.value != null) {
+                html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 附件  ' + '</a> ';
+            }else{
+                html = '-';
+            }
+            return html;
+        }else if(e.field == "rwJsDate"){
+            return record.rwJsDate ?mini.formatDate(new Date(record.rwJsDate), "yyyy-MM-dd HH:mm"):'';
+        }else if(e.field == "rwWcDate"){
+            return record.rwWcDate ?mini.formatDate(new Date(record.rwWcDate), "yyyy-MM-dd HH:mm"):'';
+        }else if(e.field == "rwKsDate"){
+            return record.rwKsDate ?mini.formatDate(new Date(record.rwKsDate), "yyyy-MM-dd HH:mm"):'';
+        }
+    }
+
+
+    function file_view(noticeNo) {
+        miniopen({url: '/project/projectProcess/projectTask/file.html', action: 'file', data: noticeNo, width: 400, height: 390, title: '附件下载'});
+    }
+
+
+</script>
+
+
+</body>
+</html>

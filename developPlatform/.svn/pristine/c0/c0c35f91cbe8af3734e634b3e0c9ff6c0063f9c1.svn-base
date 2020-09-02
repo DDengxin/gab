@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <th:block th:replace="~{model/Head :: head(_,_,_,${'miniui,common'})}"></th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/layui/css/layui.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/basic.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/gate_ind.css}"/>
+
+    <script th:src="@{/static/script/layui/layui.js}"></script>
+    <script th:src="@{/static/javascript/echarts.min.js}"></script>
+    <script th:src="@{/static/javascript/d-toast.min.js}"></script>
+</head>
+<body>
+<div class="container">
+    <div class="content">
+        <div class="wrap">
+            <div class="top">
+                <div class="chartOne">
+                    <!--<div id="chartOne" style="width: 100%; height: 100%" ></div>-->
+                    <iframe id="chartOnetr" style="width: 100%; height: 100%;border: 0px;"></iframe>
+                </div>
+                <div class="chartTwo">
+                    <!--<div id="chartTwo" style="width: 100%; height: 100%"></div>-->
+                    <iframe id="chartTwotr" style="width: 100%; height: 100%;border: 0px;"></iframe>
+                </div>
+            </div>
+            <div class="bottom">
+                <div class="note">
+                    <div class="note_top">
+                        <span class="title_top">通知</span> <span class="line"></span>
+                        <a href="javascript:return void(0);"
+                           onclick="activeTab({'rightId': 'R100401', 'rightName': '企业公告', 'rightIconCls': 'iconfont icon-gonggaoguanli', 'rightLink': '/xt/notice/qygg.html'});" class="more">更多</a>
+                    </div>
+                    <div class="note_content" id="notice"></div>
+                </div>
+
+                <div class="agreen">
+                    <div class="note_top">
+                        <span class="title_top">审批</span> <span class="line"></span>
+                        <a href="javascript:return void(0);"
+                           onclick="activeTab({'rightId': 'R101101', 'rightName': '待办事项', 'rightIconCls': 'iconfont icon-yijianfankui1', 'rightLink': '/system/workflow/backlog/applyAndTodo'});" class="more" id="note-content-more">更多</a>
+                    </div>
+                    <div class="note_content" id="note-content">
+                        <!--<div class="note_det">
+                            <div class="note_left">
+                                &gt;<span class=""><a url="#" class="span-cut">关于2月消息服务升级计划通知关于2月消息服务升级计划通知关于2月消息服务升级计划通知</a></span>
+                            </div>
+                            <b>2020-03-30</b>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="menu">
+            <div class="note_top" style="display:none;">
+                <span class="title_top">快捷菜单</span> <span class="line"></span>
+            </div>
+            <div class="mini-fit note_content">
+                <!--快捷菜单-->
+                <ul class="menu_name" id="indexMenu">
+
+                    <!--<li>
+                        <a  th:onclick="activeTab(${row})" >
+                            <i th:class="${row.rightIconCls+' fa-2x'}"></i>
+                            <p th:text="${row.rightName}">菜单名称</p>
+                        </a>
+                    </li>-->
+
+                </ul>
+                <!--日历区域-->
+                <div class="mini-fit  calendar">
+                    <div class="layui-inline" id="laydate-box"></div>
+                    <div class="mini-fit laydate-box-todo" id="laydate-box-todo">
+                        <div style="text-align: right;padding:4px;color:#666666;">
+                            <a href="javascript:opentodo()">新增提醒</a>
+                        </div>
+                        <ul>
+                            <!-- <li>
+                                <div class="info-line layui-elip">
+                                    <a href="">我的计划</a>
+                                    <span
+                                        class="right-badge layui-badge layui-anim layui-anim-scaleSpring">2020-01-01</span>
+                                </div>
+                            </li> -->
+                            <!-- <li class="hmq-text-gray hmq-text-center">-没有日程-</li> -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input id="m" class="mini-hidden">
+</body>
+<script type="text/javascript" th:inline="javascript">
+
+
+    layui.use('form', function () {
+        var $ = layui.jquery;
+        $.ajax({
+            url: "/xt/notice/sreachEight",
+            dataType: "json",
+            type: "post",
+            success: function (res) {
+                var notice = "";
+                for (var i = 0, l = res.length; i < l; i++) {
+                    var noticeRq = res[i].noticeRq;
+                    try {
+                        noticeRq = new Date().toISOString().substring(5, 10);
+                    } catch (e) {
+                        noticeRq = "";
+                    }
+                    notice += '<div class="note_det"> <div class="note_left">&gt;<span><a href="#" onclick="noticeView(\'' + res[i].noticeNo + '\')" class="span-cut">' + res[i].noticeTheme + '</a></span></div> <b>' + noticeRq + '</b> </div>';
+                }
+                $("#notice").html(notice)
+            }
+        });
+    });
+
+    function noticeView(noticeNo) {
+        var data = {data: noticeNo};
+        window.parent.mini.open({
+            title: '【企业公告】查阅',
+            showMaxButton: true,
+            width: 1300,
+            height: 800,
+            url: '../xt/notice/view.html',
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (result) {
+                var iframe = this.getIFrameEl();
+                var datas = iframe.contentWindow.GetData();
+                if (typeof (datas) == 'undefined' || !datas || datas.length == 0) {
+                    return;
+                }
+            }
+        });
+    }
+
+    /**
+     * 打开/激活tab页
+     **/
+    function activeTab(item) {
+        window.parent.activeTab({
+            id: item.rightId,
+            url: item.rightLink,
+            text: item.rightName,
+            iconCls: item.rightIconCls
+        });
+    }
+
+    /* 图表1 */
+    (function () {
+        $.get("./echart.html", function (res) {
+            if (200 === res.code) {
+                var datalist = res.data;
+                //图表一
+                var contextone = datalist[0].datachart_file;
+                var contextname = datalist[0].datachart_name;
+                var urlone = encodeURI(decodeURI(contextone + "?name=" + contextname));
+                if (contextone.length > 0) {
+                    $("#chartOnetr").attr("src", urlone);
+
+                    var chartOnetr = document.getElementById("chartOnetr");
+                    chartOnetr.height = 0;
+                    chartOnetr.height = chartOnetr.contentWindow.document.body.scrollHeight;
+                }
+
+                //图表二
+                var contextwo = datalist[1].datachart_file;
+                var contextwoname = datalist[1].datachart_name;
+                var urltwo = encodeURI(decodeURI(contextwo + "?name=" + contextwoname));
+                if (contextwo.length > 0) {
+                    $("#chartTwotr").attr("src", urltwo);
+                    var chartTwotr = document.getElementById("chartTwotr");
+                    chartTwotr.height = 0;
+                    chartTwotr.height = chartTwotr.contentWindow.document.body.scrollHeight;
+                }
+            }
+        });
+
+    })();
+
+</script>
+<script type="text/javascript" th:inline="javascript">
+    var pageTimer = {}; //定义计算器全局变量
+    var pageTimer1 = {};
+
+    /**
+     * 计算元素属性
+     * @param {Object} obj
+     * @param {Object} attr
+     */
+    function getStyle(obj, attr) {
+        return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj)[attr];
+    }
+
+    /**
+     * 动态改变元素尺寸
+     */
+    layui.use(['jquery', 'element'], function () {
+        var element = layui.element;
+
+        var $window = layui.jquery(window);
+
+        function resizeDivHeight() {
+            //调整框架内容区域高度
+            var $content = layui.jquery('.hmq-header-tab-content');
+            var tab_header_height = $content.siblings('.layui-tab-title').outerHeight(true) + 10;
+            $content.height(layui.jquery(window).height() - tab_header_height - ($content.outerHeight(true) - $content.height()));
+
+            //调整栅格自适应高度
+            var $target = layui.jquery("[hmq-full-height]");
+            $target.each(function (index, row) {
+                $row = layui.jquery(row);
+                var parent = row.parentElement;
+                var siblings_height = 0;
+                if ('none' !== parent.style.display && !~['absolute', 'fixed'].indexOf(getStyle(parent, 'position'))) {
+                    $row.siblings().each(function (i, r) {
+                        if ('none' !== r.style.display && !~['absolute', 'fixed'].indexOf(getStyle(r, 'position')) && !~['left',
+                            'right'
+                        ].indexOf(getStyle(r, 'float'))) {
+                            siblings_height += layui.jquery(r).outerHeight(true);
+                        }
+                    });
+                    row.style.height = parent.clientHeight - siblings_height - ($row.outerHeight(true) - $row.height()) + 'px';
+                }
+            });
+        }
+
+        //绑定事件
+        $window.on('resize', resizeDivHeight);
+        $window.on('load', function () {
+            layui.element.tabChange("main", "tabworker");
+        });
+        element.on("tab(main)", function (e) {
+            $window.trigger('resize');
+        });
+
+    });
+    layui.use('element', null);
+
+    /**
+     * 初始化日历控件
+     */
+    layui.use(['laydate', 'laytpl', 'util'], function () {
+        var laydate = layui.laydate;
+        var $laydate_box_todo = layui.jquery('#laydate-box-todo');
+        var $laydate_box_todo_ul = $laydate_box_todo.children('ul');
+
+
+        var ins1 = laydate.render({
+            elem: '#laydate-box',
+            position: 'static',
+            calendar: true,
+            theme: '#41adff',
+            showBottom: false, //不显示底部栏
+            mark: { //标注重要日期
+                //'2019-12-09': '预发', //如果为空字符，则默认显示数字+徽章
+                //'2019-12-21': '发布'
+            },
+            change: function (value, date) { //监听日期被切换
+                /* ins1.hint('议程开始'); */
+                //模拟重新加载TODO列表
+
+                for (var each in pageTimer) {
+                    clearInterval(pageTimer[each]);
+                }
+                for (var each in pageTimer1) {
+                    clearInterval(pageTimer1[each]);
+                }
+                mini.get("m").setValue(value);
+                f(value);
+            },
+            ready: function (value, date) { //控件渲染完成后回调
+                //初始化TODO容器高度
+                layui.jquery(window).trigger('resize');
+                mini.layout();
+                //触发今日点击事件
+                setTimeout(function () {
+                    ins1.config.change(layui.util.toDateString(new Date(), 'yyyy-MM-dd'), {});
+                }, 200);
+            }
+        });
+    });
+
+    var html5menu = "";
+    $([[${list}]]).each(function (index, row, item) {
+        html5menu += "<li><a href='javascript:activeTab(" + JSON.stringify(row) + ")'><i class='" + row.rightIconCls + " fa-2x'></i>" +
+            "<p>" + row.rightName + "</p></a></li>"
+    });
+    $("#indexMenu").html(html5menu);
+
+    function todoeditor(e) {
+        var data = {action: 'edit', Id: e};
+        mini.open({
+            url: "./gateway/todo.html", title: "计划编辑", width: 500, height: 400,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function () {
+                for (var each in pageTimer) {
+                    clearInterval(pageTimer[each]);
+                }
+                for (var each in pageTimer1) {
+                    clearInterval(pageTimer1[each]);
+                }
+                f(mini.get("m").getValue());
+            }
+        });
+    }
+
+    function opentodo() {
+        var data = {action: 'add'};
+        mini.open({
+            url: "./gateway/todo.html", title: "计划新增", width: 550, height: 347,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                iframe.contentWindow.SetData(data);
+            }, ondestroy: function () {
+                for (var each in pageTimer) {
+                    clearInterval(pageTimer[each]);
+                }
+                for (var each in pageTimer1) {
+                    clearInterval(pageTimer1[each]);
+                }
+                f(mini.get("m").getValue());
+            }
+        });
+    }
+
+
+    function f(v) {
+        var $laydate_box_todo = layui.jquery('#laydate-box-todo');
+        var $laydate_box_todo_ul = $laydate_box_todo.children('ul');
+
+        $.post("todo.html/{0}".format(v),
+            function (res) {
+                if (200 === res.code) {
+                    var html = "";
+                    layui.jquery(res.data).each(function (index, row) {
+
+                        var op = "";
+
+                        if (!row.status) {
+                            op = "<span class=\"right-badge layui-badge layui-anim layui-anim-scaleSpring hmq-text-theme \">" + row.label + "</span>";
+                        }
+
+                        if (row.tododate.substr(0, 10) == new Date().format('yyyy-MM-dd')) {
+                            op = "<span class=\"right-badge layui-bg-orange layui-badge layui-anim layui-anim-scaleSpring hmq-text-theme \">" + row.label + "</span>";
+
+
+                            var time = 30 * 60 * 1000;//30分钟
+                            var baseDatetime = new Date(Date.parse(row.tododate.replace(/-/g, "/")) - time).format('yyyy-MM-dd hh:mm')
+                            var baseDate = new Date(Date.parse(row.tododate.replace(/-/g, "/"))).format('yyyy-MM-dd hh:mm');
+
+                            pageTimer["timer1" + index] = window.setInterval(function () {
+                                var tishDate = new Date().format('yyyy-MM-dd hh:mm');
+                                if (row.past != 1 && row.past != 2) {
+                                    if (baseDatetime == tishDate) {
+                                        var config = {
+                                            title: "消息提醒",//通知标题部分  默认 新消息   可选
+                                            body: row.content,//通知内容部分
+                                            inner: true, // 是浏览器仿桌面通知 否首选桌面通知 默认否 可选
+                                            timeout: 10000 // 自动关闭 单位毫秒 默认 6500毫秒   timeout<=0 不自动关闭  可选
+                                        }
+                                        //仿桌面通知
+                                        new dToast(config);
+                                        window.clearInterval(pageTimer["timer1" + index]);
+                                        $.post("ap/{0}".format(row.id));
+                                    }
+                                }
+                            }, 1000);
+
+                            pageTimer1["timer2" + index] = window.setInterval(function () {
+                                var tishDate = new Date().format('yyyy-MM-dd hh:mm');
+                                if (row.past != 2) {
+                                    if (tishDate > baseDate) {
+                                        var config = {
+                                            title: "消息过期",//通知标题部分  默认 新消息   可选
+                                            body: row.content,//通知内容部分
+                                            inner: true, // 是浏览器仿桌面通知 否首选桌面通知 默认否 可选
+                                            timeout: 10000 // 自动关闭 单位毫秒 默认 6500毫秒   timeout<=0 不自动关闭  可选
+                                        }
+                                        //仿桌面通知
+                                        new dToast(config);
+                                        window.clearInterval(pageTimer1["timer2" + index]);
+                                        $.post("up/{0}".format(row.id));
+                                    }
+                                }
+                            }, 1000);
+
+                        }
+
+                        if (row.status) {
+                            op = "<span class=\"right-badge layui-bg-green layui-badge layui-anim layui-anim-scaleSpring hmq-text-theme \">" + row.label + "</span>";
+                        }
+
+                        html += ("<li> " +
+                            "<div class=\"info-line layui-elip\">" +
+                            "<a href=\"javascript:todoeditor('" + row.id + "')\">" + row.content + "</a>"
+                            + op +
+                            "</div>" +
+                            "</li>").replace(/\$content\$/g, row.content).replace(/\$date\$/g, row.todoDate);
+
+
+                    });
+                    if (null !== html) {
+                        $laydate_box_todo_ul.html(html);
+                    } else {
+                        $laydate_box_todo_ul.html('<li class="hmq-text-gray hmq-text-center">-没有日程-</li>');
+                    }
+                }
+            });
+    }
+
+    function backLogHandler(self) {
+        var miniopenwin = miniopen({
+            url: "/system/workflow/backlog/toTransaction?key=" + self.row.procDefId_,
+            title: "办理",
+            action: 'sh',
+            data: self.row,
+            autoresize: true,
+            ondestroy: function (e) {
+                //关闭弹出页面刷新审批区域
+                refreshTodo();
+            }
+        });
+        miniopenwin.max();
+    }
+
+    /**
+     * 加载待办事项
+     */
+    function refreshTodo() {
+        var nodeContent = document.getElementById('note-content');
+        nodeContent.innerHTML = '';
+        $.post("/system/workflow/backlog/getBacklog", {
+            params: JSON.stringify({}),
+            pageIndex: 0,
+            pageSize: 20,
+            sortField: 'time',
+            sortOrder: 'desc',
+        }, function (res) {
+            if (200 === res.code && res.data.length > 0) {
+                for (var i = 0, max = res.data.length; i < max; i += 1) {
+                    res.data[i] = $.extend({founder: '', transactor: '', title: ''}, res.data[i]);
+                    var title = '【{processName}】{transactor} {businessId}'.format($.extend({
+                        processName: '',
+                        title: '',
+                        transactor: '',
+                        businessId: ''
+                    }, res.data[i]));
+                    title = $('<div/>').text(title).html();
+                    var time = (res.data[i].time || '').substr(5);
+                    var procDefId_ = res.data[i].procDefId_;
+                    var tmp = $('<div class="note_det">'
+                        + '<div class="note_left" onclick="backLogHandler(this);">'
+                        + '<span><a href="javascript:void(0);" class="span-cut">' + title + '</a></span>'
+                        + '</div>'
+                        + '<b>' + time + '</b>'
+                        + '</div>');
+                    nodeContent.appendChild(tmp[0]);
+                    nodeContent.children[nodeContent.children.length - 1].children[0].row = res.data[i];
+                }
+            } else {
+
+            }
+            document.getElementById('note-content-more').innerText = res.total || '更多';
+            if (nodeContent.children.length <= 0) {
+                $(nodeContent).html('<div class="note_det">'
+                    + '<div style="text-align:center;">'
+                    + '<span><a href="javascript:void(0);" class="span-cut">暂无审批提醒!</a></span>'
+                    + '</div>'
+                    + '</div>');
+            }
+
+        });
+    }
+
+    refreshTodo();
+    setInterval(refreshTodo, 30 * 1000);
+
+
+</script>
+
+</html>

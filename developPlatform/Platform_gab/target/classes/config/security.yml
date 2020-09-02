@@ -1,0 +1,25 @@
+tengzhi:
+   security:
+      authorize: 
+         permitUrls: /login,/login/captcha,/gab/index.html
+         unAuthorizePage: /login #访问无权限的接口时，跳转到哪个页面
+      # authentication: 
+       # loginType:
+       # loginErrorPage:
+       # loginSuccessPage:
+      browser: 
+         maxSessions: 1 
+         sessionFailureUrl: /login  # session失效/被踢掉时跳转的地址，默认为系统默认登陆页
+         logoutUrl: /login/quit # 退出登录接口
+         logoutSuccessUrl: /login # 退出url
+         loginPage: /login #登陆
+         homePage: /gab/index.html #首页
+         loginProcessingUrl: /login/checkout #ajax登陆
+         sameOrigin: true # 允许iframe在同域内跳转
+         cache: true # 禁用缓存
+         rememberMe: false #记住我
+         forbidden_page: /gab/403 #403 权限不存在
+         #not_found_page: #404 页面不存在
+         #internal_server_error_page: #500 服务器处理错误
+#      seconds: # 记住我时间
+      

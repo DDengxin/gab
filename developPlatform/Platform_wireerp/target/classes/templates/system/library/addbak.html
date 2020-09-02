@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload,editormd'})}">
+        <title>档案文库新增</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <input class="mini-hidden" id="arUuid" name="arUuid"/>
+                <input class="mini-hidden" id="genUserId" name="genUserId"/>
+                <input class="mini-hidden" id="genTime" name="genTime"/>
+                <input class="mini-hidden" id="arVersion" name="arVersion"/>
+                <input class="mini-hidden" id="dataCorp" name="dataCorp"/>
+                <td title>单号:</td>
+                <td content>
+                    <input class="mini-textbox" id="arNote" name="arNote"/>
+                </td>
+                <td title>类型:</td>
+                <td content>
+                    <input class="mini-combobox" id="arType" name="arType" url="/system/parameter/getParamsSelectListByParentId/协同/档案类型/DWLX" showNullItem="true"
+                           nullItemText="全部" emptyText="全部" popupMaxHeight="240px"/>
+                </td>
+                <td title>区位:</td>
+                <td content>
+                    <input class="mini-combobox" id="arLocation" name="arLocation" url="/system/parameter/getParamsSelectListByParentId/协同/档案区位/DWQW" showNullItem="true"
+                           nullItemText="全部" emptyText="全部" popupMaxHeight="240px"/>
+                </td>
+                <td title>密级:</td>
+                <td content>
+                    <input class="mini-combobox" id="arSecrecy" name="arSecrecy" url="/system/parameter/getParamsSelectListByParentId/协同/档案密级/DWMJ" showNullItem="true"
+                           nullItemText="全部" emptyText="全部" popupMaxHeight="240px"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>标题:</td>
+                <td content colspan="7">
+                    <input class="mini-textbox" id="arTitle" name="arTitle"/>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>描述:</td>
+                <td content colspan="7">
+                    <div class="editormd" id="arContent-editormd">
+                        <textarea class="editormd-markdown-textarea" name="arContent"></textarea>
+                        <!-- 第二个隐藏文本域，用来构造生成的HTML代码，方便表单POST提交，这里的name可以任意取，后台接受时以这个name键为准 -->
+                        <textarea class="editormd-html-textarea" name="ar-editormd-html-textarea" type="hidden"></textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>附件:</td>
+                <td content colspan="7">
+                    <div id="uploader"></div>
+                    <input id="arFileId" name="arFileId" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel"> 关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    $(window).on("load", function (e) {
+        //初始化markdown编辑器
+        window.ArContentEditor = editormd("arContent-editormd", {
+            placeholder: '本编辑器支持Markdown编辑，左边编写，右边预览',  //默认显示的文字，这里就不解释了
+            //width: "100%",
+            height: 640,
+            syncScrolling: "single",
+            path: hmq.getPath("/static/script/editor/lib/"),   //就是editor的lib目录
+            //theme: "default",//工具栏主题
+            //previewTheme: "default",//预览主题
+            //editorTheme: "default",//编辑主题
+            saveHTMLToTextarea: true, //保存html到本地的textarea
+            emoji: true, //是否允许图标
+            taskList: true, //
+            tocm: true,         // Using [TOCM]
+            tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+            flowChart: true,             // 开启流程图支持，默认关闭
+            sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+            imageUpload: true,     //开启图片上传
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"], //允许上传的图片格式
+            imageUploadURL: "/img/imgUpLoad", //上传的路径，就是mvc的controller路径
+            toolbarIcons: function () {  //自定义工具栏，后面有详细介绍
+                return editormd.toolbarModes['full']; // full, simple, mini
+            }
+        });
+    });
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            data = mini.clone(options);
+            var fileId = getFileId();
+            mini.get("arFileId").setValue(fileId);
+            $("#uploader").filesUpload({
+                pickerid: fileId,
+                filecount: 50,
+            });
+            $.get("setArNote", function (res) {
+                mini.get("arNote").setText(res.data);
+                mini.get("arNote").setReadOnly(true);
+            });
+            form.setChanged(false);
+        } else if ('edit' == options.action) {
+            $.get("libraryList.html/{0}".format(options.data.arUuid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    $(form.el).find('[name=arContent]').text(res.data.arContent);
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("arFileId").getValue(),
+                        filecount: 50,
+                    });
+                    mini.get("arNote").setReadOnly(true);
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var data = form.getData();
+            data.arContent = $(form.el).find('[name=arContent]').text();
+
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(data),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh', false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /* 员工选择  */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    form.setData({
+                        dgWorkerDept: data.workerDept,
+                    });
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerId);
+                    mini.get("workName").setValue(data.workerName);
+                    mini.get("workName").setText(data.workerName);
+                    mini.get("workDept").setValue(data.workerDept)
+                    mini.get("workDept").setText(data.workerDeptName)
+                }
+            }
+        });
+    }
+
+
+</script>
+</html>

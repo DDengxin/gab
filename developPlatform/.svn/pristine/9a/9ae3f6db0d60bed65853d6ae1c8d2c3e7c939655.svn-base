@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>科目</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<link href="../../../../resources/css/all.css" rel="stylesheet" type="text/css" />
+<script src="../../../../resources/scripts/boot.js" type="text/javascript"></script>
+<script src="../../../../resources/js/init.js" type="text/javascript"></script>
+</head>
+<body>
+	<div class="mini-toolbar">
+		<fieldset style="width:100%; height:80px;border:solid 1px #aaa;">
+			<legend>摘要内容</legend>
+			<div id="editForm1">
+				<input class="mini-hidden" name="fid" />
+				<table style="width:100%;height:30px">
+					<tr>
+						<td>
+							<input id="fdesc" name="fdesc" style="width:100%;height:30px" class="mini-textarea" />
+						</td>
+					</tr>
+					<tr>
+						<td style="width:100%;" align="center">
+							<a class="mini-button" iconCls="icon-add" id="btnadd" onclick="addRow()">增加行</a>
+							<a class="mini-button" iconCls="icon-remove" id="removerow" onclick="removeRow()">删除行</a>
+							<a class="mini-button" iconCls="icon-save" id="btnsave" onclick="saveData();">保存</a>
+							<a class="mini-button" iconCls="icon-cancel" onclick="onCancel();">关闭</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</fieldset>
+	</div>
+	<div class="mini-fit">
+		<div id="srch_grid" class="mini-datagrid" style="width:100%;height:100%;" idField="fid" onrowdblclick="onRowDblClick" multiSelect="true" allowResize="true" pager="#pager1" showPager="false">
+			<div property="columns">
+				<div type="checkcolumn"></div>
+				<div field="fid" width="120" headerAlign="center" visible="false" allowSort="true">摘要内容</div>
+				<div field="fdesc" width="120" headerAlign="center" allowSort="true">摘要内容</div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar">
+		<table style="width:100%; height:30px;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;" sizeList="[50,100,200]"></div>
+				</td>
+				<td style="white-space:nowrap;" align="right" id="btnbar" />
+			</tr>
+		</table>
+	</div>
+	<script type="text/javascript">
+    mini.parse();
+    var surl = "/common/fms/select";
+	var grid = mini.get("srch_grid");
+    var isminichange = false;//用来控制关闭后是否刷新主界面  
+    //绑定表单
+    var db = new mini.DataBinding();
+    db.bindForm("editForm1", grid);
+    grid.setUrl(surl + "/getExplanationList.do");
+	function onRowDblClick(e) {
+		CloseWindow("ok");
+	}
+    function addRow() {
+        var newRow = { fdesc: mini.get("fdesc").getValue() };
+        grid.addRow(newRow, 0);
+        grid.deselectAll();
+        grid.select(newRow);
+    }
+    function removeRow() {
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+        }
+    }
+
+   function setData( note) {
+	   var parms ={note:note}
+	   //form.getData(true);
+		grid.load({
+			parms : mini.encode(parms)
+		});
+
+    }
+
+   function saveData() {
+       var data = grid.getChanges();
+       var mxjson = mini.encode(data);
+       mini.get("btnsave").disable();
+       $.ajax({
+           url: surl + "/saveExplanationData.do",
+           type: 'post',
+           data: {
+               data: mxjson,
+               stime: (new Date()).getTime()
+           },
+           cache: false,
+           success: function (data) {
+               mini.get("btnsave").enable();
+               if (data.status) {
+            	   grid.reload();
+                   minitips("系统提示", "保存成功！", "success");
+              
+               } else {
+                   minitips("系统提示", data.message, "danger");
+               }
+           },
+           error: function (jqXHR, textStatus, errorThrown) {
+               minitips("系统提示", "网络请求失败!", "danger");
+               CloseWindow();
+           }
+       });
+   }
+
+//修改关闭窗口时提示数据保存
+    function CloseWindow(action) {
+
+        if (window.CloseOwnerWindow)
+            return window.CloseOwnerWindow(action);
+        else
+            window.close();
+    }
+
+    function GetData() {
+        var row = grid.getSelected();
+        return row;
+    }
+    
+    function CloseWindow(action) {
+        if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+        else window.close();
+    }
+    
+    function onCancel() {
+        CloseWindow("cancel");
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+package com.tengzhi.business.production.subcontract.wwtj.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.publicinterfac.IUserConstants;
+import com.tengzhi.business.cg.yw.purchaseReceipt.dao.ECkInDao;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn.ECkIn_PK;
+import com.tengzhi.business.cg.yw.purchaseSettle.dao.ECwYsyfDao;
+import com.tengzhi.business.cg.yw.purchaseSettle.model.ECwYsyf;
+import com.tengzhi.business.cg.yw.purchaseSettle.model.ECwYsyf.ECwYsyf_PK;
+import com.tengzhi.business.cg.yw.purchaseSettle.vo.ECwYsyfVo;
+import com.tengzhi.business.production.subcontract.wwjs.service.WwjsService;
+import com.tengzhi.business.production.subcontract.wwtj.service.WwtjService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
+
+@Service
+@Transactional
+public class WwtjServiceImpl implements WwtjService {
+	@Autowired
+	private ECkInDao eCkInDao;
+
+	
+	@Override
+    public  BasePage<Map<String, Object>> getSrchTopList(BaseDto baseDto) throws Exception {
+        Map<String, String> map = baseDto.getParamsMap();
+        String srchRq1=map.get("srchRq1");
+		String srchRq2=map.get("srchRq2");
+		String srchHtNo=map.get("srchHtNo");
+		String srchSupplier=map.get("srchSupplier");
+		String srchflag=map.get("srchflag");
+
+		SessionUser securityUser=SessionUser.SessionUser();
+
+        String sqlWhere = " and a.data_corp='JD' ";
+		if (StringUtils.isNotBlank(srchRq1)) {
+			sqlWhere += " and a.ht_date >='" + srchRq1 + "'";
+		}
+		if (StringUtils.isNotBlank(srchRq2)) {
+			sqlWhere += " and a.ht_date <= '" + srchRq2 + "'";
+		}
+		if (StringUtils.isNotBlank(srchHtNo)) {
+			sqlWhere += " and a.ht_no like'%" + srchHtNo + "%'";
+		}
+		if (StringUtils.isNotBlank(srchSupplier)) {
+			sqlWhere += " and a.ht_supplier ='" + srchSupplier + "'";
+		}
+		baseDto.setSortField("ht_no");
+		baseDto.setSortOrder("DESC");
+		String sql = "  select *,(COALESCE(flsl,0) - COALESCE(shl,0)) qjl  from ( " +
+				"select to_char(a.ht_date,'yyyy-MM-dd')ht_date,a.ht_no,f_getname('GETDWEXP',a.ht_supplier,'',a.data_corp) ht_supplier_name,COALESCE(sum(b.ht_sl),0) ht_sl,  " +
+				"COALESCE((select sum(cpck.out_sl) from e_ck_out cpck where cpck.out_contract = a.ht_no),0) flsl,  " +
+				"COALESCE((select sum(inck.in_sl) from e_ck_in inck where inck.in_contract = a.ht_no),0) shl " +
+				"from e_cg_contract a,e_cg_contract_detailed b   " +
+				"where a.ht_type='WW' and a.ht_no=b.ht_no " + sqlWhere +
+				"group by a.ht_date,a.ht_no,a.ht_supplier,a.data_corp " +
+				") g ";
+        return eCkInDao.QueryMapPageList(baseDto,sql+" order by 1 desc ",true);
+	}
+
+
+
+
+}

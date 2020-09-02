@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>库存收发存</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="cpcodeType"/>
+        <label class="hmq-label" for="cpcodeFl" text="分类">
+            <div id="cpcodeFl" name="cpcodeFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" popupMaxHeight="400" emptyText="全部">
+                <div property="columns">
+                    <div header="全部" field="text"></div>
+                </div>
+            </div>
+        </label>
+        <label class="hmq-label" for="cpcodeName" text="名称">
+            <input id="cpcodeName" name="cpcode" class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid" parentField="pid" value="无" onbeforenodeselect="disableParentSelection"
+                   popupWidth="240" popupHeight="180" emptyText="全部" showNullItem="true" nullItemText="全部" allowInput="true"/>
+        </label>
+        <label class="hmq-label" text="规格">
+            <input class="mini-textbox" name="cpcodeSize" width="110"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="uuid"
+         url="/ck/yw/warehouseRoam/list"
+         sortField="lib" sortOrder="desc">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="code" name="cpcodeName" displayField="cpcodeName" align="left" width="120">名称</div>
+            <div tz:datagrid="column" field="cpcodeNameEn" displayField="cpcodeNameEnName">英文名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" align="left" width="90">规格</div>
+            <div tz:datagrid="column" field="cpcodeSizeEn" displayField="cpcodeSizeEnName" name="cpcodeSizeEn" align="center" width="80">品牌</div>
+            <div tz:datagrid="column" field="cpcodeFl" displayField=cpcodeFlName name="cpcodeFl" align="left" width="80">大类</div>
+            <div tz:datagrid="column" field="qcsl" align="right" numberFormat="#,0.0000">qcsl</div>
+            <div tz:datagrid="column" field="insl" align="right" numberFormat="#,0.0000">入库数量</div>
+            <div tz:datagrid="column" field="outsl" align="right" numberFormat="#,0.0000">出库数量</div>
+            <div tz:datagrid="column" field="kcsl" align="right" numberFormat="#,0.0000">库存数量</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    //start
+    var cpcodeType = hmq.getQueryString("cpcodeType");
+    if (hmq.isNotEmpty(cpcodeType)) {
+        form.getField("cpcodeType").setValue(cpcodeType);
+        //动态渲染
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniDataGrid:grid,
+            miniForm: form,
+    	    formMapping: {
+                    cpcodeName: 'cpcode',
+                    cpcodeFl: 'cpcodeFl'
+                },
+            success: function (map, res) {
+              
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+
+    }
+
+    //end
+
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     汇总
+     */
+    grid.on('DrawCell', function (e) {
+        console.log(e);
+        if (e.field == "cpcodeUpper" && !isNaN(e.record.sl)  && !isNaN(e.value)) {
+            if (null != e.value && !isNaN(e.value) && parseFloat(e.record.sl) >= parseFloat(e.value)) {
+                e.cellStyle = 'background-color:orangered;color:white;';
+            }
+        }else if (e.field == "cpcodeLower" && !isNaN(e.record.sl)  && !isNaN(e.value)) {
+            if (null != e.value && !isNaN(e.value) && parseFloat(e.record.sl) <= parseFloat(e.value)) {
+                e.cellStyle = 'background-color:lightgreen;color:white;';
+            }
+        }
+    });
+
+
+
+</script>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>物料库存标签模板</title>
+</th:block>
+<head>
+<meta charset="UTF-8">
+<style type="text/css">
+b, strong {
+	font-weight: normal;
+}
+
+.wrap {
+	width: 79mm;
+	height: 33mm;
+	padding: 5px;
+	background: #fff;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.wrap div:first-child {
+	width: 28mm;
+	height: 28mm;
+}
+
+.wrap .mx_kl {
+	font-size: 14px;
+	color: #000;
+	margin-left: 5px;
+}
+
+.wrap .fl {
+	font-size: 16px;
+	color: #000;
+	margin-left: 5px;
+}
+
+.center {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+}
+.fl p{
+	margin-bottom: 3px;
+}
+</style>
+</head>
+
+<body>
+	<div class="center">
+		<div class="wrap">
+			<div>
+				<img id="img" style="width: 100%;height: auto" th:src="${qr}" th:alt="${inPack}">
+			</div>
+			<td th:switch="${inPack}==null">
+				<div th:case="false" id="text" class="mx_kl">
+					<p> 编码：<b th:text="${inCode}"></b> </p>
+					<p> 名称：<b th:text="${cpName}"></b> </p>
+					<p> 规格：<b th:text="${cpcodeSize}"></b> </p>
+					<p> 批次：<b th:text="${inPack}"></b> </p>
+					<p> 大类：<b th:text="${cpFl}"></b> </p>
+				</div>
+				<div th:case="true" id="text" class="fl">
+					<p> 编码：<b th:text="${inCode}"></b> </p>
+					<p> 名称：<b th:text="${cpName}"></b> </p>
+					<p> 规格：<b th:text="${cpcodeSize}"></b> </p>
+					<p> 大类：<b th:text="${cpFl}"></b> </p>
+				</div>
+			</td>
+		</div>
+	</div>
+</body>
+
+</html>

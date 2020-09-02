@@ -1,0 +1,21 @@
+package com.tengzhi.business.dynamicrow.cache.cacehkey;
+
+import com.tengzhi.base.tools.ehcache.util.EhcacheMenu;
+import com.tengzhi.business.dynamicrow.model.dynamicrow;
+import org.springframework.cache.interceptor.KeyGenerator;
+
+import java.lang.reflect.Method;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-08-03
+ */
+public class KeyGeneratorObject implements KeyGenerator {
+
+    @Override
+    public Object generate(Object target, Method method, Object... params) {
+        dynamicrow dynamicrow=(dynamicrow) params[0];
+        return EhcacheMenu.dynamicColumn.getGroup_unique()+dynamicrow.getMenuId();
+    }
+
+}

@@ -1,0 +1,16 @@
+logging:
+  level:
+    root: info
+    org.thymeleaf: warn
+    org.hibernate: warn
+    log4j.logger.freemarker.cache: ERROR  #freemarker配置
+    log4j.logger.freemarker.beans: ERROR  #freemarker配置
+    com.len.mapper: warn #activit配置
+    org.activiti.engine.impl.persistence.entity: warn #activit配置
+    #配置打印sql参数
+    org.hibernate.SQL: debug
+    org.hibernate.engine.QueryParameters: debug
+    org.hibernate.engine.query.HQLQueryPlan: debug
+    #将参数打印到日志文件中
+    #org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    #org.hibernate.type.descriptor.sql.BasicExtractor: TRACE

@@ -1,0 +1,7 @@
+package com.tengzhi.business.xt.receive.jdap.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.xt.receive.jdap.model.QyJdJdsq;
+
+public interface JdapDao extends BasedaoRepository<QyJdJdsq,String> {
+}

@@ -1,0 +1,91 @@
+package com.tengzhi.business.test.personnelfile.controller;
+
+import com.tengzhi.annotations.Log;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.business.demo.staff.model.Person;
+import com.tengzhi.business.demo.staff.service.PersonService;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.test.personnelfile.model.PersonnelFile;
+import com.tengzhi.business.test.personnelfile.service.PersonnelFileService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/7/31 0031 16:59
+ * @Description:
+ */
+
+@RestController
+@RequestMapping(value = "/test/personnelfile/")
+public class PersonnelFileController {
+
+    private final PersonnelFileService personnelFileService;
+
+    @Autowired
+    private PersonnelFileController(PersonnelFileService personnelFileService){
+        this.personnelFileService = personnelFileService;
+    }
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    @RequestMapping(value = "/savePerson",method = RequestMethod.POST)
+    public String save(PersonnelFile personnelFile){
+        personnelFile.setRy_id(UUID.randomUUID().toString());
+        return personnelFileService.savePerson(personnelFile);
+    }
+
+    @RequestMapping(value = "/deletePerson",method = RequestMethod.DELETE)
+    public String deletePersonById(BaseDto baseDto){
+        System.out.println("id结果:"+baseDto.getParams());
+        System.out.println("baseDto.getParamsMap().get(id):"+baseDto.getParamsMap().get("id"));
+        return personnelFileService.deleteByRy_id(baseDto.getParamsMap().get("id"));
+    }
+
+    @RequestMapping(value = "/updatePerson",method = RequestMethod.POST)
+    public String UpdatePerson(@RequestBody PersonnelFile person){
+        return personnelFileService.updateByRy_Id(person);
+    }
+
+    @RequestMapping(value = "/findPerson/{id}",method = RequestMethod.GET)
+    public PersonnelFile findPersonById(@PathVariable String id){
+        return personnelFileService.findPersonById(id);
+    }
+
+    @PostMapping(value = "/findPersonnelFileAll")
+    public List<PersonnelFile> findPersonnelFileAll(){
+        return personnelFileService.findPersonnelFileAll();
+    }
+
+    @GetMapping(value = "/ry_mz")
+    public List<SelectVo> getNationType(){
+        return personnelFileService.findAllNotion();
+    }
+
+//    @Log("新增参数")
+//    @PostMapping("add.html")
+//    public Result add(@RequestBody SysParams sysParams) throws Exception {
+//        sysParams = sysUserService.save(sysParams);
+//        return Result.resultOk(sysParams.getParamId());
+//    }
+
+
+
+
+
+
+
+
+
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>企业公告</title>
+    </th:block>
+    <style>
+        h1.title {
+            text-align: center;
+        }
+
+        #notice-type{
+            font-size: 16px;
+        }
+
+        #notice-type{
+            text-align: center;
+        }
+
+        #notice-content {
+            text-indent: 2em;
+			font-size: 14px;
+			color:#666666;
+        }
+
+        h3 {
+            font-size: 18px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-size: 18px;
+        }
+
+        #iframe {
+            padding-top: 40px;
+            border: 0;
+            width: 100%;
+            height: 580px;
+            display: none;
+            padding-top: 30px;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div id="tabs1" class="mini-tabs" activeIndex="0" style="width:1297px;height:710px;" plain="false">
+    <div title="正文">
+        <div class="mini-fit">
+            <form id="form1">
+                <table class="hmq-modify-table">
+                    <tr>
+                        <td content colspan="6">
+                            <h1 class="title"></h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td content colspan="6">
+                            <div id="notice-type"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td content colspan="6">
+							<pre id="notice-content"> </pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td content colspan="5">
+                            <div id="uploader"></div>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div title="附件">
+        <div class="mini-fit">
+            <form id="formShow">
+                <table class="hmq-modify-table">
+                    <tr>
+                        <td content colspan="5">
+                            <iframe id="preview-frame" width="1155" height="570" src=""> </iframe>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td content colspan="6">
+                            <h1 id="shouH1" style="color:red" align="center"></h1>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+
+    function SetData(options) {
+        $.get("add.html/{0}".format(options.data), function (res) {
+            if (200 === res.code) {
+                var billdata = mini.decode(res.data);
+                billdata.noticeRq = mini.formatDate(mini.parseDate(billdata.noticeRq), "yyyy-MM-dd");
+                $('.title').text(!!billdata.noticeTheme ? billdata.noticeTheme : '');
+                document.getElementById('notice-type').innerText = '【' + billdata.type_name + billdata.noticeNo + '】';
+				document.getElementById('notice-content').innerText = billdata.noticeContent;
+                var fileId = billdata.noticeFile;
+
+                if (!!billdata.winstatus) {
+                    mini.get("tabs1").removeTab(1);
+                    document.getElementById('shouH1').innerText = billdata.show;
+                    document.getElementById('preview-frame').style.display = 'none';
+                }else{
+                    //附件地址
+                    var originUrl = window.location.origin + '/system/upload/download?uuid=' + billdata.uuid;
+                    //附件名称
+                    var fileName = null == billdata.fileName ? "" : billdata.fileName;
+                    //预览参数
+                    var previewParams = originUrl + '&fullfilename=TZSOFT' + billdata.uuid + '.' + fileName.split('.').pop().toLowerCase();
+                    //预览地址
+                    var previewUrl = 'http://' + billdata.ip + ':' + billdata.port + '/onlinePreview?url=' + encodeURIComponent(previewParams);
+                    window.frames['preview-frame'] = previewUrl;
+                    if (null != window.frames['preview-frame']) {
+                        window.frames['preview-frame'].src = previewUrl;
+                    } else {
+                        console.debug('iframe已移除!');
+                    }
+                }
+
+
+            }
+        });
+    }
+</script>
+</html>

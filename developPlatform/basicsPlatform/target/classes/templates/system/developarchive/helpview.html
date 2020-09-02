@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,editormd,upload'})}">
+        <title>操作手册【演示】</title>
+    </th:block>
+    <style type="text/css">
+        .mini-tab-text{
+            width: 85px;
+            /*white-space: nowrap;/*设置不换行*/
+            text-overflow: ellipsis;/*设置隐藏部分为省略号*/
+            overflow: hidden; /*设置隐藏*/
+        }
+    </style>
+</head>
+<body>
+<div class="mini-fit" style="overflow-y: hidden">
+    <div class="mini-tabs" activeIndex="0" id="tablist" >
+
+    </div>
+
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var tabs = mini.get("tablist");
+    var meunid = hmq.getQueryString("meunid");
+    var typestr = hmq.getQueryString("typestr");
+    var parmsstr = {
+        menuid:meunid,
+        typestr:typestr
+    }
+
+    $(window).on("load", function (e) {
+        $.get("/system/developarchive/archiveByMendata",parmsstr,function (res) {
+            if (200 === res.code) {
+                var  datalist= res.data;
+                for(var i=0;i<datalist.length;i++){
+                    var tab = {title:datalist[i].title,name:datalist[i].content};
+                    tabs.addTab(tab);
+                    //active tab
+                    if(i==0){
+                        tabs.activeTab(tab);//默认第一个tab页选中
+                    }
+                }
+            }
+        });
+
+    });
+
+    tabs.on("activechanged",function (e) {
+        markdowload(e.index,e.name);
+    })
+
+
+    function markdowload(tindex,name){
+        var el = tabs.getTabBodyEl(tindex);
+        //TODO:动态添加富文本标签
+        var htmldiv =' <div class="editormd" id="arContent-editormd'+tindex+'" style="border: 0px;">' +
+            '  <textarea class="editormd-markdown-textarea" id="editormd'+tindex+'" name="arContent"></textarea>' +
+            '  </div>' ;
+        el.innerHTML = htmldiv;
+        //TODO:初始化markdown编辑器
+        var editormdview =editormd("arContent-editormd"+tindex, {
+            markdown :name,//给窗口中赋值
+            height: 528,
+            syncScrolling: "single",
+            path: hmq.getPath("/static/script/editor/lib/"),   //就是editor的lib目录
+            saveHTMLToTextarea: true, //保存html到本地的textarea
+            emoji: true, //是否允许图标
+            taskList: true, //
+            tocm: true,         // Using [TOCM]
+            tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+            flowChart: true,             // 开启流程图支持，默认关闭
+            sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+            imageUpload: true,     //开启图片上传
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"], //允许上传的图片格式
+            imageUploadURL: "/editormd/upload", //上传的路径，就是mvc的controller路径
+            readOnly : true,//只读模式
+            onload : function() {
+                editormdview.previewing();//屏蔽编辑窗口
+                //  this.hideToolbar();//隐藏工具栏，由于只读模式试，已经自动隐藏，所以该方法无效
+            }
+        });
+    }
+
+//最大化时触发重新加载tab内容
+function onactivechanged(){
+    var ontab =tabs.getActiveTab();
+    markdowload(ontab._id-1,ontab.name);
+}
+
+</script>
+</html>

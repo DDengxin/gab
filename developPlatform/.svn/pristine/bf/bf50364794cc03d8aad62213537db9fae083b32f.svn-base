@@ -1,0 +1,292 @@
+package com.tengzhi.business.finance.complaint.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.common.ProductType;
+import com.tengzhi.business.cg.da.sysCustomer.service.SysCustomerService;
+import com.tengzhi.business.finance.complaint.dao.ComplaintDao;
+import com.tengzhi.business.finance.complaint.dao.ComplaintMxDao;
+import com.tengzhi.business.finance.complaint.model.Complaint;
+import com.tengzhi.business.finance.complaint.model.ComplaintMx;
+import com.tengzhi.business.finance.complaint.service.ComplaintService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class ComplaintServiceImpl implements ComplaintService {
+
+    @Autowired
+    private ComplaintDao complaintDao;
+
+    @Autowired
+    private ComplaintMxDao complaintMxDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    /**
+     * 查询数据
+     */
+    @Override
+    public BasePage<Map<String, Object>> search(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        String corpId = SessionUser.SessionUser().getCorpId();
+        String sqlWhere = " where data_corp = '" + corpId + "' and ks_type = '" + map.get("stype") + "'";
+        if (ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            sqlWhere += " and ks_rq >= '" + map.get("srchRq1") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            sqlWhere += " and ks_rq <= '" + map.get("srchRq2") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchCustromer"))) {
+            sqlWhere += " and ks_dw = '" + map.get("srchCustromer") + "'";
+        }
+        //业务员权限过滤
+        sqlWhere += " and sl_man = " + SysCustomerService.getBusinessIdsWhereBusinessSqlFragment(map.get("srchYwy"));
+
+        if (ObjectUtil.isNotEmpty(map.get("flag"))) {
+            sqlWhere += " and ks_flag = '" + map.get("flag") + "'";
+        }
+        String sql = "select ks_rq,ks_note,ks_dw,f_getname('GETCUSTOMEREXP', ks_dw, '', '" + corpId + "') dw_name,ks_type,ks_ht,ks_code,ks_sy,sl_man,f_getname('GETUSERNAME', sl_man, '', '" + corpId + "') sl_man_name,sl_date,sl_type,ks_sl,sl_sm,ja_date,ja_man,ja_type,ja_sm,ks_flag,f_get_param_name('客诉状态',ks_flag,'"+   SessionUser.getCurrentCorpId()   +"','',false) flag_name,ck_date,ck_note,ck_sl,ks_jg,f_get_param_name('客诉结果',ks_jg,'"+   SessionUser.getCurrentCorpId()   +"','',false) jg_name,ks_je,data_man,data_date,data_corp from e_pz_ks " + sqlWhere + " order by ks_rq desc";
+        return complaintDao.QueryMapPageList(baseDto, sql, true);
+    }
+
+    /**
+     * 新增数据
+     */
+    @Override
+    public Result add(Complaint complaint) throws Exception {
+        String note = sysGenNoteService.getyyMMNote4(Complaint.class, "KS");
+        //String note = sysGenNoteService.getNoteDate("",new Date(),"KS","yyMM",4);
+        SessionUser sessionUser = SessionUser.SessionUser();
+        complaint.setKsNote(note);
+        complaint.setDataMan(sessionUser.getUserId());
+        complaint.setDataDate(new Date());
+        complaint.setDataCorp(sessionUser.getCorpId());
+        complaint.setKsFlag("KSDJ");
+        complaintDao.save(complaint);
+        return Result.resultOk();
+    }
+
+    /**
+     * 修改数据
+     */
+    @Override
+    public Result update(Complaint complaint) throws Exception {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        complaint.setDataMan(sessionUser.getUserId());
+        complaint.setDataDate(new Date());
+        complaint.setDataCorp(sessionUser.getCorpId());
+        complaint.setKsFlag("KSDJ");
+        complaintDao.update(complaint);
+        return Result.resultOk();
+    }
+
+    /**
+     * 删除数据
+     */
+    @Override
+    public Result deleteAll(String ksNote) {
+        complaintDao.deleteAll(ksNote);
+        complaintMxDao.deleteMx(ksNote);
+        return Result.resultOk();
+    }
+
+    /**
+     * 接收客诉
+     */
+    @Override
+    public Result accept(String ksNote) {
+        Complaint complaint = complaintDao.getComplaint(ksNote);
+        SessionUser sessionUser = SessionUser.SessionUser();
+        complaint.setDataMan(sessionUser.getUserId());
+        complaint.setDataDate(new Date());
+        complaint.setDataCorp(sessionUser.getCorpId());
+        complaint.setKsFlag("KSJS");
+        complaintDao.update(complaint);
+        return Result.resultOk();
+    }
+
+    /**
+     * 受理客诉
+     */
+    @Override
+    public Result acceptance(Complaint complaint) {
+        Complaint complaintOld = complaintDao.getComplaint(complaint.getKsNote());
+        complaintOld.setSlMan(complaint.getSlMan());
+        complaintOld.setSlSm(complaint.getSlSm());
+        complaintOld.setSlDate(complaint.getSlDate());
+        SessionUser sessionUser = SessionUser.SessionUser();
+        complaintOld.setDataMan(sessionUser.getUserId());
+        complaintOld.setDataDate(new Date());
+        complaintOld.setDataCorp(sessionUser.getCorpId());
+        complaintOld.setKsFlag("KSSL");
+        complaintDao.update(complaintOld);
+        return Result.resultOk();
+    }
+
+    /**
+     * 处理客诉
+     *
+     * @throws Exception
+     */
+    @Override
+    public Result dispose(ComplaintMx complaintMx) throws Exception {
+        complaintMx.setKsDate(new Date());
+        complaintMxDao.save(complaintMx);
+        return Result.resultOk();
+    }
+
+    @Override
+    public List<Map> gridSearch(String ksNote) {
+        String sql = "select ks_date \"ksDate\",ks_note \"ksNote\",ks_id \"ksId\",ks_dept \"ksDept\",ks_man \"ksMan\",ks_fx \"ksFx\",ks_type \"ksType\",ks_gj \"ksGj\",ks_ck \"ksCk\",ks_ckdate \"ksCkdate\",ks_ckflag \"ksCkflag\" from e_pz_ksmx where ks_note	= '" + ksNote + "'";
+        return complaintMxDao.QueryListMap(sql);
+    }
+
+    @Override
+    public Result deleteMx(String ksNote) {
+        complaintMxDao.deleteMx(ksNote);
+        return Result.resultOk();
+    }
+
+    @Override
+    public Result disposeFlag(String ksNote) throws Exception {
+        Complaint complaint = complaintDao.getComplaint(ksNote);
+        complaint.setKsFlag("KSCL");
+        complaintDao.update(complaint);
+        return Result.resultOk();
+    }
+
+    /**
+     * 结案客诉
+     */
+    @Override
+    public Result closeout(Complaint complaint) {
+        Complaint complaintOld = complaintDao.getComplaint(complaint.getKsNote());
+        complaintOld.setJaDate(complaint.getJaDate());
+        complaintOld.setJaSm(complaint.getJaSm());
+        complaintOld.setKsJe(complaint.getKsJe());
+        complaintOld.setKsJg(complaint.getKsJg());
+        complaintOld.setSlType(complaint.getSlType());
+        SessionUser sessionUser = SessionUser.SessionUser();
+        complaintOld.setDataMan(sessionUser.getUserId());
+        complaintOld.setDataDate(new Date());
+        complaintOld.setDataCorp(sessionUser.getCorpId());
+        complaintOld.setKsFlag("KSJA");
+        complaintDao.update(complaintOld);
+        return Result.resultOk();
+    }
+
+    /**
+     * 获取单条数据
+     */
+    @Override
+    public Map<String, Object> getOne(String ksNote) {
+        String sql = "select ks_rq \"ksRq\",ks_note \"ksNote\",ks_dw \"ksDw\",ks_type \"ksType\",ks_ht \"ksHt\",ks_code \"ksCode\",ks_sy \"ksSy\",sl_man \"slMan\",sl_date \"slDate\",sl_type \"slType\",ks_sl \"ksSl\",sl_sm \"slSm\",ja_date \"jaDate\",ja_man \"jaMan\",ja_type \"jaType\",ja_sm \"jaSm\",ks_flag \"ksFlag\",ck_date \"ckDate\",ck_note \"ckNote\",ck_sl \"ckSl\",ks_jg \"ksJg\",ks_je \"ksJe\",data_man \"dataMan\",data_date \"dataDate\",data_corp \"dataCorp\" from e_pz_ks where ks_note = '" + ksNote + "'";
+        List<Map> complaint = complaintDao.QueryListMap(sql);
+        Map<String, Object> map = complaint.get(0);
+        return map;
+    }
+
+    /**
+     * 合同查询
+     */
+    @Override
+    public BasePage<Map<String, Object>> getHtCode(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        String sql = "";
+        String corpId = SessionUser.SessionUser().getCorpId();
+        String sqlWhere = " where data_corp = '" + corpId + "' ";
+        if (ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            sqlWhere += " and ht_date >= '" + map.get("srchRq1") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            sqlWhere += " and ht_date <= '" + map.get("srchRq2") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+            sqlWhere += " and ht_no like '%" + map.get("srchNo") + "%'";
+        }
+        if ("采购".equals(map.get("stype"))) {
+            if (ObjectUtil.isNotEmpty(map.get("srchSupplier"))) {
+                sqlWhere += " and ht_supplier = '" + map.get("srchSupplier") + "'";
+            }
+            sql = "select ht_no,to_char(ht_date,'yyyy-MM-dd') ht_date,f_get_param_name('采购合同',ht_type,'"+   SessionUser.getCurrentCorpId()   +"','采购',true) ht_type,f_getname('GETCUSTOMEREXP', ht_supplier, '', '" + corpId + "') ht_dw from e_cg_contract " + sqlWhere;
+        }
+        if ("销售".equals(map.get("stype"))) {
+            if (ObjectUtil.isNotEmpty(map.get("srchSupplier"))) {
+                sqlWhere += " and ht_customer = '" + map.get("srchSupplier") + "'";
+            }
+            sql = "select ht_no,to_char(ht_date,'yyyy-MM-dd') ht_date,f_getparamname('GETBYPARENTID',ht_type,'订单类型','销售','DDLX','"+   SessionUser.getCurrentCorpId()   +"') ht_type,f_getname('GETCUSTOMEREXP', ht_customer, '', '" + corpId + "') ht_dw from e_xs_contract " + sqlWhere;
+        }
+        return complaintDao.QueryMapPageList(baseDto, sql, true);
+    }
+
+    /**
+     * 品号查询
+     */
+    @Override
+    public BasePage<Map<String, Object>> getProductSelectionList(BaseDto dto) throws IOException {
+        Map<String, String> map = dto.getParamsMap();
+        String sql = "";
+        if ("采购".equals(map.get("stype"))) {
+            sql = "select * from e_cg_contract_detailed where 1=1";
+        } else if ("销售".equals(map.get("stype"))) {
+            sql = "select * from e_xs_contract_detailed where 1=1";
+        }
+        if (StringUtils.isNotBlank(map.get("ksHt"))) {
+            sql += " and ht_no = '" + map.get("ksHt") + "' ";
+        }
+        if (StringUtils.isNotBlank(map.get("note"))) {
+            sql += " and ht_code like '%" + map.get("note") + "%' ";
+        }
+        return complaintDao.QueryMapPageList(dto, sql, false);
+    }
+
+    /**
+     * 获取产品数据
+     */
+    @Override
+    public List<Map> getCpcode(String ht_code) {
+        String productNameParamType = ht_code.substring(0, 2);
+        ProductType productType = ProductType.valueOfParamId(productNameParamType);
+		/*if(null != productType){
+			productNameParamType = productType.getFieldParam3Value(ProductType.DynamicField.cpcodeName);
+		}else{
+			productNameParamType += "名称";
+		}
+		String sql = "select f_get_param_name('"+productNameParamType+"', cpcode_name, '技术', false) cpcode_name,cpcode_size,f_get_param_name('产品大类',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"','技术',false) cpcode_type from e_js_cpcode where cpcode_id = '"+ht_code+"'";
+		*/
+        String sql = "select f_get_param_name('GETBCPCODENAME',cpcode_name,'"+   SessionUser.getCurrentCorpId()   +"','技术',false) cpcode_name,cpcode_size,f_get_param_name('产品大类',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"','技术',false) cpcode_type from e_js_cpcode where cpcode_id = '" + ht_code + "'";
+
+        return complaintDao.QueryListMap(sql);
+    }
+
+    /**
+     * 获取单位名称
+     */
+    @Override
+    public String getDw(String ksDw) {
+        return complaintDao.getDwName(ksDw);
+    }
+
+    /**
+     * 获取人员名称
+     */
+    @Override
+    public String getMan(String slMan) {
+        return complaintDao.getManName(slMan);
+    }
+
+}

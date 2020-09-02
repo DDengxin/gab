@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>角色管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <input name="czName" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>标准/实测:</td>
+                <td content>
+                    <input class="mini-combobox" name="stype" required value="实测" enabled="false"
+                           data="[{'id':'实测',text:'实测'},{'id':'标准',text:'标准'}]"/>
+                </td>
+                <td title>产品类型:</td>
+                <td content>
+                    <input class="mini-combobox" name="codeType" required onvaluechanged="onCodeTypeChangedHandler"
+                           data="[{'id':'YL',text:'原料'},{'id':'WL',text:'物料'},{'id':'CP',text:'成品'},{'id':'ZZP',text:'半成品'}]"/>
+                </td>
+                <td title>牌号类型:</td>
+                <td content>
+                    <input class="mini-combobox" name="phType" required emptyText="请选择"/>
+                </td>
+                <td title>日期:</td>
+                <td content>
+                    <input class="mini-datepicker" name="rq" dateFormat="yyyy-MM-dd" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>批次号:</td>
+                <td content>
+                    <input class="mini-textbox" name="pch" required onvaluechanged="onPchValueChangedHandler" emptyText="请输入"/>
+                </td>
+                <td title>单号:</td>
+                <td content>
+                    <input class="mini-combobox" name="note" textName="note" allowInput="true" valueFromSelect="true" required emptyText="请选择" onvaluechanged="onNoteValueChangedHandler"/>
+                </td>
+                <td title>品号:</td>
+                <td content>
+                    <input class="mini-textbox" name="code" required onvaluechanged="onCodeValueChangedHandler" />
+                </td>
+
+                <td title>生产任务号:</td>
+                <td content>
+                    <input class="mini-textbox" name="scNo"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>牌号/炉号:</td>
+                <td content>
+                    <input class="mini-textbox" name="tph" required enabled="false" />
+                </td>
+                <td title>件数:</td>
+                <td content>
+                    <input class="mini-textbox" name="tjs" required enabled="false" vtype="float"/>
+                </td>
+                <td title>数量:</td>
+                <td content>
+                    <input class="mini-textbox" name="tsl" required enabled="false" vtype="float"/>
+                </td>
+                <td title>重量:</td>
+                <td content>
+                    <input class="mini-textbox" name="tzl" required enabled="false" vtype="float"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="srch_grid" allowMoveColumn="false" showPager="false"
+             allowSortColumn="flase" allowCellEdit="true"
+             editNextOnEnterKey="true" editNextRowCell="true"
+             allowCeldatagridlEdit="true" allowCellSelect="true" oncellvalidation="onCellValidation">
+            <div property="columns">
+                <div tz:datagrid="indexcolumn" width="30">序号</div>
+                <div tz:datagrid="column" field="xmCode" displayField="xmCodeName" width="50" align="center">检测项</div>
+                <div tz:datagrid="column" field="xmTvalue" width="50" align="center">标准值</div>
+                <div tz:datagrid="column" field="xmValue" align="left" width="300">检测值
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get("srch_grid");
+
+
+    mini.getByName("phType").on("valuechanged", function (e) {
+        var phType = e.sender.value;
+        refreshGridData(phType);
+        loadStrandradValue();
+    });
+
+    /**
+     * 初始化页面
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        var formData = options.data.formData;
+        var row = options.data.row;
+        mini.getByName('action').setValue(options.action);
+
+        if ('add' == options.action) {
+            form.getField("codeType").setValue(formData.codeType);
+            onCodeTypeChangedHandler({sender: form.getField('codeType')}, function () {
+                form.getField('phType').select(0);
+                form.getField('phType').doValueChanged();
+            });
+            if ('' != form.getField('codeType').getValue()) {
+                form.getField('codeType').setEnabled(false);
+            }
+
+            mini.getByName('rq').setValue(new Date());
+        } else if ('edit' == options.action) {
+            //form.setEnabled(false);
+            $.get("constituent.html/{0}".format(row.pch), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    onCodeTypeChangedHandler({sender: form.getField('codeType')}, function () {
+                        form.getField('phType').select(0);
+                        form.getField('phType').doValueChanged();
+                        var $detail = $(res.detail);
+
+                        function loadData(){var $detail = $(res.detail);
+                            $(grid.getData()).each(function(index,item){
+                                var rows = $detail.filter(function(iindex,rrow){return rrow.jybh == item.jybh && rrow.xmCode == item.xmCode ;}).toArray();
+                                if(rows.length > 0){
+                                    var rowData = grid.getRow(item);
+                                    rowData.xmTvalue = rows[0].xmTvalue;
+                                    rowData.xmValue = rows[0].xmValue;
+                                    grid.updateRow(rowData,grid.getRow(item));
+                                }
+                            });
+                            grid.un("load",loadData);
+                        };
+                        grid.on("load",loadData.bind(this));
+
+
+                    });
+                }
+            });
+        }
+    }
+
+
+    /**
+     * 单元格验证
+     * @param e
+     * @returns {*}
+     */
+    function onCellValidation(e) {
+        if (e.field == "paramValue") {
+            if (e.value == "" || isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "Grid表格不能为空！";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+    }
+
+
+    /**
+     * 保存数据
+     * @constructor
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            //验证Grid
+            if (grid.validate() && grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                    constituent: form.getData(),
+                    grid: grid.getData()
+                }),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+    function loadStrandradValue() {
+        if ('add' == mini.getByName('action').getValue()) {
+            var formData = form.getData();
+            //清除标准值
+            $(grid.getData()).each(function(index,item){
+                var rowData = grid.getRow(item);
+                rowData.xmTvalue = '';
+                grid.updateRow({xmTvalue:''},grid.getRow(item));
+            });
+
+            if ('' == formData.codeTye || '' == formData.phType || '' == formData.code) {
+                //do nothing
+            } else {
+                $.post('/finance/constituent/standard/list', form.getData(), function (res) {
+                    if (200 === res.code && Array.isArray(res.data)) {
+                        var $data = $(res.data);
+                        //清除标准值
+                        $(grid.getData()).each(function(index,item){
+                            var rows = $data.filter(function(iindex,rrow){return rrow.xmCode == item.xmCode ;}).toArray();
+                            if(rows.length > 0){
+                                var standradValue = '{xmTvalue}-{xmValue}'.format(rows[0]);
+                                var rowData = grid.getRow(item);
+                                rowData.xmTvalue = standradValue;
+                                grid.updateRow(rowData,grid.getRow(item));
+                            }
+                        });
+                    }
+                }, null, {
+                    loading: true,
+                });
+            }
+        }
+    }
+
+
+    function onCodeTypeChangedHandler(e, callback) {
+        if ('' == e.sender.getValue()) {
+            form.getField('phType').setData(null);
+        } else {
+            form.getField('phType').setUrl('/finance/constituent/combobox/PH/{0}'.format(e.sender.getValue()));
+        }
+        if ($.isFunction(callback)) {
+            callback();
+        }
+        loadStrandradValue();
+    }
+
+    function onPchValueChangedHandler(e) {
+        var pch = e.sender.getValue();
+        if ('' == e.sender.getValue()) {
+            form.getField('note').setData(null);
+        } else {
+            form.getField('note').setUrl('/finance/constituent/note4pack/{0}'.format(pch));
+        }
+        form.getField('note').doValueChanged();
+    }
+
+    function onNoteValueChangedHandler(e) {
+        var row = e.sender.getSelected();
+        var source = row && row.source ? row.source : {};
+        form.setData({
+            //pch: source.pack ,
+            code: source.code || '',
+            //scNo:data.note,
+            tph: source.luhao || '',
+            note: source.note || '',
+            //TODO:
+            //pch_type:
+            //code_type:
+            //stype:
+            tjs: source.js || '',
+            tsl: source.sl || '',
+            tzl: source.zl || ''
+        }, false);
+        loadStrandradValue();
+    }
+
+    /**
+     * 通过牌号参数加载检测项目
+     * @param phType
+     */
+    function refreshGridData(phType) {
+        if ('' == phType) {
+            grid.cancelEdit();
+            grid.clearData();
+        } else {
+            grid.setUrl('/finance/constituent/param/list/{0}'.format(phType));
+            grid.reload();
+
+        }
+    }
+    function onCodeValueChangedHandler(e){
+        loadStrandradValue();
+    }
+</script>
+</html>

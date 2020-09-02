@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>食堂采购</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="cgStype" name="cgStype" class="mini-hidden"/>
+        <input id="cgName" name="cgName" class="mini-hidden"/>
+        <table style="padding:5px;border-bottom:0; ">
+            <tr>
+                <td align="right" width="100px">单号：</td>
+                <td>
+                    <input class="mini-textbox"  id="note" name="note" width="120" emptyText="自动生成"/>
+                </td>
+                <td align="right" width="100px">日期：</td>
+                <td>
+                    <input class="mini-datepicker" required id="rq" name="rq" width="100" dateFormat="yyyy-MM-dd"/>
+                </td>
+                <td align="right" width="80px">类别：</td>
+                <td>
+                    <select class="mini-combobox" id="lb" name="lb" width="90" allowInput="true" emptyText="全部">
+                        <option value="">全部</option>
+                        <option value="菜场采购">菜场采购</option>
+                        <option value="月末盘点">月末盘点</option>
+                        <option value="员工工资">员工工资</option>
+                        <option value="租赁企业">租赁企业</option>
+                    </select>
+
+                </td>
+                <td align="right" width="80px">盘点年月：</td>
+                <td>
+                    <input class="mini-datepicker"  id="ny" name="ny" width="100" allowInput="true" dateFormat="yyyy-MM"/>
+                </td>
+
+            </tr>
+
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grid" idField="code" style="width:100%;height:100%"
+             url="/xt/logistics/purchase/getSrchBottomList"
+             allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+             showPager="false" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+             showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell" sortMode="client" >
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="sid" width="60" align="center">序号
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="name" align="center" width="100">名称
+                    <input id="name" property="editor" class="mini-textbox"   />
+                </div>
+                <div tz:datagrid="column" name="unit" field="unit"   width="100" align="center">规格
+                    <input id="unit" property="editor" class="mini-textbox"   />
+                </div>
+
+                <div tz:datagrid="column" field="sl" width="80" align="right" numberFormat="#,0.0" summaryType="sum">数量
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="price" field="price" width="80" align="right" numberFormat="#,0.00" summaryType="sum">单价
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="je" field="je" width="80" align="right" numberFormat="#,0.00" summaryType="sum">金额
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="sm" width="165" align="left">备注
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="mo" width="150" align="left" visible="false"></div>
+                <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+
+    /**
+     新增行
+     */
+    function addRow() {
+        var index = button_grid.getData().length;
+        var newRow = {
+            name: "",
+            sid: index + 1
+        };
+        button_grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("sqNote").getValue();
+        var rows = button_grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        button_grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                button_grid.removeRows(rows, true);
+            }
+        }
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            button_grid.validate();
+            if (button_grid.isValid() == false) {
+                var error = button_grid.getCellErrors()[0];
+                button_grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var buttons = button_grid.getChanges();
+            if (buttons == "") {
+                buttons = button_grid.getData();
+            }
+            $(buttons).each(function (index) {
+                buttons[index].rightOrd = index;
+                buttons[index]._state = buttons[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                headdata: form.getData(true),
+                entitydata: buttons
+
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     * 初始化
+     **/
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            var formData = options.data.formData;
+            var row = options.data.row;
+            if ('add' == options.action) {
+                mini.get("rq").setValue(new Date());
+                button_grid.clearData();
+                $('[name=action]').val(options.action);
+            } else if ('edit' == options.action) {
+                $['get']("getById/{0}".format(row.note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data, false);
+                        var data = mini.decode(res.data);
+                       /* mini.get("rq").setValue(mini.formatDate(new Date(data.rq), "yyyy/MM/dd"));*/
+                        button_grid.load({
+                            params: JSON.stringify({note: form.getField('note').getValue()})
+                        });
+                    }
+                });
+
+            }
+        }
+    }
+    /**
+     验证数量、金额不小于0
+     */
+    function onCellValidation(e) {
+
+        if (e.field == "name") {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "名称不能为空！";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+        if (e.field == "sl") {
+
+            if ( e.value < 0) {
+                e.isValid = false;
+                e.errorText = "数量不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        } else if (e.field == "price") {
+            if ( e.value < 0) {
+                e.isValid = false;
+                e.errorText = "单价不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+
+    }
+
+
+    /**
+     汇总方法
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "name") {
+            var s = "<span style='color:#a52a2a;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        } else if (e.field == "sl") {
+            e.cellHtml = "<span style='color:#a52a2a;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+        } else if (e.field == "je") {
+            e.cellHtml = "<span style='color:#a52a2a;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+        }
+
+    }
+
+    /**
+     * 单元格完成编辑时验证
+     数量和单价联动自动生成金额
+     */
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+        var grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = e.value;
+        if (field == "sl" || field == "price" || field == "je") {
+            var price = getMiniValue(record.price, 0);
+            var sl = getMiniValue(record.sl, 0);
+            if (field == "sl") {
+                grid.updateRow(record, {
+                    je: value * price
+                });
+            }
+            if (field == "price") {
+                grid.updateRow(record, {
+                    je: value * sl
+                });
+            }
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+</script>
+</html>

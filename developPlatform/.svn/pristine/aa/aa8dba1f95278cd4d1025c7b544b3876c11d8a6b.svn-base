@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>模板选择器</title>
+</th:block>
+</head>
+<body>
+	<form id="form1" method="post">
+		<div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderStyle="border:0;">
+			<table style="width: 100%;">
+				<tr>
+					<td style="white-space: nowrap;" align="left">
+						<label class="hmq-label" text="文件名">
+							<input class="mini-textbox" name="fileName" />
+						</label>
+						<label class="hmq-label" text="链接">
+							<input class="mini-textbox" name="linkPath" />
+						</label>
+					</td>
+					<td style="white-space: nowrap;" align="right">
+						<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+						<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+						<a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="treegrid" id="srch_grid" idField="absolutePath" treeColumn="absolutePath" parentField="parentPath" resultAsTree="true" iconField="rightIconCls" expandOnLoad="true"
+			showTreeLines="true" onrowdblclick="onRowDblClick" showPager="false"
+		>
+			<div property="columns">
+				<div tz:datagrid="checkcolumn"></div>
+				<div tz:datagrid="column" field="name" name="absolutePath" width="100%">名称</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form1");
+		var grid = mini.get("srch_grid");
+		grid.bindSearchForm(form);
+
+		var page_options = {
+			multiSelect : false, //是否多选
+		};
+
+		/**
+		 * 初始化页面
+		 * @param options
+		 *  multiSelect:是否多选
+		 * @constructor
+		 */
+		function SetData(options) {
+			page_options = $.extend(page_options, options);
+			grid.setMultiSelect(page_options.multiSelect);
+			//默认查询
+			search_option();
+		}
+
+		grid.on('load', function(e) {
+			grid.loadData(JSON.parse(e.text).data);
+		});
+		grid.on('beforerowselect', function(e) {
+			if (!e.isLeaf) {
+				e.cancel = true;
+				grid.clearSelect();
+			}
+		});
+
+		/**
+		 * 本地筛选
+		 **/
+		function search_option() {
+			grid.load();
+		}
+
+		function confirm(e) {
+			if (grid.getSelecteds().length <= 0) {
+				hmq.tipDanger('请选中一个文件!');
+			} else {
+				closeWindow('ok');
+			}
+		}
+
+		/**
+		 * 获取数据
+		 * @returns {*}
+		 * @constructor
+		 */
+		function GetData() {
+			if (page_options.multiSelect) {
+				return grid.getSelecteds();
+			} else {
+				return grid.getSelected();
+			}
+		}
+
+		/**
+		 * 行双击事件
+		 * @param e
+		 */
+		function onRowDblClick(e) {
+			confirm("ok");
+		}
+
+		//关闭
+		function closeWindow(action) {
+			if (window.CloseOwnerWindow) {
+				return window.CloseOwnerWindow(action);
+			} else {
+				window.close();
+			}
+		}
+	</script>
+</body>
+</html>

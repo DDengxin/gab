@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>闲置资产【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="sid" name="sid" class="mini-hidden"/>
+        <input id="dataMan" name="dataMan" class="mini-hidden"/>
+        <input id="dataDate" name="dataDate" class="mini-hidden"/>
+        <input id="dataCorp" name="dataCorp" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr >
+                <td title>日期：</td>
+                <td content>
+                    <input id="zcRq" name="zcRq" class="mini-datepicker" format="yyyy-MM-dd" value="new Date()" />
+                </td>
+                <td title>资产类别：</td>
+                <td>
+                    <select id="zcType" name="zcType" class="mini-combobox" >
+                        <option value="电子设备">电子设备</option>
+                        <option value="生产设备">生产设备</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </td>
+                <td title>资产编号：</td>
+                <td content>
+                    <input id="zcNo" name="zcNo" class="mini-textbox" />
+                </td>
+            </tr>
+            <tr >
+                <td title>资产名称：</td>
+                <td content>
+                    <input id="zcName" name="zcName" class="mini-textbox" required />
+                </td>
+
+                <td title>资产规格：</td>
+                <td content>
+                    <input id="zcKsize" name="zcKsize" class="mini-textbox"/>
+                </td>
+                <td title>数量：</td>
+                <td content>
+                    <input id="zcSl" name="zcSl" class="mini-textbox" vtype="int" onvaluechanged="onChangeJe"/>
+                </td>
+            </tr>
+
+            <tr >
+                <td title>单价：</td>
+                <td content>
+                    <input id="zcPrice" name="zcPrice" class="mini-textbox" vtyp="float" onvaluechanged="onChangeJe" />
+                </td>
+
+                <td title>金额：</td>
+                <td content>
+                    <input id="zcJe" name="zcJe" class="mini-textbox" readonly />
+                </td>
+                <td title>状态：</td>
+                <td content>
+                    <select id="zcFlag" name="zcFlag" class="mini-combobox" >
+                        <option value="闲置">闲置</option>
+                        <option value="启用">启用</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>附件:</td>
+                <td content colspan="5">
+                    <div id="uploader"></div>
+                    <input id="zcFile" name="zcFile" class="mini-hidden"/>
+                </td>
+            </tr>
+
+            <tr>
+                <td title>备注：</td>
+                <td content colspan="2">
+                    <input id="zcSm" name="zcSm" class="mini-textarea" height="60" />
+                </td>
+            <!--</tr>
+            <tr>-->
+                <td title>来源：</td>
+                <td content colspan="2">
+                    <input id="zcFrom" name="zcFrom" class="mini-textarea" height="60" />
+                </td>
+            </tr>
+
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function onChangeJe(){
+        var sl = mini.get("zcSl").getValue();
+        var price = mini.get("zcPrice").getValue();
+        var je = null;
+        if((sl!=null || sl!="")&&(price!=null || price!="")){
+            je=parseFloat(sl)*parseFloat(price);
+            mini.get("zcJe").setValue(je);
+        }
+    }
+
+    function SetData(options) {
+
+        var formData = options.data.formData;
+        var row = options.data.row;
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            data = mini.clone(options);
+            var fileId = getFileId();
+            mini.get("zcFile").setValue(fileId);
+            $("#uploader").filesUpload({
+                pickerid: fileId,
+                filecount: 50,
+            });
+            form.setChanged(false);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(row.sid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("zcFile").getValue(),
+                        filecount: 50,
+                    });
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html",JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh',false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+</script>
+</html>

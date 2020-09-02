@@ -1,0 +1,159 @@
+package com.tengzhi.business.xt.getINOut.clwc.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.xt.dailyRoutine.wcsq.dao.WcsqDao;
+import com.tengzhi.business.xt.getINOut.clwc.dao.ClwcDao;
+import com.tengzhi.business.xt.getINOut.clwc.model.EXtClwc;
+import com.tengzhi.business.xt.getINOut.clwc.service.ClwcService;
+import com.tengzhi.business.xt.getINOut.clwc.vo.EXtClwcVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+
+@Service
+@Transactional
+public class ClwcServiceImpl implements ClwcService {
+
+    @Autowired
+    private ClwcDao clwcDao;
+
+    @Autowired
+    private WcsqDao wcsqDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+
+    @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto baseDto) throws IOException {
+        Map<String,String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(c->{
+            c.ge("wc_rq",map.get("srchRq1"));
+            c.le("wc_rq",map.get("srchRq2"));
+            c.eq("wc_dept",map.get("srchDept"));
+            c.eq("wc_cp",map.get("srchCp"));
+            c.eq("wc_man",map.get("srchMan"));
+        });
+        String sql = "select note,to_char(wc_rq,'yyyy-MM-dd')wc_rq,wc_dept,f_getname('GETDEPTNAME',wc_dept,'',data_corp)dept_name,wc_man,f_getname('GETUSERNAME',wc_man,'',data_corp)wc_man_name,wc_add,wc_yc,wc_ycsm," +
+                "to_char(wc_sjcc,'yyyy-MM-dd hh24:mi')wc_sjcc,to_char(wc_sjhc,'yyyy-MM-dd hh24:mi')wc_sjhc,data_corp,f_getname('GETCORPEXP','','',data_corp)corp_exp,wc_cp,wc_driver,f_getname('GETUSERNAME',wc_driver,'',data_corp)driver_name," +
+                "wc_sm,wc_flag,data_man,f_getname('USERNAMERWTOCOL',data_man,'','')man_name,bz_note,wc_cclc,wc_hclc,wc_ccman,wc_hcman,wcsq_note from e_xt_clwc "+where;
+        return clwcDao.QueryMapPageList(baseDto,sql,true);
+    }
+
+    @Override
+    public Result save(EXtClwcVo eXtClwcVo) throws Exception {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        eXtClwcVo.geteXtClwc().setBzNote("N");
+        eXtClwcVo.geteXtClwc().setDataMan(sessionUser.getUserId());
+        eXtClwcVo.geteXtClwc().setWcFlag("登记");
+        eXtClwcVo.geteXtClwc().setWcRq(new Date());
+        if(!eXtClwcVo.getAddedList().isEmpty()){
+            eXtClwcVo.getAddedList().forEach(list->{
+                String note = sysGenNoteService.getNote(EXtClwc.class,"CLWC","yyMM",4);
+                list.setBzNote(eXtClwcVo.geteXtClwc().getBzNote());
+                list.setNote(note);
+                list.setDataMan(eXtClwcVo.geteXtClwc().getDataMan());
+                list.setWcFlag(eXtClwcVo.geteXtClwc().getWcFlag());
+                String wcsqNote = list.getWcsqNote();
+                clwcDao.executeUpdate("update EXtWcsq set wc_pcnote='"+note+"' where note ='"+wcsqNote+"'");
+                clwcDao.save(list);
+            });
+        }
+        if(!eXtClwcVo.getDeletedList().isEmpty()){
+            eXtClwcVo.getDeletedList().forEach(list->{
+                clwcDao.deleteAll(eXtClwcVo.getDeletedList());
+            });
+        }
+        if(!eXtClwcVo.getModifyedList().isEmpty()){
+            eXtClwcVo.getModifyedList().forEach(list->{
+                clwcDao.dynamicSave(list,clwcDao.findById(list.getNote()).orElse(null));
+            });
+        }
+        return Result.resultOk("操作成功");
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> findByNote(BaseDto baseDto) {
+        Map<String,String> map = baseDto.getParamsMap();
+        String where = " and a.note='"+map.get("note")+"'";
+        String sql = "select a.note,to_char(a.wc_rq,'yyyy-MM-dd')wc_rq,a.wc_dept,a.wc_man,a.wc_add,a.wc_yc,a.wc_ycsm,a.wc_sjcc,a.wc_sjhc,a.data_corp,a.wc_cp,a.wc_driver,a.wc_sm,a.wc_flag,a.data_man,a.bz_note,a.wc_cclc,a.wc_hclc," +
+                "a.wc_ccman,a.wc_hcman,a.wcsq_note,f_getname('GETDEPTNAME',a.wc_dept,'',a.data_corp)dept_name,f_getname('GETUSERNAME',a.wc_man,'',a.data_corp)wc_man_name,f_getname('GETCORPEXP','','',a.data_corp)corp_exp," +
+                "f_getname('GETUSERNAME',a.wc_driver,'',a.data_corp)driver_name,f_getname('GETUSERNAME',a.data_man,'',a.data_corp)man_name,to_char(b.wc_tcrq,'MM-dd hh24:mi')wc_tcrq,to_char(b.wc_thrq,'MM-dd hh24:mi')wc_thrq from e_xt_clwc a,e_xt_wcsq b where a.wcsq_note = b.note "+where;
+        return clwcDao.QueryMapPageList(baseDto,sql,true);
+    }
+
+    @Override
+    public Result update(EXtClwcVo eXtClwcVo) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        eXtClwcVo.geteXtClwc().setBzNote("N");
+        eXtClwcVo.geteXtClwc().setDataMan(sessionUser.getUserId());
+        if(!eXtClwcVo.getAddedList().isEmpty()){
+            eXtClwcVo.getAddedList().forEach(list->{
+                list.setBzNote(eXtClwcVo.geteXtClwc().getBzNote());
+                list.setDataMan(eXtClwcVo.geteXtClwc().getDataMan());
+                list.setWcFlag(eXtClwcVo.geteXtClwc().getWcFlag());
+                clwcDao.save(list);
+            });
+        }
+        if(!eXtClwcVo.getDeletedList().isEmpty()){
+            eXtClwcVo.getDeletedList().forEach(list->{
+                clwcDao.deleteAll(eXtClwcVo.getDeletedList());
+            });
+        }
+        if(!eXtClwcVo.getModifyedList().isEmpty()){
+            eXtClwcVo.getModifyedList().forEach(list->{
+                clwcDao.dynamicSave(list,clwcDao.findById(list.getNote()).orElse(null));
+            });
+        }
+        return Result.resultOk("操作成功");
+    }
+
+    @Override
+    public void deleteByNote(String note) {
+        String wcsqNote = clwcDao.getSingleResult("select wcsq_note from e_xt_clwc where note= '"+note+"'");
+        clwcDao.executeUpdate("update EXtWcsq set wc_pcnote='N' where note ='"+wcsqNote+"'");
+        clwcDao.deleteByNote(note);
+    }
+
+    @Override
+    public Result getFlag(String note, String flag) {
+        String flagString = clwcDao.getFlag(note);
+        if(flag.equals(flagString)){
+            return Result.resultOk("操作成功");
+        }
+        return Result.error("该单不是“"+flag+"”状态,不能操作!");
+    }
+
+    @Override
+    public Result confirm(String note) {
+        clwcDao.updateFlag(note,"确认");
+        return Result.resultOk("确认");
+    }
+
+    @Override
+    public Result cancle(String note) {
+        clwcDao.updateFlag(note,"登记");
+        return Result.resultOk("取消确认");
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getWcsqList(BaseDto baseDto) throws IOException {
+        Map<String,String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixAnd(c->{
+            c.ge("wc_rq",map.get("wcRq1"));
+            c.le("wc_rq",map.get("wcRq2"));
+        });
+        String sql = "select note wcsq_note,data_corp,to_char(wc_tcrq,'yyyy-MM-dd')wc_rq,wc_dept,wc_man,replace(wc_add,'其他',wc_addsm )wc_add,wc_yc,wc_ycsm,to_char(wc_tcrq,'MM-dd hh24:mi')wc_tcrq,to_char(wc_thrq,'MM-dd hh24:mi')wc_thrq," +
+                "f_getname('GETDEPTNAME',wc_dept,'',data_corp)dept_name,f_getname('GETUSERNAME',wc_man,'',data_corp)wc_man_name,f_getname('GETCORPEXP','','',data_corp)corp_exp from e_xt_wcsq where wc_yc!='否' and wc_pcnote in('N',null,'') "+where;
+        return wcsqDao.QueryMapPageList(baseDto,sql,true);
+    }
+}

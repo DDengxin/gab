@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>订单统计</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient" id="orient"/>
+        <input class="mini-hidden" name="htStype" id="htStype" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNo" width="120"/>
+        </label>
+        <label class="hmq-label" text="单位">
+            <input name="srchCustromer" emptyText="全部"
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue" width="140"/>
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="srchCode" width="110"/>
+        </label>
+
+        <label class="hmq-label" text="名称">
+            <input id="srchName" name="srchName" class="mini-treeselect" multiSelect="true" valueFromSelect="false" textField="combtext" valueField="combid" parentField="pid" value="无" onbeforenodeselect="beforenodeselect" popupWidth="240"
+                   popupHeight="180" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+        </label>
+        <label class="hmq-label" text="规格">
+            <input class="mini-textbox" name="srchSize" width="110"/>
+        </label>
+        <label class="hmq-label" text="分类">
+            <div id="srchFl" name="srchFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" popupMaxHeight="400" emptyText="全部">
+                <div property="columns">
+                    <div header="全部" field="text"></div>
+                </div>
+            </div>
+        </label>
+        <label class="hmq-label" text="发票状态">
+            <select class="mini-combobox" name="srchFpFlag" id="srchFpFlag" width="110">
+                <option value="">全部</option>
+                <option value="已开票">已开票</option>
+                <option value="未开票">未开票</option>
+            </select>
+        </label>
+        <input th:value="${stype}" class="mini-hidden" name="stype" id="stype"/>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_top_grid" pager="#pager1" pageSize="100" showPager="false" sortMode="client" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="cw_rq" width="100" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd">日期</div>
+            <div tz:datagrid="column" field="cw_note" width="120" align="center">发货单号</div>
+            <div tz:datagrid="column" field="cw_act" displayField="actname" width="80" align="center">口径</div>
+            <div tz:datagrid="column" field="cw_dw" displayField="dwexp" width="140" align="left">客户</div>
+            <div tz:datagrid="column" field="ywy" width="140" align="left">业务员</div>
+            <div tz:datagrid="column" field="cw_item" width="120" align="center">订单</div>
+            <div tz:datagrid="column" field="cw_code" width="100" align="center">编码</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcode_name" displayField="cpcodename" align="left" width="120">名称</div>
+            <div tz:datagrid="column" name="cpcodeSize" field="cpcode_size" align="left" width="130">规格</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcode_size_en" name="cpcodeSizeEn" align="left" width="90">品牌</div>
+            <div tz:datagrid="column" name="cpcodeFl" field="cpcode_fl" align="left" width="80">大类</div>
+            <div tz:datagrid="column" field="cw_lib" displayField="libname" width="80" align="center">库房</div>
+            <div tz:datagrid="column" field="cw_sl" width="80" align="right" numberFormat="#,0.000" summaryType="sum" dataType="double">数量</div>
+            <div tz:datagrid="column" field="cw_price" width="80" align="right" numberFormat="#,0.000">单价</div>
+            <div tz:datagrid="column" field="cw_se" width="80" align="right" numberFormat="#,0.00" summaryType="sum">税额</div>
+            <div tz:datagrid="column" field="cw_sje" width="80" align="right" numberFormat="#,0.00" summaryType="sum">含税额</div>
+            <div tz:datagrid="column" field="cw_wje" width="80" align="right" numberFormat="#,0.00" summaryType="sum">未税额</div>
+            <div tz:datagrid="column" field="cw_bz" displayField="bzname" width="80" align="center">币种</div>
+            <div tz:datagrid="column" field="cw_shl" width="60" align="center" renderer="onActionRenderer">税率</div>
+            <div tz:datagrid="column" field="cw_fph" width="110" align="center">发票号</div>
+            <div tz:datagrid="column" field="cw_flag" width="80" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+    <table style="width: 100%;">
+        <tr>
+            <td style="white-space: nowrap;">
+                <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+            </td>
+            <td style="white-space: nowrap;" align="right" id="btnbar"/>
+        </tr>
+    </table>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_top_grid");
+    var surl = "/cg/tj/orderStatistics";
+    grid.setUrl(surl + "/getSrchXstjList");
+    grid.bindSearchForm(form);
+    grid.frozenColumns(0, 5);
+
+
+
+    //start
+    var htStype = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(htStype)) {
+        form.getField("htStype").setValue(htStype);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("outType,paramMod");
+
+        //动态列转换
+        hmq.business.dynamicProductParams(htStype, {
+            miniDataGrid: grid,
+            miniForm: form,
+            success: function (map, res) {
+                //form动态列渲染
+                $(form.el).find("[for=srchName]").text(map.cpcodeName);
+                $(form.el).find("[for=srchFl]").text(map.cpcodeFl);
+                form.getField("srchName").load(map.cpcodeNameUrl);
+                form.getField("srchFl").load(map.cpcodeFlUrl);
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+    //end
+
+	/**
+	 * 查询
+	 **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     * 汇总
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "cw_note") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "cw_sl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "cw_se") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "cw_sje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "cw_wje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+
+    }
+
+	/**
+	 * 供货单位选择页面
+	 **/
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "cw_rq" && record.cw_rq != null) {
+            return mini.formatDate(new Date(record.cw_rq), "yyyy-MM-dd");
+        }else if (e.field == "cw_shl") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+
+    }
+
+</script>
+</html>

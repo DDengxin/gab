@@ -1,0 +1,370 @@
+package com.tengzhi.business.quality.qualityArchives.qualityCertificate.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.tools.time.DateFormatUtil;
+import com.tengzhi.business.base.publicinterfac.IUserConstants;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.finance.constituent.dao.EPzJylistLhDao;
+import com.tengzhi.business.finance.constituent.model.EPzJylistLh;
+import com.tengzhi.business.quality.qualityArchives.qualityCertificate.dao.QualityCertificateDao;
+import com.tengzhi.business.quality.qualityArchives.qualityCertificate.model.QualityCertificate;
+import com.tengzhi.business.quality.qualityArchives.qualityCertificate.service.QualityCertificateService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class QualityCertificateServiceImpl implements QualityCertificateService {
+
+	@Autowired
+	private QualityCertificateDao qualityCertificateDao;
+	
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private SysParamDao sysParamDao;
+	
+	@Autowired
+	private EPzJylistLhDao ePzJylistLhDao;
+	
+	@Autowired
+	private ECkOutDao eCkOutDao;
+	
+	@Override
+	public BasePage<QualityCertificate> getSrchTopList(BaseDto baseDto) throws IOException {
+		String where="";
+		Map<String, String> map = baseDto.getParamsMap();
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            where+=" and a.zm_rq >='"+map.get("srchRq1")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            where+=" and a.zm_rq <='"+map.get("srchRq2")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchNote"))) {
+            where+=" and a.zm_note = '"+map.get("srchNote")+"'";
+        }
+		
+		String sqlString=" select  zm_rq,zm_note,zm_item,f_getname('GETDWNAME',zm_customer,'',data_corp)zm_customer,zm_delivery_no,zm_sl,zm_js,f_getname('GETUSERNAME',data_man,'',data_corp)data_man,zm_flag from e_pz_quality_certificate a where 1=1 "+where;
+		return qualityCertificateDao.QueryPageLists(baseDto,sqlString);
+	}
+
+
+	@Override
+	public Result getSrchBottomList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+
+		String sqlString =" select distinct out_contract zm_item,out_ph zm_lot_no,out_code zm_code,'' zm_standard,sum(out_js)zm_js,sum(out_sl)zm_sl,out_type zm_type,out_customer zm_customer,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'')cpcode_name,cpcode_size,cpcode_size_en,cpcode_xp from e_ck_out ,e_js_cpcode "
+				+ "where out_code =cpcode_id and out_note = '"+map.get("zmDeliveryNo")+"' group by out_contract,out_code,out_ph,out_type,out_customer ,cpcode_name,cpcode_size,cpcode_size_en,cpcode_xp,cpcode_type,out_ph ";
+		BasePage<QualityCertificate> qualityCertificateList = qualityCertificateDao.QueryPageLists(baseDto,sqlString);
+		List<String> pchList = qualityCertificateList.getContent()
+				.stream()
+				.map(row -> row.getZmLotNo())
+				.collect(Collectors.toList());
+
+		String pchs = String.join("','", pchList);
+		List ePzJylistLhList = ePzJylistLhDao.QueryListModel(EPzJylistLh.class,
+				" select pch,jybh,xm_ord,xm_code,xm_tvalue,xm_value from e_pz_jylist_lh where pch in('"+pchs+"')"
+						+ " union all "
+						+ " select pch,jybh,xm_ord,xm_code,xm_tvalue,xm_value from e_pz_jylist_jc where pch in('"+pchs+"') " );
+
+
+		return Result.resultOk().put("data", qualityCertificateList.getContent()).put("total", qualityCertificateList.getPageTotal()).put("detail", ePzJylistLhList);
+	}
+
+
+
+	@Override
+	public Result getSrchBottomList1111(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sql="SELECT \n" +
+				"\ta.zm_item,\n" +
+				"\ta.zm_code,\n" +
+				"\tb.cpcode_name,\n" +
+				"\tb.cpcode_size,\n" +
+				"\tb.cpcode_size_en,\n" +
+				"\tb.cpcode_xp,\n" +
+				"\ta.zm_lot_no,\n" +
+				"\ta.zm_standard,\n" +
+				"  a.zm_js,\n" +
+				"\ta.zm_brand,\n" +
+				"\ta.file_uuid,\n" +
+				"\ta.zm_sl\n" +
+				"FROM\n" +
+				"\te_pz_quality_certificate a,\n" +
+				"\te_js_cpcode b where a.zm_code = b.cpcode_id and a.zm_note='"+map.get("zmNote")+"' ";
+		List<QualityCertificate> QualityCertificate=qualityCertificateDao.QueryListModel(com.tengzhi.business.quality.qualityArchives.qualityCertificate.model.QualityCertificate.class,sql);
+		return Result.formPage(QualityCertificate,QualityCertificate.size());
+
+	}
+
+
+
+
+	@Override
+	public Result getSrchBottomList0000(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+
+		String sqlWhere = " where 1=1";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			sqlWhere+=" and zm_rq>='"+map.get("srchRq1")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			sqlWhere+=" and zm_rq<='"+map.get("srchRq2")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+			sqlWhere+=" and zm_note like '%"+map.get("srchNo")+"%' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("zmDeliveryNo"))) {
+			sqlWhere+=" and zm_delivery_no like '%"+map.get("srchRq2")+"%' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+			sqlWhere+=" and zm_flag='"+map.get("srchFlag")+"' ";
+		}
+
+		String sql="SELECT DISTINCT\n" +
+				    "\tzm_rq,\n" +
+				    "\tzm_note,\n" +
+					"\tzm_item,\n" +
+					"\tzm_customer,\n" +
+					"\tzm_delivery_no,\n" +
+					"\tSUM(zm_sl) zm_sl,\n" +
+					"\tSUM(zm_js) zm_js,\n" +
+					"\tdata_man,\n" +
+					"\tzm_flag \n" +
+					"FROM\n" +
+					"\te_pz_quality_certificate \n" +sqlWhere+
+					"GROUP BY\n" +
+					"\tzm_rq,\n" +
+					"\tzm_note,\n" +
+					"\tzm_item,\n" +
+					"\tzm_customer,\n" +
+					"\tzm_delivery_no,\n" +
+					"\tdata_man,\n" +
+					"\tzm_flag";
+		List<QualityCertificate> QualityCertificate=qualityCertificateDao.QueryListModel(com.tengzhi.business.quality.qualityArchives.qualityCertificate.model.QualityCertificate.class,sql);
+		return Result.formPage(QualityCertificate,QualityCertificate.size());
+
+	}
+
+	@Override
+	public BasePage<QualityCertificate> getLotNoList(BaseDto baseDto) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<Object, String> getAddQualityCertificate(String lotNo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Result saveData(Map<String,Object> map) throws Exception {
+		Map<String,Object> head=(Map<String, Object>)map.get("qualityCertificate");
+		List<Map<String,Object>> body=(List<Map<String,Object>>)map.get("qCDetailed");
+		SecurityUser securityUser=(SecurityUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String note = sysGenNoteService.getyyMMNote4(QualityCertificate.class, "ZM");
+		body.forEach(item->{
+
+			QualityCertificate cate=new QualityCertificate();
+			cate.setZmNote(note);
+			cate.setZmLotNo(ObjectUtil.isNotEmpty(item.get("zmLotNo"))?item.get("zmLotNo").toString():"");
+			cate.setFileUuid(ObjectUtil.isNotEmpty(item.get("fileUuid"))?item.get("fileUuid").toString():"");
+			cate.setZmCode(ObjectUtil.isNotEmpty(item.get("zmCode"))?item.get("zmCode").toString():"");
+			cate.setZmBrand(ObjectUtil.isNotEmpty(item.get("zmBrand"))?item.get("zmBrand").toString():"");
+			cate.setZmDeliveryNo(ObjectUtil.isNotEmpty(head.get("zmDeliveryNo"))?head.get("zmDeliveryNo").toString():"");
+			cate.setZmItem(ObjectUtil.isNotEmpty(item.get("zmItem"))?item.get("zmItem").toString():"");
+			cate.setZmItemDetailed("");
+			cate.setZmStandard(ObjectUtil.isNotEmpty(item.get("zmStandard"))?item.get("zmStandard").toString():"");
+			cate.setZmFlag("登记");
+			cate.setZmType(ObjectUtil.isNotEmpty(item.get("zmType"))?item.get("zmType").toString():"");
+			cate.setDataMan(securityUser.getNickName());
+			cate.setDataCorp(securityUser.getCorpId());
+			cate.setZmCustomer(ObjectUtil.isNotEmpty(item.get("zmCustomer"))?item.get("zmCustomer").toString():"");
+			cate.setZmRq(DateFormatUtil.parseDate(ObjectUtil.isNotEmpty(head.get("zmRq"))?head.get("zmRq").toString():"2020-07-01"));
+			cate.setDataDate(new Date());
+			cate.setZmJs(new BigDecimal(ObjectUtil.isNotEmpty(item.get("zmJs"))?item.get("zmJs").toString():"0"));
+			cate.setZmSl(new BigDecimal(ObjectUtil.isNotEmpty(item.get("zmSl"))?item.get("zmSl").toString():"0"));
+			qualityCertificateDao.save(cate);
+		});
+		return Result.resultOk("新增成功!");
+	}
+
+	@Transactional
+	@Override
+	public Result updateData(Map<String,Object> map) throws IOException {
+		Map<String,Object> head=(Map<String, Object>)map.get("qualityCertificate");
+		List<Map<String,Object>> body=(List<Map<String,Object>>)map.get("qCDetailed");
+		body.forEach(item->{
+			String set="zm_brand='"+item.get("zmBrand").toString()+"'";
+			if(ObjectUtil.isNotEmpty(item.get("fileUuid"))){
+				set+=",file_uuid='"+item.get("fileUuid").toString()+"'";
+			}
+			if(ObjectUtil.isNotEmpty(item.get("zmStandard"))){
+				set+=",zm_standard='"+item.get("zmStandard").toString()+"'";
+			}
+			String sql=" update e_pz_quality_certificate set "+set+" where zm_note='"+head.get("zmNote")+"' and zm_lot_no='"+item.get("zmLotNo")+"' and zm_code='"+item.get("zmCode")+"' ";
+			qualityCertificateDao.executeUpdateSql(sql);
+		});
+		return Result.resultOk("修改成功!");
+	}
+
+	@Override
+	public List<SysParams> paramsAll(String pch) {
+		List<SysParams> paramList = sysParamDao.QueryListModel(SysParams.class, 
+				" select param_id,param_name from sys_param  where parent_id in ("
+				+ " select jybh from e_pz_jylist_lh where pch = 'JDCP2005220001' "
+				+ " union all "
+				+ " select jybh from e_pz_jylist_lh where pch = 'JDCP2005220001' )  ");
+		return paramList;
+	}
+
+	@Override
+	public QualityCertificate getByNote(String note) {
+		QualityCertificate in=new QualityCertificate();
+		String sqlString=" select  distinct zm_note,zm_delivery_no ,zm_type,zm_rq from e_pz_quality_certificate a where   zm_note ='"+note+"' ";
+		BasePage<QualityCertificate> list=qualityCertificateDao.QueryNoPageLists(sqlString);
+		if(list.getContent().size()>0) { 
+			  in=list.getContent().get(0);
+		} 
+		return in;
+	}
+
+	@Override
+	public BasePage<ECkOut> getOutList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sqlWhere = " where a.out_note not in(select zm_delivery_no from e_pz_quality_certificate) and a.out_code=b.cpcode_id and out_act in (select param_id from sys_param where param_name ='"+IUserConstants.xsck+"' )   ";
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+			sqlWhere+=" and a.out_flag = '"+map.get("srchFlag")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			sqlWhere+=" and a.out_rq >='"+map.get("srchRq1")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			sqlWhere+=" and a.out_rq <='"+map.get("srchRq2")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNote"))) {
+			sqlWhere+=" and a.out_note like '%"+map.get("srchNote")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCustomer"))) {
+			sqlWhere+=" and a.out_customer = '"+map.get("srchCustomer")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+			sqlWhere+=" and a.out_flag = '"+map.get("srchFlag")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("outType"))) {
+			sqlWhere+=" and a.out_type = '"+map.get("outType")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			sqlWhere+=" and a.out_code = '"+map.get("srchCode")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+			sqlWhere += " and b.cpcode_name = '"+map.get("srchName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			sqlWhere += " and b.cpcode_size = '"+map.get("srchSize")+"'";
+		}
+		String sql = "select f_getname('GETDWEXP',out_customer,'',a.data_corp)out_customer,out_rq ,out_note  ,f_get_param_name('库房档案',out_lib,'cn')out_lib,"
+				+ "out_act ,sum(out_js) out_js ,sum(out_sl) out_sl,sum(out_zl) out_zl,out_flag ,f_getname('GETUSERNAME',a.data_man,'',a.data_corp)data_man ,MAX(a.data_date) data_date,a.data_corp  "
+				+ " from  e_ck_out a ,e_js_cpcode b " + sqlWhere
+				+ "  group by out_rq,out_note,out_customer,out_act,out_flag,a.data_man,a.data_corp,out_lib  ";
+		return eCkOutDao.QueryPageLists(baseDto,sql);
+	}
+
+	@Override
+	public Result deleteByNote(String note) {
+		qualityCertificateDao.deleteByNote(note);
+		return Result.resultOkMsg("删除");
+	}
+
+	@Override
+	public Result getFlag(String note,String flag) {
+		String flagString = qualityCertificateDao.getFlag(note);
+		if(flag.equals(flagString)){
+			return Result.resultOkMsg("操作成功");
+		}else {
+			return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+		}
+	}
+	
+	@Override
+	public Result confirm(String zmNote) {
+		qualityCertificateDao.updateFlag(zmNote,"核准");
+		return Result.resultOkMsg("修改成功");
+	}
+
+	@Override
+	public Result cancel(String zmNote) {
+		qualityCertificateDao.updateFlag(zmNote,"登记");
+			return Result.resultOkMsg("修改成功");
+	}
+
+	
+	@Override
+	public ModelAndView table(ModelAndView mv, String note) {
+		mv = prove(mv,note);
+		return mv;
+	}
+	/**
+	 * 质检打印信息
+	 * @param mv
+	 * @param note
+	 * @return
+	 */
+	private ModelAndView prove(ModelAndView mv,String note){
+		//抬头信息
+		String sql = "select f_getname('GETDWEXP',ht_customer,'',b.data_corp) ht_customer,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'')||tph tph,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'') cpcodefl ,cpcode_size,pch,ht_standard,current_date,note from e_pz_jylist a,e_xs_contract b,e_xs_contract_detailed c,e_js_cpcode d where a.sc_no=c.ht_mo and b.ht_no=c.ht_no  and code=d.cpcode_id and note ='"+note+"'";
+		List<Map> tt = qualityCertificateDao.QueryListMap(sql);
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		for(int i = 0; i<tt.size() ; i++) {
+			Map<String,Object> rmap = new HashMap<String, Object>();
+			rmap.put("tt", tt.get(i));
+			//成份信息
+			List <Map> cf = cf(tt.get(i).get("pch").toString());
+			rmap.put("cf", cf);
+			rmap.put("cfSize", cf.size());
+			//检查信息
+			List <Map> jc = jc(tt.get(i).get("pch").toString());
+			Map<String,Object> jcMap = new HashMap<String, Object>();
+			for(int j = 0; j<jc.size() ; j++) {
+				jcMap.put(jc.get(j).get("xm_code").toString(), jc.get(j).get("xm_tvalue"));
+			}
+			rmap.put("jc", jcMap);
+			rmap.put("jcSize", jc.size());
+			list.add(rmap);
+		}
+		mv.addObject("proves", list);
+		return mv;
+	}
+	
+	private List<Map> cf(String pch){
+		String sql = "select f_get_param_name('成品牌号',xm_code,'') xmcodename,xm_code,xm_tvalue,xm_value,xm_ord from e_pz_jylist_lh where pch = '"+pch+"'";
+		List<Map> cf = qualityCertificateDao.QueryListMap(sql);
+		return cf;
+	}
+	
+	private List<Map> jc(String pch){
+		String sql = "select f_get_param_name('成品检测',xm_code,'') xmcodename,xm_code,xm_tvalue,xm_value,xm_ord from e_pz_jylist_jc where pch = '"+pch+"'";
+		List<Map> cf = qualityCertificateDao.QueryListMap(sql);
+		return cf;
+	}
+	
+	
+}

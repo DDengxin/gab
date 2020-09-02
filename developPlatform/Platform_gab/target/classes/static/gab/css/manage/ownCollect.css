@@ -1,0 +1,42 @@
+
+td a{
+    padding: 0 !important;
+    color: #666;
+}
+td i{
+    font-size: 22px !important;
+    color: #e80000;
+    cursor: pointer;
+}
+td input{
+    vertical-align: middle;
+    margin: -2px 2px 0 0;
+}
+tbody tr:first-child {
+    line-height: normal;
+}
+.all-collect{
+    color: #666;
+    padding-left: 35px;
+    margin-bottom: 60px;
+}
+.all-collect input{
+    vertical-align: middle;
+    margin: -2px 5px 0 0;
+}
+.all-collect span{
+    margin-left: 25px;
+    cursor: pointer;
+}
+.all-collect span:hover{
+    color: #e80000;
+}
+#page input{
+    width: 50px !important;
+}
+.no{
+    margin-bottom: 40px;
+}
+.main{
+    padding: 0 !important;
+}

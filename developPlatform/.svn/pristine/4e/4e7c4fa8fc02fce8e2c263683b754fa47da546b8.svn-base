@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>工装档案</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <!-- 	<label class="hmq-label" text="产品编码">
+                <input class="mini-textbox" name="cpcodeId" />
+            </label>
+            <label class="hmq-label" text="产品名称">
+                <input class="mini-textbox" name="cpcodeName" />
+            </label>
+            <label class="hmq-label" text="英文名称">
+                <input class="mini-textbox" name="cpcodeNameEn" />
+            </label>
+             -->
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="cpcodeId" url="list">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="40">序号</div>
+            <div tz:datagrid="column" field="mjCode" width="130" align="left">工模编号</div>
+            <div tz:datagrid="column" field="mjCpcode" width="100" align="left">产品编码</div>
+            <div tz:datagrid="column" field="cpcodeName" align="left" width="120">名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" align="left" width="120">规格</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+            <div tz:datagrid="column" field="cpcodeFl" width="120" align="left">大类</div>
+            <div tz:datagrid="column" field="cpcodeSize" width="100">规格</div>
+            <div tz:datagrid="column" field="cpcodeBz" width="80" align="center">单位</div>
+            <div tz:datagrid="column" field="mjRemarks" width="100" align="right">库存状态</div>
+            <div tz:datagrid="column" field="mjSl" width="100" align="right" numberFormat="#,0.0000">数量</div>
+            <div tz:datagrid="column" field="mjSc" width="100" align="right">使用时长</div>
+            <div tz:datagrid="column" field="mjCl" width="100" align="right">使用产量</div>
+            <div tz:datagrid="column" field="mjFlag" width="100" align="center">状态</div>
+            <div tz:datagrid="column" field="cpcode02" width="100" align="center">其他参数</div>
+            <div tz:datagrid="column" field="cpcodeSm" width="100" align="center">特殊要求</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+
+    function search_option() {
+        grid.load();
+    }
+
+
+</script>
+</body>
+</html>

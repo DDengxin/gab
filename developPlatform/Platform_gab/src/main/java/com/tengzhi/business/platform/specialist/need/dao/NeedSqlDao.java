@@ -1,0 +1,18 @@
+package com.tengzhi.business.platform.specialist.need.dao;
+
+import com.tengzhi.base.jpa.dao.BasicsDao;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.platform.specialist.need.model.G_Need;
+
+import java.util.List;
+import java.util.Map;
+
+public interface NeedSqlDao extends BasicsDao<G_Need,String>{
+
+	BasePage<Map<String, Object>> sreach(BaseDto baseDto);
+
+	Map<String, Object> findById(String needNote, String cpcodeXp);
+
+	List<Map> getCompany();
+}

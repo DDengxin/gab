@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+	<div th:fragment="CommonFooter" id="_CommonFooter_">
+		<div class="footer">
+			<div class="footer_content">
+				<div class="footer_menu_list">
+					<div class="footer_menu_list_content">
+
+						<dl>
+							<dt>平台信息</dt>
+							<dd>
+								<a href="#">平台简介</a>
+							</dd>
+							<dd>
+								<a href="#">会员中心</a>
+							</dd>
+							<dd>
+								<a href="#">联系我们</a>
+							</dd>
+							<dd>
+								<a href="#">商务合作</a>
+							</dd>
+							<dd>
+								<a href="#">服务内容</a>
+							</dd>
+						</dl>
+						<dl>
+							<dt>市场需求</dt>
+							<dd>
+								<a href="#">栏目名称</a>
+							</dd>
+							<dd>
+								<a href="#">栏目名称</a>
+							</dd>
+							<dd>
+								<a href="#">栏目名称</a>
+							</dd>
+							<dd>
+								<a href="#">栏目名称</a>
+							</dd>
+							<dd>
+								<a href="#">栏目名称</a>
+							</dd>
+						</dl>
+						<dl>
+							<dt>资源中心</dt>
+							<dd>
+								<a href="#">商务活动</a>
+							</dd>
+							<dd>
+								<a href="#">行业动态</a>
+							</dd>
+							<dd>
+								<a href="#">工艺知识</a>
+							</dd>
+							<dd>
+								<a href="#">案例分享</a>
+							</dd>
+						</dl>
+						<dl>
+							<dt>平台信息</dt>
+							<dd>
+								<a href="#">管理店铺</a>
+							</dd>
+							<dd>
+								<a href="#">成为供应商</a>
+							</dd>
+							<dd>
+								<a href="#">行业解决方案</a>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div class="footer_link">
+					<div class="footer_link_content">
+						友情链接：
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+					</div>
+				</div>
+				<div class="belong">
+					<p>版权所有：***************** ICP备浙999999号</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</html>

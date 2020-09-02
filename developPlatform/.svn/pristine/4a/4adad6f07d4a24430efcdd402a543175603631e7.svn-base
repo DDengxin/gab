@@ -1,0 +1,12 @@
+collocate:
+  security:
+    salt: qwer #MD5盐
+  sms: #短信平台配置
+    api: http://www.ztsms.cn:8800/sendManySms.do
+    user: nbtz
+    passsword: NBtz2016
+    productid: 676767
+    signature: 腾智软件
+  business:
+     #userName: 1001 #超级用户
+     #defaultCorp: TZ #默认账套

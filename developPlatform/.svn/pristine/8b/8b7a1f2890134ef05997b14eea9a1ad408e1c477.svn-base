@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>培训执行</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="培训日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="培训类别">
+            <input class="mini-combobox"  name="jlStype" url="/system/parameter/getParamsSelectListByParentId/人事/培训类型/PXLX"/>
+        </label>
+        <label class="hmq-label" text="培训方式">
+            <input class="mini-combobox"  name="jlTrainingMode" url="/system/parameter/getParamsSelectListByParentId/人事/培训方式/PXFS">
+        </label>
+        <div property="columns">
+            <div header="#" field="text"></div>
+        </div>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="jlNote" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="jlNote" align="center" width="100">单号</div>
+            <div tz:datagrid="column" field="jlType" align="left" width="120">培训记录类别</div>
+            <div tz:datagrid="column" field="jlPlanNote"  align="left" width="120">培训计划单号</div>
+            <div tz:datagrid="column" field="jlDate"  align="left" width="120">培训日期</div>
+            <div tz:datagrid="column" field="jlTitle"  align="center" width="70">培训主题</div>
+            <div tz:datagrid="column" field="jlStype"  align="center" width="70">培训类别</div>
+            <div tz:datagrid="column" field="jlTrainingMode"  align="center" width="180">培训方式</div>
+            <div tz:datagrid="column" field="jlTrainingLecturer"  align="left" width="120">培训讲师</div>
+            <div tz:datagrid="column" field="jlTrainingAddress" align="left" width="120">培训地点</div>
+            <div tz:datagrid="column" field="jlPlan" align="left" width="120">培训人数</div>
+            <div tz:datagrid="column" field="jlActual" align="left" width="120">实际人数</div>
+            <div tz:datagrid="column" field="jlTrainingDuration" align="left" width="120">培训时长</div>
+            <div tz:datagrid="column" field="jlTrainingCheck" align="left" width="120">是否考核</div>
+            <div tz:datagrid="column" field="jlTrainingEffect" align="left" width="120">培训效果</div>
+            <div tz:datagrid="column" field="jlTrainingCost" align="left" width="120">实际费用</div>
+            <div tz:datagrid="column" field="jlAttachment" align="left" width="120">附件</div>
+            <div tz:datagrid="column" field="jlTrainingContent" align="left" width="320">培训内容</div>
+            <div tz:datagrid="column" field="dataMan" align="left" width="120">操作人</div>
+            <div tz:datagrid="column" field="dataCorp" align="left" width="120">操作公司</div>
+            <div tz:datagrid="column" field="dataDate" align="left" width="120">操作时间</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "pxzxAdd.html", action: 'add', data: row});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'pxzxAdd.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteByNote/{0}".format(row.jlNote), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+</body>
+</html>

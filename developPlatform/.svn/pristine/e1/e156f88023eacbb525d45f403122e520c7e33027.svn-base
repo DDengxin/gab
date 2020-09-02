@@ -1,0 +1,97 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.da.sysCustomer.dao.SysCustomerDao;
+import com.tengzhi.business.cg.da.sysCustomer.model.SysCustomer;
+import com.tengzhi.business.cg.yw.purchaseRequisition.model.EcgRequisition;
+import com.tengzhi.business.cg.yw.purchaseRequisition.model.EcgRequisition.EcgRequisition_PK;
+import com.tengzhi.business.cg.yw.purchaseRequisition.vo.EcgRequisitiontVo;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.ck.yw.ckck.service.WarehouseOutService;
+import com.tengzhi.business.finance.voucher.dao.CertificateWordDao;
+import com.tengzhi.business.finance.voucher.model.CertificateWord;
+import com.tengzhi.business.finance.voucher.service.CertificateWordService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+public class CertificateWordServiceImpl implements CertificateWordService {
+	@Autowired
+	CertificateWordDao certificateWordDao;
+	@Autowired
+	SysCustomerDao sysCustomerDao;
+	@Autowired
+	SysGenNoteService sysGenNoteService;
+	@Override
+	public BasePage<CertificateWord> getSrchTopList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser = SessionUser.SessionUser();
+		String corpId = securityUser.getCorpId();
+		String sqlString = "select  fgenerateid,fname,fprefix,finternalind,fdigit,fisdefault " +
+				" from e_f_voucher_certificateword  where data_corp='"+corpId+"'   group by fgenerateid,fname,fprefix,finternalind,fdigit,fisdefault ";
+		return certificateWordDao.QueryPageLists(baseDto, sqlString + " order by fisdefault desc");
+	}
+	@Override
+	public boolean judgeUnique(CertificateWord CertificateWord) {
+		return sysCustomerDao.findAll(Specifications.where((c)->{
+			c.eq("fgenerateid", CertificateWord.getFgenerateid());
+		})).size()<=0;
+	}
+
+
+
+	@Override
+	public ModelAndView table(ModelAndView mv, String outNote) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public void update(CertificateWord certificateWord) throws Exception {
+		certificateWordDao.dynamicSave(certificateWord, certificateWordDao.findByFgenerateid(certificateWord.getFgenerateid()));
+		
+	}
+
+
+
+
+	@Override
+	public CertificateWord save(CertificateWord certificateWord) throws Exception {
+		SessionUser securityUser=SessionUser.SessionUser();
+		certificateWord.setFgenerateid(sysGenNoteService.getyyyyMMddNote4(SysCustomer.class,"PZ"));
+		if(judgeUnique(certificateWord)) {
+			certificateWord.setDataMan(securityUser.getUsername());
+			certificateWord.setDataCorp(securityUser.getCorpId());
+			System.err.println("11");
+			return certificateWordDao.save(certificateWord);
+			
+		}else {
+		throw new Exception("编码已存在");		}
+	}
+
+
+
+
+	@Override
+	public void deleteByFgenerateid(String fgenerateid) {
+		certificateWordDao.deleteById(fgenerateid);
+		
+	}
+}

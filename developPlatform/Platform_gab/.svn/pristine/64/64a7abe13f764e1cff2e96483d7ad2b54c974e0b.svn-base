@@ -1,0 +1,83 @@
+
+package com.tengzhi.business.system.user.service.Impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.security.common.enums.AuthorityRoleEnum;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.enroll.dao.GUserInfoDao;
+import com.tengzhi.business.platform.enroll.model.GUserInfo;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Primary
+@Service
+public class GabUserDetailServiceImpl extends UserDetailServiceImpl implements UserDetailsService {
+    @Autowired
+    private GUserInfoDao gUserInfoDao;
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        SessionUser employee = null;
+        //优先通过平台用户表获取用户信息
+        GUserInfo gUserInfo = gUserInfoDao.findByUserMtel(username);
+        if (null == gUserInfo) {
+            gUserInfo = gUserInfoDao.findByUserId(username);
+        }
+
+        if (null == gUserInfo) {
+            //【用户角色】当前用户只存在于ERP
+            return super.loadUserByUsername(username);
+        } else {
+            //通过平台用户表判断是否已绑定了ERP用户
+            if (StringUtils.isNotEmpty(gUserInfo.getErpUserid())) {
+                try {
+                    employee = (SessionUser) super.loadUserByUsername(gUserInfo.getErpUserid());
+                    //追加判断哥爱帮绑定的ERP用户账套是否等于当前取出的用户账套信息
+                    if (!ObjectUtil.equal(employee.getOriginalCorpId(), gUserInfo.getErpCorp())) {
+                        employee = null;
+                    }
+                } catch (UsernameNotFoundException ee) {
+                    ee.printStackTrace();
+                }
+            }
+            //创建授权对象
+            if (null == employee) {
+                //【用户角色】当前用户只存在于平台，不存在于ERP
+                grantedAuthorities.add(AuthorityRoleEnum.GAB_USER.toSimpleGrantedAuthority());
+                employee = new SessionUser(gUserInfo.getUserId(), gUserInfo.getUserPwd(), grantedAuthorities);
+                //保证未关联平台的情况下审批流程正常可用
+                employee.setJobNumber(gUserInfo.getUserId());
+                employee.setNickName(gUserInfo.getUserTname());
+                //绑定哥爱帮用户信息
+                employee.setgUserInfo(gUserInfo);
+                return employee;
+            } else {
+                //【用户角色】当前用户既存在于平台又存在于ERP
+                ArrayList<GrantedAuthority> simpleGrantedAuthoritieList = new ArrayList<>();
+                employee.getAuthorities().iterator().forEachRemaining(row -> {
+                    simpleGrantedAuthoritieList.add(row);
+                });
+                simpleGrantedAuthoritieList.add(AuthorityRoleEnum.GAB_USER.toSimpleGrantedAuthority());
+                SessionUser em = new SessionUser(employee.getUsername(), gUserInfo.getUserPwd(), simpleGrantedAuthoritieList);
+                BeanUtil.copyProperties(employee, em, "authorities", "password");
+                //获取绑定的哥爱帮用户信息表
+                em.setgUserInfo(gUserInfo);
+                return em;
+            }
+        }
+    }
+}

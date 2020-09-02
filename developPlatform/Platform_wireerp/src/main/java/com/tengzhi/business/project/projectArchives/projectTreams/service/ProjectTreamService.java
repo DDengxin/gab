@@ -1,0 +1,23 @@
+package com.tengzhi.business.project.projectArchives.projectTreams.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.project.projectArchives.projectTreams.model.EXmXmxz;
+import com.tengzhi.business.resouces.vo.SelectVo;
+
+import java.util.List;
+
+public interface ProjectTreamService extends BaseService<EXmXmxz,String> {
+    BasePage<EXmXmxz> findAll(BaseDto baseDto);
+
+    EXmXmxz save(EXmXmxz eXmXmxz);
+
+    EXmXmxz getByXmId(String xzId);
+
+    void update(EXmXmxz eXmXmxz);
+
+    void deleteByXmId(String xzId);
+
+    List<SelectVo> getTeamListByXm(String xmId);
+}

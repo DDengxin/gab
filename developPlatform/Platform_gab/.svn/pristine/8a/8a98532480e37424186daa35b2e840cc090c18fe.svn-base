@@ -1,0 +1,404 @@
+.application_content {
+    width: 100%;
+    overflow: hidden;
+    margin: 125px 0 120px;
+}
+
+.application_content_list {
+    width: 1200px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.application_content_list h2 {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.application_content_list h2:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.application_content_list .tabchange {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 35px;
+}
+
+.application_content_list .tabchange #tablist {
+    width: 100%;
+    overflow: hidden;
+}
+
+.application_content_list .tabchange #tablist li {
+    width: 33.333%;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d0d0d0;
+    text-align: center;
+    font-size: 24px;
+    color: #333333;
+    float: left;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tabin {
+    color: #e80000 !important;
+    border-color: #e80000 !important;
+}
+
+.content-box {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #d0d0d0;
+    border-top: none;
+    position: relative;
+}
+
+.content-box .content {
+    width: 100%;
+    clear: both;
+    color: #333;
+    position: relative;
+    top: 0;
+    left: 0;
+    display: none;
+    padding: 0 20px 25px;
+}
+
+.contentin,.show {
+    display: block !important;
+}
+
+.content form {
+    width: 100%;
+    overflow: hidden;
+}
+
+.base-msg, .company-msg, .advantage, .other {
+    width: 100%;
+    overflow: hidden;
+}
+
+.content-box h3 {
+    width: 100%;
+    font-size: 18px;
+    color: #000;
+    padding: 10px 0 10px;
+    border-top: 1px solid #e80000;
+    font-weight: bold;
+    margin-top: 15px;
+}
+.base-msg h3{
+    border-top: none;
+}
+.content ul{
+    width: 100%;
+    overflow: hidden;
+}
+.content ul li{
+    width: 100%;
+    overflow: hidden;
+    padding-left: 30px;
+}
+.content ul li>div{
+    display: block;
+    color: #666666;
+    font-size: 16px;
+    margin: 0 70px 12px 0;
+    line-height: 34px;
+    position: relative;
+    float: left;
+}
+.content ul li div span{
+    display: inline-block;
+    width: 110px;
+    height: 100%;
+}
+#uploaderSupplier{
+    display: inline-block;
+    margin-left: 20px;
+    vertical-align: top;
+}
+#uploaderSupplier div{
+    color: #fff !important;
+    margin: 0 !important;
+}
+.uploader-list{
+    line-height: 0 !important;
+    display: block !important;
+}
+.item .webuploadinfo {
+    color: #666 !important;
+    height: 30px !important;
+    line-height: 30px;
+}
+.item .webuploadstate {
+    color: #666;
+}
+.item .webuploadItemButtons .webuploadDownload, .item .webuploadItemButtons .webuploadDelbtn, .item .webuploadItemButtons .webuploadPreview {
+    width: 40px;
+    text-align: center;
+    height: 23px;
+    line-height: 23px;
+}
+.content ul li div i{
+    color: #e80000;
+    float: right;
+}
+.ablitity{
+    /* width: 140px !important; */
+}
+.content ul li div textarea{
+    border: 1px solid #c8c8c8;
+    border-radius: 5px;
+    margin-left: 20px;
+    padding: 5px 15px 0;
+    display: inline-block;
+    vertical-align: top;
+    resize:none;
+    color: #666;
+}
+.content ul li div input[type="text"],
+.content ul li div input[type="email"],
+.content ul li div input[type="password"]{
+    width: 333px;
+    height: 34px;
+    line-height: 34px;
+    border-radius: 5px;
+    margin-left: 20px;
+    padding: 0 15px;
+    outline-style: none;
+    border: 1px solid #c8c8c8;
+    color: #666;
+}
+.content ul li div input[name="exCode"],
+.content ul li div input[name="fCode"],
+.content ul li div input[name="uCode"],
+.content ul li div input[name="randCode"]{
+    width: 243px;
+    border-radius: 5px 0 0 5px;
+    float: left;
+    margin-right: 5px;
+}
+.layui-form-select{
+    display: none !important;
+}
+.layui-form select{
+    display: block !important;
+}
+.layui-form-radio{
+    margin-top: 0 !important;
+}
+.layui-form-radio>i {
+    color: #c8c8c8 !important;
+    float: none !important;
+}
+.layui-form-radio>i:hover, .layui-form-radioed>i {
+    color: #409fff !important;
+    float: none !important;
+}
+.layui-form-checked[lay-skin=primary] i{
+    border-color: #e80000!important;
+    background-color:#e80000;
+}
+.layui-form-checkbox[lay-skin=primary]:hover i{
+    border-color: #e80000!important;
+}
+.content ul li div .code{
+    width: 90px;
+    display: inline-block;
+    height: 100%;
+    text-align: center;
+    color: #fff;
+    background: #e80000;
+    border-radius: 0 5px 5px 0;
+    font-size: 14px;
+    position: relative;
+    left: -5px;
+    cursor: pointer;
+}
+.content ul li div u{
+    position: absolute;
+    font-size: 16px;
+    color: #bababa;
+    display: block;
+    height: 34px;
+    line-height: 34px;
+    top: 0;
+    right: 10px;
+}
+.content ul li div input[name="plate"],
+.content ul li div input[name="round"]{
+    padding-right: 58px;
+}
+.content ul li div input[name="number"]{
+    padding-right: 74px;
+}
+.content ul li div strong{
+    margin-right: 40px;
+    display: inline-block;
+}
+.content ul li div input[type="radio"]{
+    margin-left: 15px;
+}
+.content ul li div em{
+    margin-left: 3px;
+    display: inline-block;
+    vertical-align: top;
+}
+.btn{
+    width: 100%;
+}
+.btn .btn_content{
+    position: relative;
+    left: 50%;
+    margin-left: -121px;
+}
+.btn input[type="button"]{
+    width: 242px;
+    height: 45px;
+    text-align: center;
+    background: #e80000;
+    color: #fff;
+    font-size: 20px;
+    margin: 80px auto 12px;
+    border: none;
+    cursor: pointer;
+}
+.btn a{
+    color: #e80000;
+}
+.btn a:hover{
+    color: #e80000;
+    text-decoration: underline;
+}
+.btn strong{
+    display: inline-block;
+    vertical-align: bottom;
+}
+.sub-content {
+    position: relative;
+}
+
+.sub-content input[type=checkbox]{
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    font-size: initial;
+}
+
+.sub-content .agree-label {
+    color: #646261;
+    margin-left: 25px;
+    cursor: pointer;
+}
+.sub-content .agree-label::selection{
+    background: rgba(0,0,0,0);
+}
+.sub-content span {
+    position: absolute;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #c8c8c8;
+    border-radius: 3px;
+    background: url(../images/check.png);
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position-x: 0px;
+    background-position-y: 20px;
+    -webkit-transition: background-position-y 0.1s linear;
+    -o-transition: background-position-y 0.1s linear;
+    transition: background-position-y 0.1s linear;
+}
+
+.sub-content input[type=checkbox]:checked+span {
+    background-position-y: -2px;
+}
+
+.jj,.fj,.zh,.tm,.gy,.bs,.as{
+    display: none;
+}
+
+.com-sel {
+    display: inline-block;
+    line-height: 2;
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+.com-opt {
+    border: 1px solid #c8c8c8 !important;
+    border-radius: 5px;
+    width: 333px;
+    height: 34px;
+    line-height: 34px;
+    padding: 0 0 0 15px;
+    outline-style: none;
+    color: #666666;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    /*鍘绘帀榛樿鐨勪笅鎷変笁瑙�*/
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    /*娣诲姞涓嬫媺涓夎鍥炬爣*/
+    /* background: url("../images/jiantou.png") no-repeat 310px center transparent; */
+    background: url("../images/jiantou.png") no-repeat 310px center #fff;
+    background-size: 5%;
+    cursor: pointer;
+}
+
+/*娓呴櫎ie鐨勯粯璁ら�夋嫨妗嗘牱寮忔竻闄わ紝闅愯棌涓嬫媺绠ご*/
+
+select::-ms-expand {
+    display: none;
+}
+
+/* 上传文件样式修改 */
+article{
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 20px;
+    /* height: 38px; */
+}
+.webuploader-container{
+    overflow: hidden;
+}
+article div{
+    margin: 0 !important;
+}
+.webuploader-pick{
+    color: #fff !important;
+}
+.item .webuploadstate {
+    width: auto;
+    height: auto;
+    height: 30px;
+    line-height: 30px;
+}
+.keyTips{
+    color: #e80000;
+    font-size: 12px;
+    line-height: 20px;
+}

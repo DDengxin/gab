@@ -1,0 +1,57 @@
+package com.tengzhi.business.xt.dailyRoutine.wcsq.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.xt.dailyRoutine.wcsq.model.EXtWcsq;
+import com.tengzhi.business.xt.dailyRoutine.wcsq.vo.EXtWcsqVo;
+
+import java.io.IOException;
+import java.util.Map;
+
+public interface WcsqService extends BaseService {
+
+    BasePage<Map<String,Object>> findAll(BaseDto baseDto) throws IOException;
+
+    EXtWcsq save(EXtWcsqVo eXtWcsqVo) throws Exception;
+
+    EXtWcsq findByNote(String note);
+
+    void update(EXtWcsqVo eXtWcsqVo);
+
+    void deleteByNote(String note);
+
+    Result getFlag(String note,String flag);
+
+    Result confirm(String note);
+
+    Result cancle(String note);
+
+    BasePage<Map<String, Object>> getZcmxBynote(BaseDto baseDto) throws IOException;
+
+
+    /**
+     * 人员外出页面
+     */
+    /**
+     * 查询flag=确认的数据
+     * @param baseDto
+     * @return
+     * @throws IOException
+     */
+    BasePage<Map<String,Object>> getConfirmList(BaseDto baseDto) throws IOException;
+
+    Result out(String note);
+
+    Result back(String note);
+
+
+    /**
+     * wcsq单表form保存修改
+     */
+
+    EXtWcsq save(EXtWcsq eXtWcsq) throws IOException;
+
+    void update(EXtWcsq eXtWcsq);
+}

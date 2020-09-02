@@ -1,0 +1,20 @@
+#【【【哥爱帮】】】生产环境Tomcat端口配置
+server:
+  port: 80
+
+spring:
+  profiles:
+    include: prod-base #引入其他配置文件
+  datasource:
+    url: jdbc:postgresql://122.112.193.222:5432/tz_gab?currentSchema=gab #部署数据库连接
+    password: '5WnirtWxlRx9' #密码
+    username: 'gab' #账号
+
+kkfileview:
+  ip: 124.70.136.207
+  port: 8012
+
+collocate:
+  business:
+    userName: 1001,T20050014 #超级用户
+    defaultCorp: JD #登录页面展示的默认账套

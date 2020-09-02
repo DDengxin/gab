@@ -1,0 +1,128 @@
+{
+  "id": "1793578",
+  "name": "g6",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "10498049",
+      "name": "箭头折线",
+      "font_class": "jiantouzhexian",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "6932347",
+      "name": "bianji",
+      "font_class": "bianji",
+      "unicode": "e7de",
+      "unicode_decimal": 59358
+    },
+    {
+      "icon_id": "13153436",
+      "name": "移动",
+      "font_class": "yidong",
+      "unicode": "e684",
+      "unicode_decimal": 59012
+    },
+    {
+      "icon_id": "13482532",
+      "name": "网格",
+      "font_class": "wangge",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "3938868",
+      "name": "开始节点",
+      "font_class": "kaishijiedian",
+      "unicode": "e766",
+      "unicode_decimal": 59238
+    },
+    {
+      "icon_id": "3938869",
+      "name": "结束节点",
+      "font_class": "jieshujiedian",
+      "unicode": "e767",
+      "unicode_decimal": 59239
+    },
+    {
+      "icon_id": "5190889",
+      "name": "开始节点",
+      "font_class": "BMSzhuanqu_kaishijiedian",
+      "unicode": "e741",
+      "unicode_decimal": 59201
+    },
+    {
+      "icon_id": "7644704",
+      "name": "开始",
+      "font_class": "kaishi",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "7814023",
+      "name": "结束节点",
+      "font_class": "end",
+      "unicode": "e8ce",
+      "unicode_decimal": 59598
+    },
+    {
+      "icon_id": "9032115",
+      "name": "开始",
+      "font_class": "kaishi1",
+      "unicode": "e6d4",
+      "unicode_decimal": 59092
+    },
+    {
+      "icon_id": "588348",
+      "name": "删除",
+      "font_class": "shanchu",
+      "unicode": "e6cc",
+      "unicode_decimal": 59084
+    },
+    {
+      "icon_id": "973206",
+      "name": "yuan",
+      "font_class": "yuan",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "996751",
+      "name": "箭头",
+      "font_class": "ai37",
+      "unicode": "e69a",
+      "unicode_decimal": 59034
+    },
+    {
+      "icon_id": "1986964",
+      "name": "分支线",
+      "font_class": "fenzhixian",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "9040956",
+      "name": "菱形框",
+      "font_class": "tubiao",
+      "unicode": "e636",
+      "unicode_decimal": 58934
+    },
+    {
+      "icon_id": "12550614",
+      "name": "矩形",
+      "font_class": "juxing",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "12550615",
+      "name": "直线",
+      "font_class": "zhixian",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    }
+  ]
+}

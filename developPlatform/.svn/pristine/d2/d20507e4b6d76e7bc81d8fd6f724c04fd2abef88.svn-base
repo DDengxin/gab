@@ -1,0 +1,69 @@
+package com.tengzhi.business.sale.saleProduct.saleContract.service;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContract;
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContractDetailed;
+import com.tengzhi.business.sale.saleProduct.saleContract.vo.EXsContractVo;
+
+public interface SaleContractService extends BaseService<EXsContract, String> {
+
+	BasePage<EXsContract> findAll(BaseDto basedto) throws IOException;
+	
+	BasePage<Map<String, Object>> getSrchBottomList(BaseDto baseDto) throws IOException;
+	
+	EXsContract save(EXsContractVo EXsContractvo) throws Exception;
+	
+	
+	EXsContract findByNote(String htNote);
+	
+	void update(EXsContractVo eXsContractVo);
+	
+	void deleteByNote(String htNo);
+	
+	Result confirm(String htNote );
+	
+	Result cancel(String htNote );
+	
+	Result getFlag(String htNo,String flag);
+	
+	Result getFlags(String htNo,String flag);
+	
+	BasePage<EXsContractDetailed> getContractDetailed(BaseDto baseDto) throws IOException;
+	
+	ModelAndView table(ModelAndView mv, String htNo);
+	
+	BasePage<Map<String, Object>> getScddList(BaseDto basedto) throws IOException;
+
+	Map<Object,String> getBySplitId(String htMo);
+	
+	Map<Object,String> getByHpId(String htMo);
+	/**
+	 * 核销
+	 * @param htNo
+	 * @return
+	 */
+	Result hx(String htNo );
+	Result qxhx(String htNo );
+	
+	/**
+	 * 可用的合同明细
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+    BasePage<EXsContractDetailed> getUsableContractDetailed(BaseDto baseDto) throws IOException;
+
+	void exportExcelScdd(HttpServletResponse response, HttpServletRequest request) throws IOException;
+}

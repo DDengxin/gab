@@ -1,0 +1,21 @@
+package com.tengzhi.business.platform.enroll.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.enroll.model.G_Expert;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface ExpertDao extends BasedaoRepository<G_Expert, String> {
+
+	@Query(value = "select status from g_expert   where expert_note=:expertNote  ", nativeQuery = true)
+	String getExpertStatus(@Param(value = "expertNote") String expertNote);
+
+	@Modifying
+	@Query(value = " DELETE FROM G_Expert  WHERE expert_note = :expertNote", nativeQuery = true)
+	int deleteByExpertIdTrue(@Param("expertNote") String expertNote);
+
+	@Modifying
+	@Query(value = " update  G_Expert  set status = :status  where expertNote= :expertNote")
+	int updateStatus(@Param("expertNote") String expertNote, @Param("status") String status);
+}

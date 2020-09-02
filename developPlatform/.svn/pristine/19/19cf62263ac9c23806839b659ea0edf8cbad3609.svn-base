@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>凭证模板</title>
+</th:block>
+</head>
+<body>
+	<form id="srch_form" method="post">
+		<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+			<input id="id" name="id" class="mini-hidden" readonly="readonly" />
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<label>名称:</label>
+						<input id="ftempname" name="ftempname" class="mini-textbox" style="width:80px;" />
+						<label>类型:</label>
+						<select id="ftype" name="ftype" class="mini-combobox" style="width:80px;" textField="combtext" valueField="combid" showNullItem="true" nullItemText="全部" emptyText="全部">
+							<option value="出货">出货</option>
+							<option value="采购">采购</option>
+							<option value="销售">销售</option>
+							<option value="收款">收款</option>
+							<option value="付款">付款</option>
+							<option value="转账">转账</option>
+							<option value="暂估">暂估</option>
+							<option value="应收未开">应收未开</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+		<div class="mini-fit">
+		<div id="srch_grid" class="mini-datagrid" style="width:100%;height:50%;" showSummaryRow="true" onselectionchanged="onSelectionChanged" sizeList="[50,100,200]" pageSize="100" showPager="false" pager="#pager1" SortMode="client">
+			<div property="columns">
+				<div type="indexcolumn">序号</div>
+				<div field="ftempassistid" width="120" align="center" headerAlign="center" allowSort="true">模板</div>
+				<div field="ftype" width="160" align="left" headerAlign="center" allowSort="true">类型</div>
+				<div field="ftempname" width="160" align="left" headerAlign="center" allowSort="true">模板名称</div>
+				<div field="fexplanation" width="220" align="left" headerAlign="center" allowSort="true">模板描述</div>
+				<div field="fusername" width="90" align="center" headerAlign="center" allowSort="true">操作</div>
+				<div field="fischecked" width="80" align="center" headerAlign="center" allowSort="true">默认</div>
+				<div field="corp_id" width="80" align="center" headerAlign="center" allowSort="true" visible="false">corp_id</div>
+				<div width="100%"></div>
+			</div>
+		</div>
+
+		<div class="mini-toolbar" style="padding:0px;border-bottom:1;">
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;"></div>
+					</td>
+					<td style="white-space:nowrap;" align="right" id="btnbar" />
+				</tr>
+			</table>
+		</div>
+
+		<div id="mx_grid" class="mini-datagrid" style="width:100%;height:42.5%;" showSummaryRow="true" url="/cw/ba/pzgl/settings/template/mxgridlist.do" showPager="false" SortMode="client">
+			<div property="columns">
+				<div type="indexcolumn">序号</div>
+				<div field="corp_id" width="40" align="left" headerAlign="center" allowSort="true" visible="false">公司</div>
+				<div field="ftempassistid" width="50" align="left" headerAlign="center" allowSort="true" visible="false">模板号</div>
+				<div field="fentryid" width="40" align="left" headerAlign="center" allowSort="true">行号</div>
+				<div field="fexplanation" width="90" align="left" headerAlign="center" allowSort="true">说明</div>
+				<div field="faccountid" displayField="fnumberfullname" width="100" align="left" headerAlign="center" allowSort="true">科目</div>
+				<div field="fcur" width="50" align="center" headerAlign="center" allowSort="true">币种</div>
+				<div field="frate" width="50" align="right" headerAlign="center" allowSort="true" numberFormat="#,0.0000">汇率</div>
+				<div field="fdc" width="50" align="left" headerAlign="center" allowSort="true">方向</div>
+				<div field="fcustomid" width="60" align="right" headerAlign="center" allowSort="true">客户</div>
+				<div field="fdeptid" width="60" align="right" headerAlign="center" allowSort="true">部门</div>
+				<div field="faccountid2" width="60" align="right" headerAlign="center" allowSort="true">科目2</div>
+				<div field="fsupplierid" width="60" align="right" headerAlign="center" allowSort="true">供应商</div>
+				<div field="funit" width="60" align="center" headerAlign="center" allowSort="true">单位</div>
+				<div field="fprojectid" width="60" align="left" headerAlign="center" allowSort="true">项目</div>
+				<div field="fempid" width="60" align="left" headerAlign="center" allowSort="true">雇员</div>
+				<div field="finventoryid" width="60" align="left" headerAlign="center" allowSort="true">现存量</div>
+				<div field="fvalue" width="60" align="left" headerAlign="center" allowSort="true">值</div>
+				<div field="fqty" width="60" align="left" headerAlign="center" allowSort="true">数量</div>
+				<div field="fprice" width="60" align="left" headerAlign="center" allowSort="true">单价</div>
+				<div field="fvctemplateid" width="50" align="left" headerAlign="center" allowSort="true">序号</div>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("srch_form");
+		var grid = mini.get("srch_grid");
+		var mxgrid = mini.get("mx_grid");
+		var surl = "/finance/voucher/vchtemplate";
+		grid.setUrl(surl + "/getSrchList");
+		function search_option() {
+			var params = form.getData(true);
+			grid.load({
+				params : mini.encode(params)
+			});
+			mxgrid.setData([]);
+		}
+		function onSelectionChanged(e) {
+			var grid = e.sender;
+			var record = grid.getSelected();
+			if (record) {
+				mxgrid.load({
+					params : mini.encode({
+						item : record.ftempassistid
+					})
+				});
+			}
+		}
+</script>
+</body>
+</html>

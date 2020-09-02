@@ -1,0 +1,58 @@
+package com.tengzhi.business.base.page.service.impl;
+
+import com.tengzhi.business.base.page.dao.SysGridDao;
+import com.tengzhi.business.base.page.model.SysGrid;
+import com.tengzhi.business.base.page.service.SysGridColService;
+import com.tengzhi.business.base.page.service.SysGridService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+@Transactional
+public class SysGridServiceImpl implements SysGridService {
+    @Autowired
+    private SysGridDao sysGridDao;
+    @Autowired
+    private SysGridColService sysGridColService;
+
+    @Override
+    public SysGrid findById(String gridId) {
+        return sysGridDao.findById(gridId).orElse(null);
+    }
+
+
+    @Override
+    public List<Map> loadList(String gridId) {
+        SysGrid sysGrid = findById(gridId);
+
+        String sql = sysGrid.getGridSql();
+        //条件
+        if (StringUtils.isNotEmpty(sysGrid.getGridWhere())) {
+            sql += " where ";
+            sql += sysGrid.getGridWhere();
+        }
+        //聚合
+        if (StringUtils.isNotEmpty(sysGrid.getGridGroup())) {
+            sql += " group by ";
+            sql += sysGrid.getGridGroup();
+        }
+        //排序
+        if (StringUtils.isNotEmpty(sysGrid.getGridGroup())) {
+            sql += " group by ";
+            sql += sysGrid.getGridGroup();
+        }
+        return sysGridDao.QueryListMap(sql);
+        //查询详表信息
+        /*if (null != sysGrid) {
+            List<SysGridCol> sysGridColList = sysGridColService.findByGridIdOrderByGridOrdAsc(gridId);
+        }*/
+    }
+
+
+}

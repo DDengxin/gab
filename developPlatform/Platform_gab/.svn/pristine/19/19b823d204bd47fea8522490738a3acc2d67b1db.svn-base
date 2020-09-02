@@ -1,0 +1,29 @@
+package com.tengzhi.business.platform.shopping.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.need.model.G_UserCollection;
+import com.tengzhi.business.platform.shopping.model.ShoppingCart;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ShoppingCartDao extends BasedaoRepository<ShoppingCart,String> {
+
+    @Query(value = "select supply_note from g_supply where supply_note = (select supply_id from sys_user where user_id =:dataMan)",nativeQuery = true)
+    String  getSupplyNote(@Param("dataMan") String dataMan );
+    //通过owner和product_num判断商品中是否已存在
+    @Query(value = "select product_num from g_shopping where product_num =:product_num and owner=:owner",nativeQuery = true)
+    String  getproductNum(@Param("product_num") String product_num,@Param("owner") String owner);
+
+    @Modifying
+    @Query(value =" delete from g_shopping where product_id = :productId and owner=:owner ",nativeQuery = true)
+    int  delete(@Param("productId") String productId,@Param("owner") String owner );
+
+    @Modifying
+    @Query(value = "update g_shopping set productCount=:count where product_id= :productId and owner=:owner",nativeQuery = true)
+    int updateCount(@Param(value = "count") String count,@Param(value = "productId") String productId,@Param(value = "owner") String owner);
+}

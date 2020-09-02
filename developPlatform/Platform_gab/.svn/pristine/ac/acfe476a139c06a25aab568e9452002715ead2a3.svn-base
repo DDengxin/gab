@@ -1,0 +1,63 @@
+package com.tengzhi.business.platform.enroll.controller;
+import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.enroll.service.ExpertService;
+import com.tengzhi.business.platform.enroll.service.PersonalService;
+import com.tengzhi.business.platform.enroll.vo.modelVo;
+import com.tengzhi.business.system.workflow.vo.Examine;
+
+@RestController
+@RequestMapping("platform/personal")
+public class PersonalControler {
+
+	@Autowired
+	private PersonalService personalService;
+
+	/**
+	 * 根据id查询
+	 * @throws Exception 
+	 * */
+	@GetMapping(value = "personById")
+	public Result getById() throws Exception {
+		return Result.resultOk(personalService.personById());
+	}
+
+    
+    /**
+     * 通过id获取对象
+     **/
+    @GetMapping(value = "personalone/{note}")
+    public Result personalone(@PathVariable String note) {
+    	//System.err.println("fasdfa"+note);
+        return Result.resultOk(personalService.personalone(note));
+    }
+    
+	@PutMapping(value = "personedit") 
+	public Result modify(@RequestBody modelVo vo) throws Exception {
+		personalService.update(vo); 
+	return Result.resultOkMsg("修改成功"); 
+	}
+	 
+    
+    @PutMapping(value = "/agree")
+	public Result agree(@RequestBody Examine examine ) throws Exception {
+		return personalService.agree(examine);
+	}
+    
+    
+    
+    
+    
+    
+}

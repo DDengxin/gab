@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>物品外出</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input id="srchRq1" name="srchRq1" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input id="srchRq2" name="srchRq2" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input id="srchNote" name="srchNote" class="mini-textbox" width="110"/>
+        </label>
+        <label class="hmq-label" text="经办部门">
+            <input name="srchDept" popupMaxHeight="240px" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList"
+                   showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="填表人">
+            <input id="srchMan" name="srchMan" class="mini-buttonedit" onbuttonclick="onButtonEditMan" allowInput="true" width="110" />
+        </label>
+
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="ccRq" sort url="/xt/getInOut/wpwc/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="ccRq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="note" width="140" align="center">单号</div>
+            <div tz:datagrid="column" field="wcType" width="100" align="center">类别</div>
+            <div tz:datagrid="column" field="ccWp" width="160" align="left">出厂物品</div>
+            <div tz:datagrid="column" field="wpSl" width="100" align="right">数量</div>
+            <div tz:datagrid="column" field="jbDept" displayField="deptName" width="100" align="center">经办部门</div>
+            <div tz:datagrid="column" field="jbMan" displayField="manName" width="80" align="center">经办人</div>
+            <div tz:datagrid="column" field="isBack" width="100" align="center">是否回厂</div>
+            <div tz:datagrid="column" field="hcMan" displayField="hcManName" width="100" align="center">回厂确认人</div>
+            <div tz:datagrid="column" field="hcRq" width="100" align="center">回厂日期</div>
+            <div tz:datagrid="column" field="ccAdd" width="160" align="left">外出地点</div>
+            <div tz:datagrid="column" field="ccFlag" width="60" align="center">状态</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="corpExp" width="100" align="center">公司</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form =new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    /**
+     * 填报人选择
+     * @param e
+     * @returns {mini.Window}
+     */
+    function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("srchMan").setValue(data.workerId);
+                    mini.get("srchMan").setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    function search_option(){
+        grid.load();
+    }
+
+    /**
+     * 新增
+     * @param e
+     */
+    function add_option(e){
+        var row = grid.getSelected();
+        e.sender.miniopen({url : 'add.html',action : 'add', data : {row : row,formData : form.getData()},width :660,height : 420});
+    }
+
+    /**
+     * 编辑
+     * @param e
+     */
+    function edit_option(e){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,'登记'),function(res){
+                if(200==res.code){
+                    e.sender.miniopen({url : 'add.html', action : 'edit', data: {row: row, formData: form.getData()}, width : 660, height : 420});
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     * @param e
+     */
+    function delete_option(e){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,'登记'),function(res){
+                if(200==res.code){
+                    mini.confirm("注意:确定要删除吗？","删除信息",function(action){
+                        if(action=="ok"){
+                            $['delete']("delete/{0}".format(row.note),function(res){
+                                if(200==res.code){
+                                    grid.reload();
+                                }else{
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                }else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 确认
+     */
+    function confirm_option(){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,'登记'),function(res){
+                if(200==res.code){
+                    mini.confirm("注意:确定要确认吗？","确认信息",function(action){
+                        if(action=="ok"){
+                            $.put("confirm/{0}".format(row.note),function(res){
+                                if(200==res.code){
+                                    grid.reload();
+                                }else{
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 取消确认
+     */
+    function cancel_option(){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,'确认'),function(res){
+                if(200==res.code){
+                    mini.confirm("注意:确定要取消确认吗？","取消确认",function(action){
+                        if(action=="ok"){
+                            $.put("cancle/{0}".format(row.note),function(res){
+                                if(200==res.code){
+                                    grid.reload();
+                                }else{
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+
+</html>

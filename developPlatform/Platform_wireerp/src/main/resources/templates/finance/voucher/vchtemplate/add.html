@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+	<th:block
+			th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>业务模板</title>
+	</th:block>
+</head>
+<body >
+	<form id="form1" method="post">
+		<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+			<input id="action" name="action" class="mini-hidden" readonly="readonly" />
+			<table style="table-layout:fixed;">
+				<tr>
+					<td align="right" style="width:60px;">单号:</td>
+					<td>
+						<input id="fvctemplateid" name="fvctemplateid" style="width: 120px;" class="mini-textbox" emptyText="自动生成" readonly="readonly" />
+					</td>
+					<td align="right" style="width:60px;">类型:</td>
+					<td>
+						<input class="mini-combobox"   valueField="ftype" textField="ftype"  id="ftype" name="ftype" ajaxType="post" onvaluechanged="findAllBsCategoryTypeNames"  url="/finance/voucher/bscategory/findAllBsCategoryTypes" style="width: 90px;"  required="true"/>
+					</td>
+					<td align="right" style="width:60px;">名称:</td>
+					<td>
+						<input id="ftempname" valueField="fname" textField="fname" name="ftempname" ajaxType="post" style="width: 90px;" class="mini-combobox" required="true"/>
+					</td>
+					<td align="right" style="width:60px;">摘要:</td>
+					<td>
+						<input id="fexplanation" valueField="fexplanation"  style="width: 90px;" class="mini-textbox" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+
+	<div id="add_grid" class="mini-datagrid" style="width:100%;height:380px;" idField="id" url="/finance/voucher/vchtemplate/getMxList" allowCellEdit="true" allowCellSelect="true"
+		 oncellbeginedit="OnCellBeginEdit" multiSelect="true" showPager="false" allowCellValid="true" editNextOnEnterKey="true" editNextCloumnCell="true" editNextRowCell="true">
+		<div property="columns">
+			<div type="indexcolumn"></div>
+			<div type="checkcolumn"></div>
+			<div field="fiscash" visible="false"></div>
+			<div field="fitemclassid" visible="false"></div>
+			<div field="fisitem" visible="false"></div>
+			<div field="fentryid" width="40" align="center" vtype="required;int" headerAlign="center" allowSort="true">
+				行号
+				<input property="editor" class="mini-textbox" />
+			</div>
+<!--			<div field="faccountid" displayField="fnumberfullname" vtype="required" name="faccountid" width="110" headerAlign="center" align="left" allowSort="true">-->
+<!--				科目-->
+<!--				<div property="editor" allowInput="true" valuefromselect="true" popupWidth="500" url="/cw/ba/pzgl/voucher/voucher/getLeafSubjectList.do" id="faccountid" name="faccountid"-->
+<!--					textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true" height="38" width="500" buttons="[{iconCls: 'icon-search', handler: onButtonEdit}]">-->
+<!--					<div property="columns">-->
+<!--						<div header="科目代码" field="fnumber" width="100"></div>-->
+<!--						<div header="凭证科目" field="fnumberfullname" width="400"></div>-->
+<!--					</div>-->
+<!--				</div>-->
+<!--			</div>-->
+			<div field="faccountid" displayField="fnumberfullname" vtype="required" name="totalColumnb" width="110" headerAlign="center" align="left" allowSort="true">
+				会计科目
+				<div property="editor" allowInput="true" onvaluechanged="acountidChanged" valuefromselect="true" popupWidth="500" url="/finance/voucher/vouch/getLeafSubjectList" id="faccountid" name="faccountid" textField="fnumberfullname" valueField="faccountid" class="mini-combobox" showClose="true" height="38" width="500"
+					 buttons="[{iconCls: 'icon-search', handler: onButtonEdit}]">
+					<div property="columns">
+						<div header="科目代码" field="fnumber" width="100"></div>
+						<div header="凭证科目" field="fnumberfullname" width="400"></div>
+					</div>
+				</div>
+			</div>
+
+			<div type="comboboxcolumn" autoShowPopup="true" field="fdc" name="fdc" width="50" vtype="required;int" align="center" headerAlign="center">
+				方向
+				<input property="editor" class="mini-combobox" style="width:100%;" data="fdc" />
+			</div>
+			<div type="comboboxcolumn" autoShowPopup="true" vtype="required" name="fvalue" field="fvalue" width="50" allowSort="true" align="center" headerAlign="center">
+				值
+				<input property="editor" class="mini-combobox" style="width:100%;" data="Genders" />
+			</div>
+			<div   type="checkboxcolumn" trueValue="1" falseValue="0"  field="fcustomid"    width="50" align="right" headerAlign="center" allowSort="true">
+				客户
+			</div>
+			<div   type="checkboxcolumn" trueValue="1" falseValue="0"  field="fdeptid" width="50" align="right" headerAlign="center" allowSort="true">
+				部门
+			</div>
+			<div    type="checkboxcolumn" trueValue="1" falseValue="0"  field="fsupplierid" width="50" align="right" headerAlign="center" allowSort="true">
+				供应商
+			</div>
+			<div   type="checkboxcolumn" trueValue="1" falseValue="0"  field="funit" width="50" align="center" headerAlign="center" allowSort="true">
+				单位
+			</div>
+			<div   type="checkboxcolumn" trueValue="1" falseValue="0"  field="fprojectid" width="50" align="left" headerAlign="center" allowSort="true">
+				项目
+			</div>
+			<div   type="checkboxcolumn" trueValue="1" falseValue="0"  field="fempid" width="50" align="left" headerAlign="center" allowSort="true">
+				雇员
+			</div>
+			<div   type="checkboxcolumn" trueValue="1" falseValue="0"  field="finventoryid" width="50" align="left" headerAlign="center" allowSort="true">
+				存货
+			</div>
+			<div    type="checkboxcolumn" trueValue="1" falseValue="0" field="fqty" width="50" align="left" headerAlign="center" allowSort="true">
+				数量
+			</div>
+			<div    type="checkboxcolumn" trueValue="1" falseValue="0" field="fprice" width="50" align="left" headerAlign="center" allowSort="true" numberFormat="#,0.0000">
+				单价
+			</div>
+			<div    field="fcur" width="50" required="true"  align="right" headerAlign="center"  >
+				币种
+			</div>
+			<div    type="checkboxcolumn" trueValue="1" falseValue="0" field="frate"  width="50" align="right" headerAlign="center">
+				汇率
+			</div>
+			<div type="comboboxcolumn" autoShowPopup="true" field="fcashflowitem" width="100" align="right" headerAlign="center" allowSort="true">
+				现金流量科目
+				<input property="editor" class="mini-combobox" style="width:100%;"
+					   popupWidth="400" popupHeight="200"  allowInput="true"  valueFromSelect="true"
+					   ajaxType="post" valueField="freportitem" textField="fdesc"
+					    url="/finance/voucher/bscategory/findAllCashFlowItems"
+				/>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar" style="border-top: 2px;">
+		<table style="width:100%;">
+			<tr>
+				<td style="width:100%;" align="center">
+					<a class="mini-button" iconCls="icon-add" onclick="addRow()">增加</a>
+					<a id="removerow" class="mini-button" iconCls="icon-remove" onclick="removeRow()">删除</a>
+					<a id="removeall" class="mini-button" iconCls="icon-remove" onclick="removeAll()">删除全部</a>
+					<a class="mini-button" iconCls="icon-save" id="btnsave" onclick="SaveData();">保存</a>
+					<a class="mini-button" iconCls="icon-cancel" onclick="onCancel();">关闭</a>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<script type="text/javascript">
+		mini.parse();
+
+		function findAllBsCategoryTypeNames() {
+
+			var typeName = mini.get("ftype").getValue();
+			mini.get("ftempname").setUrl("/finance/voucher/bscategory/findAllBsCategoryTypeNames?typeName=" + typeName);
+		}
+
+
+
+
+
+
+		var Genders = [ {
+			id : 'fsum',
+			text : '金额'
+		}, {
+			id : 'fmoney',
+			text : '未税'
+		}, {
+			id : 'ftax',
+			text : '税额'
+		} ];
+		var fdc = [ {
+			id : 1,
+			text : '借'
+		}, {
+			id : -1,
+			text : '贷'
+		} ];
+		var form = new mini.Form("form1");
+		var grid = mini.get("add_grid");
+
+		function acountidChanged(e) {
+			const o=e.selected;
+			var p={
+				faccountid: o.faccountid
+				,fcur: o.fcur
+				,fdc: o.fdc
+				,fiscash: o.fiscash
+				,fisitem: o.fisitem
+				,fcustomid: o.fcustom
+				,fsupplierid: o.fsupplier
+				,fdeptid: o.fdept
+				,fempid: o.femp
+				,fprojectid: o.fproject
+				,finventoryid: o.finventory
+				,fqty: o.fisqtyaux
+				,frate:o.fadjustrate
+				,fitemclassid: o.fitemclassid
+				,fnumberfullname: o.fnumberfullname
+			};
+
+			grid.updateRow(grid.getSelected(),p);
+
+		}
+
+		function addRow() {
+			form.validate();
+			if (form.isValid() == false) {
+				return;
+			}
+			var hh = grid.getData().length;
+			grid.deselectAll();
+			var newRow = {
+				name : "New Row"
+				,fentryid:hh+1
+			};
+			grid.addRow(newRow, hh);
+			grid.validateRow(newRow); //加入新行，马上验证新行
+		}
+
+		function OnCellBeginEdit(e) {
+			var record = e.record, field = e.field;
+			if (field == "faccountid" ||field == "fentryid"||field == "fdc"||field == "fvalue"||(field == "fcashflowitem"&&record.fiscash==1) ) {
+				e.cancel = false;
+			}else{
+				e.cancel = true;
+			}
+		}
+
+		function removeRow() {
+			var note = mini.get("fvctemplateid").getValue();
+			var rows = grid.getSelecteds();
+			if (rows.length > 0) {
+				var ids = [];
+				var fid = "";
+				for ( var a = 0; a < rows.length; a++) {
+					var row = rows[a];
+					fid = row.fid;
+					if (fid != undefined) {
+						ids.push(fid);
+					}
+				}
+				var id = ids.join(',');
+				if (note.length > 0 && fid != undefined) {
+					if (rows.length == grid.getData().length) {
+						removeAll();
+					} else {
+						mini.confirm("确定删除选中行吗？", "提示信息", function(action) {
+							if (action == "ok") {
+								removerow.disabled = true;
+								$.ajax({
+									url : "/cw/ba/pzgl/settings/template/deleteRow.do",
+									type : 'post',
+									data : {
+										parms : id,
+										stime : (new Date()).getTime()
+									},
+									cache : false,
+									success : function(data) {
+										removerow.disabled = false;
+										if (data.status) {
+											mini.alert("删除成功");
+											grid.load({
+												params : mini.encode({
+													fvctemplateid : note
+												})
+											});
+										} else {
+											mini.alert(text.message);
+										}
+									},
+									error : function() {
+										mini.alert("网络请求失败!");
+									}
+								});
+							}
+						});
+					}
+				} else {
+					grid.removeRows(rows, true);
+				}
+			} else {
+				mini.alert("请选中一条记录!");
+			}
+		}
+
+		function removeAll() {
+			var note = mini.get("fvctemplateid").getValue();
+			var rows = grid.getData();
+			if (note == "" || note == null) {
+				if (rows.length > 0) {
+					grid.removeRows(rows, true);
+				}
+			}
+			if (note.length > 0) {
+				mini.confirm("确定删除全部吗？", "提示信息", function(action) {
+					if (action == "ok") {
+						removeall.disabled = true;
+						$.ajax({
+							url : "/cw/ba/pzgl/settings/template/delete.do",
+							type : 'post',
+							data : {
+								parms : note,
+								stime : (new Date()).getTime()
+							},
+							cache : false,
+							success : function(data) {
+								removeall.disabled = false;
+								if (data.status) {
+									CloseWindow("cancel");
+								} else {
+									mini.alert(text.message);
+								}
+							},
+							error : function() {
+								mini.alert("网络请求失败!");
+							}
+						});
+					}
+				});
+			}
+		}
+
+		function SaveData() {
+			form.validate();
+			if (form.isValid() == false)
+				return;
+			grid.validate();
+			if (grid.isValid() == false) {
+				var error = grid.getCellErrors()[0];
+				grid.beginEditCell(error.record, error.column);
+				return;
+			}
+			var mxdata = grid.getData();
+			var retCode = getRepeatData(mxdata);
+			if (retCode.length > 0) {
+				mini.alert("存在相同:" + retCode + "，无法保存！");
+				return;
+			}
+			var main = form.getData(true);
+			var entry = grid.getChanges();
+			if (entry.length > 0) {
+				var surl = "/finance/voucher/vchtemplate/add.html";
+				mini.get("btnsave").disable();
+				$.ajax({
+					url : surl,
+					type : 'post',
+					data : JSON.stringify( {
+						maindata : main,
+						entries : entry
+					}),
+					contentType: 'application/json',
+					cache : false,
+					success : function(res) {
+						mini.get("btnsave").enable();
+						if (res.code==200) {
+							mini.alert("保存成功!");
+							var ent = mini.decode(res.data);
+							mini.get("action").setValue("edit");
+							mini.get("fvctemplateid").setValue(ent.fvctemplateid);
+							setIdDisable("fvctemplateid,fcreatetime,ftype,ftempname");
+							grid.load({
+								params : mini.encode({
+									fvctemplateid : ent.fvctemplateid
+								})
+							});
+						} else {
+							mini.alert(res.msg);
+						}
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						mini.get("btnsave").enable();
+						mini.alert("网络请求失败!");
+						// CloseWindow();
+					}
+				});
+			} else {
+				mini.alert("明细没有数据不需要保存!");
+			}
+		}
+
+		//标准方法接口定义
+		function SetData(data) {
+			$("#action").val(data.action);
+			// console.log(data);
+			 form.setChanged(false);
+			if (data.action == "edit") {
+				data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+				$.ajax({
+					url : "/finance/voucher/vchtemplate/getById/"+data.data.rowData.fvctemplateid,
+					type : 'post',
+					cache : false,
+					success : function(text) {
+						if (text.code==200) {
+							var o = mini.decode(text.data);
+							form.setData(o);
+							$("#action").val(data.action);
+							// setIdDisable("fvctemplateid,fcreatetime,ftype,ftempname");
+							grid.load({
+								params : mini.encode({
+									fvctemplateid : o.fvctemplateid
+								})
+							});
+						} else {
+							mini.alert(text.message);
+						}
+					},
+					error : function() {
+						mini.alert("网络请求失败!");
+					}
+				});
+			}
+		}
+
+		function GetData() {
+			var o = form.getData();
+			return o;
+		}
+
+		//检查是否有重复code
+		function getRepeatData(data) {
+			var len = data.length;
+			for ( var i = 0; i < len; i++) {
+				for ( var j = i + 1; j < len; j++) {
+					if (data[i].faccountid == data[j].faccountid) {
+						return data[i].faccountid;
+					}
+				}
+			}
+			return "";
+		}
+
+
+
+
+		function onCancel(e) {
+			CloseWindow('refresh');
+		}
+
+		function onButtonEdit(e) {
+			if (e.source) {
+				var btnEdit = this;
+				var record = grid.getSelected();
+				var name = e.source.name;
+				var flagname = name.substring(0, name.length - 2);
+				var id = "" + e.source.name;
+				var idname = "" + e.source.name + "name";
+				if (record[flagname] == 1) {
+				} else {
+					return false;
+				}
+				mini.open({
+					url : "/finance/voucher/vouch/assistingselect.html",
+					title : "辅助核算项目选择",
+					width : 650,
+					height : 380,
+					onload : function() {
+						var iframe = this.getIFrameEl();
+						var data = {
+							qtable : e.source.qtable
+						};
+						iframe.contentWindow.setData(data);
+					},
+					ondestroy : function(action) {
+						if (action == "ok") {
+							var iframe = this.getIFrameEl();
+							var data = iframe.contentWindow.GetData();
+							data = mini.clone(data); //必须
+							if (data) {
+								var object = {};
+								object[id] = data.fid;
+								object[idname] = data.fname;
+								grid.updateRow(record, object);
+								btnEdit.setValue(data.fid);
+								btnEdit.setText(data.fname);
+							}
+						}
+					}
+				});
+			} else {
+				var btnEdit = e.sender;
+				if (e.sender.id == "faccountid") {
+					mini.open({
+						targetWindow : window.parent,
+						url : "/finance/voucher/accountselect.html",
+						title : "科目选择列表",
+						width : 650,
+						height : 380,
+						ondestroy : function(action) {
+							if (action == "ok") {
+								var iframe = this.getIFrameEl();
+								var data = iframe.contentWindow.GetData();
+								data = mini.clone(data); //必须
+								if (data) {
+									btnEdit.setValue(data.faccountid);
+									btnEdit.setText(data.fname);
+								}
+							}
+						}
+					});
+				}
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售合同【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+	<th:block
+		th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+			<input id="action" name="action" class="mini-hidden" />
+			<input id="outType" name="outType" class="mini-hidden" />
+			<label class="hmq-label" text="销售客户"> <input
+				class="mini-buttonedit" name="customer" id="customer" width="120px" />
+			</label>
+			<label class="hmq-label" text="合同号"> <input
+				class="mini-combobox" name="htNo" id="htNo" width="120px"
+				textField="combtext" valueField="combid" allowInput="true"
+				valueFromSelect="true" />
+			</label>
+			<a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+			<a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+			<a class="mini-button" iconCls="icon-remove"
+				onclick="closeWindow('cancel')">取消</a>
+		</th:block>
+	</th:block>
+
+
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid"  onrowdblclick="onRowDblClick" style="width:100%;height:70%;" 
+			idField="cpcodeId" selectOnLoad="true"  
+			sizeList="[50,100,200]" pageSize="100" multiSelect="true" 
+			url="/sale/saleProduct/saleContract/getContractDetailed">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn" width="35">序号</div>
+							<div tz:datagrid="column" field="optionrow" width="45" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+							<div tz:datagrid="column" field="htNo" width="110" align="center" visible="false">单号</div>
+							<div tz:datagrid="column" field="htMo" width="110" align="center">明细单号</div>
+							<div tz:datagrid="column" field="htCode" width="100" align="center">编码</div>
+							<div tz:datagrid="column" field="cpcodeName"  name="cpcodeName"  align="left" width="120">名称</div>
+                   		 	<div tz:datagrid="column" field="cpcodeSize" displayField="cpcodeSizeName"   name="cpcodeSize"  align="left" width="70">规格</div>
+                   		 	<div tz:datagrid="column" field="cpcodeSizeEn" displayField="cpcodeSizeEnName"  name="cpcodeSizeEn" align="left" width="60">品牌</div>
+                   		 	<div tz:datagrid="column" field="cpcodeXp"  displayField="cpcodeXpName" name="cpcodeXp" align="left" width="80">标重</div>
+                    		<div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" align="left" width="80">大类</div>
+							<div tz:datagrid="column" field="htSl" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" dataType="double">数量</div>
+							<div tz:datagrid="column" field="htPrice" width="80" align="right" numberFormat="#,0.0000">单价</div>
+							<div tz:datagrid="column" field="htJe" width="80" align="right" numberFormat="#,0.00" summaryType="sum">金额</div>
+							<div tz:datagrid="column" field="htTax" width="250" align="left" visible="false"></div>
+							<div tz:datagrid="column" field="htCurrency" width="250" align="left"visible="false"></div>
+							<div tz:datagrid="column" field="htStype" width="250" align="left"  visible="false"></div>
+							<div tz:datagrid="column" field="cpcode01" width="250" align="left"visible="false"></div>
+							
+			</div>
+		</div>
+		<div tz:datagrid="datagrid"  id="return_grid"   style="width:100%;height:30%;" sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+	</div>
+<!-- </div>
+ -->
+ 
+ </body>
+<script type="text/javascript">
+	mini.parse();
+	var grid = mini.get("srch_grid");
+	var return_grid = mini.get("return_grid");
+	var form = new mini.Form("form1");
+	grid.bindSearchForm(form);
+	var columns = grid.getColumns();
+	return_grid.set({
+		columns : columns
+	});
+	return_grid.hideColumn("indexcolumn");
+	/* function onSearchClick({
+		item_grid.load({
+			params : mini.encode({
+				htNo : mini.get("outContract");
+			})
+		});
+	}) */
+	function search_option() {
+		var htNo = mini.get("htNo").getValue();
+		if(htNo.length>0){
+			grid.load();
+		}else{
+			hmq.tipDanger("请选择订单");
+		}
+	}
+	function isnotExit(record) {
+		var dataRows = return_grid.getData();
+		//需要判断是否已经加入
+		if (dataRows.length > 0) {
+			for ( var i = 0; i < dataRows.length; i++) {
+				var dataRow = dataRows[i];
+				if (dataRow.id == record.id) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	function onActionRenderer(e) {
+		var grid_id = e.sender.id;
+		var s = "";
+		if (grid_id == "srch_grid") {
+			s = ' <a class="mini-button"  style="width:30px;color:red;" href="javascript:addRow()">' + "+" + '</a>';
+		}
+		if (grid_id == "return_grid") {
+			s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">' + "-" + '</a>';
+		}
+		return s;
+	}
+	function addRow() {
+		var row = grid.getSelected();
+		var data = return_grid.getData();
+		row = mini.clone(row); //必须
+		grid.removeRow(grid.getSelected());
+		return_grid.addRow(row, 0);
+	
+		
+	}
+	
+	function removeRow() {
+		var row = return_grid.getSelected();
+		return_grid.removeRow(row);
+		grid.addRow(row, 0);
+	}
+	
+	
+	function SetData(data) {
+		if (data.action == "search") {
+			data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+			mini.get("customer").setText(data.customerName);
+			mini.get("customer").setValue(data.customer);
+			mini.get("outType").setValue(data.outType);
+			mini.get("htNo").load("/sale/saleProduct/saleReturn/getItemSelectList/{0}/{1}".format(data.customer,data.outType));
+
+			//动态列转换
+			hmq.business.dynamicProductParams(data.outType, {
+				miniDataGrid:[return_grid,grid],
+				success: function (map, res) {},
+				error: function (res) {
+					hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+				}
+			});
+		}
+		
+	}
+	
+	function confirm() {
+		CloseWindow("ok");
+	}
+	function GetData() {
+		var row = grid.getSelected();
+		return row;
+	}
+	function GetMutiData() {
+		var rows = return_grid.getData();
+		return rows;
+	}
+	function GetFormData(){
+		var data = form.getData();
+		return data;
+	}
+	function onRowDblClick(e) {
+		addRow();
+	}
+	function onContractValueChanged(e) {
+        if (hmq.isNotEmpty(e.sender.getValue())) {
+        	item_grid.load({
+				params : mini.encode({
+					htNo : e.sender.getValue()
+				})
+			});
+            //mini.get("outCode").load("/sale/saleProduct/saleDelivery/getCodeSelectList/{0}".format(  e.sender.getValue()));
+        	//mini.get("outCode").select(0);
+        } else {
+            mini.get("outCode").setData(null);
+        }
+
+	}	
+	//关闭
+	function closeWindow(action) {
+		if (window.CloseOwnerWindow) {
+			return window.CloseOwnerWindow(action);
+		} else {
+			window.close();
+		}
+	}
+	
+
+</script>
+</html>

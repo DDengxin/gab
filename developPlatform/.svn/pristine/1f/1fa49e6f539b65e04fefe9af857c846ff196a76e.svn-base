@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>应收应付管理</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <input class="mini-hidden" name="orient" />
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="日期">
+                <input  class="mini-datepicker"  name="srchRq1" value="new Date()" width="100"/>至<input  class="mini-datepicker"  name="srchRq2" value="new Date()" width="100"/>
+            </label>
+            <label class="hmq-label" text="应收应付">
+                <input  class="mini-textBox" name="cwStype" id="cwStype" width="100"/>
+            </label>
+            <label class="hmq-label" text="单号">
+                <input class="mini-textbox" name="srchNote" width="100"/>
+            </label>
+            <!-- <label class="hmq-label" text="方式">
+                <input  class="mini-comboBox" name="srchBz"  width="100"/>
+            </label> -->
+            <label class="hmq-label" text="币种">
+                <input  class="mini-comboBox" url="/cg/yw/purchaseFile/purchaseContract/getHtBz"  showNullItem="true" nullItemText="全部" name="srchBz"  width="100"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid"  id="srch_grid"  sortField="sfkId" treeColumn="sfk_note" 
+         idField="sfkId"  parentField="parentId" resultAsTree="true" iconField="rightIconCls"
+         expandOnLoad="0" showPageInfo="false" virtualColumns="true" showTreeLines="false" ShowTreeicon="false" >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <!-- <div tz:datagrid="column" field="sfkId" name="fpId" align="center" width="80" visible="false">ID</div> -->
+            <div tz:datagrid="column" field="cwRq" name="cwRq" align="center" width="120" dateFormat="yyyy-MM-dd"  renderer="onActionRenderer">日期</div>
+            <div tz:datagrid="column" field="cwFkrq" name="cwFkrq" align="center" width="120" dateFormat="yyyy-MM-dd"  renderer="onActionRenderer" >付款日期</div>
+            <div tz:datagrid="column" field="cwNote" name="cwNote" align="center" width="120">单号</div>
+            <div tz:datagrid="column" field="cwItem" name="cwItem" align="center" width="120">订单编号</div>
+            <div tz:datagrid="column" field="cwDw" displayField="cwdws" name="cwDw" align="left" width="120">单位</div>
+            <div tz:datagrid="column" field="cwCode" name="cwCode" align="center" width="100">产品编号</div>
+            <div tz:datagrid="column" field="cwType" name="cwType" align="left" width="100">产品种类</div>
+            <div tz:datagrid="column" field="cwJs" name="cwJs" numberFormat="#,0.00" align="right" width="80">交易件数</div>
+            <div tz:datagrid="column" field="cwSl" name="cwSl"  width="80" align="right" numberFormat="#,0.0000">交易数量</div>
+            <div tz:datagrid="column" field="cwZl" name="cwZl" width="100" align="right" numberFormat="#,0.0000" >交易重量</div>
+            <div tz:datagrid="column" field="cwPrice" name="cwPrice" width="100"  numberFormat="#,0.0000"  align="right">交易单价</div>
+            <div tz:datagrid="column" field="cwSje" name="cwSje" align="right" width="80" numberFormat="#,0.00">含税金额</div>
+            <div tz:datagrid="column" field="cwSe" name="cwSe" align="right" width="100"  numberFormat="#,0.00">交易税额</div>
+            <div tz:datagrid="column" field="cwCk" name="cwCk" align="center" width="120" >结算方式</div>
+            <div tz:datagrid="column" field="cwBz" displayField="cwbzs" name="cwBz" width="110" align="center">交易币种</div>
+            <div tz:datagrid="column" field="cwHl" name="cwHl" align="right" width="120" >交易汇率</div>
+            <div tz:datagrid="column" field="cwShl" name="cwShl" align="right" width="120" renderer="onActionRenderer">发票税率</div>
+            <div tz:datagrid="column" field="cwFph" name="cwFph" align="center" width="120" >发票号码</div>
+            <div tz:datagrid="column" field="cwFkh" name="cwFkh" align="center" width="120" >付款号码</div>
+            <div tz:datagrid="column" field="cwMonth" name="cwMonth" align="center" width="120" >月结状态</div>
+            <div tz:datagrid="column" field="cwFlag" name="cwFlag" align="center" width="120" >状态</div>
+            <div tz:datagrid="column" field="dataMan" name="dataMan" align="left" width="120" >操作人</div>
+            <div tz:datagrid="column" field="dataDate" name="dataDate" align="center" width="120" >操作日期</div>
+            <div tz:datagrid="column" field="dataCorp" name="dataCorp" align="left" width="120" >所属公司</div>
+            <div tz:datagrid="column" field="cwSm" name="cwSm" align="center" width="220" >付款说明</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    grid.frozenColumns(0, 5);
+    //grid.frozenColumns ( 1, 6 );
+    //拦截加载事件，加载树形结构
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            e.cellHtml = e.value ? '是' : '否';
+        }
+    });
+
+    var cwStype = hmq.getQueryString("cwStype");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(cwStype)) {
+        form.getField("cwStype").setValue(cwStype);
+        setIdReadOnly("cwStype");
+    }
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row:row,formData:form.getData()},height:'300px'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if(row.cwFlag == "登记" && row.cwMonth == "未结"){
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: {row:row,formData:form.getData()},height:'200px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+        }else{
+        	hmq.tipDanger("该状态无法修改!");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+        	if(row.cwFlag=="确认"||row.cwMonth=="已结"){
+        		hmq.tipDanger("该状态不能删除！");
+        	}else{
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("allowanceList.html/{0}".format(row.cwNote), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        	}
+          
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    
+    
+   /* 确认操作，修改状态  */
+   function ok_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   var params ={
+					  cwNote : row.cwNote,
+					  cwCode : row.cwCode
+				}
+		   if(row.cwFlag=="登记"&&row.cwMonth=="未结"){
+	/* 		   hmq.business.approvalConfirm({
+                   businessId: row.htNo,
+                   url: '/sale/saleProduct/saleContract/add.html',
+                   error: function (res) {
+                       if (404 == res.code) {
+                           $.put("confirm/{0}".format(row.htNo), function (res) {
+                               if (200 === res.code) {
+                                   srch_topgrid.reload();
+                               } else {
+                                   hmq.tipDanger(res.msg);
+                               }
+                           });
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   }
+               });   */
+			   
+			   
+			   
+		   mini.confirm("确定要进行确认操作吗？", "确认信息", function (action) {
+               if (action == "ok") {
+                   $['put']("ok",JSON.stringify({ "params" : mini.encode(params) }) , function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   },
+                   null, {
+    	                contentType: 'application/json'
+    	                });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法审核！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+   //方法没有搬到按钮事件
+   /* 月结操作修改月结状态 */
+   function yok_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   var params ={
+					  cwNote : row.cwNote,
+					  cwCode : row.cwCode
+				}
+		   if(row.cwMonth=="登记"){
+		   mini.confirm("确定要审核吗？", "审核信息", function (action) {
+               if (action == "ok") {
+            	   $['put']("yok",JSON.stringify({ "params" : mini.encode(params) }) , function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   },
+                   null, {
+   	                contentType: 'application/json'
+   	                });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法进行月结操作！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+   /* 取消操作，修改状态  */
+   function qx_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   var params ={
+					  cwNote : row.cwNote,
+					  cwCode : row.cwCode
+				}
+		   if(row.cwFlag=="结算"&&row.cwMonth=="已结"){
+		   mini.confirm("确定要取消吗？", "取消信息", function (action) {
+               if (action == "ok") {
+            	   $['put']("qx",JSON.stringify({ "params" : mini.encode(params) }) , function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   },null, {
+   	                contentType: 'application/json'
+   	                });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法取消！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+   //方法没有搬到按钮事件
+   /* 月结取消操作修改月结状态 */
+   function yqx_option(){
+	   var row=grid.getSelected();
+	   if(row){
+		   var params ={
+					  cwNote : row.cwNote,
+					  cwCode : row.cwCode
+				}
+		   if(row.cwMonth=="结算"){
+		   mini.confirm("确定要取消月结吗？", "取消月结信息", function (action) {
+               if (action == "ok") {
+            	   $['put']("yqx",JSON.stringify({ "params" : mini.encode(params) }) ,function (res) {
+                       if (200 === res.code) {
+                           grid.reload();
+                       } else {
+                           hmq.tipDanger(res.msg);
+                       }
+                   },null, {
+   	                contentType: 'application/json'
+   	                });
+               }
+           });
+		   }else{
+			   hmq.tipDanger("该状态无法进行取消月结操作！"); 
+		   }
+	   }else{
+		   hmq.tipDanger("请选择一条记录");
+	   }
+   }
+
+   
+   function onActionRenderer(e) {
+	      var record = e.record;
+	      if (e.field == "cwRq") {
+	        return mini.formatDate(new Date(record.cwRq), "yyyy-MM-dd");
+	      }
+	      if (e.field == "cwFkrq") {
+	        return mini.formatDate(new Date(record.cwFkrq), "yyyy-MM-dd");
+	      }
+	      if (e.field == "cwShl") {
+				if (e.value != null) {
+					return e.value * 100 + "%";
+				}
+			}
+
+	    }
+   
+   
+</script>
+
+</body>
+</html>

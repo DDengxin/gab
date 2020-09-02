@@ -1,0 +1,11 @@
+package com.tengzhi.business.project.projectProcess.projectTask.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.project.projectArchives.projectTreams.model.EXmXmxz;
+import com.tengzhi.business.project.projectProcess.projectTask.model.EXmXmrw;
+
+public interface ProjectTaskDao  extends BasedaoRepository<EXmXmrw,String> {
+
+
+
+}

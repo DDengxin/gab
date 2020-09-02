@@ -1,0 +1,159 @@
+package com.tengzhi.business.quality.qualityDetection.productDetection.service.impl;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.constituent.dao.EPzJyListDao;
+import com.tengzhi.business.finance.constituent.model.EPzJyList;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut.ECkOut_PK;
+import com.tengzhi.business.quality.qualityDetection.productDetection.dao.ProductDetectionDao;
+import com.tengzhi.business.quality.qualityDetection.productDetection.model.EPzJylistJc;
+import com.tengzhi.business.quality.qualityDetection.productDetection.service.ProductDetectionService;
+import com.tengzhi.business.quality.qualityDetection.productDetection.service.vo.EPzJyListJcVo;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+
+import cn.hutool.core.util.ObjectUtil;
+@Service
+@Transactional
+public class ProductDetectionServiceImpl implements ProductDetectionService {
+
+	@Autowired
+	private ProductDetectionDao productDetectionDao;
+	
+	@Autowired
+    private EPzJyListDao ePzJyListDao;
+	
+	@Autowired
+	private SysParamDao sysParamDao;
+	
+	@Override
+	public Result getSrchTopList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+        BasePage<EPzJyList> ePzJcs = ePzJyListDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.eq("codeType", map.get("codeType"));
+            c.eq("pch", map.get("pch"));
+        }));
+        List<String> pchList = ePzJcs.getContent()
+                .stream()
+                .map(row -> row.getPch())
+                .collect(Collectors.toList());
+        List ePzJyJyList = productDetectionDao.findByPchIn(pchList);
+        return Result.resultOk().put("data", ePzJcs.getContent()).put("total", ePzJcs.getPageTotal()).put("detail", ePzJyJyList);
+	}
+
+	@Override
+	public Map<String, Object> getAddDetailed(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		String sql = "";
+		if(ObjectUtil.isNotEmpty(map.get("pch"))) {
+			sql = " select xm_ord \"xmOrd\", jybh,xm_code \"xmCode\" , f_get_param_name('线材检测',xm_code,'"+   SessionUser.getCurrentCorpId()   +"')codename,xm_tvalue \"xmTvalue\",xm_value \"xmValue\" from e_pz_jylist_jc where pch ='"+map.get("pch")+"' and jybh in ('"+map.get("jybh").replace(",", "','")+"') ";
+					
+		}else if(ObjectUtil.isNotEmpty(map.get("jybh"))){
+			sql ="  select rownum \"xmOrd\",parent_id jybh,param_id \"xmCode\",param_name codename from  sys_param where parent_id in ('"+map.get("jybh").replace(",", "','")+"') ";
+		}
+		rmap.put("data", productDetectionDao.QueryListMap(sql));
+		rmap.put("status", true);
+		return rmap;
+	}
+
+	@Override
+	public Result save(EPzJyListJcVo jcVo) throws Exception {
+		if (judgeUnique(jcVo.getePzJylist().getPch(),jcVo.getePzJylist().getDataMan())) {
+            SessionUser sessionUser=SessionUser.SessionUser();
+            jcVo.getePzJcs().forEach(item -> {
+                item.setDataCorp(sessionUser.getCorpId());
+                item.setDataDate(new Date());
+                item.setPch(jcVo.getePzJylist().getPch());
+            });
+
+            ePzJyListDao.dynamicSave(jcVo.getePzJylist(),ePzJyListDao.findById(jcVo.getePzJylist().getPch()).orElse(null));
+            productDetectionDao.saveAll(jcVo.getePzJcs());
+
+            return Result.resultOk();
+        } else {
+            throw new Exception("批次号已存在");
+        }
+	}
+	@Override
+    public boolean judgeUnique(String pch,String dataMan) {
+        return productDetectionDao.findAll(Specifications.where((c) -> {
+            c.eq("pch", pch);
+            c.eq("dataMan", dataMan);
+        })).size() <= 0;
+    }
+	@Override
+	public Result update(EPzJyListJcVo jcVo) throws Exception {
+		SessionUser sessionUser=SessionUser.SessionUser();
+        jcVo.getePzJcs().forEach(item -> {
+            item.setDataCorp(sessionUser.getCorpId());
+            item.setDataDate(new Date());
+            item.setPch(jcVo.getePzJylist().getPch());
+            productDetectionDao.update(item);
+        });
+      
+        return Result.resultOk();
+	}
+
+	@Override
+	public EPzJyList getByNote(String note) {
+		return ePzJyListDao.findById(note).orElse(null);
+	}
+
+	@Override
+	public List<SysParams> paramsAll(String parentIds) {
+		String sql = "select * from sys_param where parent_id in( '"+parentIds.replace(",", "','")+"') ";
+        List<SysParams> sysParams = sysParamDao.QueryListModel(SysParams.class, sql);
+		return sysParams;
+	}
+
+	@Override
+	public Result getInfoByPch(String pch, String pchType) {
+		
+		/*
+		 * String sql = " select * from  f_v_product(?1,'') where 1=1"; return
+		 * ePzJylistLhDao.QueryListMap(sql, pack) .stream() .map(row -> new
+		 * SelectVo(row.get("note"), String.valueOf(row.get("note")), row))
+		 * .collect(Collectors.toList());
+		 */
+		String sql = " select distinct in_code,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,cpcode_size,cpcode_size_en,cpcode_xp,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')cpcode_fl from  e_ck_in ,e_js_cpcoe  where cpcode_id=in_code and in_ph = '"+pch+"'";
+		if("包装号".equals(pchType)) {
+			
+		}else if("工程号".equals(pchType)) {
+			
+		}
+		return Result.resultOk(productDetectionDao.QueryListMap(sql).get(0));
+	}
+
+	@Override
+	public List<SelectVo> getNoteByPch(String pch,String pchType ) {
+		 String sql = " select * from  f_v_product_copy1(?1,'',?2) where 1=1";
+	        return productDetectionDao.QueryListMap(sql, pch,pchType)
+	                .stream()
+	                .map(row -> new SelectVo(row.get("note"), String.valueOf(row.get("note")), row))
+	                .collect(Collectors.toList());
+	}
+
+	
+
+}

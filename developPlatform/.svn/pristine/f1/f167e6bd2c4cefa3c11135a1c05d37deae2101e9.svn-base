@@ -1,0 +1,33 @@
+#Tomcat端口配置
+server:
+   port: 8080
+   servlet:
+      session:
+         timeout: 600000
+spring:
+   profiles:
+      include: jdbc,thymeleaf,redis,devtools,logging #引入其他配置文件
+   main:
+      allow-bean-definition-overriding: true #同名bean，后定义的bean会覆盖之前定义的相同名称的bean
+   mvc:
+      static-path-pattern: /static/**
+   security:
+      user:
+         password: user
+   mail:
+      host: smtp.qq.com
+
+kkfileview:
+   ip: 127.0.0.1
+   port: 8012
+
+tengzhi:
+   security:
+      browser:
+         maxSessions: 1 #同一个账号最多允许多少个session
+         cache: false # 禁用spring.security的缓存管理，因为默认的缓存管理会在http头追加参数，使得请求无法被缓存
+
+collocate:
+   business:
+      userName: 1001 #超级用户
+      defaultCorp: JD

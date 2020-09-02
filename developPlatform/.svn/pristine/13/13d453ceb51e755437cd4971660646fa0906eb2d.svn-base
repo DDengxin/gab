@@ -1,0 +1,101 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.voucher.dao.AccoutDao;
+import com.tengzhi.business.finance.voucher.dao.AuxiliaryItemsDao;
+import com.tengzhi.business.finance.voucher.model.Accout;
+import com.tengzhi.business.finance.voucher.service.AccoutService;
+import com.tengzhi.business.project.projectArchives.projectTreams.model.EXmXmxz;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+@Service
+public class AccoutServiceImpl implements AccoutService{
+	@Autowired
+	private AccoutDao accoutDao;
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+
+
+
+
+	@Override
+	public Accout save(Accout accout) throws Exception {
+	
+		return null;
+	}
+
+	@Override
+	public List<Accout> findAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void update(Accout accout) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean judgeUniqueset(Accout accout) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean judgeUniqueother(Accout afva) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Result deleteById(String Id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/**
+	 * 获取种类
+	 */
+	@Override
+	public List<Map> findACTGroup() {
+
+	String sql="SELECT * FROM e_f_voucher_acctgroup a WHERE  a.fgroupid=0 ";
+
+	return accoutDao.QueryListMap(sql);
+	}
+
+	@Override
+	public BasePage<Accout> findAll(BaseDto baseDto) {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+		String corpId = SessionUser.getCurrentCorpId();
+        StringBuffer sqlWhere = SqlJoint.where(e -> {
+        //  e.and(el->{el.contains("faccoutId",Long.valueOf(map.get("faccoutId").toString());});
+            e.and(el->{el.contains("ac.data_corp",corpId);});
+        });
+        String sql = "SELECT ac.faccountid " +
+                " from e_f_voucher_ac ac where 1=1 " + sqlWhere;
+        return accoutDao.QueryPageLists(baseDto,sql);
+
+	}
+	@Override
+	public Accout findById(String Id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+}

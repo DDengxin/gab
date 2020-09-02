@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic','upload'})}">
+		<title>客服</title>
+	</th:block>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/service.css}" />
+
+	<script type="text/javascript" th:src="@{/static/gab/js/service.js}"></script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+	<div class="service_content">
+		<div class="service_content_list">
+			<h2>在线客服</h2>
+			<!-- <div class="fl"></div> -->
+			<div class="fr">
+				<img src="/static/gab/images/kf.png" alt="">
+				<p>售前客服</p>
+				<p>叮叮</p>
+				<p class="grade">
+					综合评分：
+					<b>98.84%</b>
+				</p>
+				<div class="introduce">
+					<p>这里是客服介绍</p>
+					<p>客服基本可分为人工客服和电子客服， 其中人工客服又可细分为文字客服、 视频客服和语音客服三类。 文字客服是指主要以打字聊天的形式进行的客户服务； 视频客服是指主要以语音视频的形式进行客户服务；
+						语音客服是指主要以移动电话的形式进行的客服服务。</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+
+</body>
+
+</html>

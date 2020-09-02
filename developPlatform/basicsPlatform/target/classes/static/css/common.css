@@ -1,0 +1,505 @@
+/*common*/
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif;
+}
+
+body {
+    font: 12px/1.5 "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+a, img {
+    border: none;
+}
+
+a {
+    text-decoration: none;
+    color: #333;
+}
+
+ul li, ol li {
+    list-style: none;
+}
+
+
+.text-link {
+    color: blue;
+}
+
+/*END index.html*/
+/*公共样式*/
+.hmq-padding-t-0 {
+    padding-top: 0px;
+}
+.hmq-margin-lr-xs{
+    margin-left:5px;
+    margin-right:5px;
+}
+
+fieldset {
+    border: solid 1px #aaa;
+    margin: 5px;
+}
+
+fieldset .fieldset-body {
+    padding: 5px;
+}
+
+.hideFieldset {
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+.hideFieldset .fieldset-body {
+    display: none;
+}
+
+/*END 公共样式*/
+
+
+/*miniui样式覆盖与扩展*/
+.mini-datagrid {
+    width: 100%;
+    height: 100%;
+}
+
+.mini-labelfield-label {
+    line-height: 24px;
+}
+.mini-grid-emptyText{
+    text-align: center !important;
+}
+
+/*DataGrid页面宽度增加*/
+.mini-pager-size .mini-combobox {
+    width: 65px !important;
+}
+
+.hmq-minix-icon {
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    min-width: 16px;
+    min-height: 16px;
+    overflow: hidden;
+    margin-top: -8px;
+    _margin-top: -8px;
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translate(0, 0);
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+}
+
+/*END DataGrid页面宽度增加*/
+/*Datagrid Copy Excel Model样式 */
+.excel-cell-selected {
+    background: rgb(223, 232, 246);
+}
+/*Datagrid Copy Excel Model样式 */
+
+
+/*表单只读样式*/
+.asLabel .mini-textbox-border,
+.asLabel .mini-textbox-input,
+.asLabel .mini-buttonedit-border,
+.asLabel .mini-buttonedit-input,
+.asLabel .mini-textboxlist-border {
+    border: 0 !important;
+    background: none !important;
+    cursor: default !important;
+}
+
+.asLabel .mini-buttonedit-button,
+.asLabel .mini-textboxlist-close {
+    display: none !important;
+}
+
+.asLabel .mini-textboxlist-item {
+    padding-right: 8px !important;
+}
+
+.asLabel .mini-textbox-input::placeholder, .asLabel .mini-buttonedit-input::placeholder {
+    color: transparent;
+    font-size: 0px;
+}
+
+.asLabel .mini-textbox-input::-webkit-input-placeholder, .asLabel.mini-buttonedit-input::-webkit-input-placeholder {
+    color: transparent;
+    font-size: 0px;
+}
+
+.asLabel .mini-textbox-input::-ms-input-placeholder, .asLabel .mini-buttonedit-input::-ms-input-placeholder {
+    color: transparent;
+    font-size: 0px;
+}
+
+.asLabel .mini-textbox-input::-moz-placeholder, .asLabel .mini-buttonedit-input::-moz-placeholder {
+    color: transparent;
+    font-size: 0px;
+}
+
+
+/*END 表单只读样式*/
+
+/*END miniui样式覆盖与扩展*/
+
+/*iframe报表*/
+.hmq-iframe-box {
+    width: 100%;
+    overflow: hidden !important;
+    border: 1px solid #999999;
+}
+
+.hmq-iframe-box > iframe {
+    width: 100%;
+    height: 100% !important;
+    border: 0px;
+    overflow: hidden;
+}
+
+/*END iframe报表*/
+
+/*新增窗体表格自适应*/
+table.hmq-modify-table,
+table.hmq-modify-table > tr > th,
+table.hmq-modify-table > tr > td,
+table.hmq-modify-table > tbody > tr > th,
+table.hmq-modify-table > tbody > tr > td {
+    padding: 1px;
+    padding: 0.2rem;
+}
+
+label.hmq-label{
+    margin: 5px 10px 5px 0 !important;
+    display: inline-block !important;
+}
+table.hmq-modify-table {
+    margin: auto;
+    border: 0;
+    width: 100%;
+    table-layout: fixed;
+    _border-collapse: collapse;
+    border-spacing: 1px;
+    border-spacing: 0.2rem;
+
+    width: 92%;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+table.hmq-modify-table > tr > td,
+table.hmq-modify-table > tbody > tr > td {
+    height: 30px !important;
+}
+
+table.hmq-modify-table > tr > td[title],
+table.hmq-modify-table > tr > td.title,
+table.hmq-modify-table > tbody > tr > td[title],
+table.hmq-modify-table > tbody > tr > td.title {
+    white-space: nowrap;
+    text-align: right;
+    text-align-last: justify; /*字宽平均*/
+}
+
+table.hmq-modify-table > tr > td[content],
+table.hmq-modify-table > tr > td.content,
+table.hmq-modify-table > tbody tr > td[content],
+table.hmq-modify-table > tbody tr > td.content {
+    box-sizing: content-box !important;
+}
+tabel tr td label{
+	margin: 0 5px 5px 0;
+}
+
+div.hmq-toolbar {
+    padding: 5px 3px;
+    padding: 0.5rem 3px;
+    text-align: center;
+    border-width: 0px;
+}
+
+div.hmq-toolbar > a.mini-button {
+    margin-left: 5px;
+    margin-right: 5px;
+    min-width: 25px;
+}
+
+/*END 新增窗体表格自适应*/
+
+/*查询页面参数自动换行*/
+.hmq-search-td {
+}
+
+.hmq-search-td > span {
+    display: inline-flex;
+    display: inline-block;
+    padding: 1px 0px;
+}
+
+/* Css Hack Chrome */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .hmq-search-td > span {
+        display: inline-flex;
+        _padding: 0px;
+    }
+}
+
+/*END 查询页面参数自动换行*/
+
+/*textarea 列表页展示样式*/
+.hmq-context-box {
+    border: 1px solid #dddddd;
+    box-sizing: border-box;
+    width: inherit;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+
+}
+
+.hmq-context-box > * {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-weight: 500;
+}
+
+/*标题*/
+.hmq-context-box > h1 {
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+/*描述*/
+.hmq-context-box > h4 {
+    text-align: right;
+}
+
+/*正文*/
+.hmq-context-box > .hmq-context {
+    text-indent: 2em;
+    padding: 10px;
+    word-break: break-word;
+    font-size: 16px;
+}
+
+.hmq-context-box > .hmq-context > pre {
+    overflow: auto;
+    white-space: pre-wrap;
+    /*以下代码为了兼容IE6,7*/
+    *white-space: pre;
+    *word-wrap: break-word;
+}
+
+/*textarea 列表页展示样式*/
+
+/*DataGrid背景*/
+/*红色*/
+.mini-grid-row.hmq-row-bg-success,
+.mini-grid-row.hmq-row-bg-green {
+    background-color: rgba(92, 184, 92, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-success,
+.mini-grid-row-selected.hmq-row-bg-green {
+    background-color: #5cb85c !important;
+}
+
+.hmq-bg-success, .hmq-bg-green {
+    background-color: #5cb85c;
+}
+
+.hmq-success, .hmq-green {
+    color: #5cb85c;
+}
+
+/*橙色*/
+.mini-grid-row.hmq-row-bg-warning,
+.mini-grid-row.hmq-row-bg-orange {
+    background-color: rgba(236, 151, 31, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-warning,
+.mini-grid-row-selected.hmq-row-bg-orange {
+    background-color: #ec971f !important;
+}
+
+.hmq-bg-warning, .hmq-bg-orange {
+    background-color: #ec971f;
+}
+
+.hmq-warning, .hmq-orange {
+    color: #ec971f;
+}
+
+/*红色*/
+.mini-grid-row.hmq-row-bg-danger,
+.mini-grid-row.hmq-row-bg-red {
+    background-color: rgba(217, 83, 79, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-danger,
+.mini-grid-row-selected.hmq-row-bg-red {
+    background-color: #d9534f !important;
+}
+
+.hmq-bg-danger, hmq-bg-red {
+    background-color: #d9534f;
+}
+
+.hmq-danger, hmq-red {
+    color: #d9534f;
+}
+
+/*蓝色*/
+.mini-grid-row.hmq-row-bg-primary,
+.mini-grid-row.hmq-row-bg-blue {
+    background-color: rgba(0, 123, 255, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-primary,
+.mini-grid-row-selected.hmq-row-bg-blue {
+    background-color: #007bff !important;
+}
+
+.hmq-bg-primary, hmq-bg-blue {
+    background-color: #007bff;
+}
+
+.hmq-primary, hmq-blue {
+    color: #007bff;
+}
+
+/*灰色*/
+.mini-grid-row.hmq-row-bg-secondary,
+.mini-grid-row.hmq-row-bg-gray {
+    background-color: rgba(108, 117, 125, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-secondary,
+.mini-grid-row-selected.hmq-row-bg-gray {
+    background-color: #6c757d !important;
+}
+
+.hmq-bg-secondary, hmq-bg-gray {
+    background-color: #6c757d;
+}
+
+.hmq-secondary, hmq-gray {
+    color: #6c757d;
+}
+
+/*蓝绿*/
+.mini-grid-row.hmq-row-bg-info,
+.mini-grid-row.hmq-row-bg-lightgreen {
+    background-color: rgba(23, 162, 184, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-info,
+.mini-grid-row-selected.hmq-row-bg-lightgreen {
+    background-color: #17a2b8 !important;
+}
+
+.hmq-bg-info, hmq-row-bg-lightgreen {
+    background-color: #17a2b8;
+}
+
+.hmq-info, .hmq-lightgreen {
+    color: #17a2b8;
+}
+
+/*深色*/
+.mini-grid-row.hmq-row-bg-dark {
+    background-color: rgba(52, 58, 64, 0.5) !important;
+}
+
+.mini-grid-row-selected.hmq-row-bg-dark {
+    background-color: #343a40 !important;
+}
+
+.hmq-bg-dark, .hmq-row-bg-dark {
+    background-color: #343a40;
+}
+
+.hmq-dark {
+    color: #343a40;
+}
+
+/*END DataGrid背景�?*/
+
+
+/*列表查询栏样式*/
+/*TODO:*/
+.hmq-srch-table {
+    margin: 2px;
+    width: 100%;
+    max-width: 100%;
+    word-break: break-word;
+    display: table;
+}
+
+.hmq-srch-table > label {
+    display: inline-block;
+    max-width: 6em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: table-cell;
+}
+
+/*END 列表查询栏样式*/
+
+/*图片自适应*/
+img{
+    vertical-align: middle;
+}
+.hmq-img-responsive {
+    display: block;
+    height: auto;
+    max-width: 100%;
+}
+.hmq-img-rounded{
+    border-radius: 6px;
+}
+.hmq-img-circle{
+    border-radius: 50%;
+}
+.hmq-img-thumbnail{
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    padding: 4px;
+    line-height: 1.42857143;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    -webkit-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+/*END 图片自适应*/
+.hmq-text-center{
+    text-align: center;
+}
+
+/*CLodop插件样式*/
+    #LODOP_OB{
+        display:none;
+        width:0px;
+        height:0px;
+    }
+/*End CLodop插件样式*/

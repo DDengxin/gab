@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+        <title>资讯</title>
+    </th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/idangerous.swiper2.7.6.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/info.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/plugs/idangerous.swiper2.7.6.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/info.js}"></script>
+</head>
+<script id="slideshow" type="text/html">
+    <p class="showContent">热点动态 <a href="/gab/share.html?present=news">更多</a></p>
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            {{#layui.each(d.list, function(index, item){}}
+            <div class="swiper-slide">
+                <img src="{{item.imageSrc}}" alt="" default-img="/static/gab/images/wt.png">
+                <p>{{item.title}}</p>
+            </div>
+            {{# });
+            }}
+        </div>
+        <div class="pagination"></div>
+    </div>
+
+    <ul class="fr">
+        {{#layui.each(d.list, function(index, item){}}
+        <li>
+            <a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">
+                <div>
+                    <p class="title">{{item.title}}</p>
+                    <div class="zy">{{item.briefIntroduction}}</div>
+                </div>
+            </a>
+        </li>
+        {{# });
+        }}
+    </ul>
+</script>
+<script id="chamberActivities" type="text/html">
+    {{#layui.each(d.list, function(index, item){}}
+    <li>
+        <a href="/gab/academic.html?reqId={{item.activitiesId}}&classify=商会活动">
+            <img src="{{item.imageSrc}}" alt="" default-img="/static/gab/images/wt.png">
+            <div>
+                <p class="title">{{item.title}}</p>
+                <p class="time">活动时间：<i>{{item.eventDateStart}}</i> 至 <i>{{item.eventDateEnd}}</i></p>
+                <p class="zy">{{item.briefIntroduction}}</p>
+            </div>
+        </a>
+    </li>
+    {{#  });
+    }}
+</script>
+
+<body>
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+    <div class="info_content">
+        <div class="info_content_list">
+            <!-- 热点动态 -->
+            <div class="content" id="slideshowDiv">
+
+            </div>
+
+            <!-- 商业活动 -->
+            <div class="content">
+                <p class="showContent">商会活动 <a href="/gab/share.html?present=activity">更多</a></p>
+                <ul id="chamberActivitiesUl">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}"></th:block>
+</body>
+
+</html>

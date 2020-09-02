@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>标准工艺</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input id="cnStype" name="cnStype" class="mini-hidden"/>
+        <label class="hmq-label" text="工艺编码">
+            <input class="mini-textbox" name="gyId"/>
+        </label>
+        <label class="hmq-label" text="事业部">
+            <input class="mini-combobox" name="gySyb" url="/sc/capacity/specification/findCj" emptyText="全部" nullItemText="全部" showNullItem="true" textField="param_name" valueField="param_id" width="120"/>
+        </label>
+        <label class="hmq-label"  text="分类">
+            <input  id="gyType" name="gyType" class="mini-treeselect" multiSelect="false" url="/system/parameter/getParamsTreeList/技术/XCZL" textField="combtext" valueField="combid"
+                    parentField="pid" value="无" onbeforenodeselect="disableParentSelection" popupWidth="240" popupHeight="180" allowInput="true" valueFromSelect="true"/>
+        <label class="hmq-label"  text="产品规格">
+            <input class="mini-textbox" name="gyGgno" id="ggclSize" width="100"/>
+        </label>
+
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="gy_id" url="/sc/pd/bzgy/findAll" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn">序号</div>
+            <div tz:datagrid="column" field="gyId" width="120" align="center">工艺编码</div>
+            <div tz:datagrid="column" name="gySyb" field="gySyb" displayField="sybName" width="100" align="center" >事业部</div>
+            <div tz:datagrid="column" name="gyType" field="gyType" displayField="typeName" width="120" align="left">产品分类</div>
+            <div tz:datagrid="column" name="gyGgno" field="gyGgno"width="100" numberFormat="#,0.00" align="right">产品规格</div>
+            <div tz:datagrid="column" name="gyMin" field="gyMin"width="80" numberFormat="#,0.00" align="right" >最小规格</div>
+            <div tz:datagrid="column" field="gyMax"width="80" numberFormat="#,0.00" align="right" >最大规格</div>
+            <div tz:datagrid="column" name="gyTlcode1" field="gyTlcode1"width="80" align="center">标准用料</div>
+            <div tz:datagrid="column" field="gyTlcode2" width="80" align="center">代换用料</div>
+            <div tz:datagrid="column" field="gyTlcode3" width="80" align="center">临时用料</div>
+            <div tz:datagrid="column" field="gySm" width="250" align="left">工艺说明</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    // 页面初始化模块和类型 START
+
+    function search_option() {
+        grid.load();
+    }
+/*
+
+    function add_option(e) {
+        e.sender.miniopen({url: "/sc/pd/gccn/add.html", width:950,height:600,action: 'add', data:
+                {cpcodeType: cpcodeType,cntype:cntype}});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "/sc/pd/gccn/add.html",width:950,height:600, action: 'edit', data: {row:
+                    row, cpcodeType: cpcodeType,cntype:cntype}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+*/
+
+
+    /**
+     * 删除
+     **/
+    /*function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/sc/capacity/specification/deleteById/{0}".format(row.clId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }*/
+</script>
+</body>
+</html>

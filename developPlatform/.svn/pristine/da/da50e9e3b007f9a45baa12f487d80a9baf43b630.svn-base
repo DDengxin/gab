@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>员工部门选择页面</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="公司">
+            <input class="mini-comboBox" id="orgId" name="orgId" url="/personnel/eHrWorker/selectCorp" showNullItem="true" nullItemText="全部"
+                   width="100" onvaluechanged="onChangeCorp"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input id="workerDept" name="workerDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                   showClose="true" oncloseclick="onCloseClickClearValue" width="150"/>
+        </label>
+        <label class="hmq-label" text="工号">
+            <input class="mini-textbox" id="workerId" name="workerId" width="80"/>
+        </label>
+        <label class="hmq-label" text="姓名">
+            <input class="mini-textbox" name="workerName" width="80"/>
+        </label>
+
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+
+</th:block>
+
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" style="width:100%;height:100%;" idField="workerId"
+         sizeList="[50,100,200]" pageSize="100" url="/personnel/eHrWorker/eHrWorkerList.html"
+         onrowdblclick="onRowDblClick"
+         pager="#pager1" showPager="false" sortField="workerId" sortOrder="desc">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn"></div>
+            <div tz:datagrid="column" field="workerCorpName" align="center" width="80">公司</div>
+            <div tz:datagrid="column" field="workerDeptName" align="center" width="80">部门</div>
+            <div tz:datagrid="column" field="workerName" align="center" width="80">姓名</div>
+            <div tz:datagrid="column" field="workerPostName" align="center" width="80">岗位</div>
+            <div tz:datagrid="column" field="workerDutyName" align="center" width="80">职务</div>
+            <div tz:datagrid="column" field="workerPhone" align="center" width="80">联系电话</div>
+            <div tz:datagrid="column" field="workerFlag" align="center" width="80">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    mini.get("workerDept").load("/system/dept/combobox/getDeptTreeList");
+    grid.bindSearchForm(form);
+
+
+    function onChangeCorp(){
+        var corpId = form.getField("orgId").getValue();
+        form.getField("workerDept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(corpId));
+    }
+
+
+
+    function SetData(options) {
+        if(options.data.workdept)mini.get("workerDept").setValue(options.data.workdept);
+        search_option();
+    }
+
+
+    function search_option() {
+        grid.load();
+    }
+
+    function confirm(e) {
+        if (grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选择一条数据');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+
+    function GetData() {
+        return grid.getSelected();
+    }
+
+
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

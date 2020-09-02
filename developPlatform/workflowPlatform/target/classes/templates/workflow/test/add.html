@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>角色管理【新增】</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden" />
+		<form id="form1">
+			<input name="id" class="mini-hidden" />
+			<input id="taskid" name="taskid" class="mini-hidden" />
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>名称:</td>
+					<td content>
+						<input class="mini-textbox" required name="employeeName" />
+					</td>
+				</tr>
+				<tr>
+					<td title>天数:</td>
+					<td content>
+						<input class="mini-textbox" name="day" />
+					</td>
+				</tr>
+				<tr>
+					<td title>请假原因:</td>
+					<td content>
+						<input class="mini-textbox" name="reason" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		<a class="mini-button" onclick="saveAndSubmit" iconCls="icon-save" id="saveAndSubmit">提交审核</a>
+		<a class="mini-button" onclick="Submit" iconCls="icon-save"  style="display: none" id="Submit">重新提交</a>
+		<a class="mini-button" onclick="agree" iconCls="icon-save" id="agree" style="display: none">同意</a>
+		<a class="mini-button" onclick="disagree" iconCls="icon-save" id="disagree" style="display: none">不同意</a>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form('form1');
+	function SetData(options) {
+		if ('add' == options.action) {
+			$('[name=action]').val(options.action);
+		} else if ('edit' == options.action) {
+			$.get("/workflow/test/Employee/{0}".format(options.data.id), function(res) {
+				if (200 === res.code) {
+					form.setData(res.data);
+				}
+			});
+		} else if ('sh' == options.action) {
+			$.get("/workflow/test/Employee/audit/{0}".format(options.data.id), function(res) {
+				if (200 === res.code) {
+					form.setData(res.data.data);
+					mini.get('taskid').setValue(res.data.taskId);
+					if(res.data.data.type=="1"){
+						mini.get('saveAndSubmit').hide();
+						mini.get('saveBtn').hide();
+						mini.get('Submit').show();
+					}else{
+						mini.get('saveBtn').hide();
+						mini.get('saveAndSubmit').hide();
+						mini.get('agree').show();
+						mini.get('disagree').show();
+					}
+				}
+			});
+		}
+	}
+
+	function SaveData() {
+		if (form.validate() && form.isValid()) {
+			var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+			$[method]("/workflow/test/Employee", JSON.stringify(form.getData()), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+
+	function saveAndSubmit() {
+		if (form.validate() && form.isValid()) {
+			$['post']("/workflow/test/Employee/saveAndSubmit", JSON.stringify(form.getData()), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '提交成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '提交失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+
+	//同意
+	function agree() {
+		if (form.validate() && form.isValid()) {
+			$['put']("/workflow/test/Employee/agree", JSON.stringify(form.getData()), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '提交成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '提交失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+	//不同意
+	function disagree() {
+		if (form.validate() && form.isValid()) {
+			$['put']("/workflow/test/Employee/disagree", JSON.stringify(form.getData()), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '提交成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '提交失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+	
+	function Submit(){
+		if (form.validate() && form.isValid()) {
+			$['put']("/workflow/test/Employee/Submit", JSON.stringify(form.getData()), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '提交成功', {
+						exec : function() {
+							CloseWindow('refresh');
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '提交失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+</script>
+</html>

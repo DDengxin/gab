@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目任务【新增】</title>
+    </th:block>
+    <script type="text/javascript" src="/static/script/webuploader/webuploader.js"></script>
+    <script type="text/javascript" src="/static/script/webuploader/uploadFile.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/script/webuploader/webuploader.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/script/webuploader/uploadFile.css"/>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+               <table class="hmq-modify-table">
+            <tr>
+                <td title>任务单号</td>
+                <td content>
+                    <input class="mini-textBox" emptyText="任务单号自动生成"allowInput="false" name="rwNote"/>
+                </td>
+                <td title>发布日期</td>
+                <td content>
+                    <input name="rwRq" class="mini-datepicker" value="new Date()" allowInput="false" required>
+                </td>
+                <td title>任务类型</td>
+                <td content>
+                    <input class="mini-combobox" required="true" name="rwType" url="/system/parameter/getParamsSelectListByParentId/项目/任务类型/RWLX">
+                </td>
+                <td title>任务来源</td>
+                <td content>
+                    <input class="mini-combobox" required="true" name="rwResource" url="/system/parameter/getParamsSelectListByParentId/项目/任务来源/RWLY">
+                </td>
+            </tr>
+               <td title>任务主题</td>
+               <td content  colspan="7" >
+                   <input name="rwTitle" class="mini-textbox" required showClose="true"/>
+               </td>
+            <tr>
+                <td title>所属项目</td>
+                <td content>
+                    <input name="rwProject" allowInput="false" class="mini-buttonedit" onbuttonclick="chooseXMDA" required showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>项目阶段</td>
+                <td content>
+                    <input class="mini-combobox" required="true" name="rwStage" url="/system/parameter/getParamsSelectListByParentId/项目/项目阶段/XMJD">
+                </td>
+                <td title>项目节点</td>
+                <td content>
+                    <input class="mini-combobox" required="true" name="rwNode" url="/system/parameter/getParamsSelectList/项目阶段/项目节点">
+                </td>
+                <td title>计划人员</td>
+                <td content>
+                    <input class="mini-buttonedit"
+                           emptyText="请选择" name="rwJhMan" id="rwJhMan" allowInput="false" required="true" showClose="true" oncloseclick="onCloseClickClearValue"
+                           onbuttonclick="onJobNumberButtonClickHandler"/>
+                </td>
+            </tr>
+           <tr>
+               <td title>计划开始</td>
+               <td content><input name="rwJhStart" class="mini-datepicker" value="new Date()" allowInput="false" /></td>
+               <td title>计划完成</td>
+               <td content><input name="rwJhEnd" class="mini-datepicker" value="new Date()" allowInput="false" /></td>
+               <td title>计划工时</td>
+               <td content><input id="rwJhGs" name="rwJhGs" changeOnMousewheel="false" class="mini-spinner" minValue="0" maxValue="500" format="#0.00" onvaluechanged="onvaluechanged"/>
+               <td title>紧急程度</td>
+               <td content>
+                   <input class="mini-combobox" required="true" name="rwJjcd" url="/system/parameter/getParamsSelectListByParentId/采购/紧急程度/JJCD">
+               </td>
+           </tr>
+           <tr>
+               <td title>任务说明</td>
+               <td content colspan="7" >
+                   <input class="mini-textarea" name="rwRemarks" height="180"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>附件:</td>
+               <td content colspan="5">
+                   <div id="uploader"></div>
+                   <input id="rwFile" name="rwFile" class="mini-hidden"/>
+               </td>
+           </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    form.getField("rwType").select(0);
+    form.getField("rwResource").select(0);
+    form.getField("rwStage").select(0);
+    form.getField("rwNode").select(0);
+
+    function valuechanged() {
+        let v = mini.get("customerProvince").getText();
+    }
+
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            var fileId = getFileId();
+            mini.get("rwFile").setValue(fileId);
+            $("#uploader").filesUpload({
+                pickerid: fileId,
+                filecount: 1,
+            });
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.rwNote), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("rwJhMan").setText(res.data.rwJhManName);
+                    form.getField("rwProject").setText(res.data.rwProjectName);
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("rwFile").getValue(),
+                        filecount: 1,
+                    });
+                }
+           });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+    /*  负责人选择 */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/xmda/xmman.html",
+            title: "【负责人】选择页面",
+            width: 750,
+            data: {
+                workdept:mini.get("xmDept").getValue()
+            },
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                    mini.get("xmDept").setValue(data.workerDept);
+                }
+            }
+        });
+    }
+    /*  产品编码选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/xmda/xmcode.html",
+            title: "产品编码选择页面",
+            width: 750,
+            height: 620,
+            data:'S',
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**计划人员*/
+    function onJobNumberButtonClickHandler(e) {
+        var btnEdit = this;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/eHrWorker/hierarchyWorkerTree.html",
+            title: "【计划人员】选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    /**
+     * 项目档案单选选择框
+     * @constructor
+     */
+    function chooseXMDA(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/projectTream/xmdaSelectList.html",
+            title: "【项目档案】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.xmId);
+                    btnEdit.setText(data.xmName);
+                }
+            }
+        });
+    }
+</script>
+</html>

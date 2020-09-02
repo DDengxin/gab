@@ -1,0 +1,100 @@
+package com.tengzhi.base.security.common.extension.VerificationCode.constant;
+
+import java.util.Objects;
+
+/**
+ * 登录验证类型
+ * 
+ * @author: gaodu
+ * @date: 2020/4/29 13:06
+ **/
+public enum VerificationType {
+	// 通过用户-密码登录,验证图形验证码
+	LoginByUser("login-by-user", "用户-密码登录,验证图形验证码"),
+	// 通过手机号码-验证码登录,校验手机登录验证码
+	LoginByPhone("login-by-phone", "手机号码验证码登录,校验手机登录验证码"),
+	// 通过工号和约定的TOKEN登录
+	LoginByUserAndToken("login-by-user-and-token", "工号和约定的TOKEN登录"),
+	// 通过用户-密码登录,无需图形验证码
+	LoginByUserWithOutCode("login-by-user-without-code", "用户-密码登录,无需图形验证码"),
+
+	/**
+	 * 预留方式
+	 */
+	// 通过手机号码登录,不需要验证码
+	LoginByPhoneWithOutCode("login-by-phone-without-code", "手机号码登录,无验证码"),
+	// 通过用户-密码登录,不需要验证码
+	LoginByTokenWithOutCode("login-by-user-without-code", "工号和约定的TOKEN登录,无验证码");
+
+	String name;
+	String value;
+
+	public String getName() {
+		return name;
+	}
+
+	private void setName(String name) {
+		this.name = name;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	VerificationType(String name, String value) {
+		setName(name);
+		setValue(value);
+	}
+
+	/**
+	 * 通过name获取枚举对象
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static VerificationType ValueOfName(String name) {
+		for (VerificationType verificationType : VerificationType.values()) {
+			if (Objects.equals(verificationType.getName(), name)) {
+				return verificationType;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 通过name获取value
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static String getValueByName(String name) {
+		if (name == null) {
+			return null;
+		}
+		VerificationType enumList = getByValue(name);
+		if (enumList == null) {
+			return null;
+		}
+		return enumList.getValue();
+	}
+
+	/**
+	 * 通过枚举<code>code</code>获得枚举
+	 *
+	 * values() 方法将枚举转变为数组
+	 *
+	 * @return AuthGradeEnum
+	 */
+	public static VerificationType getByValue(String name) {
+		for (VerificationType enumList : values()) {
+			if (enumList.getName().equals(name)) {
+				return enumList;
+			}
+		}
+		return null;
+	}
+}

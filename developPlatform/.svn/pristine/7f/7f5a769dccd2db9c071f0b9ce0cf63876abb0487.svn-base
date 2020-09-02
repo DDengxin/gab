@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>事务申请</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden">
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>申请日期:</td>
+                <td content>
+                    <input id="swRq" name="swRq" class="mini-datepicker" required/>
+                </td>
+                <td title>申请单号:</td>
+                <td content>
+                    <input id="swNote" name="swNote" class="mini-textbox" emptyText="自动生成" readonly="readonly"/>
+                </td>
+                <td title>事务大类:</td>
+                <td content>
+                    <input id="swType" name="swType" class="mini-combobox" emptyText="请选择" url="encodeURI('/system/parameter/getParamsSelectListByParentId/财务/SWDL')" required popupMaxHeight="240px"
+                           onvaluechanged="onSwTypeValueChange"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>申请部门:</td>
+                <td content>
+                    <input id="swDept" name="swDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" showClose="true" oncloseclick="onCloseClickClearValue" required/>
+                </td>
+                <td title>申请人员:</td>
+                <td content>
+                    <input class="mini-buttonedit" id="swMan" name="swMan" allowInput="false" onbuttonclick="onPersonClick" required/>
+                </td>
+                <td title>事务分类:</td>
+                <td content>
+                    <input id="swStype" name="swStype" class="mini-combobox" emptyText="请选择" required popupMaxHeight="240px"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>申请事由:</td>
+                <td content colspan="5">
+                    <input id="swText" name="swText" class="mini-textarea" height="200" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>申请附件:</td>
+                <td content colspan="5">
+                    <div id="uploader"></div>
+                    <input id="swFile" name="swFile" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+
+    /**
+     * 初始化
+     **/
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            //普通口径
+            mini.getByName('action').setValue(options.action);
+            if ('add' == options.action) {
+                data = mini.clone(options);
+                var fileId = getFileId();
+                mini.get("swFile").setValue(fileId);
+                mini.get("swRq").setValue(new Date());
+                $("#uploader").filesUpload({
+                    pickerid: fileId,
+                    filecount: 50,
+                });
+                form.setChanged(false);
+            } else if ('edit' == options.action) {
+                $.get("add.html/{0}".format(options.data.swNote), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        form.getField('swType').doValueChanged();
+                        setFormEnabled(form, "swRq,swNote", false);
+
+                        $("#uploader").filesUpload({
+                            pickerid: mini.get("swFile").getValue(),
+                            filecount: 50,
+                        });
+                        $.get("user/{0}".format(res.data.swMan), function (res) {
+                            mini.get("swMan").setText(res);
+                        });
+                    }
+                });
+            }
+        } else {
+            //审批口径
+            $.get("add.html/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField('swType').doValueChanged();
+                    setFormEnabled(form, "swRq,swNote", false);
+
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("swFile").getValue(),
+                        filecount: 50,
+                        view: "view",
+                        /// viewdownload : true
+                    });
+                    $.get("user/{0}".format(res.data.swMan), function (res) {
+                        mini.get("swMan").setText(res);
+                    }, null, null, {
+                        complete: function () {
+                            //表单只读
+                            setFormReadOnly(form);
+                            // 隐藏按钮区域
+                            $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+
+
+                        }
+                    });
+                }
+            });
+
+
+        }
+
+
+    }
+
+    /**
+     * 保存方法
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == mini.getByName('action').getValue() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh', false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+    /**
+     * 人员选择
+     * @param e
+     * @returns {mini.Window}
+     */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("swMan").setValue(data.workerId);
+                    mini.get("swMan").setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    /**
+     * 事务大类值改变
+     */
+    function onSwTypeValueChange(e) {
+        if ('' == e.sender.getValue()) {
+            form.getField('swStype').setData([]);
+        } else {
+            form.getField('swStype').load('/system/parameter/getParamsSelectListByParentId/财务/{0}'.format(e.sender.getValue()));
+        }
+    }
+
+</script>
+</html>

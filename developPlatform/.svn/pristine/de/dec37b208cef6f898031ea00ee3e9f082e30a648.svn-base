@@ -1,0 +1,8 @@
+package com.tengzhi.business.project.projectArchives.xmda.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.project.projectArchives.xmda.model.EXmXmda;
+
+public interface XmdaDao extends BasedaoRepository<EXmXmda,String> {
+
+}

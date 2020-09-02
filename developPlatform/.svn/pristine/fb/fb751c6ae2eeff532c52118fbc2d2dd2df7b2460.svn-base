@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title></title>
+    </th:block>
+</head>
+<body>
+<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+    <form id="form1" name="form1" method="get" onsubmit="javascript:return false;">
+		<input class="mini-hidden"  id="gxNote" name="gxNote" />
+        <table style="width:100%;">
+            <tr>
+                <td style="white-space:nowrap;">
+					<label class="hmq-label" text="生成任务">
+						<input id="scMo" name="scMo"  class="mini-textbox" width="120"/>
+					</label>
+					<label class="hmq-label" text="生产工序">
+						<input class="mini-combobox"   width="100" id="gxId" name="gxId" url="/js/cpgy/scgx/getGxAllSelectList"
+							   />
+					</label>
+					<label class="hmq-label" text="生产车台">
+						<input class="mini-combobox"  width="150" id="gxCt" name="gxCt"
+							     url="/mSbJt/sb/getJtAllList" />
+					</label>
+					<label class="hmq-label" text="请扫描">
+					  <input class="mini-textbox" required="required" id="sgc" name="sgc" emptyText="请扫描二维码"  onenter="sm()"/>
+					</label>
+					 <input id="action" name="action" class="mini-hidden"/>
+					 <a class="mini-button" onclick="SaveData()" iconCls="icon-ok" id="saveBtn">确定</a>
+	   				 <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+				</td>
+            </tr>
+        </table>
+    </form>
+</div>
+  <!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid"  style="width:100%;height:100%;" 
+			idField="scrwNo"   sizeList="[50,100,200]" pageSize="100" multiSelect="true" sortMode="client" >
+			<div property="columns">
+				<div tz:datagrid="column" field="rq" width="100" align="center" renderer="onActionRenderer" >日期</div>
+				<div tz:datagrid="column" field="sgc" width="120" align="center">本工程号</div>
+				<div tz:datagrid="column" field="scrwNo" width="120" align="center">任务单</div>
+				<div tz:datagrid="column" field="wlCode" width="90" align="left">品号</div>
+				<div tz:datagrid="column" field="wlName" align="left" width="100">品名</div>
+               	<div tz:datagrid="column" field="wlSize" align="left" width="100">规格</div>
+				<div tz:datagrid="column" field="wlPh" width="90" align="left">牌号</div>
+				<div tz:datagrid="column" field="sgcJs" width="80" align="right"  numberFormat="#,0.00" summaryType="sum" dataType="double" visible="false" >件数</div>
+				<div tz:datagrid="column" field="sgcSl" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" dataType="double" >数量</div>
+				<div tz:datagrid="column" field="sgcZl" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" dataType="double" visible="false" >重量</div>
+               	<div tz:datagrid="column" field="cpcodebz" align="center" width="60">单位</div>
+				<div tz:datagrid="column" field="clprice" width="80" align="right"  numberFormat="#,0.0000" dataType="double">材料单价</div>
+				<div tz:datagrid="column" field="bgcGx" displayField="gxname"  width="80" align="center">工序</div>
+				<div tz:datagrid="column" field="bgcCt" displayField="ctname"  width="80" align="center">车台</div>
+				<div tz:datagrid="column" field="ylpch" width="80" align="center">原料炉号</div>
+				<div tz:datagrid="column" field="vnote" width="80" align="center">特殊号</div>
+				<div tz:datagrid="column" field="wlType" displayField="typename"  width="80" align="center">大类</div>
+				<div tz:datagrid="column" field="flag" width="80" align="center" renderer="onActionRenderer" >状态</div>
+				<div tz:datagrid="column" field="gcCl"   width="80" align="center" visible="false">处理标识</div>
+				<div tz:datagrid="column" field="gcQw"   width="80" align="center">区位</div>
+				<div tz:datagrid="column" field="gxNote"   width="80" align="center" visible="false">工序唯一值</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var srch_grid = mini.get('srch_grid');
+    var surl = "/production/productionSite/siteTask";
+    
+    function SaveData(){
+ 	   
+ 		  var 	buttons=srch_grid.getData();
+          if(buttons==""){
+        	 return  hmq.tipDanger("请选择投料的数据！");
+          }
+          var params={
+  				scMo :  mini.get("scMo").getValue(),
+  				gxId :  mini.get("gxId").getValue(),
+  				gxCt :  mini.get("gxCt").getValue(),
+			    gxNote :  mini.get("gxNote").getValue()
+  				
+  		};
+          $['put'](surl + "/getTlflag", JSON.stringify({"params": mini.encode(params)}),
+                  function (res) {
+                      mini.unmask();
+                      if (200 === res.code) {
+                    		add();
+                      } else {
+                    	  mini.confirm("该工程已经投料“"+res.msg+"”是否继续加料？", "提示信息", function (action) {
+          	                if (action == "ok") {
+          	                	add();
+          	                }
+          	            });
+                      }
+                  }, null, {
+                      contentType: 'application/json'
+                  });
+          
+ 	  
+  }
+    
+   function add(){
+	   var 	buttons=srch_grid.getData();
+       if(buttons==""){
+     	 return  hmq.tipDanger("请选择投料的数据！");
+       }
+	   $['post'](surl+"/tladd", JSON.stringify({
+     	  mScGclistSlList : buttons
+           
+       }), function (res) {
+           if (200 === res.code) {
+               hmq.tipSuccess(res.msg || '保存成功', {
+                   exec: function () {
+					   CloseWindow('refresh');
+                   }
+               });
+           } else {
+               hmq.tipDanger(res.msg || '保存失败');
+           }
+       }, null, {
+           contentType: 'application/json'
+       });
+   } 
+    function sm(){
+    	var sgc=mini.get("sgc").getValue();
+		if (form.validate() && form.isValid()) {
+			//if(!isNull(sgc)){
+			var params = {
+				sgc: sgc.trim(),
+				gxId: mini.get("gxId").getValue(),
+				gxName: mini.get("gxId").getText(),
+				gxCt: mini.get("gxCt").getValue(),
+				ctname: mini.get("gxCt").getText(),
+				scMo: mini.get("scMo").getValue(),
+				gxNote: mini.get("gxNote").getValue(),
+				action: mini.get("action").getValue()
+			};
+			$['put'](surl + "/getByPack", JSON.stringify({"params": mini.encode(params)}), function (res) {
+				if (200 === res.code) {
+					var data = mini.decode(res.data);
+					srch_grid.setData(data);
+					mini.get("sgc").setValue("");
+
+				} else {
+					srch_grid.setData([]);
+					return hmq.tipDanger(res.msg || '扫描失败');
+				}
+			}, null, {
+				contentType: 'application/json'
+			});
+		}
+    	/*}else{
+    		hmq.tipDanger("请扫描！");
+    	}*/
+    }
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+    	
+       if(options.action="pack"){
+    	   var sid = mini.decode(options.data);
+    	   mini.get("gxId").setValue(sid.gxId);
+    	   mini.get("gxId").setText(sid.gxName);
+    	   mini.get("gxCt").setValue(sid.gxCt);
+    	   mini.get("gxCt").setText(sid.ctname);
+    	   mini.get("scMo").setValue(sid.scMo);
+		   mini.get("gxNote").setValue(sid.gxNote);
+    	   mini.get("action").setValue("SC");
+
+		   mini.get("scMo").setEnabled();
+		   mini.get("gxId").setEnabled();
+		   mini.get("gxCt").setEnabled();
+       }
+    }
+
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "rq"&&record.rq!=null) {
+            return mini.formatDate(new Date(record.rq), "yyyy-MM-dd");
+        }
+        if (e.field == "flag"&&record.flag!=null) {
+           	if(record.flag=="HG"){
+           		return "合格";
+           	}else{
+           		return "不良";
+           	}
+        }
+
+    }
+
+</script>
+</html>

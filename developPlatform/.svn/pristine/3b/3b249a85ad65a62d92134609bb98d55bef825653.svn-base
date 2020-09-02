@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="SearchBar(name,content)" id="__search-bar__" class="mini-toolbar">
+    <form th:id="${name}" th:name="${name}" method="post" onsubmit="javascript:return false;">
+        <table style="width:100%;">
+            <tr>
+                <td style="word-break: break-all;" th:insert="${content}"></td>
+            </tr>
+        </table>
+    </form>
+    <span id="__expand-action__" class="fa iconfont icon-up-triangle-solid" style="display: none;"></span>
+    <style type="text/css">
+        div#__search-bar__ {
+            padding: 2px;
+            _height: 45px;
+            overflow: hidden;
+            border-bottom: 0;
+        }
+
+        div#__search-bar__ #__expand-action__ {
+            position: absolute;
+            right: 10px;
+            top: 15px;
+            display: none;
+        }
+    </style>
+    <!--<script type="text/javascript">
+        (function () {
+            var searchBar = document.getElementById('__search-bar__');
+            var expandAction = document.getElementById('__expand-action__');
+
+            function searchBarResize() {
+                var onlySingleLine = searchBar.clientHeight === searchBar.scrollHeight;
+                console.log(onlySingleLine);
+                expandAction.setAttribute('style', onlySingleLine ? '' : 'display:block;');
+            }
+
+            if (window.addEventListener) {
+                window.addEventListener('resize', function (e) {
+                    searchBarResize();
+                }, false);
+            } else {
+                window.onresize = searchBarResize;
+            }
+
+            expandAction.onclick = function (e) {
+                var isHidden = 'hidden' === searchBar.style.overflow;
+                searchBar.setAttribute('style', isHidden ? 'overflow:visiable !important;' : 'overflow:hidden !important;height:auto !important;');
+                e.target.setAttribute('title', isHidden ? '展开' : '收缩');
+                e.target.className = isHidden ? 'fa iconfont icon-left-triangle-solid' : 'fa iconfont icon-down-triangle-solid';
+                mini.layout();
+            }
+            searchBarResize();
+        })(document);
+    </script>-->
+</div>

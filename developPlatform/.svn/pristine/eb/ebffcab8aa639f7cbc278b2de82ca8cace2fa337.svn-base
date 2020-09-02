@@ -1,0 +1,139 @@
+package com.tengzhi.business.system.params.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.params.model.SysParams;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public interface SysParamService extends BaseService {
+
+
+    BasePage<SysParams> findAll(BaseDto baseDto) throws IOException;
+
+    BasePage<Map<String, Object>> getList(BaseDto baseDto) throws IOException;
+
+    SysParams findByParameterId(String parameterId, String parameterType);
+
+    SysParams save(SysParams sysParams) throws Exception;
+
+    void update(SysParams sysParams);
+
+
+    List<SysParams> getParams(String Id, String paramType);
+
+    Result deleteByParameterId(Map<String, Object> map) throws Exception;
+
+    Result deleteByParameterId1(Map<String, Object> map) throws Exception;
+
+    Result deleteByParameterId2(Map<String, Object> map) throws Exception;
+
+    Result updateStatus(Map<String, Object> map) throws Exception;
+
+    boolean judgeUnique(SysParams sysParameter);
+
+    List<SelectVo> getMainParams();
+
+    Set<SelectVo> getNodeParams(String MainId);
+
+    List<SelectVo> getTypeParams(String paramMod, String paramType);
+
+    List<SelectVo> NodeParamsAll();
+
+    List<SelectVo> ParamsAll(String paramMod, String paramType);
+
+    List<SysParams> findComboboxParams(String parentId);
+    /**
+     * 通过参数模块和参数类型获取参数列表
+     *
+     * @param paramMod  参数模块
+     * @param paramType 参数类型
+     * @return
+     */
+    List<SelectVo> getParamsSelectList(String paramMod, String paramType);
+
+    /**
+     * 通过参数模块和参数类型获取参数列表
+     *
+     * @param paramMod  参数模块
+     * @param paramType 参数类型
+     * @param relatedBusiness 是否关联业务以过滤部分数据
+     * @return
+     */
+    List<SelectVo> getParamsSelectList(String paramMod, String paramType,boolean relatedBusiness);
+    
+    List<SelectVo> getParamsSelectListByParentId(String paramMod, String paramType, String paramParentId);
+    
+    List<SelectVo> getParamsSelectListByTypeParent(String paramType, String paramParentId);
+
+    List<SelectVo> getParamsSelectListByParentId(String paramMod, String paramParentId);
+
+    /**
+     * 获取树形结构下拉框
+     *
+     * @param paramMod
+     * @param ParentId
+     * @return
+     */
+    List<Map> getParamsTreeList(String paramMod, String ParentId);
+
+    List<SelectVo> getParamsTreeListByParamModAndParamType(String paramMod, String paramType);
+
+    String getParamId(String cgStype, String paramName);
+
+    String getParamValue(String paramType, String paramId);
+
+    String getParamValue1(String paramType, String paramId);
+
+    String getParamValue2(String paramType, String paramId);
+
+    String getParamValue3(String paramType, String paramId);
+
+    /**
+     * 获取该模块下的类型为参数的子节点
+     *
+     * @param paramMod
+     * @return
+     */
+    List<SelectVo> getParamSecondLevelList(String paramMod);
+
+    List<SelectVo> getParamsSelectListByValue3(String paramType, String paramValue3);
+
+    List<SelectVo> getParamsSelectListByValue2(String paramType, String paramValue2);
+    
+    Result getByAddName(String cpcodeType);
+    
+    /**
+     * 库位
+     * @param paramValue1
+     * @return
+     */
+    List<Map> getKwTreeList(String paramValue1);
+    
+    /**
+     * 获取父节点下第N级列表
+     * @param paramXtype
+     * @param parentId
+     * @param level
+     * @return
+     */
+    List<SelectVo> getParamByParentAndLevel(String paramXtype,String parentId, String level);
+
+    String   getParamsValue1(String  type,String  param_id);
+    
+	List<SelectVo> treeList(String paramMod, String paramType);
+
+    /**
+     * 通过父级ID和Xtype查找节点
+     * @param parentId
+     * @param paramXtype
+     * @return
+     */
+    List<SysParams> findByParentIdAndParamXtype(String parentId,String paramXtype);
+}

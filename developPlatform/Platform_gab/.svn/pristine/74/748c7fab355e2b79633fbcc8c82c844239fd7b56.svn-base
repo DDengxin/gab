@@ -1,0 +1,115 @@
+$(function () {
+    var laydate;
+    layui.use('laydate', function () {
+        laydate = layui.laydate;
+        //报价日期
+        laydate.render({
+            elem: '#quotationDate'
+            // ,show: true
+        });
+        //签发日期
+        laydate.render({
+            elem: '#issueDate'
+        });
+    });
+
+    // 大写自动转换
+    document.getElementById("chineseWord").value = chineseNumber(document.getElementById("taxTotal").value);
+
+    getSysParams("productType", "平台参数", "表单配置", "BJGL");
+
+    //报价分类值改变事件
+	$("#productType").change(function () {
+		offerConfig($("#productType").val());
+	});
+	
+})
+
+function offerConfig(type){
+	if(type == null||type == ""){
+		console.log("type(分类)无传值");
+		return;
+	}
+	$.ajax({
+		url : "/platform/priceconfigure/findByType",
+		type : 'POST',
+		data : {
+			type : type,
+		},
+		async : false,
+		success : function(data) {
+			var html = "";
+			for (var i = 0; i < data.length; i++) {
+				html += "<tr>";
+				html += jointOfferHtml(data[i]);
+				html += "</tr>";
+			}
+			$("#ConfigForm").html(html);
+		}
+	});
+}
+
+function jointOfferHtml(data) {
+	console.log(data)
+	var html = "";
+	html += 
+		'<td class="kind">'+data.pcName+'<input type="text" style="width: 0;height: 0;" name="addItem" value="'+data.pcNote+'"></td>' +
+		'<td class="cost"><input type="text" name="addCost" required lay-verify="required" autocomplete="off"></td>' +
+		'<td class="number"><input type="text" name="addNumber" required lay-verify="number" autocomplete="off"></td>' +
+		'<td class="price"><input type="text" name="addPrice" required lay-verify="number" autocomplete="off"></td>' +
+		'<td class="unit"><input type="text" name="addUnit" required lay-verify="required" autocomplete="off"></td>' +
+		'<td class="money"><input type="text" name="addMoney" required lay-verify="number" autocomplete="off"></td>' +
+		'<td class="remark"><input type="text" name="addRemarks" required lay-verify="required" autocomplete="off"></td>'
+	return html
+}
+
+$("#btn-submit").click(function(){
+//	save();
+});
+
+function save(){
+	var jsonData = "";
+	var url = "";
+	var flow = {}
+	//菜单ID
+	if(type=="product"){
+		var need = getFrontForm("#productNeedForm");
+		url = "saveNeed";
+		flow = {
+			menuId: "R400024",
+			title: need.cpname,
+			url: "/platform/specialist/need/examination.html",
+		}
+		jsonData = JSON.stringify({'g_Need':JSON.stringify(need),'dynamic':JSON.stringify(getFrontForm("#ConfigForm")),'flow':JSON.stringify(flow)});
+	}
+	$.ajax({
+		type: "POST",
+		url: "save",
+		data: jsonData,
+		contentType: 'application/json',
+		success: function (res) {
+			if (200 === res.code) {
+				layui.use('layer', function () {
+					var layer = layui.layer;
+					layer.msg('提交成功', { time: 5000, icon: 6 });
+				});
+				if(type=="product"){
+					$('form')[0].reset();
+					needImg();
+					needFile();
+					makingPlanFile();
+				}else if(type=="service"){
+					$('form')[1].reset();
+					productDrawingFile();
+					productImg();
+					productFile();
+				}
+			} else {
+				layui.use('layer', function () {
+					var layer = layui.layer;
+					layer.msg('提交失败', { time: 5000, icon: 5 });
+				});
+			}
+		}
+	});
+}

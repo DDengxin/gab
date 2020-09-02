@@ -1,0 +1,49 @@
+package com.tengzhi.business.finance.payment.dao.impl;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.finance.payment.dao.ExportDao;
+
+@Repository
+public class ExportImpl extends BasicsDaoImpl<Object, String> implements ExportDao {
+
+	@Override
+	public Result find(BaseDto dto) {
+		Map<String, String> map = dto.getParamsMap();
+		String str = map.get("nickName");
+		String where = SqlJoint.where(e -> {
+			e.eq("nick_name", str);
+		}, true);
+		return super.QueryPageList("select * from sys_demo_test" + where, null, dto);
+	}
+	
+	@Override
+	public List findList(BaseDto dto) throws IOException {
+		Map<String, String> map = dto.getParamsMap();
+	    String sqlWhere = " where sfk_xtype='FK'";
+	    if (StringUtils.isNotBlank(map.get("srchRq1"))) {
+	       sqlWhere += " and sfk_rq >='" + map.get("srchRq1") + "'";
+	    }
+	    if (StringUtils.isNotBlank(map.get("srchRq2"))) {
+	       sqlWhere += " and sfk_rq <='" + map.get("srchRq2") + "'";
+	    }
+	    if (StringUtils.isNotBlank(map.get("srchNote"))) {
+	      sqlWhere += " and sfk_note like'%" + map.get("srchNote") + "%'";
+	    }
+	    if (StringUtils.isNotBlank(map.get("srchBz"))) {
+	      sqlWhere += " and sfk_bz like'%" + map.get("srchBz") + "%'";
+	    }
+	    String sql="select sfk_note \"sfkNote\",to_char(sfk_rq,'yyyy-MM-dd') \"sfkRq\",f_getname('GETDWEXP',sfk_dw,'',data_corp) \"sfkDw\",f_get_param_name('付款分类', sfk_dtype) \"sfkDtype\",sfk_type \"sfkType\",f_get_param_name('交易币种', sfk_bz) \"sfkBz\",sfk_shl \"sfkShl\",sfk_bzje \"sfkBzje\",sfk_yfje \"sfkYfje\",sfk_fkje \"sfkFkje\",f_get_param_name('付款方式', sfk_fkfs) \"sfkFkfs\",sfk_mess \"sfkMess\",sfk_flag \"sfkFlag\",sfk_month \"sfkMonth\",sfk_xtype \"sfkXtype\",sfk_sm \"sfkSm\",data_man \"dataMan\",data_date \"dataDate\",data_corp \"dataCorp\",sfk_id \"sfkId\" from  e_cw_sfk "+sqlWhere+"  group by sfk_rq ,sfk_note ,sfk_dw ,sfk_dtype ,sfk_type ,sfk_bz ,sfk_shl ,sfk_bzje ,sfk_yfje ,sfk_fkje ,sfk_fkfs ,sfk_mess ,sfk_flag ,sfk_month ,sfk_xtype ,sfk_sm ,data_man,data_date,data_corp,sfk_id order by sfk_rq desc";
+	    return super.queryToMapTransformers(sql);
+	}
+
+}

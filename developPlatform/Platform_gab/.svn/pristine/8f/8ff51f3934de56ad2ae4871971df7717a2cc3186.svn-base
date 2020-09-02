@@ -1,0 +1,145 @@
+package com.tengzhi.business.platform.enroll.service.impl;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.da.sysCustomer.model.SysCustomer;
+import com.tengzhi.business.platform.enroll.dao.ExpertDao;
+import com.tengzhi.business.platform.enroll.dao.PersonalDao;
+import com.tengzhi.business.platform.enroll.model.G_personal;
+import com.tengzhi.business.platform.enroll.service.PersonalService;
+import com.tengzhi.business.platform.enroll.service.RegisterService;
+import com.tengzhi.business.platform.enroll.vo.modelVo;
+import com.tengzhi.business.sale.saleArchives.customerArchives.service.CustomerArchivesService;
+import com.tengzhi.business.system.sms.constant.SmsType;
+import com.tengzhi.business.system.sms.model.SysSmsLog;
+import com.tengzhi.business.system.sms.service.SysSmsService;
+import com.tengzhi.business.system.user.dao.SysUserDao;
+import com.tengzhi.business.system.user.model.SysUser;
+import com.tengzhi.business.system.user.service.SysUserService;
+import com.tengzhi.business.system.workflow.service.ProcessService;
+import com.tengzhi.business.system.workflow.vo.Examine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class PersonalServiceImpl implements PersonalService {
+
+	@Autowired
+	private ExpertDao expertDao;
+	@Autowired
+	private SysUserService sysuserService;
+	@Autowired
+	private ProcessService processService;
+	@Autowired
+	private RegisterService registerService;
+	@Autowired
+	private SysUserDao sysUserDao;
+	@Autowired
+	SysSmsService sysSmsService;
+	@Autowired
+	private PersonalDao personalDao;
+
+	@Override
+	public Result personalone(String id) {
+		Result rs = new Result();
+		String sql = "		 SELECT * from  g_personal  where  person_note = '" + id + "'";
+		String sql1 = "SELECT  user_id, nick_name,mobile, email   from sys_user where supply_id = '" + id + "'";
+		rs.put("data", expertDao.QueryhumpMap(sql).get(0));
+		rs.put("user", expertDao.QueryhumpMap(sql1).get(0));
+		return rs;
+	}
+	@Autowired
+	CustomerArchivesService customerArchivesService;
+	public Result agree(Examine examine) throws Exception {
+		// 审批流
+		processService.agree(examine);
+		// 给对应的供应商进行授权
+		String note = examine.getBusinessId();
+		String status = expertDao
+				.getSingleResult("SELECT status from  g_personal  where  person_note = '" + note + "'");
+		if ("核准".equals(status)) {
+			// 获取用户id
+			String userid = expertDao
+					.getSingleResult("SELECT   user_id from   sys_user  where supply_id = '" + note + "'");
+			Map<String, Object> map = new HashMap<String, Object>();
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			Map<String, Object> map2 = new HashMap<String, Object>();
+			map2.put("roleId", "GRBM");
+			list.add(map2);
+			map.put("userId", userid);
+			map.put("roleMap", list);
+			sysuserService.saveUserAuth(map);
+			// 用户状态改为启用
+			String user_sql = "UPDATE SysUser SET  delete_logo= false     WHERE  user_id = '" + userid + "'";
+			expertDao.executeUpdate(user_sql);
+			SessionUser sessionUser = SessionUser.SessionUser();
+			SysUser user = sessionUser.getSysUser();
+			// 修改用户的机构id为审核人所在的机构id
+			sysUserDao.updateOrgId(userid, user.getOrgId());
+
+			// 发送短信给对应供应商
+			SysUser sysuser = sysUserDao.findById(userid).orElse(new SysUser());
+			G_personal g_personal=personalDao.findById(note).orElse(null);
+			SysSmsLog sysSmsLog = sysSmsService.send(SysSmsLog.GenSms(sysuser, SmsType.GREANT, "已审核通过"));
+			if (sysSmsLog.getSuccess()) {
+				SysCustomer sysCustomer=new SysCustomer();
+				sysCustomer.setCustomerName(g_personal.getSupplyName());
+				sysCustomer.setCustomerExp(g_personal.getCustomerExp());
+				sysCustomer.setCustomerProvince(g_personal.getDistrict());
+				sysCustomer.setCustomerFlag("Y");
+				sysCustomer.setCustomerJe(g_personal.getSupplyJe());//客户额度
+				sysCustomer.setCustomerDay(g_personal.getSupplyDay());//付款天数
+				sysCustomer.setCustomerLevel(g_personal.getSupplyLevel());//客户级别
+				sysCustomer.setCustomerProvince(g_personal.getDistrict());//单位区域				
+				customerArchivesService.save(sysCustomer);
+				System.err.println("个人插入数据");
+
+			} else {
+				throw new RuntimeException("审核通过，短信发送失败");
+			}
+
+		}
+
+		return Result.resultOk();
+	}
+
+	@Override
+	public modelVo personById() throws Exception {
+		modelVo entry = new modelVo();
+		SessionUser securityUser = (SessionUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String id = securityUser.getUserId();
+		SysUser user = sysUserDao.findById(id).orElse(new SysUser());
+		entry.setSysuser(user);
+		String person_note = user.getSupplyId();
+		if (null == person_note || "".equals(person_note)) {
+
+		} else {
+			entry.setPersonal(personalDao.findById(person_note).orElse(new G_personal()));
+
+		}
+
+		return entry;
+	}
+
+	@Override
+	public void update(modelVo vo) {
+		// TODO Auto-generated method stub
+		// 修改用户基础信息
+		SysUser user = sysUserDao.findById(vo.getSysuser().getUserId()).orElse(null);
+		sysUserDao.dynamicSave(vo.getSysuser(), user);
+		// 修改专家基础信息
+		if (vo.getPersonal() != null) {
+			personalDao.dynamicSave(vo.getPersonal(), personalDao.findById(user.getSupplyId()).orElse(null));
+		}
+
+	}
+
+}

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>接待安排新增</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <input id="action"  name="action" class="mini-hidden">
+            <input id="note"  name="note" class="mini-hidden">
+
+            <tr>
+                <td title>申请日期:</td>
+                <td content>
+                    <input id="rq" name="rq" class="mini-datepicker"  value="new Date()" />
+                </td>
+                <td title >接待公司:</td>
+                <td content>
+                    <input id="corpId" name="corpId" class="mini-combobox" url="/personnel/eHrWorker/selectCorp"  onvaluechanged="onChangeCorp"/>
+                </td>
+                <td title >接待部门:</td>
+                <td content>
+                    <input id="jddept"  name="jddept" class="mini-treeselect"  multiSelect="false" valueFromSelect="false"  showClose="true"/>
+                </td>
+                <td title >接待地点:</td>
+                <td content>
+                    <select id="jddd" name="jddd" class="mini-combobox"  >
+                        <option value="会议室(一)">会议室(一)</option>
+                        <option value="会议室(二)">会议室(二)</option>
+                        <option value="会议室(三)">会议室(三)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title >接待人:</td>
+                <td content>
+                    <input id="jdfzr" name="jdfzr" class="mini-textbox" />
+                </td>
+                <td title >接待主题:</td>
+                <td content>
+                    <input id="lfmd" name="lfmd" class="mini-textbox" required="required"  />
+                </td>
+                <td title>接待日期:</td>
+                <td content>
+                    <input id="jdrq1" name="jdrq1" class="mini-datepicker" value="new Date()" />
+                </td>
+                <td title>至:</td>
+                <td content>
+                    <input id="jdrq2" name="jdrq2" class="mini-datepicker"  />
+                </td>
+            </tr>
+            <tr>
+                <td title >来访单位:</td>
+                <td  content colspan="3">
+                    <input id="fkDw" name="fkDw" class="mini-textbox"    />
+                </td>
+                <td title>访客姓名:</td>
+                <td content>
+                    <input id="fkName" name="fkName"  class="mini-textbox"  />
+                </td>
+                <td title>来访人数:</td>
+                <td content>
+                    <input id="fkNum" name="fkNum"  class="mini-textbox" required vtype="int"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>接待议程:</td>
+                <td colspan="3">
+                    <input id="jdyc" name="jdyc" class="mini-textarea" style="width:100%;height:60px;"  />
+                </td>
+                <td title>交通要求:</td>
+                <td colspan="3">
+                    <input id="jtyq" name="jtyq" class="mini-textarea" style="width:100%;height:60px;" />
+                </td>
+            </tr>
+            <tr>
+                <td title>食宿要求:</td>
+                <td colspan="3">
+                    <input id="ssyq" name="ssyq" class="mini-textarea" style="width:100%;height:60px;"  />
+                </td>
+                <td title>其他要求:</td>
+                <td colspan="3">
+                    <input id="qtyq" name="qtyq" class="mini-textarea" style="width:100%;height:60px;" />
+                </td>
+            </tr>
+            <tr>
+                <td title >其他资料:</td>
+                <td colspan="3">
+                    <input id="qtzl" name="qtzl" class="mini-textbox"  />
+                </td>
+                <td title>接待领导:</td>
+                <td colspan="3">
+                    <select id="jdzg" name="jdzg" class="mini-checkboxlist"  multiSelect="true" repeatItems="3" repeatLayout="table">
+                        <option value="陈佩君">陈佩君</option>
+                        <option value="陈正德">陈正德</option>
+                        <option value="陈旭东">陈旭东</option>
+                        <option value="沈基逵">沈基逵</option>
+                        <option value="徐行军">徐行军</option>
+                        <option value="杨金道">杨金道</option>
+                        <option value="廖夕均">廖夕均</option>
+                        <option value="叶清">叶清</option>
+                        <option value="陈志远">陈志远</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title >布幕内容:</td>
+                <td colspan="3">
+                    <input id="bmnr" name="bmnr" class="mini-textbox"   />
+                </td>
+                <td title></td>
+                <td colspan="4">
+                    <select id="bmnr2" name="bmnr2" class="mini-checkboxlist"  >
+                        <option value="公司视频">公司视频</option>
+                        <option value="公司样本">公司样本</option>
+                        <option value="欢迎布幕">欢迎布幕</option>
+                        <option value="欢迎海报">欢迎海报</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title >食物:</td>
+                <td colspan="3">
+                    <select id="sp" name="sp" class="mini-checkboxlist"  >
+                        <option value="咖啡">咖啡</option>
+                        <option value="果汁">果汁</option>
+                        <option value="水果">水果</option>
+                        <option value="点心">点心</option>
+                    </select>
+                </td>
+                <td title>其他食物:</td>
+                <td colspan="3">
+                    <input id="qtsp" name="qtsp" class="mini-textbox"   />
+                </td>
+            </tr>
+            <tr>
+                <td title="" >物品:</td>
+                <td colspan="3">
+                    <select id="wp" name="wp" class="mini-checkboxlist"  >
+                        <option value="贵宾证">贵宾证</option>
+                        <option value="小国旗">小国旗</option>
+                        <option value="安全帽">安全帽</option>
+                        <option value="停车场">停车场</option>
+                    </select>
+                </td>
+                <td title >配备:</td>
+                <td colspan="3">
+                    <select id="dzsb" name="dzsb" class="mini-checkboxlist"  >
+                        <option value="照相">照相</option>
+                        <option value="投影仪">投影仪</option>
+                        <option value="音响">音响</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <td title>其他配备:</td>
+                <td colspan="3">
+                    <input id="qtwp" name="qtwp" class="mini-textarea"  style="width:100%;height:80px;"    />
+                </td>
+                <td align="right" width="80px"  height="30" id="">其他事项:</td>
+                <td colspan="3">
+                    <input id="sm" name="sm" class="mini-textarea"  style="width:100%;height:80px;"    />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+
+    function onChangeCorp(){
+        var corpId = form.getField("corpId").getValue();
+        form.getField("jddept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(corpId));
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+
+
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            //普通口径
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+            } else if ('edit' == options.action) {
+                $.get("byNote/{0}".format(options.data.note), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        $('[name=action]').val(options.action);
+                    }
+                });
+            }
+
+        }
+    }
+
+
+
+</script>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购申请选择页面</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNote" width="120px"/>
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="srchCode" width="120px"/>
+        </label>
+        <label class="hmq-label" text="名称">
+            <input class="mini-textbox" name="srchName" width="120px"/>
+        </label>
+        <label class="hmq-label" text="规格">
+            <input class="mini-textbox" name="srchSize" width="120px"/>
+        </label>
+        <input class="mini-hidden" id="cgStype" name="cgStype" width="120px"/>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+
+    </th:block>
+
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick" style="width:100%;height:70%;"
+         idField="cpcodeId" selectOnLoad="true"
+         sizeList="[50,100,200]" pageSize="100" multiSelect="true"
+         url="/cg/yw/purchaseFile/purchaseRequisition/getCgsqSelectList" sortMode="client"
+    >
+        <div property="columns">
+            <div tz:datagrid="column" field="optionrow" width="45" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+            <div tz:datagrid="column" field="sqrq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="sqnote" width="120" align="center">单号</div>
+            <div tz:datagrid="column" field="sqjjcd" displayField="jjcdname" width="90" align="center">紧急程度</div>
+            <div tz:datagrid="column" field="code" width="100" align="left">编码</div>
+            <div tz:datagrid="column" name="cpcodename" field="cpcodename" align="left" width="120">名称</div>
+            <div tz:datagrid="column" name="cpcodesize" field="cpcodesize" align="left" width="120">规格</div>
+            <div tz:datagrid="column" name="cpcodesizeen" field="cpcodesizeen" width="100" align="center">品牌</div>
+            <div tz:datagrid="column" field="cpcodebz" align="left" width="60">单位</div>
+            <div tz:datagrid="column" field="sqsl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">申请数量</div>
+            <div tz:datagrid="column" name="sqzl" field="sqzl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">申请重量</div>
+            <div tz:datagrid="column" field="ddsl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">订购数量</div>
+            <div tz:datagrid="column" name="ddzl" field="ddzl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">订购重量</div>
+            <div tz:datagrid="column" field="sl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">数量</div>
+            <div tz:datagrid="column" name="zl" field="zl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">重量</div>
+            <div tz:datagrid="column" field="cpcode02" width="80" align="center">核算</div>
+            <div tz:datagrid="column" field="sqjq" width="90" align="center">交期</div>
+            <div tz:datagrid="column" field="sqtype" displayField="typename" width="80" align="center">申请类别</div>
+            <div tz:datagrid="column" field="sqdept" displayField="deptname" width="80" align="center">申请部门</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+    <div tz:datagrid="datagrid" id="return_grid" style="width:100%;height:30%;" sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var return_grid = mini.get("return_grid");
+    var form = new mini.Form("form1");
+    grid.bindSearchForm(form);
+
+    //隐藏件数重量列
+    grid.hideColumn("sqzl");
+    grid.hideColumn("ddzl");
+    grid.hideColumn("zl");
+
+    cloneColumn();
+
+    /**
+     * 初始化
+     * @param data
+     * @constructor
+     */
+    function SetData(data) {
+        //动态列转换
+        hmq.business.dynamicProductParams(data.cgStype, {
+            miniDataGrid: grid,
+            miniForm: form,
+            success: function (map, res) {
+                cloneColumn();
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+        if (data.action == "search") {
+            data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+            mini.get("cgStype").setValue(data.cgStype);
+            search_option();
+        }
+
+    }
+
+    /**
+     * 本地筛选
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+
+    function isnotExit(record) {
+        var dataRows = return_grid.getData();
+        //需要判断是否已经加入
+        if (dataRows.length > 0) {
+            for (var i = 0; i < dataRows.length; i++) {
+                var dataRow = dataRows[i];
+                if (dataRow.id == record.id) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * 单元格渲染
+     * @param e
+     * @returns {string}
+     */
+    function onActionRenderer(e) {
+        var grid_id = e.sender.id;
+        var s = "";
+        if (grid_id == "srch_grid") {
+            s = ' <a class="mini-button"  style="width:30px;color:red;" href="javascript:addRow()">' + "+" + '</a>';
+        } else if (grid_id == "return_grid") {
+            s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">' + "-" + '</a>';
+        }
+        return s;
+    }
+
+    /**
+     * 增加行
+     */
+    function addRow() {
+        var row = grid.getSelected();
+        var data = return_grid.getData();
+        row = mini.clone(row); //必须
+        grid.removeRow(grid.getSelected());
+        return_grid.addRow(row, 0);
+
+
+    }
+
+    /**
+     * 移除行
+     */
+    function removeRow() {
+        var row = return_grid.getSelected();
+        return_grid.removeRow(row);
+        grid.addRow(row, 0);
+    }
+
+
+    /**
+     * 克隆grid列
+     **/
+    function cloneColumn() {
+        var columns = grid.getColumns();
+        return_grid.set({
+            columns: columns
+        });
+        return_grid.hideColumn("indexcolumn");
+    }
+
+    function confirm() {
+        CloseWindow("ok");
+    }
+
+    function GetData() {
+        return grid.getSelected();
+    }
+
+    function GetMutiData() {
+        return return_grid.getData();
+    }
+
+    function onRowDblClick(e) {
+        addRow();
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

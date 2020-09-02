@@ -1,0 +1,28 @@
+package com.tengzhi.business.dynamicrow.cache;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.dynamicrow.model.dynamicrow;
+
+import java.util.Map;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-08-01
+ * 缓存层
+ */
+//@CacheConfig(cacheNames = "ehCacheConfig")
+public interface rowCache {
+
+    //@Cacheable(keyGenerator="KeyGeneratorSingle")
+    Result AllRowObj(String menu);
+
+    //@CachePut(key="KeyGeneratorObject")
+    Result SavaAndUpdate(dynamicrow dynamicrow);
+
+    //@CacheEvict(key="KeyGeneratorSingle")
+    Result Delete(String menuId);
+
+    //@CacheEvict(allEntries=true)
+    Result Delete(Map<String,Object> map);
+
+}

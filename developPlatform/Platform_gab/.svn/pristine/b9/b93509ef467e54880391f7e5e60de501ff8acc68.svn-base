@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报价</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/offer.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/webuploader/webuploader.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/webuploader/uploadFile.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/webuploader.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/webuploader/uploadFile.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/offer.js}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <h2>夹、治具报价单</h2>
+            <form action="" class="layui-form" id="offerForm">
+                <div class="base-msg">
+                    <h4></h4>
+                    <ul>
+                        <li>
+                            <div>
+                                <label>报价日期</label>
+                                <input type="text" id="offerDate" name="offerDate" required lay-verify="required"
+                                    autocomplete="off">
+                            </div>
+                            <div>
+                                <label>报价单位</label>
+                                <input type="text" name="offerProxy" required lay-verify="required" autocomplete="off">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <label>报价币种</label>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="offerCurrency" required lay-verify="required" onchange="currency()" id="unit">
+                                        <option value="RMB">人民币</option>
+                                        <option value="USD">美元</option>
+                                        <option value="EUR">欧元</option>
+                                        <option value="HKD">港币</option>
+                                        <option value="GBP">英镑</option>
+                                        <option value="JPY">日元</option>
+                                        <option value="KRW">韩元</option>
+                                        <option value="AUD">澳元</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label>报价发票</label>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="offerAnnex" required lay-verify="required">
+                                        <option value="普通发票">普通发票</option>
+                                        <option value="专用发票">专用发票</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div  class="money-type-wrapper">
+                                <label >报价价格</label>
+                                <i class="money-type">￥</i>
+                                 <input type="text" name="offerPriceText" required lay-verify="required" autocomplete="off"  >
+                                <input type="hidden" name="offerPrice" >
+                            </div>
+                        </li>
+                        <li>
+                            <div class="offerRemarks">
+                                <label>报价说明</label>
+                                <textarea id="offerRemarks" name="offerRemarks" cols="100" rows="8" required
+                                    lay-verify="required"></textarea>
+                            </div>
+                        </li>
+                        <li class="li_center">
+                            <div class="offerRemarks">
+                                <label>报价附件</label>
+                                <span id="fileDiv"></span>
+                                <input type="hidden" id="offerFile" name="offerFile" />
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="btn">
+                    <button id="btn-submit">立即报价</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

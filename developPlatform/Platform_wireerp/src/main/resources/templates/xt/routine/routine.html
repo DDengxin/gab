@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>数据修改</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="类型">
+            <input class="mini-combobox" name="srchType" url="/xt/routine/type/sqlx" textField="combtext" valueField="combid" width="110" showNullItem="true" nullItemText="全部" emptyText="全部"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input id="workerDept" name="workerDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="人员">
+            <input class="mini-buttonedit" id="srchMan" name="srchMan" allowInput="true" onbuttonclick="onPersonClick"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNote" width="110"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <select class="mini-combobox" id="srchFlag" name="srchFlag" width="80" allowInput="false" emptyText="全部">
+                <option value="">全部</option>
+                <option value="登记">登记</option>
+                <option value="确认">确认</option>
+                <option value="核准">核准</option>
+            </select>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width:100%;height:100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" style="width:100%;height:100%;" idField="sqRq" sizeList="[50,100,200]" pageSize="100" onselectionchanged="onSelectionChanged" pager="#pager1" showPager="false"
+                     sortMode="client">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="48">序号</div>
+                        <div tz:datagrid="column" field="sqRq" width="150" align="center">日期</div>
+                        <div tz:datagrid="column" field="sqNote" width="150" align="center">单号</div>
+                        <div tz:datagrid="column" field="sqType" displayField="typeName" width="100" align="center">类型</div>
+                        <div tz:datagrid="column" field="sqDept" displayField="deptName" width="100" align="left">部门</div>
+                        <div tz:datagrid="column" field="sqMan" displayField="manName" width="100" align="left">人员</div>
+                        <div tz:datagrid="column" field="sqSy" width="500" align="left">事由</div>
+                        <div tz:datagrid="column" field="ywNote" width="150" align="center">业务单号</div>
+                        <div tz:datagrid="column" field="sqFlag" width="100" align="center">状态</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-toolbar" style="padding:0px;border-bottom:1;height: 40px;">
+                <table style="width:100%;">
+                    <tr>
+                        <td style="white-space:nowrap;">
+                            <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;border: none;" sizeList="[50,100,200]"></div>
+                        </td>
+                        <td style="white-space:nowrap;" align="right" id="btnbar"/>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid" style="width:100%;height:100%;" idField="sid" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                     showSummaryRow="true"
+                     sortField="sqCode" sortOrder="asc">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="48">序号</div>
+                        <div tz:datagrid="column" field="sqNote" width="150" align="center">申请单号</div>
+                        <div tz:datagrid="column" field="sqNoteMo" width="150" align="center">业务单号</div>
+                        <div tz:datagrid="column" field="sqCode" width="130" align="center">编码</div>
+                        <!-- <div tz:datagrid="column" field="sqType" width="130" align="center">种类</div> -->
+                        <div tz:datagrid="column" field="sqXm" width="130" align="left">项目</div>
+                        <div tz:datagrid="column" field="sqYc" width="200" align="left">原来内容</div>
+                        <div tz:datagrid="column" field="sqValue" width="220" align="left">修改内容</div>
+                        <div tz:datagrid="column" field="sqSm" width="220" align="left">修改原因</div>
+                        <div tz:datagrid="column" field="sqFlag" width="130" align="center">修改状态</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="/static/js/list.js"></script>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/xt/routine";
+    srch_topgrid.setUrl(surl + "/getSrchTopList");
+    srch_bottomgrid.setUrl(surl + "/getSrchBottomList");
+    srch_topgrid.bindSearchForm(form);
+
+    function search_option() {
+        srch_topgrid.load();
+        srch_bottomgrid.setData([]);
+    }
+
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 1000, height: 570, autoresize: false});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'edit', data: row, width: 1000, height: 570, autoresize: false});
+    }
+
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params: mini.encode({
+                    sqNote: record.sqNote
+                })
+            });
+        }
+    }
+
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().htNo;
+        }
+    });
+
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗 ？", "删除信息", function (action) {
+                if (action == "ok") {
+                    if (row.sqFlag == "登记") {
+                        $['delete']("delete/{0}".format(row.sqNote), function (res) {
+                            if (200 === res.code) {
+                                search_option();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger("非登记状态不可删除");
+                    }
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("srchMan").setValue(data.workerId);
+                    mini.get("srchMan").setText(data.workerName);
+                }
+            }
+        });
+    }
+</script>
+</html>

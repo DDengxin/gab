@@ -1,0 +1,47 @@
+$(function () {
+	$('.sidebar').css('height', $('.right').height() + 'px');
+	
+    $('#username').val(TZ_SETTING.gabUserId);
+	layui.use('form', function () {
+		var form = layui.form;
+		form.on('submit(securityForm)', function (data) {
+
+			return false;
+		})
+	})
+
+    /**
+	 * 搜索
+	 * 1、点击搜索按钮搜索
+	 * 2、回车键搜索
+	 */
+	$('#search').click(function () {
+	});
+	$('#searchContent').keypress(function (evt) {
+		var e = evt || window.event;
+		if (e.keyCode == 13) {
+		}
+	});
+})
+
+function modifyPwd() {
+	var userName = $("#username").val();
+	var oldPwd = md5($("#oldPwd").val());
+	var newPwd = md5($("#newPwd").val());
+	var surePwd = md5($("#surePwd").val());
+	$.ajax({
+		url: "/gab/platform/user/manage/modifyPwd",
+		type: 'post',
+		dataType: 'json',
+		contentType: "application/json",
+		data: JSON.stringify({
+			"userName": userName,
+			"oldPwd": oldPwd,
+			"newPwd": newPwd,
+			"surePwd": surePwd
+		}),
+		success: function (data) {
+			layer.msg(data.msg, {time: 5000, icon: 6});
+		}
+	});
+}

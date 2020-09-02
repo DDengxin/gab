@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <th:block th:replace="~{model/Head :: head(_,_,_,${'miniui,common'})}"></th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/script/layui/css/layui.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/basic.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/css/gate_read.css}"/>
+
+    <script th:src="@{/static/script/layui/layui.js}"></script>
+    <script th:src="@{/static/script/template/template.js}"></script>
+    <script th:src="@{/static/javascript/echarts.min.js}"></script>
+    <script th:src="@{/static/javascript/d-toast.min.js}"></script>
+</head>
+<style>
+    .layui-tab-title{
+        border-bottom-style: hidden;
+    }
+    .layui-tab-title li{
+        line-height : 54px;
+    }
+    .layui-tab-title .layui-this {
+        color: #4193ff !important;
+    }
+    .note_content  ul li{
+        font-size: 15px !important;
+        margin: 5px 0 5px 0;
+        padding-left: 5px;
+    }
+    .hmq-module-cotnent > li > a {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        /* max-width: 240px;  */
+        max-width: 65%;
+        border-bottom: 1px solid transparent;
+        /* padding: 1px 2px; */
+        color: #333333;
+        cursor: pointer;
+    }
+    a:hover{
+        text-decoration:underline;
+    }
+</style>
+<body>
+<div class="container">
+    <div class="content">
+        <div class="wrap">
+            <div class="top">
+                <div class="noticOne">
+                    <div class="note_top">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this" href="#jtzx" aria-controls="jtzx" role="tab" data-toggle="tab" id="jtzx1">集团资讯</li>
+                            <li class="hmq-float-right">
+                                <a href="javascript:return void(0);"
+                                   onclick="activeTab({'rightId': 'R100401', 'rightName': '企业公告', 'rightIconCls': 'iconfont icon-gonggaoguanli', 'rightLink': '/xt/notice/qygg.html'});" class="more">更多</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note_content hmq-scroll-y-auto" hmq-full-height>
+                        <div class="layui-tab-item layui-show">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="jtzx">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="jtzx-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="noticTwo">
+                    <div class="note_top">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this" href="#jdgg" aria-controls="jdgg" role="tab" data-toggle="tab" id="jdgg1">基地公告</li>
+                            <li href="#jdhy" aria-controls="jdhy" role="tab" data-toggle="tab" id="jdhy1">基地会议</li>
+                            <li class="hmq-float-right">
+                                <a href="javascript:return void(0);"
+                                   onclick="activeTab({'rightId': 'R100401', 'rightName': '企业公告', 'rightIconCls': 'iconfont icon-gonggaoguanli', 'rightLink': '/xt/notice/qygg.html'});" class="more">更多</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note_content hmq-scroll-y-auto" hmq-full-height>
+                        <div class="layui-tab-item layui-show">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="jdgg">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="jdgg-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="jdhy">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="jdhy-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="noticThree">
+                    <div class="note_top">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this" href="#xm" aria-controls="xm" role="tab" data-toggle="tab" id="xm1">项目</li>
+                            <li href="#cx" aria-controls="cx" role="tab" data-toggle="tab" id="cx1">程序</li>
+                            <li href="#qx" aria-controls="qx" role="tab" data-toggle="tab" id="qx1">权限</li>
+                            <li href="#sj" aria-controls="sj" role="tab" data-toggle="tab" id="sj1">数据</li>
+                            <li class="hmq-float-right">
+                                <a href="javascript:return void(0);"
+                                   onclick="activeTab({'rightId': 'R100401', 'rightName': '企业公告', 'rightIconCls': 'iconfont icon-gonggaoguanli', 'rightLink': '/xt/notice/qygg.html'});" class="more">更多</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note_content  hmq-scroll-y-auto" hmq-full-height>
+                        <div class="layui-tab-item layui-show">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="xm">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="xm-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="cx">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="cx-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="qx">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="qx-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="sj">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="sj-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom">
+                <div class="noticFour">
+                    <div class="note_top">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this" href="#jtgg" aria-controls="jtgg" role="tab" data-toggle="tab" id="jtgg1">集团公告</li>
+                            <li  href="#jthy" aria-controls="jthy" role="tab" data-toggle="tab" id="jthy1">集团会议</li>
+                            <li class="hmq-float-right">
+                                <a href="javascript:return void(0);"
+                                   onclick="activeTab({'rightId': 'R100401', 'rightName': '企业公告', 'rightIconCls': 'iconfont icon-gonggaoguanli', 'rightLink': '/xt/notice/qygg.html'});" class="more">更多</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note_content hmq-scroll-y-auto" hmq-full-height>
+                        <div class="layui-tab-item layui-show">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="jtgg">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="jtgg-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="jthy">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="jthy-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="noticFive">
+                    <div class="note_top">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this" href="#rsgg" aria-controls="rsgg" role="tab" data-toggle="tab" id="rsgg1">人事公告</li>
+                            <li  href="#ygjf" aria-controls="ygjf" role="tab" data-toggle="tab" id="ygjf1">员工奖罚</li>
+                            <li class="hmq-float-right">
+                                <a href="javascript:return void(0);"
+                                   onclick="activeTab({'rightId': 'R100401', 'rightName': '企业公告', 'rightIconCls': 'iconfont icon-gonggaoguanli', 'rightLink': '/xt/notice/qygg.html'});" class="more">更多</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note_content hmq-scroll-y-auto" hmq-full-height>
+                        <div class="layui-tab-item layui-show">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="rsgg">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="rsgg-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="ygjf">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="ygjf-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="noticSix">
+                    <div class="note_top">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this" href="#wc" aria-controls="wc" role="tab" data-toggle="tab" id="wc1">外出</li>
+                            <li  href="#ry" aria-controls="ry" role="tab" data-toggle="tab" id="ry1">人员</li>
+                            <li  href="#cl" aria-controls="cl" role="tab" data-toggle="tab" id="cl1">车辆</li>
+                            <li  href="#wp" aria-controls="wp" role="tab" data-toggle="tab" id="wp1">物品</li>
+                            <li class="hmq-float-right">
+                                <a href="javascript:return void(0);"
+                                   onclick="activeTab({'rightId': 'R100401', 'rightName': '企业公告', 'rightIconCls': 'iconfont icon-gonggaoguanli', 'rightLink': '/xt/notice/qygg.html'});" class="more">更多</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="note_content  hmq-scroll-y-auto" hmq-full-height>
+                        <div class="layui-tab-item layui-show">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="wc">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="wc-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="ry">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="ry-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="cl">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="cl-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+                        <div class="layui-tab-item">
+                            <table class="layui-table   hmq-table-fix" lay-skin="nob">
+                                <div role="tabpanel" class="tab-pane fade in active" id="wp">
+                                    <div class="hmq-scroll-box hmq-fit">
+                                        <ul class="hmq-module-cotnent" id="wp-container">
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<input id="m" class="mini-hidden">
+</body>
+
+<script type="text/javascript">
+
+    /**
+     * 打开/激活tab页
+     **/
+    function activeTab(item) {
+        window.parent.activeTab({
+            id: item.rightId,
+            url: item.rightLink,
+            text: item.rightName,
+            iconCls: item.rightIconCls
+        });
+    }
+    var html5menu = "";
+    $([[${list}]]).each(function (index, row, item) {
+        html5menu += "<li><a href='javascript:activeTab(" + JSON.stringify(row) + ")'><i class='" + row.rightIconCls + " fa-2x'></i>" +
+            "<p>" + row.rightName + "</p></a></li>"
+    });
+
+    var module_setting = [{
+        id: 'jtzx-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'jtzx'
+    }, {
+        id: 'jdgg-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'jdgg'
+    }, {
+        id: 'jdhy-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'jdhy'
+    }, {
+        id: 'xm-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'xm'
+    },  {
+        id: 'cx-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'cx'
+    },  {
+        id: 'qx-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'qx'
+    }, {
+        id: 'sj-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'sj'
+    }, {
+        id: 'jtgg-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'jtgg'
+    }, {
+        id: 'jthy-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'jthy'
+    }, {
+        id: 'rsgg-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'rsgg'
+    }, {
+        id: 'jf-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'ygjf'
+    }, {
+        id: 'wc-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'wc'
+    }, {
+        id: 'ry-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'ry'
+    }, {
+        id: 'cl-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'cl'
+    }, {
+        id: 'wp-container',
+        tpl: 'module-tpl',
+        flag: true,
+        dataField: 'wp',
+        RenderingBefore: function (arr) {
+            $(arr).each(function (i, row) {
+                if (null != row.org_name && '' != row.org_name) {
+                    var org_name = row.org_name.length > 6 ? row.org_name.substring(0, 3) + '...' : row.org_name;
+                    arr[i].title = '【' + org_name + '】' + row.title;
+                }
+            });
+            return arr;
+        }
+    }
+    ];
+
+    /**
+     * 加载模块列表
+     * @constructor
+     */
+    function LoadModule() {
+        $.ajax({
+            url: '/xt/notice/readme/getDes',
+            type: 'get',
+            cache: false,
+            success: function (res) {
+                if (200!=res.code) {
+                    console && console.error('首页数据加载失败');
+                    return;
+                } else {
+                    $(module_setting).each(function (i, setting) {
+                        /*if (!$.isArray(res.data[setting.dataField])) {
+                            return false;
+                        } else {
+
+                        }*/
+                        var data = [];
+                        if ($.isFunction(setting.RenderingBefore)) {
+                            data = setting.RenderingBefore(res.data[setting.dataField]);
+                        } else {
+                            data = res.data[setting.dataField];
+                        }
+                        var dom = document.getElementById(setting.id);
+                        if (null != dom) {
+                            var tpl = document.getElementById(setting.tpl);
+                            if (setting.flag)
+                                dom.innerHTML = null;
+                            if (false !== data && data!=null && setting.flag) {
+                                //dom.innerHTML = template(tpl.innerHTML, {list: data});
+                                for(var i =0;i<data.length;i++){
+                                    /*dom.innerHTML +='<li>'+
+                                        '<a title = data[i].title onclick="view_option(this)" id="notice" >'+data[i].title+'</a>'+
+                                        '<span class="hmq-float-right hmq-text-gray mui-right-padding ">'+data[i].date1+'</span>'+
+                                        '</li>';
+                                    var notice = document.getElementById("notice");
+                                    notice.setAttribute("name",data[i].table_note);
+                                    notice.setAttribute("note",data[i].note);
+                                    notice.className=data[i].table_name;*/
+                                    $("#"+dom.id).append("<li>" +
+                                        "<a title="+data[i].title+" onclick='view_option(this)' id='notice' note="+data[i].note+" name="+data[i].table_note+" class="+data[i].table_name+" >"+data[i].title+"</a>" +
+                                        "<span class='hmq-float-right hmq-text-gray mui-right-padding'>"+data[i].date1+"</span>" +
+                                        "</li>");
+
+                                }
+
+                            }
+                        }
+
+                    });
+                }
+            }
+        });
+    }
+    LoadModule();
+
+    function viewMore(flag) {
+        if("jztx"==flag){
+
+        }
+    }
+
+    //首页公告弹出框
+    function view_option(obj){
+        var id = obj.getAttribute("note");
+        var name = obj.getAttribute("name");
+        var table = obj.getAttribute("class");
+        var url = "/xt/notice/view.html";
+        if(name !="wc"&&name!="ry"&&name!="cl"&&name!="wp"){
+            mini.open({
+                url : url,
+                title : "【"+table+"】查阅",
+                width : 940,
+                height : 760,
+                data : id,
+                onload : function(){
+                    var iframe = this.getIFrameEl();
+                    var data = {};
+                    //调用弹出页面方法进行初始化
+                    //iframe.contentWindow.SetData(data);
+                }
+            });
+        }
+    }
+
+</script>
+<!--<script id="module-tpl" type="text/html">
+    for(var i = 0; i < list.length; i++) {%
+    <li><a title = "<%:=list[i].title%>" ><%:=list[i].title%></a><span class="hmq-float-right hmq-text-gray mui-right-padding "><%:=list[i].date1%></span></li>
+    %}
+&lt;!&ndash;    <%for(var i = 0; i < list.length; i++) {%>
+    <li><a title = "<%:=list[i].title%>" onclick="view_option(this)" foole="<%:=list[i].note%>" pouse="<%:=list[i].table_note%>" table_name="<%:=list[i].table_name%>"><%:=list[i].title%></a>
+        <span class="hmq-float-right hmq-text-gray mui-right-padding "><%:=list[i].date1%></span></li>
+    <%}%>&ndash;&gt;
+</script>-->
+</html>

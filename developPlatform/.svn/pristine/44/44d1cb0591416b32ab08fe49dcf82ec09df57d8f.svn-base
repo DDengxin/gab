@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>辅助核算【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>流程表单编码:</td>
+                <td content>
+                    <input class="mini-hidden" name="fusebstable" id="fusebstable" value="Y"/>
+
+                    <input class="mini-combobox" name="fitemclassid" id="fitemclassid" url="/system/parameter/getParamsSelectListByParentId/财务/财务参数/FZHS" onvaluechanged="onHtItemClassChanged" nullItemText="全部" showNullItem="true"/>
+                </td>
+                <td title>流程表单数据表:</td>
+                <td content>
+                    <input class="mini-combobox" id="ftable" name="ftable" onvaluechanged="tableName" allowInput="true" ajaxType="post" valueField="tabname" textField="tabname" required
+                           url="/codeGeneration/findAllTables" clearOnLoad="true" valueFromSelect="true"
+                    />
+                </td>
+            </tr>
+            <tr>
+
+                <td title>编码字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fnumberfield" name="fnumberfield" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+                <td title>名称字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fnamefield" name="fnamefield" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td title>状态字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fflagfield" name="fflagfield" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+                <td title>数据限定字段:</td>
+                <td content>
+                    <input class="mini-combobox" clearOnLoad="true" valueFromSelect="true" id="fwherefield" name="fwherefield" allowInput="true" ajaxType="post" valueField="field"
+                           textField="field" required url=""
+                    />
+                </td>
+            </tr>
+            <tr>
+                <td title>数据限定值:</td>
+                <td content>
+                    <input class="mini-textbox" id="fwherevalue" name="fwherevalue" required/>
+
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function tableName(e) {
+
+        var table = mini.get("ftable").getValue();
+        // if (mini.get("workflowTableDescribe").getValue() == "")
+        //     mini.get("workflowTableDescribe").setValue(e.selected.comment);
+        mini.get("fnumberfield").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+        mini.get("fnamefield").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+        mini.get("fflagfield").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+        mini.get("fwherefield").setUrl("/codeGeneration/findTableDetail?tableName=" + table);
+    }
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("/finance/voucher/auxiliaryitems/auxiliaryItems/{0}".format(options.data.fitemid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    tableName();
+                    form.setData(res.data);
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("/finance/voucher/auxiliaryitems/auxiliaryItems", JSON.stringify(form.getData()), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<link rel="stylesheet"
+		  th:href="@{/static/fonts/workflowfont/iconfont.css}">
+	<link rel="stylesheet" th:href="@{/static/css/g6.css}">
+	<link rel="stylesheet" th:href="@{/static/script/M_select/M_select.css}">
+	<script th:src="@{/static/javascript/g6.min.js}"></script>
+	<script th:src="@{/static/script/jquery/jquery-1.12.4.min.js}"></script>
+	<script th:src="@{/static/script/M_select/M_select.js}"></script>
+	<script th:src="@{/static/script/layer/layer.js}"></script>
+	<script th:src="@{/static/javascript/g6-plugins.min.js}"></script>
+	<script th:src="@{/static/javascript/html2canvas.min.js}"></script>
+
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+	<title>专家管理</title>
+</th:block>
+<style type="text/css">
+.hide {
+	display: none !important;
+}
+
+.show {
+	display: block !important;
+}
+
+.webuploadItemButtons {
+	padding-right: 43px;
+}
+
+.webuploadItemButtons+.webuploadItemButtons {
+	padding-right: 0 !important;
+	display: inline-block !important;
+	width: auto !important;
+	float: right;
+	margin-top: -22px
+}
+.mini-tabs-headers.mini-tabs-header-top {
+	display: none !important;
+}
+fieldset
+{
+	border:solid 1px #aaa;
+}
+.hideFieldset
+{
+	border-left:0;
+	border-right:0;
+	border-bottom:0;
+}
+.hideFieldset .fieldset-body
+{
+	display:none;
+}
+</style>
+</head>
+<body>
+	<div>
+<input class="mini-hidden" name="action"	 />
+		<form id="userform" class="supply-center">
+			<fieldset >
+				<legend><span>基本信息</span></legend>
+			<table class="hmq-modify-table" >
+				<tr>
+					<td title>用户名:</td>
+					<td content><input class="mini-textbox" name="userId" vtype ="required" 
+						readonly="readonly"></td>
+					<td title>昵称:</td>
+					<td content><input class="mini-textbox" name="userName" vtype ="required"  >
+					</td>
+					<td title>手机号:</td>
+					<td content><input class="mini-textbox" name="userMtel"  onvalidation="onTelValidation" ></td>
+				</tr>
+				<tr>
+					<td title>电子邮箱：</td>
+					<td content><input class="mini-textbox" name="userEmail" >
+					</td>
+					<td class="hidepassword" title>密码：</td>
+					<td class="hidepassword" content><input class="mini-textbox" name="userPwd"  vtype ="required"  ></td>
+					<td title>厂商类型：</td>
+					<td content>
+						<select name="type" class="mini-combobox"
+								emptyText="请选择类型"   id="SelectType">
+							<option value="整合厂商">整合厂商</option>
+							<option value="夹具厂商">夹具厂商</option>
+							<option value="辅件厂商">辅件厂商</option>
+							<option value="特色供应商">特色供应商</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+			</fieldset>
+		</form>
+
+
+
+
+		<div id="tabs" class="mini-tabs" activeIndex="0" 
+			style="width: 100%; height: 400px;" plain="false">
+			<div name="整合厂商" title="整合厂商">
+				<!-- 整合厂商 -->
+				<form id="mixsupply">
+					<fieldset >
+						<legend><span>业务信息</span></legend>
+						<div class="fieldset-body">
+					<table class="hmq-modify-table" >
+						<tr>
+							<td title>单位名称:</td>
+							<td content><input class="mini-textbox" name="supplyName" vtype ="required" />
+							<input class="mini-hidden" name="supplyType"	value="整合厂商" />
+							</td>
+							
+
+							</td>
+							<td title>单位区域:</td>
+							<td content><input class="mini-textbox" name="district" vtype ="required" /></td>
+							<td title>营业执照编号:</td>
+							<td content ><input class="mini-textbox" name="businessLicenseCode" vtype ="required"></td>
+						</tr>
+						<tr>
+							<td title>用户头像:</td>
+							<td content colspan="7">
+								<div class="mixHeadImg"></div>
+								<input  name="headImg"  class="mini-hidden" />
+							</td>
+						</tr>
+						<tr>
+							<td title>营业执照:</td>
+							<td content colspan="7">
+								<div  class="mixSupplyImg"></div> <input name="supplyImg" class="mini-hidden" />
+							</td>
+						</tr>
+					</table>
+						</div>
+					</fieldset>
+
+
+					<fieldset class="hide" >
+						<legend><span>企业信息完善</span></legend>
+						<div class="fieldset-body">
+							<table class="hmq-modify-table" >
+						<tr>
+							<td title>主营业务:</td>
+							<td content colspan="7"><input class="mini-textarea"
+								name="supplyInfo"  /></td>
+						</tr>
+								<tr>
+									<td title> 企业介绍</td>
+									<td content colspan="7">
+										<script type="text/plain" id ="mixEditor" class="ueEditor"  style="width: 100%; height: 200px;"></script>
+										<input name="content" class="mini-hidden mixContent"/></td>
+								</tr>
+
+						<tr>
+							<td title>生产年限:</td>
+							<td content><input class="mini-textbox" name="productsYears" />
+							</td>
+							<td title>年产值范围:</td>
+							<td content><input class="mini-textbox" name="outputValue" /></td>
+							<td title>技术人数:</td>
+							<td content><input class="mini-textbox" name="manNumber" /></td>
+							<td title>设备能力:</td>
+							<td content><input class="mini-textbox" name="equipAbility" /></td>
+						</tr>
+						<tr>
+							<td title>场地大小:</td>
+							<td content><input class="mini-textbox" name="localSize" /></td>
+							<td title>服务范围:</td>
+							<td content><input class="mini-textbox" name="serviceScope" /></td>
+							<td title>月均吃单能力:</td>
+							<td content><input class="mini-textbox" name="outputMonth" /></td>
+							<td title>平均交期天数:</td>
+							<td content><input class="mini-textbox" name="avgDay" /></td>
+						</tr>
+						<tr>
+							<td title>形位公差:</td>
+							<td content><input class="mini-textbox" name="accuracy" /></td>
+							<td title>尺寸公差:</td>
+							<td content><input class="mini-textbox" name="offsetSize" /></td>
+							<td title>合格率:</td>
+							<td content><input class="mini-textbox" name="adoptRate" /></td>
+							<td title>地址:</td>
+							<td content><input class="mini-textbox" name="supplyAddress" /></td>
+						</tr>
+						<tr>
+							<td title>关键字:</td>
+							<td content><input class="mini-textbox" name="keyWord" /></td>
+							<td title>是否有专职营销人员:<input class="mini-checkbox"
+								name="isSale" /></td>
+							<td content></td>
+							<td title>是否有专职售前技术支持:<input class="mini-checkbox"
+								name="isBeforeSale" /></td>
+							<td content></td>
+							<td title>是否有专职售后现场服务人员:<input class="mini-checkbox"
+								name="isAfterSale" /></td>
+							<td content></td>
+						</tr>
+						<tr>
+							<td title>是否配备专业的精度检测人员:<input class="mini-checkbox"
+								name="isTest" /></td>
+							<td content></td>
+							<td title>是否是带液、电配套能力:<input class="mini-checkbox"
+								name="isFlag" /></td>
+							<td content></td>
+							<td title>是否带程控配套能力:<input class="mini-checkbox"
+								name="isMatching" /></td>
+							<td content></td>
+							<td title>特长产品类型:</td>
+							<td content><input class="mini-textbox" name="strengths" />
+						</tr>
+						<tr>
+							<td title>产品工艺:</td>
+							<td content><input class="mini-textbox" name="productArt" /></td>
+							<td title>产品优势:</td>
+							<td content><input class="mini-textbox" name="singleOrMix" /></td>
+							<td title>是否提供电子或纸质使用说明书:<input class="mini-checkbox"
+								name="isExplainBook" /></td>
+							<td content></td>
+							<td title>是否提供出厂检测合格报告:<input class="mini-checkbox"
+								name="isOuttest" /></td>
+							<td content></td>
+						</tr>
+						<tr>
+							<td title>账单类型:</td>
+							<td content><input class="mini-combobox" name="bill"
+								data="[{'id':'增值发票','text':'增值发票'},{'id':'普通发票','text':'普通发票'}]" /></td>
+							<td title>售后事项内容:</td>
+							<td content><input class="mini-textbox" name="annexInfo" /></td>
+							<td title>承担违约订单金额百分比:</td>
+							<td content><input class="mini-combobox" name="lossRate"
+								data="[{'id':'1%~20%','text':'1%~20%'},{'id':'20%~60%','text':'20%~60%'},{'id':'60%~100%','text':'60%~100%'}]" /></td>
+							<td title>可贸易附件品类信息录入:</td>
+							<td content><input class="mini-textbox" name="sideSaleInfo" /></td>
+						</tr>
+						
+					   <tr>
+							<td title>单位等级:</td>
+							<td content><input class="mini-textbox" name="supplyLevel" /></td>
+						</tr>
+						
+						
+					</table>
+						</div>
+					</fieldset>
+				</form>
+
+			</div>
+			<div name="夹具厂商" title="夹具厂商">
+				<div class="mini-fit">
+					<!-- 夹具厂商 -->
+					<form id="fixturesupply">
+						<fieldset >
+							<legend><span>业务信息</span></legend>
+							<div class="fieldset-body">
+								<table class="hmq-modify-table" >
+
+							<tr>
+								<td title>单位名称:</td>
+								<td content><input class="mini-textbox" name="supplyName"  vtype ="required" />
+								<input class="mini-hidden" name="supplyType"	value="夹具厂商" />
+								</td>
+								
+
+								</td>
+								<td title>单位区域:</td>
+								<td content><input class="mini-textbox" name="district"   vtype ="required"/>
+								</td>
+								<td title>营业执照编号:</td>
+							<td content ><input class="mini-textbox" name="businessLicenseCode"  vtype ="required"></td>
+							</tr>
+									<tr>
+										<td title>用户头像:</td>
+										<td content colspan="7">
+											<div  class="fixtureHeadImg"></div> <input  name="headImg"
+																					   class="mini-hidden" />
+										</td>
+									</tr>
+									<tr>
+										<td title>营业执照:</td>
+										<td content colspan="7">
+											<div class="fixtureSupplyImg"></div> <input  name="supplyImg" class="mini-hidden" />
+										</td>
+									</tr>
+
+								</table>
+							</div>
+						</fieldset>
+
+						<fieldset th:class="hide" >
+							<legend><span>企业信息完善</span></legend>
+							<div class="fieldset-body">
+								<table class="hmq-modify-table" >
+
+							<tr>
+								<td title>介绍:</td>
+								<td content colspan="7"><input class="mini-textarea" name="supplyInfo"  /></td>
+							</tr>
+									<tr>
+										<td title> 企业介绍</td>
+										<td content colspan="7">
+											<script type="text/plain" id ="fixtureEditor" class="ueEditor" style="width: 100%; height: 200px;"></script>
+											<input name="content" class="mini-hidden fixtureContent"/></td>
+									</tr>
+
+
+							<tr>
+								<td title>生产年限:</td>
+								<td content><input class="mini-textbox"
+									name="productsYears" /></td>
+								<td title>年产值范围:</td>
+								<td content><input class="mini-textbox" name="outputValue" /></td>
+								<td title>技术人数:</td>
+								<td content><input class="mini-textbox" name="manNumber" /></td>
+								<td title>设备能力:</td>
+								<td content><input class="mini-textbox" name="equipAbility" /></td>
+							</tr>
+							<tr>
+								<td title>场地大小:</td>
+								<td content><input class="mini-textbox" name="localSize" /></td>
+								<td title>服务范围:</td>
+								<td content><input class="mini-textbox" name="serviceScope" /></td>
+								<td title>形位公差:</td>
+								<td content><input class="mini-textbox" name="accuracy" /></td>
+								<td title>尺寸公差:</td>
+								<td content><input class="mini-textbox" name="offsetSize" /></td>
+							</tr>
+							<tr>
+								<td title>月均吃单能力:</td>
+								<td content><input class="mini-textbox" name="outputMonth" /></td>
+								<td title>平均交期:</td>
+								<td content><input class="mini-textbox" name="avgDay" /></td>
+								<td title>合格率:</td>
+								<td content><input class="mini-textbox" name="adoptRate" /></td>
+								<td title>地址:</td>
+								<td content><input class="mini-textbox"
+									name="supplyAddress" /></td>
+							</tr>
+							<tr>
+								<td title>关键字:</td>
+								<td content><input class="mini-textbox" name="keyWord" /></td>
+								<td title>是否有专职营销人员:<input class="mini-checkbox"
+									name="isSale" /></td>
+								<td content></td>
+								<td title>是否有专职售前技术支持:<input class="mini-checkbox"
+									name="isBeforeSale" /></td>
+								<td content></td>
+								<td title>是否有专职售后现场服务人员:<input class="mini-checkbox"
+									name="isAfterSale" /></td>
+								<td content></td>
+							</tr>
+							<tr>
+								<td title>是否配备专业的精度检测人员:<input class="mini-checkbox"
+									name="isTest" /></td>
+								<td title></td>
+								<td title>是否是带液、电配套能力:<input class="mini-checkbox"
+									name="isFlag" /></td>
+								<td content></td>
+								<td title>是否带程控配套能力:<input class="mini-checkbox"
+									name="isMatching" /></td>
+								<td content></td>
+								<td title>特长产品类型:</td>
+								<td content><input class="mini-textbox" name="strengths" /></td>
+							</tr>
+							<tr>
+								<td title>产品工艺:</td>
+								<td content><input class="mini-textbox" name="productArt" /></td>
+								<td title>产品优势:</td>
+								<td content><input class="mini-textbox" name="singleOrMix" /></td>
+								<td title>是否提供电子或纸质使用说明书:<input class="mini-checkbox"
+									name="isExplainBook" /></td>
+								<td content></td>
+								<td title>是否提供出厂检测合格报告:<input class="mini-checkbox"
+									name="isOuttest" /></td>
+								<td content></td>
+							</tr>
+							<tr>
+								<td title>账单类型:</td>
+								<td content><input class="mini-combobox" name="bill"
+									data="[{'id':'增值发票','text':'增值发票'},{'id':'普通发票','text':'普通发票'}]" /></td>
+								<td title>违约金额比:</td>
+								<td content><input class="mini-combobox" name="lossRate"
+									data="[{'id':'1%~20%','text':'1%~20%'},{'id':'20%~60%','text':'20%~60%'},{'id':'60%~100%','text':'60%~100%'}]" /></td>
+							</tr>
+							  <tr>
+							<td title>单位等级:</td>
+							<td content><input class="mini-textbox" name="supplyLevel" /></td>
+						</tr>
+								</table>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+			<div name="辅件厂商" title="辅件厂商">
+				<div class="mini-fit">
+					<!--辅件厂商  -->
+					<form id="auxiliarysupply">
+						<fieldset >
+							<legend><span>业务信息</span></legend>
+							<div class="fieldset-body">
+								<table class="hmq-modify-table" >
+
+							<tr>
+								<td title>单位名称:</td>
+								<td content><input class="mini-textbox" name="supplyName"   vtype ="required"/>
+								<input class="mini-hidden" name="supplyType"	value="辅件厂商" />
+								</td>
+								
+
+								</td>
+								<td title>单位区域:</td>
+								<td content><input class="mini-textbox" name="district"  vtype ="required" />
+								</td>
+									<td title>营业执照编号:</td>
+							<td content ><input class="mini-textbox" name="businessLicenseCode"  vtype ="required"></td>
+							</tr>
+									<tr>
+										<td title>用户头像:</td>
+										<td content colspan="7">
+											<div class="auxiliaryHeadImg"></div> <input id="headImg" name="headImg"
+																						class="mini-hidden" />
+										</td>
+									</tr>
+									<tr>
+										<td title>营业执照:</td>
+										<td content colspan="7">
+											<div class="auxiliarySupplyImg"></div> <input 	name="supplyImg" class="mini-hidden" />
+										</td>
+									</tr>
+								</table>
+							</div>
+						</fieldset>
+						<fieldset class="hide">
+						<legend><span>企业信息完善</span></legend>
+						<div class="fieldset-body">
+							<table class="hmq-modify-table" >
+							<tr>
+								<td title>介绍:</td>
+								<td content colspan="7"><input class="mini-textarea"
+									name="supplyInfo"  /></td>
+							</tr>
+								<tr>
+									<td title> 企业介绍</td>
+									<td content colspan="7">
+										<script type="text/plain" id ="auxiliaryEditor" class="ueEditor"    style="width: 100%; height: 200px;"></script>
+										<input name="content" class="mini-hidden auxiliaryContent"/></td>
+								</tr>
+
+
+							<tr>
+								<td title>生产年限:</td>
+								<td content><input class="mini-textbox"
+									name="productsYears" /></td>
+								<td title>年产值范围:</td>
+								<td content><input class="mini-textbox" name="outputValue" /></td>
+								<td title>技术人数:</td>
+								<td content><input class="mini-textbox" name="manNumber" /></td>
+								<td title>设备能力:</td>
+								<td content><input class="mini-textbox" name="equipAbility" /></td>
+							</tr>
+							<tr>
+
+							</tr>
+							<tr>
+								<td title>场地大小:</td>
+								<td content><input class="mini-textbox" name="localSize" /></td>
+								<td title>服务范围:</td>
+								<td content><input class="mini-textbox" name="serviceScope" /></td>
+								<td title>月均吃单能力:</td>
+								<td content><input class="mini-textbox" name="outputMonth" /></td>
+								<td title>平均交期天数:</td>
+								<td content><input class="mini-textbox" name="avgDay" /></td>
+							</tr>
+							<tr>
+								<td title>形位公差:</td>
+								<td content><input class="mini-textbox" name="accuracy" /></td>
+								<td title>尺寸公差:</td>
+								<td content><input class="mini-textbox" name="offsetSize" /></td>
+								<td title>合格率:</td>
+								<td content><input class="mini-textbox" name="adoptRate" /></td>
+								<td title>地址:</td>
+								<td content><input class="mini-textbox"
+									name="supplyAddress" /></td>
+							</tr>
+							<tr>
+								<td title>关键字:</td>
+								<td content><input class="mini-textbox" name="keyWord" /></td>
+								<td title>是否有专职营销人员:<input class="mini-checkbox"
+									name="isSale" /></td>
+								<td content></td>
+								<td title>是否有专职售前技术支持:<input class="mini-checkbox"
+									name="isBeforeSale" /></td>
+								<td content></td>
+								<td title>是否有专职售后现场服务人员:<input class="mini-checkbox"
+									name="isAfterSale" /></td>
+								<td content></td>
+							</tr>
+							<tr>
+								<td title>是否配备专业的精度检测人员:<input class="mini-checkbox"
+									name="isTest" /></td>
+								<td content></td>
+								<td title>是否是带液、电配套能力:<input class="mini-checkbox"
+									name="isFlag" /></td>
+								<td content></td>
+								<td title>是否带程控配套能力:<input class="mini-checkbox"
+									name="isMatching" /></td>
+								<td content></td>
+								<td title>是否委托夹具商做售后服务:<input class="mini-checkbox"
+									name="isEntrust" /></td>
+								<td content></td>
+							</tr>
+							<tr>
+								<td title>是否有改制和设计特制订单接单能力:<input class="mini-checkbox"
+									name="isReform" /></td>
+								<td content></td>
+							</tr>
+							  <tr>
+							<td title>单位等级:</td>
+							<td content><input class="mini-textbox" name="supplyLevel" /></td>
+						</tr>
+						</table>
+						</div>
+						</fieldset>
+
+					</form>
+
+
+				</div>
+			</div>
+
+			<div name="特色供应商" title="特色供应商">
+				<div class="mini-fit">
+					<!--特色供应商  -->
+					<form id="strengsupply">
+						<fieldset >
+							<legend><span>业务信息</span></legend>
+							<div class="fieldset-body">
+								<table class="hmq-modify-table" >
+
+							<tr>
+								<td title>单位名称:</td>
+								<td content><input class="mini-textbox" name="supplyName"   vtype ="required"/>
+									<input class="mini-hidden" name="supplyType"	value="特色供应商" />
+								</td>
+								
+
+								</td>
+								<td title>单位区域:</td>
+								<td content><input class="mini-textbox" name="district"   vtype ="required"/>
+								</td>
+									<td title>营业执照编号:</td>
+							<td content ><input class="mini-textbox" name="businessLicenseCode"  vtype ="required"></td>
+							</tr>
+									<tr>
+									<td title>用户头像:</td>
+									<td content colspan="7">
+										<div class="strengsHeadImg"></div> <input  name="headImg"
+																				   class="mini-hidden" />
+									</td>
+								</tr>
+
+									<tr>
+										<td title>营业执照:</td>
+										<td content colspan="7">
+											<div class="strengsSupplyImg"></div> <input name="supplyImg" class="mini-hidden" />
+										</td>
+									</tr>
+
+
+								</table>
+							</div>
+						</fieldset>
+
+
+						<fieldset  class="hide">
+							<legend><span>企业信息完善</span></legend>
+							<div class="fieldset-body">
+								<table class="hmq-modify-table" >
+
+							<tr class="wrapper">
+								<td title>主营业务:</td>
+								<td content colspan="7"><input class="mini-textarea"
+									name="supplyInfo"  /></td>
+							</tr>
+									<tr>
+										<td title> 企业介绍</td>
+										<td content colspan="7">
+											<script type="text/plain" id ="strengEditor" class="ueEditor"  style="width: 100%; height: 200px;"></script>
+											<input name="content" class="mini-hidden strengContent"/></td>
+									</tr>
+
+							<tr>
+								<td title>经销产品品牌:</td>
+								<td content><input class="mini-textbox" name="brand" /></td>
+								<td title>型号类别:</td>
+								<td content><input class="mini-textbox" name="brandType" /></td>
+								<td title>技术支持能力:</td>
+								<td content><input class="mini-textbox" name="techAblitity" /></td>
+								<td title>资金能力:</td>
+								<td content><input class="mini-textbox" name="moneyAbility" /></td>
+							</tr>
+							<tr>
+								<td title>服务范围:</td>
+								<td content><input class="mini-textbox" name="serviceScope" /></td>
+								<td title>团队服务能力:</td>
+								<td content><input class="mini-textbox" name="teamAblitity" /></td>
+								<td title>产品整合能力:</td>
+								<td content><input class="mini-textbox" name="mixAblitity" /></td>
+								<td title>人脉整合能力:</td>
+								<td content><input class="mini-textbox"
+									name="contactsAblitity" /></td>
+							</tr>
+							<tr>
+								<td title>关键字:</td>
+								<td content><input class="mini-textbox" name="keyWord" /></td>
+								<td title>地址:</td>
+								<td content><input class="mini-textbox"
+									name="supplyAddress" /></td>
+								<td title>是否专职存储和接送货:<input class="mini-checkbox"
+									name="isFullstorage" /></td>
+								<td content></td>
+								<td title>是否有专职售后维修人员:<input class="mini-checkbox"
+									name="isFullaftersale" /></td>
+								<td content></td>
+							</tr>
+							<tr>
+								<td title>是否专职产品销售:<input class="mini-checkbox"
+									name="isFullsale" /></td>
+								<td content></td>
+								<td title>是否有改制和设计特制订单接单能力:<input class="mini-checkbox"
+									name="isReform" /></td>
+								<td content></td>
+							<tr>
+							  <tr>
+							<td title>单位等级:</td>
+							<td content><input class="mini-textbox" name="supplyLevel" /></td>
+
+						</tr>
+						</table>
+
+							</div>
+						</fieldset>
+					</form>
+
+
+				</div>
+			</div>
+
+		</div>
+
+
+		<div th:class="approveFrom">
+			<form id="approveFrom" class="supply-center">
+				<table class="hmq-modify-table"  >
+					<tr>
+						<td title>公司:</td>
+						<td content>
+							<input id="dataCorp" class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+								   emptyText="请选择..." allowInput="false" name="erpCorp" required/>
+						</td>
+						<td title>人员:</td>
+						<td content><input class="mini-combobox" name="erpUserid"  required onclick="openMan()">
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+
+
+
+
+	</div>
+
+	<!--联系信息信息公共模块  start -->
+	<div  class="modular hide" style="display: none">
+		<fieldset class="hide" >
+			<legend><span>联系信息</span></legend>
+			<form id="commonForm">
+				<table class="hmq-modify-table" >
+					<tr>
+						<td title>手机号:</td>
+						<td content><input class="mini-textbox" name="telphone" /></td>
+						<td title>联系人:</td>
+						<td content><input class="mini-textbox" name="concatPerson" /></td>
+						<td title>公司网站:</td>
+						<td content><input class="mini-textbox" name="website" /></td>
+					</tr>
+					<tr>
+						<td title>联系人邮箱:</td>
+						<td content><input class="mini-textbox" name="email" /></td>
+						<td title>单位电话:</td>
+						<td content><input class="mini-textbox" name="workTelephone" /></td>
+						<td title>传真:</td>
+						<td content><input class="mini-textbox" name="workTelephone" /></td>
+					</tr>
+				</table>
+
+			</form>
+		</fieldset>
+	</div>
+	<!--联系信息信息公共模块 end-->
+
+
+	<div class="hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save"
+			id="saveBtn">保存</a> <a class="mini-button" id="colseBtn"
+			onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+
+	</div>
+	<th:block th:replace="~{model/Approval :: Approval() }">
+	</th:block>
+</body>
+<script type="text/javascript">
+	mini.parse();
+
+	function ApprovalAgreeHandler() {
+		//表单验证非空
+		if( !validForm([approveFrom])){
+			return ;
+		}
+		_ApprovalActionHandler_('/platform/enroll/agree',JSON.stringify(approveFrom.getData()));
+	}
+	UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
+	UE.Editor.prototype.getActionUrl = function (action) {
+		if (action == 'uploadimage' || action == 'uploadfile' || action == 'uploadvideo') {
+			return '/ueditor/upload';
+		} else {
+			return this._bkGetActionUrl.call(this, action);
+		}
+	};
+
+
+	var tabs = mini.get('tabs');
+    //整合厂商
+    var mixsupply_form = new mini.Form('mixsupply');
+    //夹具厂商
+    var fixturesupply_form = new mini.Form('fixturesupply');
+    //辅件厂商
+    var auxiliarysupply_form = new mini.Form('auxiliarysupply');
+    //特色经贸商
+    var strengsupply_form = new mini.Form('strengsupply');
+    var user_form = new mini.Form('userform');
+    //公共部分form 表单
+	var  common_form = new  mini.Form('commonForm');
+	//默认追加到最后面  mixsupply  append
+	$('#mixsupply,#fixturesupply,#auxiliarysupply,#strengsupply').append($("div.modular").html());
+
+
+	var approveFrom = new mini.Form('approveFrom');
+	$('div.approveFrom').hide();
+
+    
+    //获取类型
+    function  getType (title ){
+		return {
+			'整合厂商': {
+				index: 0,
+				form: mixsupply_form,
+				Editor:{id:"mixEditor",text:"mixContent"},
+				data: [{id:"mixHeadImg",text:"headImg"},{id:"mixSupplyImg",text:"supplyImg"}],
+			},
+			"夹具厂商":{
+				index: 1,
+				form: fixturesupply_form,
+				Editor:{id:"fixtureEditor",text:"fixtureContent"},
+				data: [{id:"fixtureHeadImg",text:"headImg"} ,	{id:"fixtureSupplyImg",text:"supplyImg"}],
+			},
+			"辅件厂商":{
+				index: 2,
+				form: auxiliarysupply_form,
+				Editor:{id:"auxiliaryEditor",text:"auxiliaryContent"},
+				data:  [{id:"auxiliaryHeadImg",text:"headImg"},{id:"auxiliarySupplyImg",text:"supplyImg"},],
+			},
+			"特色供应商":{
+				index: 3,
+				form: strengsupply_form,
+				Editor:{id:"strengEditor",text:"strengContent"},
+				data: [{id:"strengsHeadImg",text:"headImg"},{id:"strengsSupplyImg",text:"supplyImg"}],
+			}
+
+		}[title] || '';
+
+
+    }
+
+	//专家类型下拉框值改变事件
+	mini.get("SelectType").on("valuechanged", function (e) {
+		tabs.activeTab(e.value);
+	});
+	tabs.on("activechanged", function (e) {
+		var  title  =  e.name;
+		var   obj  ={"flag":true}
+		fileUpLoad($.extend(obj, getType(title)));
+		setContent();
+	
+    });
+	//初始化富文本编辑器
+	function initEditor(arr) {
+		$.each(arr, function(index, temp) {
+			UE.getEditor(temp, {
+				maximumWords: 99999999999,
+				wordCount: false,
+				elementPathEnabled: false,
+				autoFloatEnabled: false
+			});
+
+		});
+	}
+	function setContent(flag) {
+		var obj =	getType(tabs.getActiveTab().name);
+		var  edit = UE.getEditor($(obj.form.el).find(".ueEditor")[0].id);
+		edit.execCommand('insertHtml', obj.form.getField("content").getValue());
+		if(flag){
+			edit.setDisabled();
+		}
+
+
+	}
+	
+	//新增上传图片
+	function fileUpLoad(obj) {
+		if (!$.isEmptyObject(obj)) {
+			//新增上传图片
+			var flag = obj.flag;
+			var  form =obj.form;
+			$.each(obj.data, function(index, temp) {
+				var fileId = getFileId();
+				var  text =  temp.text;
+				var   id = temp.id;
+				//判断图片控件是否已经初始化
+                var  is_init_img = form.getField(text).getValue();
+				if(( !!is_init_img == false ) && flag  ){
+					//新增图片
+					form.getField(text).setValue(fileId);
+					　　	$("#" + form.el.id + " ." + id).filesUpload({
+							pickerid : fileId,
+							filecount : 1,
+						});
+
+				}else {
+					//修改数据回显图片
+					$("#" + form.el.id + " ." + id).resetUploader({
+						pickerid : is_init_img,
+						filecount : 1,
+						view : !!obj.view ? obj.view : "edit",
+					});
+				}
+
+
+
+			});
+
+		}
+
+	}
+
+
+
+	//查询数据
+	function findByIdSupply(options) {
+		var expertNote = !!options.data.supplyNote ? options.data.supplyNote
+				: null;
+		var action = options.action;
+		//修改图片
+		var obj = {flag : false,editFlag:false};
+		if (action == "sh") {
+			expertNote = options.data.businessId
+			obj["view"] = "view";
+			obj["editFlag"] = true;
+
+		}
+		if(action == "edit"){
+			obj["editFlag"] = false;
+
+		}
+		$.get("/platform/enroll/SupplyInfo/{0}".format(expertNote), function(res) {
+			if (200 === res.code) {
+				 if (!!res.data == false) {
+					hmq.tipDanger('该账号非供应商账号！');
+					return;
+				}
+					user_form.setData(res.data.gUserInfo);
+                  var     supply =res.data.supply;
+                  var type = supply.supplyType;
+				mini.get("SelectType").setValue(type);
+				//填充公共部分的form表单数据
+				common_form.setData(supply);
+                  if("整合厂商" == type ){
+                	  tabs.activeTab(0);
+                	  mixsupply_form.setData(supply);
+
+                  }else if("夹具厂商" == type  ){
+                	  tabs.activeTab(1);
+                	  fixturesupply_form.setData(supply);
+                  }else if("辅件厂商" == type ){
+                	  tabs.activeTab(2);
+                	  auxiliarysupply_form.setData(supply);
+                  }else if("特色供应商" == type ){
+                	  tabs.activeTab(3);
+                	  strengsupply_form.setData(supply);
+                  }else{
+                	  
+                  }
+				setContent(obj.editFlag);
+               obj["data"] =getType(type);
+                  fileUpLoad(obj);
+				setContent(obj.editFlag);
+                  
+
+			}
+		});
+
+	}
+
+	function SetData(options) {
+		$('[name=action]').val(options.action);
+		if (true !== options.isApproval) {
+			//普通口径
+			initEditor(["mixEditor","fixtureEditor","auxiliaryEditor","strengEditor"])
+
+			if ('add' == options.action) {
+				user_form.getField('userId').readOnly = false;
+
+			} else if ('edit' == options.action) {
+				$(".hidepassword").hide();
+				findByIdSupply(options);
+			} else if ('view' == options.action) {
+				$.get("eHrWorkerList.html/{0}".format(options.data.workerId),
+						function(res) {
+							if (200 === res.code) {
+								form.setData(res.data);
+
+							}
+						});
+				form.setEnabled(false);
+				mini.get("saveBtn").setVisible(false);
+			} else if('complete' == options.action) {
+				// 专家修改数据
+				$(".hidepassword").hide();
+				findByIdSupply(options);
+
+			}
+
+		} else {
+			$('.hide').hide();
+			$('div.approveFrom').show();
+			//审批口径
+			$(".hidepassword").hide();
+			findByIdSupply(options);
+			setFormReadOnly(mixsupply_form);
+			setFormReadOnly(fixturesupply_form);
+			setFormReadOnly(auxiliarysupply_form);
+			setFormReadOnly(strengsupply_form);
+			setFormReadOnly(user_form);
+			//隐藏按钮区域
+			$('.hmq-toolbar').hide();
+
+		}
+
+	}
+
+	   
+    function isTelNumber(v) {
+		   var myreg =  /^[1][3,4,5,7,8][0-9]{9}$/;
+          var re = new RegExp(myreg);
+          if (re.test(v)) return true;
+          return false;
+      }
+	  function onTelValidation(e){
+		    if (e.isValid) {
+               if (isTelNumber(e.value) == false) {
+                   e.errorText = "必须输入正确的手机号码";
+                 //  hmq.tipDanger( e.errorText);
+                   e.isValid = false;
+               }
+           }
+	  }
+     //表单验证
+	  function validForm(data){
+		var   flag = true;
+		  $.each(data, function(index, temp) {
+			  if (temp instanceof mini.Form) {
+				  if( (!temp.validate())  || (!temp.isValid()) ){
+					  flag =  false ;
+				  }
+			  }
+		  });
+		  return flag;
+
+	  }
+	/**
+	 * 保存数据
+	 * @constructor
+	 */
+	function SaveData() {
+	var obj =	getType(tabs.getActiveTab().name);
+	 if(validForm([obj.form,user_form])){
+		 var action = $('[name=action]').val();
+	 	//获取富文本编辑器的内容
+		 obj.form.getField("content").setValue( UE.getEditor($(obj.form.el).find(".ueEditor")[0].id).getContent() );
+		 var method = "post";
+		 var data = {};
+		 data.gUserInfo = user_form.getData();
+		 var url = { 'add' : '/platform/enroll/supplysave' }[action] || '/platform/enroll/supplyedit';
+		 //区分是否自动提交审批  action = complete 自动提交审批
+		 if(action  == "complete"){
+			 data.selectType = action;
+		 }
+		 //公共部分联系信息合并到供应商对象中
+		 $.extend(obj.form.getData() ,common_form.getData() );
+		 data.supply =  obj.form.getData();
+
+		 $[method](url, JSON.stringify(data), function(res) {
+			 if (200 === res.code) {
+				 hmq.tipSuccess(res.msg || '保存成功', {
+					 exec : function() {
+						 CloseWindow('refresh');
+					 }
+				 });
+			 } else {
+				 hmq.tipDanger(res.msg || '保存失败');
+			 }
+		 }, null, {
+			 contentType : 'application/json'
+		 });
+	 }
+
+	}
+
+	function onOrgClickHander(e) {
+		var btnEdit = e.sender;
+		return miniopen({
+			targetWindow: window.top,
+			url: "/system/org/hierarchyOrgTree.html",
+			title: "【公司】选择",
+			width: 500,
+			height: 620,
+			data: {
+				state: true
+			},
+			ondestroy: function (action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var data = iframe.contentWindow.GetData();
+					btnEdit.setValue(data.orgId);
+					btnEdit.setText(data.corpExp);
+				}
+			}
+		});
+	}
+
+	function openMan() {
+		layer.open({
+			id : 'role',
+			type : 2,
+			title : '选择人员',
+			area : [ '900px', '550px' ],
+			fixed : false, //不固定
+			maxmin : true,
+			content : '/system/user/selectUser.html',
+			cancel: function (e) {
+
+			}
+		});}
+
+	function  GetPeoMessageData(e) {
+		approveFrom.getField("erpUserid").setValue(e.userId);
+		approveFrom.getField("erpUserid").setText(e.nickName);
+	}
+
+
+
+
+
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

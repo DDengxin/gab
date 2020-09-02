@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售合同【条款新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input class="mini-hidden" name="htStype" id="htStype" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>合同编号：</td>
+                <td content>
+                    <input class="mini-textbox" readonly id="htNo" name="htNo"/>
+                </td>
+                <td title>日 期：</td>
+                <td content>
+                    <input class="mini-datepicker" required name="htDate" id="htDate" value="new Date()"/>
+                </td>
+                <td title>销售客户：</td>
+                <td content>
+                    <input required id="htCustomer" name="htCustomer" emptyText="请选择..."
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>技术质量：</td>
+                <td content colspan="5">
+                    <input class="mini-textarea" name="htRequirements" style="height:90px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>验收方式：</td>
+                <td content colspan="5">
+                    <input class="mini-textarea" name="htSupplement" style="height:90px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>财务结算：</td>
+                <td content colspan="5">
+                    <input class="mini-textarea" name="htValidity" style="height:90px;"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("termsAdd.html", JSON.stringify({form.getData(true)}), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            //普通口径
+            var formData = options.data.formData;
+            var row = options.data.row;
+            mini.get("htStype").setValue(formData.htStype);
+            mini.get("paramMod").setValue(formData.paramMod);
+
+            if ('edit' == options.action || 'view' == options.action) {
+                $.get("getByNote/{0}".format(row.htNo), function (res) {
+                    if (200 === res.code) {
+                        form.setData(res.data);
+                        var data = mini.decode(res.data);
+                        mini.get("htCustomer").setText(data.htCustomerName);
+                        setIdReadOnly("htNo,htDate,htCustomer");
+                    }
+                });
+            }
+        }
+    }
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            //url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+
+    function getMiniValue(key, defaultValue) {
+        if (key == null || key == undefined || key == "") {
+            return defaultValue;
+        }
+        return key;
+    }
+
+    function getMiniDate(key) {
+        return mini.formatDate(new Date(key), "yyyy-MM-dd");
+    }
+
+    // 判读是否为空
+    function isNull(key) {
+        if (key == null || key == undefined || key === "") {
+            return true;
+        }
+        return false;
+    }
+
+    function readOnly() {
+        var fields = form.getFields();
+        for (var i = 0, l = fields.length; i < l; i++) {
+            var c = fields[i];
+            if (c.setReadOnly) c.setReadOnly(true);     //只读
+            if (c.setIsValid) c.setIsValid(true);      //去除错误提示
+            if (c.addCls) c.addCls("asLabel");          //增加asLabel外观
+        }
+    }
+
+    /**
+     附件行
+     */
+    function appendRow(rows) {
+        var retRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            if (!isEixsts(rows[i])) {
+                retRows.push(rows[i]);
+            } else {
+                hmq.tipDanger("数据已添加");
+            }
+        }
+        return retRows;
+    }
+
+    /**
+     判断是否存在
+     */
+    function isEixsts(data) {
+        var row = grid.findRow(function (row) {
+            if (row.htCode == data.cpcodeid)
+                return true;
+        });
+        if (row != null) {
+            return true;
+        }
+        return false;
+    }
+    function termsAdd(){
+
+    }
+
+</script>
+</html>

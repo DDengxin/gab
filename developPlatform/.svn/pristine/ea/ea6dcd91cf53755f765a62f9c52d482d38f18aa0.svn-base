@@ -1,0 +1,95 @@
+package com.tengzhi.business.project.projectArchives.xmda.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.da.sysCustomer.model.SysCustomer;
+import com.tengzhi.business.project.projectArchives.xmda.dao.XmdaDao;
+import com.tengzhi.business.project.projectArchives.xmda.model.EXmXmda;
+import com.tengzhi.business.project.projectArchives.xmda.service.XmdaService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+
+@Service
+@Transactional
+public class XmdaServiceImpl implements XmdaService {
+
+    @Autowired
+    private XmdaDao xmdaDao;
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Override
+    public BasePage<EXmXmda> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        String sqlshere = " where data_corp in ('"+ SessionUser.SessionUser().getSysUser().getOrgIds().replaceAll(",", "','")+"') ";
+
+        if (StringUtils.isNotEmpty(map.get("xmId"))) {
+            sqlshere += " and xm_id like '%" + map.get("xmId") + "%'";
+        }
+        if (StringUtils.isNotEmpty(map.get("xmMan"))) {
+            sqlshere += " and xm_man like '%" + map.get("xmMan") + "%'";
+        }
+        String sql = "select xm_id,xm_name,xm_type,xm_xtype,xm_dept,xm_man,xm_sm,xm_code,xm_flag,f_getname('GETUSERNAME',data_man,'',data_corp)data_man,data_date,data_corp,start_date,end_date from e_xm_xmda " +sqlshere;
+        return xmdaDao.QueryPageLists(baseDto,sql);
+    }
+
+    /**
+     * 保存对象信息
+     * @param eXmXmda
+     * */
+    @Override
+    public EXmXmda save(EXmXmda eXmXmda) throws Exception {
+        SessionUser securityUser=SessionUser.SessionUser();
+        eXmXmda.setXmId(sysGenNoteService.getNote(SysCustomer.class, "ZCL", "", 4));
+        eXmXmda.setDataCorp(securityUser.getCorpId());
+        eXmXmda.setDataMan(securityUser.getUsername());
+        eXmXmda.setDataDate(new Date());
+        eXmXmda.setXmFlag("登记");
+        return xmdaDao.save(eXmXmda);
+    }
+    /**
+     * 根据xmId获取对象数据
+     * @param xmId
+     * */
+    @Override
+    public EXmXmda findByXmId(String xmId) {
+        EXmXmda eXmXmda = xmdaDao.findById(xmId).orElse(null);
+        return eXmXmda;
+    }
+    /**
+     * 删除
+     * @param xmId
+     * */
+    @Override
+    public void deleteByXmId(String xmId) {
+
+        xmdaDao.deleteById(xmId);
+    }
+
+    /**
+     * 状态切换：确认
+     * @param xmId
+     * */
+    @Override
+    public Result getXmFlag(String xmId, String 登记) {
+        return null;
+    }
+
+    /**
+     * 修改数据
+     * @param eXmXmda
+     * */
+    @Override
+    public void update(EXmXmda eXmXmda) {
+        xmdaDao.dynamicSave(eXmXmda, xmdaDao.findById(eXmXmda.getXmId()).orElse(null));
+    }
+}

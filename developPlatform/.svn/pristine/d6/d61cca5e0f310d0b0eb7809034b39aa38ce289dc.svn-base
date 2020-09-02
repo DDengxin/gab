@@ -1,0 +1,36 @@
+var reconnectflag = false;// 避免重复连接
+var socket;
+
+function createWebSocket(url, callbak,userid) {
+	try {
+		if (!window.WebSocket) {
+			window.WebSocket = window.MozWebSocket;
+		}
+		if (window.WebSocket) {
+			socket = new WebSocket(url);
+			socket.binaryType = "arraybuffer";
+			callbak();
+		} else {
+			Dwrmsg.onPageLoad(userid);
+			dwr.engine.setActiveReverseAjax(true);
+			dwr.engine.setNotifyServerOnPageUnload(true);
+			function errh(errorString, exception) {
+			　　　 
+			}
+			dwr.engine.setErrorHandler(errh);
+		}
+	} catch (e) {
+		reconnect(url, callbak);
+	}
+}
+
+function reconnect(url, callbak) {
+	if (reconnectflag)
+		return;
+	reconnectflag = true;
+	// 没连接上会一直重连，设置延迟避免请求过多
+	setTimeout(function() {
+		createWebSocket(url, callbak);
+		reconnectflag = false;
+	}, 2000);
+}

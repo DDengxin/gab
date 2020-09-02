@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>产品信息</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="产品编码">
+                <input class="mini-textbox" name="cpcodeId"/>
+            </label>
+            <label class="hmq-label" text="产品名称">
+                <input class="mini-textbox" name="cpcodeName"/>
+            </label>
+            <label class="hmq-label" text="英文名称">
+                <input class="mini-textbox" name="cpcodeNameEn"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="cpcodeId" showPageInfo="false" url="/cg/da/materialArchives/list">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="cpcodeId" width="100">产品编码</div>
+            <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" width="100">产品名称</div>
+            <div tz:datagrid="column" field="cpcodeNameEn" name="cpcodeNameEn" width="100">英文名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" name="cpcodeFl" width="100">产品规格</div>
+            <div tz:datagrid="column" field="cpcodeSizeEn" width="100">英文规格</div>
+            <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" width="100">所属分类</div>
+            <div tz:datagrid="column" field="cpcodeDp" width="100">包装单位</div>
+            <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" width="100">最小单位</div>
+            <div tz:datagrid="column" field="cpcodePb" width="100">大小配比</div>
+            <div tz:datagrid="column" field="cpcodeCheck" width="100">检验分类</div>
+            <div tz:datagrid="column" field="cpcode01" width="100">产品参数1</div>
+            <div tz:datagrid="column" field="cpcode02" width="100">产品参数2</div>
+            <div tz:datagrid="column" field="cpcode03" width="100">产品参数3</div>
+            <div tz:datagrid="column" header="库存预警">
+                <div property="columns">
+                    <div tz:datagrid="column" field="cpcodeLower" align="right" numberFormat="#0.000" width="100">上限</div>
+                    <div tz:datagrid="column" field="cpcodeUpper" align="right" numberFormat="#0.000" width="100">下限</div>
+                    <div tz:datagrid="column" field="cpcodeStockWarn" width="80">是否预警</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" field="cpcodeFlag" width="100">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+
+    //动态列转换
+    hmq.business.dynamicProductParams('CP', {
+        miniDataGrid: grid,
+        success: function (map, res) {
+        },
+        error: function (res) {
+            hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+        }
+    });
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "cpcodeFlag") {
+            e.cellHtml = 'Y' === e.value ? '启用' : '禁用';
+        } else if ('cpcodeStockWarn' == e.field) {
+            e.cellHtml = e.value ? '是' : '否';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        e.sender.miniopen({url: "/cg/da/materialArchives/add.html", action: 'add', height: '400px'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "/cg/da/materialArchives/add.html", action: 'edit', data: row, height: '350px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/cg/da/materialArchives/{0}".format(row.cpcodeId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

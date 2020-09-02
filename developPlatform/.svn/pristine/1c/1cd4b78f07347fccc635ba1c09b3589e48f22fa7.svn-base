@@ -1,0 +1,130 @@
+package com.tengzhi.business.system.right.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.main.vo.MenuVo;
+import com.tengzhi.business.system.right.constant.RightModuleEnum;
+import com.tengzhi.business.system.right.model.SysRight;
+import com.tengzhi.business.system.right.service.impl.SysRightServiceImpl;
+import com.tengzhi.business.system.right.vo.SysRightVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/system/right/")
+public class SysRightControler {
+
+    @Autowired
+    private SysRightServiceImpl sysRightService;
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    /**
+     * @Param: [vo]
+     * @return: com.tengzhi.base.jpa.result.Result
+     * @Author: 王翔
+     * @Date: 2020/4/16 10:51
+     * @description: Post(获取数据 | 获取全部)Restful
+     */
+    @PostMapping(value = "right.html")
+    public Result getList(BaseDto baseDto) throws IOException {
+        return sysRightService.findAll(baseDto).getResult();
+    }
+
+
+    /**
+     * @Param: [vo]
+     * @return: com.tengzhi.base.jpa.result.Result
+     * @Author: 王翔
+     * @Date: 2020/4/16 10:51
+     * @description: Get(获取数据 | 通过ID获取对象)Restful
+     */
+    @GetMapping(value = "right.html/{roleId}")
+    public Result getById(@PathVariable(value = "roleId") String roleId) {
+        return Result.resultOk(sysRightService.findByRightId(roleId));
+    }
+
+
+    /**
+     * @Param: [vo]
+     * @return: com.tengzhi.base.jpa.result.Result
+     * @Author: 王翔
+     * @Date: 2020/4/16 10:51
+     * @description: Post新增Restful
+     */
+    @PostMapping(value = "add.html")
+    public Result add(@RequestBody SysRightVo vo) throws Exception {
+        return Result.resultOk(sysRightService.save(SysRightVo.initSysRightVo(vo)).getRightId());
+    }
+
+    /**
+     * @Param: [vo]
+     * @return: com.tengzhi.base.jpa.result.Result
+     * @Author: 王翔
+     * @Date: 2020/4/16 10:51
+     * @description: Put更新Restful
+     */
+    @PutMapping(value = "add.html")
+    public Result modify(@RequestBody SysRightVo vo) {
+        sysRightService.update(SysRightVo.initSysRightVo(vo));
+        return Result.resultOkMsg("修改成功");
+    }
+
+
+    /**
+     * @Param: [vo]
+     * @return: com.tengzhi.base.jpa.result.Result
+     * @Author: 王翔
+     * @Date: 2020/4/16 10:51
+     * @description: Delete删除Restful
+     */
+    @DeleteMapping(value = "right.html")
+    public Result delete(@RequestBody Map<String, Object> map) {
+        sysRightService.deleteById(map);
+        return Result.resultOk();
+    }
+
+
+    /**
+     * @Param: [vo]
+     * @return: com.tengzhi.base.jpa.result.Result
+     * @Author: 王翔
+     * @Date: 2020/4/16 10:51
+     * @description: 按钮Update数据Restful
+     */
+    @PutMapping(value = "buttonAdd.html")
+    public Result Butonadd(@RequestBody SysRight sysRight) {
+        return Result.resultOk(sysRightService.buttonsava(sysRight).getRightId());
+    }
+
+
+    @GetMapping(value = "combobox/rightModule")
+    public List<SelectVo> ComboboxRightModule() {
+        return SelectVo.listValueOfEnum(RightModuleEnum.class);
+    }
+
+    /**
+     * 菜单下拉框
+     * @param rightModule 限制模块
+     * @param parentId 限制父级菜单
+     * @return
+     */
+    @GetMapping(value = "combobox/menu/{rightModule}/{parentId}")
+    public List<SelectVo> ComboboxMenu(@PathVariable String rightModule,@PathVariable String parentId) {
+        return sysRightService.findByParentIdAndRightType(parentId, MenuVo.TYPE_MENU)
+                .stream()
+                .filter( row -> rightModule.equalsIgnoreCase(row.getRightModule()))
+                .map(row -> new SelectVo(row.getRightId(), row.getRightName()))
+                .collect(Collectors.toList());
+    }
+}

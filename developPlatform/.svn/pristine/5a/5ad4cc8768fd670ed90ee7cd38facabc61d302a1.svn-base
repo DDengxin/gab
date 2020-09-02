@@ -1,0 +1,102 @@
+package com.tengzhi.business.system.role.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.system.role.model.SysRole;
+import com.tengzhi.business.system.role.service.impl.SysRoleServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/system/role/")
+public class SysRoleControler {
+    @Autowired
+    private SysRoleServiceImpl sysRoleService;
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @return
+     */
+    @PostMapping(value = "role.html")
+    public Result getList(BaseDto baseDto) throws IOException {
+        return sysRoleService.findAll(baseDto).getResult();
+    }
+
+
+    @PostMapping(value = "auth.html")
+    public Result getAuthAll(BaseDto baseDto) throws IOException {
+        return sysRoleService.findSysRightAll(baseDto).getResult();
+    }
+
+    /**
+     * 通过ID获取对象
+     *
+     * @param roleId
+     * @return
+     */
+    @GetMapping(value = "role.html/{roleId}")
+    public Result getById(@PathVariable String roleId) {
+        return Result.resultOk(sysRoleService.findByRoleId(roleId));
+    }
+
+    /**
+     * 新增
+     *
+     * @return
+     */
+    @PostMapping("add.html")
+    public Result add(@RequestBody SysRole sysRole) throws Exception{
+        sysRole = sysRoleService.save(sysRole);
+        return Result.resultOk(sysRole.getRoleId());
+    }
+
+    /**
+     * 修改
+     *
+     * @return
+     */
+    @PutMapping("add.html")
+    public Result modify(@RequestBody SysRole sysRole) {
+        sysRoleService.update(sysRole);
+        return Result.resultOk(sysRole.getRoleId());
+    }
+
+    /**
+     * 删除数据
+     *
+     *
+     * @return
+     */
+    @DeleteMapping(value = "/role.html/{roleId}")
+    public Result delete(@PathVariable(value = "roleId") String roleId) {
+        sysRoleService.deleteByRoleId(roleId);
+        return Result.resultOk();
+    }
+
+
+    /**
+    * @Param: [list]
+    * @return: com.tengzhi.base.jpa.result.Result
+    * @Author: 王翔
+    * @Date: 2020/4/21 11:28
+    * @description: 原生Sql语句常规新增
+    */
+    @PostMapping("auth_add.html")
+    public Result AuthAdd(@RequestBody Map<String,Object> map){
+        sysRoleService.AuthSave(map);
+        return Result.resultOkMsg("授权成功!");
+    }
+
+
+
+}

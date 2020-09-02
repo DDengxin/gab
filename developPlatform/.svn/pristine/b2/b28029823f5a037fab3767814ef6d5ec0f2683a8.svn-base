@@ -1,0 +1,712 @@
+package com.tengzhi.IM.layerIM.dao.Impl;
+
+import com.tengzhi.IM.business.upload.model.imFile;
+import com.tengzhi.IM.layerIM.dao.IMDao;
+import com.tengzhi.IM.layerIM.vo.*;
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Repository;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * @author 王翔
+ * @create 2020-05-16
+ */
+@Repository
+public class IMDaoImpl extends BasicsDaoImpl<FriendUsers, String> implements IMDao {
+
+    @Override
+    public List<FriendUsers> friendUsers(String userId, String deptId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userSql = "select user_id id,real_name username,(select file_path from com_file tmp where tmp.line_primary = user_id limit 1) avatar,sign sign,dept_id groupid "
+                + " from sys_user "
+                + " where delete_logo = false and org_id = ?1 and user_id <> ?2  ";
+        if (StringUtils.isNotBlank(deptId)) {
+            userSql += " and dept_id=?3 ";
+            return super.queryBean(userSql, securityUser.getCorpId(), userId, deptId);
+        } else {
+            return super.queryBean(userSql, securityUser.getCorpId(), userId);
+        }
+
+    }
+
+    @Override
+    public List<imFile> selectFile30Day() {
+        String sql = "select * from im_file where upload_date < (now() - interval '30 day')";
+        return (List<imFile>) super.query(sql, imFile.class);
+    }
+
+    @Override
+    public List<FriendUsers> friendUsersTree(String userId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userSql = "select user_id id,real_name username,(select file_path from com_file tmp where tmp.line_primary = user_id limit 1) avatar,sign sign,dept_id groupid "
+                + " from sys_user "
+                + " where delete_logo = false and org_id = ?1 and user_id <> ?2 ";
+        return super.queryBean(userSql, securityUser.getCorpId(), userId);
+    }
+
+
+    @Override
+    public String getSeqBySqlFlockUserID(String GroupId) {
+        String sql = "select user_id from user_m_flock where flock_id='" + GroupId + "' and tim_admin='1' ";
+        List<Map<String, Object>> list = super.queryToMap(sql);
+        return list.get(0).get("user_id").toString();
+    }
+
+    @Override
+    public List<Group> friendGroupList() {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String user = securityUser.getUserId();
+        String sql = "select a.id \"id\",avatar \"avatar\",groupname \"groupname\" from tim_flock a,user_m_flock b where a.id=b.flock_id and b.user_id=?1 ";
+        return (List<Group>) super.query(sql, Group.class, user);
+    }
+
+    @Override
+    public void user_m_flockSava(String uid, String gid) {
+        String sql = "INSERT INTO user_m_flock VALUES('" + UUIDUtil.uuid() + "','" + uid + "','" + gid + "','0')";
+        super.executeUpdateBysql(sql);
+    }
+
+    @Override
+    public void user_m_flockDel(String uid, String gid) {
+        String sql = "delete from user_m_flock where user_id=?1 and flock_id=?2";
+        super.executeUpdateBysql(sql, uid, gid);
+    }
+
+    @Override
+    public void tim_flock_add_mes(String uid) {
+        String Sql = "update tim_flock_add_mes set allow='1' where id='" + uid + "'";
+        super.executeUpdateBysql(Sql);
+    }
+
+    @Override
+    public void tim_flock_add_mesExit(String uid) {
+        String Sql = "update tim_flock_add_mes set allow='2' where id='" + uid + "'";
+        super.executeUpdateBysql(Sql);
+    }
+
+    @Override
+    public Result remind() {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String sql = "select * from tim_flock_add_mes where isread='0' and group_manager='" + securityUser.getUserId() + "' ";
+        List<Map<String, Object>> list = super.queryToMap(sql);
+        return Result.resultOk(null == list ? 0 : list.size());
+    }
+
+    @Override
+    public void exeSql(String sql) {
+        super.executeUpdateBysql(sql);
+    }
+
+    @Override
+    public void user_m_flockAdd(String uid, String gid) {
+        super.executeUpdateBysql("INSERT INTO user_m_flock VALUES('" + UUIDUtil.uuid() + "','" + uid + "','" + gid + "','1')");
+    }
+
+    @Override
+    public void user_m_flockAdd0(String uid, String gid) {
+        super.executeUpdateBysql("INSERT INTO user_m_flock VALUES('" + UUIDUtil.uuid() + "','" + uid + "','" + gid + "','0')");
+    }
+
+
+    @Override
+    public String SelectGroupName(String GroupId) {
+        String sql = "select groupname from tim_flock where id=?1 ";
+        return super.querySingleConversion(sql, GroupId);
+    }
+
+    @Override
+    public String SelectGroupUserId(String GroupId) {
+        String sql = "select creator from tim_flock where id=?1 ";
+        return super.querySingleConversion(sql, GroupId);
+    }
+
+    @Override
+    public void DelAll() {
+        String sql1 = "delete from sys_im_message a\n" +
+                "    USING sys_im_read b\n" +
+                "where a.id=b.message_id and a.createdate < (now() - interval '30 day') ";
+        String sql3 = "DELETE FROM tim_flock_add_mes where creation_time < (now() - interval '30 day') ";
+        String sql2 = "delete from im_file where upload_date < (now() - interval '30 day')";
+        super.executeUpdateBysql(sql1);
+        super.executeUpdateBysql(sql2);
+        super.executeUpdateBysql(sql3);
+    }
+
+    @Override
+    public void InnovateFlockName(String GroupName, String GroupId) {
+        String sql = "update tim_flock set groupname=?1 where id=?2";
+        super.executeUpdateBysql(sql, GroupName, GroupId);
+    }
+
+    /**
+     * @Param: []
+     * @Author: 鱼游浅水
+     * @Date: 2020/6/13 12:16
+     * @description:设置管理员查询 查出群里的所有用户  不包含管理员  不包含自己
+     */
+    @Override
+    public List<Map<String, Object>> AdminCall(String GroupId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        List<OrgVo> orgList = getOrgList();
+        List<Friend> deptList = getDepartmentListTith();
+        List<FriendUsers> friendUsersList = friendGroupUsersTree(GroupId);
+        orgList.forEach(orgItem -> {
+            orgItem.setList(getOrgUsers4DeptId(deptList, orgItem.getId()));
+            if (null != orgItem.getList() && orgItem.getList().size() > 0) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", orgItem.getId());
+                map.put("name", orgItem.getGroupname());
+                map.put("pid", orgItem.getUid());
+                list.add(map);
+                orgItem.getList().forEach(deptInfo -> {
+                    deptInfo.setList(getFriendUsers4DeptId(friendUsersList, deptInfo.getId()));
+                    if (null != deptInfo.getList() && deptInfo.getList().size() > 0) {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("id", deptInfo.getId());
+                        userMap.put("name", deptInfo.getGroupname());
+                        userMap.put("pid", deptInfo.getUid());
+                        list.add(userMap);
+                        deptInfo.getList().forEach(userInfo -> {
+                            Map<String, Object> userMapUser = new HashMap<>();
+                            userMapUser.put("id", userInfo.getId());
+                            userMapUser.put("name", userInfo.getUsername());
+                            userMapUser.put("pid", userInfo.getGroupid());
+                            list.add(userMapUser);
+                        });
+                    }
+                });
+
+            }
+        });
+        return list;
+    }
+
+
+    @Override
+    public List<FriendUsers> friendGroupUsersTree(String GroupId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userSql = "select a.user_id                                                                       id,\n" +
+                "       a.real_name                                                                     username,\n" +
+                "       (select file_path from com_file tmp where tmp.line_primary = a.user_id limit 1) avatar,\n" +
+                "       a.sign                                                                          sign,\n" +
+                "       a.dept_id                                                                       groupid\n" +
+                "from sys_user a,tim_flock b,user_m_flock c\n" +
+                "where a.user_id=c.user_id and b.id=c.flock_id\n" +
+                "  and a.delete_logo = false\n" +
+                "  and a.org_id = ?1\n" +
+                "  and a.user_id <> ?2\n" +
+                "  and b.id=?3\n" +
+                "  and c.tim_admin <> '2'";
+        return super.queryBean(userSql, securityUser.getCorpId(), securityUser.getUserId(), GroupId);
+    }
+
+    /**
+     * @Param: []
+     * @Author: 鱼游浅水
+     * @Date: 2020/6/13 12:16
+     * @description:管理员与群主拉人查询 查出来的数据 不包括已经在群里的人
+     */
+    @Override
+    public List<Map<String, Object>> inviteUser(String GroupId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        List<OrgVo> orgList = getOrgList();
+        List<Friend> deptList = getDepartmentListTith();
+        List<FriendUsers> friendUsersList = friendGroupInviteUser(GroupId);
+        orgList.forEach(orgItem -> {
+            orgItem.setList(getOrgUsers4DeptId(deptList, orgItem.getId()));
+            if (null != orgItem.getList() && orgItem.getList().size() > 0) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", orgItem.getId());
+                map.put("name", orgItem.getGroupname());
+                map.put("pid", orgItem.getUid());
+                list.add(map);
+                orgItem.getList().forEach(deptInfo -> {
+                    deptInfo.setList(getFriendUsers4DeptId(friendUsersList, deptInfo.getId()));
+                    if (null != deptInfo.getList() && deptInfo.getList().size() > 0) {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("id", deptInfo.getId());
+                        userMap.put("name", deptInfo.getGroupname());
+                        userMap.put("pid", deptInfo.getUid());
+                        list.add(userMap);
+                        deptInfo.getList().forEach(userInfo -> {
+                            Map<String, Object> userMapUser = new HashMap<>();
+                            userMapUser.put("id", userInfo.getId());
+                            userMapUser.put("name", userInfo.getUsername());
+                            userMapUser.put("pid", userInfo.getGroupid());
+                            list.add(userMapUser);
+                        });
+                    }
+                });
+
+            }
+        });
+        return list;
+    }
+
+    @Override
+    public List<FriendUsers> friendGroupInviteUser(String GroupId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userSql = "select user_id                                                                       id,\n" +
+                "       real_name                                                                     username,\n" +
+                "       (select file_path from com_file tmp where tmp.line_primary = user_id limit 1) avatar,\n" +
+                "       sign                                                                          sign,\n" +
+                "       dept_id                                                                       groupid\n" +
+                "from sys_user \n" +
+                "where  delete_logo = false and org_id = ?1\n" +
+                "  and user_id not in(select b.user_id from tim_flock a,user_m_flock b where a.id=b.flock_id and a.id=?2)";
+        return super.queryBean(userSql, securityUser.getCorpId(), GroupId);
+    }
+
+    /**
+     * @Param: []
+     * @Author: 鱼游浅水
+     * @Date: 2020/6/13 12:16
+     * @description:管理员与群主拉人查询 查出来的数据 不包括已经在群里的人
+     */
+    @Override
+    public List<Map<String, Object>> MainDie(String GroupId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        List<OrgVo> orgList = getOrgList();
+        List<Friend> deptList = getDepartmentListTith();
+        List<FriendUsers> friendUsersList = friendGroupMainDie(GroupId);
+        orgList.forEach(orgItem -> {
+            orgItem.setList(getOrgUsers4DeptId(deptList, orgItem.getId()));
+            if (null != orgItem.getList() && orgItem.getList().size() > 0) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", orgItem.getId());
+                map.put("name", orgItem.getGroupname());
+                map.put("pid", orgItem.getUid());
+                list.add(map);
+                orgItem.getList().forEach(deptInfo -> {
+                    deptInfo.setList(getFriendUsers4DeptId(friendUsersList, deptInfo.getId()));
+                    if (null != deptInfo.getList() && deptInfo.getList().size() > 0) {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("id", deptInfo.getId());
+                        userMap.put("name", deptInfo.getGroupname());
+                        userMap.put("pid", deptInfo.getUid());
+                        list.add(userMap);
+                        deptInfo.getList().forEach(userInfo -> {
+                            Map<String, Object> userMapUser = new HashMap<>();
+                            userMapUser.put("id", userInfo.getId());
+                            userMapUser.put("name", userInfo.getUsername());
+                            userMapUser.put("pid", userInfo.getGroupid());
+                            list.add(userMapUser);
+                        });
+                    }
+                });
+
+            }
+        });
+        return list;
+    }
+
+    //查出来的群里数据 不包含自己 ,其余的全部查出来
+    @Override
+    public List<FriendUsers> friendGroupMainDie(String GroupId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userSql = "select a.user_id                                                                       id,\n" +
+                "       a.real_name                                                                     username,\n" +
+                "       (select file_path from com_file tmp where tmp.line_primary = a.user_id limit 1) avatar,\n" +
+                "       a.sign                                                                          sign,\n" +
+                "       a.dept_id                                                                       groupid\n" +
+                "from sys_user a,tim_flock b,user_m_flock c\n" +
+                "where a.user_id=c.user_id and b.id=c.flock_id\n" +
+                "  and a.delete_logo = false\n" +
+                "  and a.org_id = ?1\n" +
+                "  and a.user_id <> ?2\n" +
+                "  and b.id=?3";
+        return super.queryBean(userSql, securityUser.getCorpId(), securityUser.getUserId(), GroupId);
+    }
+
+
+    /**
+     * @Param: []
+     * @Author: 鱼游浅水
+     * @Date: 2020/6/13 12:16
+     * @description:管理员与群主拉人查询 查出来的数据 不包括已经在群里的人
+     */
+    @Override
+    public List<Map<String, Object>> AdminDie(String GroupId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        List<OrgVo> orgList = getOrgList();
+        List<Friend> deptList = getDepartmentListTith();
+        List<FriendUsers> friendUsersList = friendGroupAdminDie(GroupId);
+        orgList.forEach(orgItem -> {
+            orgItem.setList(getOrgUsers4DeptId(deptList, orgItem.getId()));
+            if (null != orgItem.getList() && orgItem.getList().size() > 0) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", orgItem.getId());
+                map.put("name", orgItem.getGroupname());
+                map.put("pid", orgItem.getUid());
+                list.add(map);
+                orgItem.getList().forEach(deptInfo -> {
+                    deptInfo.setList(getFriendUsers4DeptId(friendUsersList, deptInfo.getId()));
+                    if (null != deptInfo.getList() && deptInfo.getList().size() > 0) {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("id", deptInfo.getId());
+                        userMap.put("name", deptInfo.getGroupname());
+                        userMap.put("pid", deptInfo.getUid());
+                        list.add(userMap);
+                        deptInfo.getList().forEach(userInfo -> {
+                            Map<String, Object> userMapUser = new HashMap<>();
+                            userMapUser.put("id", userInfo.getId());
+                            userMapUser.put("name", userInfo.getUsername());
+                            userMapUser.put("pid", userInfo.getGroupid());
+                            list.add(userMapUser);
+                        });
+                    }
+                });
+
+            }
+        });
+        return list;
+    }
+
+    //查出来的群里数据 不包含群主,以及不包含管理员
+    @Override
+    public List<FriendUsers> friendGroupAdminDie(String GroupId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userSql = "select a.user_id                                                                       id,\n" +
+                "       a.real_name                                                                     username,\n" +
+                "       (select file_path from com_file tmp where tmp.line_primary = a.user_id limit 1) avatar,\n" +
+                "       a.sign                                                                          sign,\n" +
+                "       a.dept_id                                                                       groupid\n" +
+                "from sys_user a,tim_flock b,user_m_flock c\n" +
+                "where a.user_id=c.user_id and b.id=c.flock_id\n" +
+                "  and a.delete_logo = false\n" +
+                "  and a.org_id = ?1\n" +
+                "  and b.id=?2" +
+                "  and c.tim_admin='1' and c.tim_admin='2' ";
+        return super.queryBean(userSql, securityUser.getCorpId(), GroupId);
+    }
+
+    @Override
+    public void AdminAdd(String GroupId, String UserId) {
+        super.executeUpdateBysql("update user_m_flock set tim_admin='2' where flock_id=?1 and user_id=?2", GroupId, UserId);
+    }
+
+    @Override //layui{TreeTable}数据获取接口实现
+    public List<Map<String, Object>> treeUser() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<OrgVo> orgList = getOrgList();
+        List<Friend> deptList = getDepartmentListTith();
+        List<FriendUsers> friendUsersList = friendUsersTree(securityUser.getUserId());
+        orgList.forEach(orgItem -> {
+            orgItem.setList(getOrgUsers4DeptId(deptList, orgItem.getId()));
+            if (null != orgItem.getList() && orgItem.getList().size() > 0) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", orgItem.getId());
+                map.put("name", orgItem.getGroupname());
+                map.put("pid", orgItem.getUid());
+                list.add(map);
+                orgItem.getList().forEach(deptInfo -> {
+                    deptInfo.setList(getFriendUsers4DeptId(friendUsersList, deptInfo.getId()));
+                    if (null != deptInfo.getList() && deptInfo.getList().size() > 0) {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("id", deptInfo.getId());
+                        userMap.put("name", deptInfo.getGroupname());
+                        userMap.put("pid", deptInfo.getUid());
+                        list.add(userMap);
+                        deptInfo.getList().forEach(userInfo -> {
+                            Map<String, Object> userMapUser = new HashMap<>();
+                            userMapUser.put("id", userInfo.getId());
+                            userMapUser.put("name", userInfo.getUsername());
+                            userMapUser.put("pid", userInfo.getGroupid());
+                            list.add(userMapUser);
+                        });
+                    }
+                });
+
+            }
+        });
+        return list;
+    }
+
+
+    private List<FriendUsers> getFriendUsers4DeptId(List<FriendUsers> friendUsersList, String deptId) {
+        List<FriendUsers> friendUsers = friendUsersList.stream().filter(item -> deptId.equals(item.getGroupid())).collect(Collectors.toList());
+        return friendUsers;
+    }
+
+    private List<Friend> getOrgUsers4DeptId(List<Friend> friendUsersList, String orgId) {
+        List<Friend> friendUsers = friendUsersList.stream().filter(item -> orgId.equals(item.getUid())).collect(Collectors.toList());
+        return friendUsers;
+    }
+
+    @Override
+    public Map<String, Object> Search(String value, Integer page, Integer limit) {
+        //查询当前用户是否申请过数据 或者 他已经在群里
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String UserId = securityUser.getUserId();
+        List<Map<String, Object>>
+                list = super.queryToMap(
+                "SELECT A.*,\n" +
+                        "       CASE\n" +
+                        "		WHEN (SELECT COUNT(1) FROM user_m_flock WHERE flock_id = A.ID AND user_id='" + UserId + "') <> 0 THEN\n" +
+                        "          1\n" +
+                        "       WHEN (SELECT COUNT(1) FROM TIM_FLOCK_ADD_MES WHERE GROUP_ID = A.ID and allow='0') = 0 THEN\n" +
+                        "          0\n" +
+                        "       ELSE\n" +
+                        "          2\n" +
+                        "END isValid \n" +
+                        "  FROM TIM_FLOCK A\n" +
+                        " WHERE A.GROUPNAME LIKE '%" + value + "%' limit " + limit + " offset " + (Integer.valueOf(page) - 1) * limit + " \n"
+        );
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 0);
+        map.put("data", list);
+        return map;
+    }
+
+    @Override
+    public Map<String, Object> SearchConut(String value) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 0);
+        map.put("msg", "");
+        String sql = "select count(1) from (select * from tim_flock where  groupname  like '%" + value + "%' ORDER BY gantime desc ) a ";
+        map.put("count", super.queryToMap(sql).size());
+        return map;
+    }
+
+    @Override
+    public Map<String, Object> agreeFriend(String page) {
+        SecurityUser user = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = user.getUserId();
+        String sql = "SELECT ID \"id\",USER_ID  userId,\n" +
+
+                "       GROUP_ID groupId,\n" +
+                "       CASE WHEN (select  to_date(to_char(now(),'yyyy/mm/dd/'),'yyyy/mm/dd/')-to_date(gan_time,'yyyy/mm/dd'))=0 THEN '刚刚' ELSE (select  to_date(to_char(now(),'yyyy/mm/dd/'),'yyyy/mm/dd/')-to_date(gan_time,'yyyy/mm/dd'))||'天前' END \"time\",  \n" +
+                "       AVATAR   \"avatar\",\n" +
+                "       ALLOW    \"allow\" ,\n" +
+                "       USERNAME    \"username\" ,\n" +
+                "       CONTENT   \"content\",\n" +
+                "       REMARK   \"remark\"\n" +
+                "FROM TIM_FLOCK_ADD_MES\n" +
+                "\n" +
+                "WHERE GROUP_MANAGER='" + userId + "' ";
+        List<FriendsAgree> list = (List<FriendsAgree>) super.query(sql, FriendsAgree.class);
+        int total = list.size();//数据总量
+        int row = 5;//一页显示条数
+        int totalPages;//总页数
+        totalPages = total / row;
+        if (total % row != 0) {
+            totalPages++;
+        }
+        String pageSql = "SELECT ID \"id\",USER_ID  userid,\n" +
+                "       GROUP_ID groupid,\n" +
+                "       CASE WHEN (select  to_date(to_char(now(),'yyyy/mm/dd/'),'yyyy/mm/dd/')-to_date(gan_time,'yyyy/mm/dd'))=0 THEN '刚刚' ELSE (select  to_date(to_char(now(),'yyyy/mm/dd/'),'yyyy/mm/dd/')-to_date(gan_time,'yyyy/mm/dd'))||'天前' END \"time\",  \n" +
+                "       AVATAR   \"avatar\",\n" +
+                "       ALLOW    \"allow\" ,\n" +
+                "       USERNAME    \"username\" ,\n" +
+                "       CONTENT   \"content\",\n" +
+                "       REMARK   \"remark\"\n" +
+                "FROM TIM_FLOCK_ADD_MES\n" +
+                "WHERE GROUP_MANAGER='" + userId + "' order by creation_time desc   limit " + row + " offset " + (Integer.valueOf(page) - 1) * row + " ";
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 0);
+        map.put("pages", totalPages);
+        map.put("data", super.query(pageSql, FriendsAgree.class));
+        return map;
+    }
+
+    @Override
+    public List<Friend> getDepartmentList() {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String sql = "select dept_id id,parent_id uid,dept_name groupname from sys_dept where  delete_logo = false and org_id = ?1 order by rank ";
+        return (List<Friend>) super.query(sql, Friend.class, securityUser.getCorpId());
+    }
+
+
+    @Override
+    public List<Friend> getDepartmentListTith() {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String sql = "select dept_id id,org_id uid,dept_name groupname from sys_dept where  delete_logo = false and org_id = ?1 order by rank ";
+        return (List<Friend>) super.query(sql, Friend.class, securityUser.getCorpId());
+    }
+
+
+    @Override
+    public List<OrgVo> getOrgList() {
+        String sql = "select org_id id,parent_id uid,org_name groupname from sys_org where  delete_logo = false order by rank ";
+        return (List<OrgVo>) super.query(sql, OrgVo.class);
+    }
+
+    @Override
+    public String ReadPath(String UserId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String sql = "SELECT b.file_path avatar "
+                + " from sys_user a, com_file b "
+                + " where a.delete_logo = false and a.org_id = ?1 and a.user_id=b.line_primary and a.user_id=?2";
+        List<Mine> mine = (List<Mine>) super.query(sql, Mine.class, securityUser.getCorpId(), UserId);
+        String avatar = "";
+        if (mine.size() != 0) {
+            Mine mineObj = mine.get(0);
+            avatar = mineObj.getAvatar();
+        }
+        return avatar;
+    }
+
+    @Override
+    public void updateSign(SignVo sign) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String sql = "update sys_user set sign=?1 where org_id = ?2 user_id=?3";
+        super.executeUpdateBysql(sql, securityUser.getCorpId(), sign.getSign(), sign.getUserid());
+    }
+
+    @Override
+    public String groupnameBySql(String gid) {
+        String sql = "SELECT groupname FROM tim_flock WHERE ID='" + gid + "'";
+        List<Map<String, Object>> list = super.queryToMap(sql);
+        return list.get(0).get("groupname").toString();
+    }
+
+    @Override
+    public int updateMsg(MsgVo msgVo) {
+        if ("friend".equals(msgVo.getType())) {
+            String sql = "update  sys_im_message  set isread='1' where  senduser='" + msgVo.getUpdateid() + "' and receiveuser='" + msgVo.getUserid() + "'";
+            super.executeUpdateBysql(sql);
+            return 1;
+        } else {
+            //todo:群修改---final 修改群里当前这个用户接收的消息 已读
+            String sql = "update sys_im_read  set isread='1' where groupid='" + msgVo.getUpdateid() + "' and read_user_id='" + msgVo.getUserid() + "' ";
+            super.executeUpdateBysql(sql);
+            return 0;
+        }
+    }
+
+    @Override
+    public List<RMsg> getofflinemsg() {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String sql = "SELECT sys_user.real_name AS username,sys_user.user_id avatar,msg.senduser,msg.\"content\",msg.createdate AS \"timestam\",'friend' AS \"type\" " +
+                "FROM sys_im_message msg " +
+                "LEFT JOIN sys_user ON msg.senduser = sys_user.user_id " +
+                "WHERE isread = '0' AND msg.receiveuser = ?! AND msg.groupid IS NULL AND 1=2";
+        List<RMsg> msg = super.query(sql, RMsg.class,securityUser.getUserId());
+        if (null == msg || msg.isEmpty()) {
+            msg = new ArrayList<>();
+        }
+        String sqlGroup = "SELECT c.groupname AS username,\n" +
+                "       c.avatar avatar,\n" +
+                "       b.groupid senduser,\n" +
+                "       a.content \"content\",\n" +
+                "       a.createdate AS \"timestam\",\n" +
+                "       'group' AS \"type\"\n" +
+                "  FROM\n" +
+                "  SYS_IM_MESSAGE a,SYS_IM_READ b,tim_flock c\n" +
+                "  WHERE a.id=b.message_id AND b.groupid=c.id\n" +
+                "  AND b.isread='0' AND b.read_user_id=?1 ";
+        List<RMsg> msgGroup = super.query(sqlGroup, RMsg.class, securityUser.getUserId());
+        if (null != msgGroup && !msgGroup.isEmpty()) {
+            msg.addAll(msgGroup);
+        }
+        return msg;
+    }
+
+    @Override
+    public List<RMsg> gethistroy(String userId) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String sql = "SELECT use.user_id \"id\", use.real_name as username,use.user_id avatar ,msg.senduser,msg.\"content\",msg.createdate as \"timestam\",case when msg.groupid is null then 'friend' else 'group' end as \"type\"  FROM \"sys_im_message\" msg  LEFT JOIN sys_user use  on msg.senduser =use.user_id "
+                + " where (senduser=?1 or receiveuser =?1) and (senduser=?2 or receiveuser =?2) order by msg.createdate";
+        return (List<RMsg>) super.query(sql, RMsg.class, userId, securityUser.getUserId());
+    }
+
+    @Override
+    public List<Map<String, Object>> friendGroupAndUserList(String GroupId, String u) {
+        String sql = "select b.user_id\n" +
+                "from tim_flock a,\n" +
+                "     user_m_flock b\n" +
+                "where a.id = b.flock_id\n" +
+                "  and a.id = '" + GroupId + "'\n" +
+                "  AND b.USER_ID <> '" + u + "' \n" +
+                "  AND b.USER_ID NOT IN (SELECT dept_id FROM sys_dept)\n" +
+                "  AND b.USER_ID NOT IN (SELECT org_id FROM sys_org)\n" +
+                "order by user_id asc";
+        return super.queryToMap(sql);
+    }
+
+    @Override
+    public List<RMsg> gethistroyGroup(String userId) {
+        String sql = "SELECT use.user_id \"id\",use.real_name as username,use.user_id avatar ,\n" +
+                "       msg.senduser,msg.content,msg.createdate as \"timestam\",\n" +
+                "       case when msg.groupid is null then 'friend' else 'group' end as \"type\"\n" +
+                "FROM sys_im_message msg  LEFT JOIN sys_user use\n" +
+                "    on msg.senduser =use.user_id\n" +
+                "WHERE MSG.GROUPID=?1 order by msg.createdate";
+        return (List<RMsg>) super.query(sql, RMsg.class, userId);
+    }
+
+    @Override
+    public List<Map<String, Object>> FlockCount(String gid, String uid) {
+        return super.queryToMap("select * from user_m_flock where flock_id='" + gid + "' and user_id='" + uid + "' and tim_admin='1' ");
+    }
+
+    @Override
+    public List<Map<String, Object>> FlockAdmin(String gid, String uid) {
+        return super.queryToMap("select * from user_m_flock where flock_id='" + gid + "' and user_id='" + uid + "' and tim_admin='2' ");
+    }
+
+    @Override
+    public void dissolutionDel(String GroupId) {
+        //解散群删除所有跟这个群相关的记录
+        //1.删除TIM群表所有跟这个群相关的数据
+        //2.删除TIM添加验证表所有跟这个群相关的数据
+        //3.删除TIM群用户表所有跟这个群相关的数据
+        String sql1 = "DELETE FROM tim_flock WHERE ID='" + GroupId + "'";
+        String sql2 = "DELETE FROM sys_im_read WHERE groupid='" + GroupId + "'";
+        String sql3 = "DELETE FROM user_m_flock WHERE flock_id='" + GroupId + "'";
+        super.executeUpdateBysql(sql1);
+        super.executeUpdateBysql(sql2);
+        super.executeUpdateBysql(sql3);
+    }
+
+    @Override
+    public Result exit(String GroupId, String UserId) throws IOException {
+        String sql2 = "DELETE FROM sys_im_read WHERE groupid='" + GroupId + "' and read_user_id='" + UserId + "' ";
+        String sql3 = "DELETE FROM user_m_flock WHERE flock_id='" + GroupId + "' AND user_id='" + UserId + "' ";
+        super.executeUpdateBysql(sql2);
+        super.executeUpdateBysql(sql3);
+        return Result.resultOk();
+    }
+
+
+    @Override
+    public Map<String, Object> GroupNumbers(String id) {
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = securityUser.getUserId();
+        Map<String, Object> mapList = new HashMap<>();
+        String sql = "SELECT c.real_name username, c.user_id ID, '/static/script/im/img/gr.png' avatar, c.sign SIGN\n" +
+                "FROM tim_flock a,\n" +
+                "     user_m_flock b,\n" +
+                "     sys_user c\n" +
+                "WHERE a.id = b.flock_id\n" +
+                "  AND b.user_id = c.user_id\n" +
+                "  AND a.id = '" + id + "'\n" +
+                "  and c.user_id <> '" + userId + "'";
+        mapList.put("list", super.queryToMap(sql));
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", 0);
+        map.put("msg", "");
+        map.put("data", mapList);
+        return map;
+    }
+
+    @Override
+    public boolean judgeUnique(String name) {
+        String sql = "select * from tim_flock where groupname='" + name + "'";
+        return super.queryToMap(sql).size() <= 0;
+    }
+
+
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>角色管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="roleId"/>
+        </label>
+        <label class="hmq-label" text="名称">
+            <input class="mini-textbox" name="roleName"/>
+        </label>
+        <label class="hmq-label" text="启动状态">
+            <input class="mini-combobox" name="isForbidden" url="encodeURI('/dict/boolean?t=否&f=是')" nullItemText="全部" showNullItem="true" />
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="roleId" orderField="roleOrd">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="80">序号</div>
+            <!--<div tz:datagrid="column" field="roleId">编码</div>-->
+            <div tz:datagrid="column" field="roleName">名称</div>
+            <!--<div tz:datagrid="column" field="parentId">父级ID</div>-->
+            <!--<div tz:datagrid="column" field="roleOrd" width="80" align="center">排序</div>-->
+            <div tz:datagrid="column" field="genTime" dateFormat="yyyy-MM-dd">创建时间</div>
+            <div tz:datagrid="column" field="modifyTime">修改时间</div>
+            <div tz:datagrid="column" field="description">描述</div>
+            <div tz:datagrid="column" field="isForbidden">启动状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    grid.on("DrawCell", function (e) {
+        if (e.field == "isForbidden") {
+            e.cellHtml = e.value ? '否' : '是';
+        }
+    });
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url:"add.html",action:'add',data:row,height:140});
+    }
+    //授权菜单
+    const role_option1=()=>{
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row,height:140});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("role.html/{0}".format(row.roleId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function auth_option() {
+        var row=grid.getSelected();
+        if (row) {
+            miniopen({url:'hierarchyAuthTree.html',title:"【角色管理】授权",data:{roleId:row.roleId},width:500,height:620});
+        } else {
+            hmq.tipDanger("请选中一条记录！");
+        }
+    }
+
+
+</script>
+
+</body>
+</html>

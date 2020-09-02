@@ -1,0 +1,161 @@
+package com.tengzhi.business.dynamicrow.service.impl;
+
+
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.property.Property;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.dynamicrow.dao.rowDao;
+import com.tengzhi.business.dynamicrow.model.dynamicrow;
+import com.tengzhi.business.dynamicrow.service.rowService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-08-01
+ */
+@Service
+@Transactional
+public class rowServiceimpl implements rowService {
+
+    @Autowired
+    private rowDao rowDao;
+    @Autowired
+    private Property property;
+    @Override
+    public Result AllRowObj(Map<String,Object> map) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        List<String> tempList = Arrays.asList(property.getBusiness().getUserName().split(","));
+        String menuId=map.get("menuId").toString();
+        List<Map<String,Object>> list= (List<Map<String, Object>>) map.get("gridsItem");
+        List<String> grids=list.stream().map(item->item.get("id").toString()).collect(Collectors.toList());
+        List<dynamicrow> dynamicrowList=rowDao.findAll(Specifications.where((c)->{c.startingWith("rowId",menuId+"@");}));
+        /*List<dynamicrow> AdminList=rowDao.findAll((root,query,cb) -> {
+            List<Predicate> listCondition = new ArrayList<>();
+            listCondition.add(cb.like(root.get("rowId").as(String.class), "Admin@"+menuId+"@%"));
+            Predicate[] p = new Predicate[listCondition.size()];
+            query.where(cb.and(listCondition.toArray(p)));
+            query.orderBy(cb.desc(root.get("changeDate")));
+            return query.getRestriction();
+        });*/
+        List<dynamicrow> AdminList=rowDao.QueryToVo(dynamicrow.class,"select * from sys_dynamic_row where row_id like 'Admin@"+menuId+"@%' order by change_date desc ");
+
+        if(!tempList.contains(sessionUser.getUserId())){
+            if(dynamicrowList.size()>0){ //用户配置开启
+                for (int i=0,size=dynamicrowList.size();i<size;i++){
+                    String rowGridId=dynamicrowList.get(i).getRowId().split("@")[1];//用户表GridId
+                    if(!grids.contains(rowGridId)){//用户表没配
+                        for (int admin=0,adminSize=AdminList.size();admin<adminSize;admin++){
+                            String adminGridId=AdminList.get(admin).getRowId().split("@")[2];
+                            if(rowGridId.equals(adminGridId)){
+                                String menuGridId=AdminList.get(admin).getRowId().split("@")[1];
+                                AdminList.get(admin).setRowId(menuGridId+"@"+adminGridId);
+                                dynamicrowList.add(AdminList.get(admin));
+                                break;
+                            }
+                        }
+                    }
+                }
+                return Result.resultOk(dynamicrowList);
+            }else{ //管理员配置开启
+                for (int admin=0,adminSize=AdminList.size();admin<adminSize;admin++){
+                    String adminGridId=AdminList.get(admin).getRowId().split("@")[2];
+                    String menuGridId=AdminList.get(admin).getRowId().split("@")[1];
+                    AdminList.get(admin).setRowId(menuGridId+"@"+adminGridId);
+                    if(!grids.contains(adminGridId)){
+                        for (int i=0,size=dynamicrowList.size();i<size;i++){
+                            String rowGridId=dynamicrowList.get(i).getRowId().split("@")[1];//用户表GridId
+                            if(rowGridId.equals(adminGridId)){
+                                AdminList.add(dynamicrowList.get(i));
+                                break;
+                            }
+                        }
+                    }
+                }
+                return Result.resultOk(AdminList);
+            }
+        }else{
+            for (int admin=0,adminSize=AdminList.size();admin<adminSize;admin++) {
+                String adminGridId = AdminList.get(admin).getRowId().split("@")[2];
+                String menuGridId = AdminList.get(admin).getRowId().split("@")[1];
+                AdminList.get(admin).setRowId(menuGridId + "@" + adminGridId);
+            }
+        }
+
+    return Result.resultOk(AdminList);
+    }
+
+    @Override
+    public Result SavaAndUpdate(dynamicrow dynamicrow) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        List<dynamicrow> list;
+        List<String> tempList = Arrays.asList(property.getBusiness().getUserName().split(","));
+        if(tempList.contains(sessionUser.getUserId())){
+            list=rowDao.findAll(Specifications.where((c)->{c.eq("rowId","Admin@"+dynamicrow.getMenuId()+"@"+dynamicrow.getGridId()+"@"+sessionUser.getUserId());}));
+        }else{
+            list=rowDao.findAll(Specifications.where((c)->{c.eq("rowId",dynamicrow.getMenuId()+"@"+dynamicrow.getGridId()); }));
+        }
+        if(list.size()>0){
+            String id=dynamicrow.getMenuId()+"@"+dynamicrow.getGridId();
+            if(tempList.contains(sessionUser.getUserId())){
+                id="Admin@"+dynamicrow.getMenuId()+"@"+dynamicrow.getGridId()+"@"+sessionUser.getUserId();
+            }
+            dynamicrow.setChangeDate(new Date());
+            rowDao.dynamicSave(dynamicrow,rowDao.findById(id).orElse(null));
+        }else{
+            if(tempList.contains(sessionUser.getUserId())){
+                dynamicrow.setRowId("Admin@"+dynamicrow.getMenuId()+"@"+dynamicrow.getGridId()+"@"+sessionUser.getUserId());
+            }else{
+                dynamicrow.setRowId(dynamicrow.getMenuId()+"@"+dynamicrow.getGridId());
+            }
+            SecurityUser securityUser= SessionUser.SessionUser();
+            dynamicrow.setCreatePerson(securityUser.getRealName());
+            dynamicrow.setCreatePersonId(securityUser.getUserId());
+            dynamicrow.setCreateDate(new Date());
+            dynamicrow.setChangeDate(new Date());
+            rowDao.save(dynamicrow);
+        }
+        return Result.resultOk();
+    }
+
+    @Override
+    public Result Delete(String menuId) {
+        rowDao.deleteByRowIdStartingWith(menuId+"@");
+        rowDao.deleteByRowIdStartingWith("Admin@"+menuId+"@");
+        return Result.resultOk();
+    }
+
+    @Override
+    public Result Delete(Map<String,Object> map) {
+        List<String> list=(List<String>) map.get("RowIds");
+        String MenuId=map.get("MenuId").toString();
+        List<String> countList=new ArrayList<>();
+        List<dynamicrow> dynamicrowList=rowDao.findAll(Specifications.where((c)->{c.startingWith("rowId",MenuId+"@");}));
+        dynamicrowList.forEach(item->{
+            if(!list.contains(item.getRowId().split("@")[1])){
+                countList.add(item.getRowId());
+            }
+        });
+        countList.forEach(item->{
+            rowDao.deleteById(item);
+            rowDao.deleteByRowIdStartingWith("Admin@"+item+"@");
+        });
+        return Result.resultOk();
+    }
+
+    @Override
+    public Result isAdmin() {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        List<String> tempList = Arrays.asList(property.getBusiness().getUserName().split(","));
+        if(tempList.contains(sessionUser.getUserId())){
+            return Result.resultOk(true);
+        }
+        return  Result.resultOk(false);
+    }
+}

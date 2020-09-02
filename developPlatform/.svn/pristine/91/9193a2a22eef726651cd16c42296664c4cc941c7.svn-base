@@ -1,0 +1,441 @@
+package com.tengzhi.business.sc.task.pick.raw.service.impl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.business.base.common.WarehouseActionCaliber;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.params.service.SysParamService;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.app.ck.dao.CKFlagDao;
+import com.tengzhi.app.ck.model.DeliveryNotice;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.sale.saleProduct.saleDeliveryNotice.dao.SaleDeliveryNoticeDao;
+import com.tengzhi.business.sale.saleProduct.saleDeliveryNotice.vo.ECkDeliveryNoticeVo;
+import com.tengzhi.business.sc.task.pick.raw.service.RawPickService;
+import com.tengzhi.business.sc.task.sctack.dao.MScScrwWlDao;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+
+@Service
+@Transactional
+public class RawPickServiceImpl implements RawPickService {
+
+
+    @Autowired
+    private MScScrwWlDao mScScrwWlDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Autowired
+    private SaleDeliveryNoticeDao saleDeliveryNoticeDao;
+
+    @Autowired
+    private SysParamService sysParamService;
+    
+    @Autowired
+    private  CKFlagDao ckFlagDao;
+    
+    @Override
+    public BasePage<Map<String,Object>> getTopList(BaseDto dto) throws IOException {
+        Map<String, String> map = dto.getParamsMap();
+        SessionUser sessionUser=SessionUser.SessionUser();
+        String where = " and fh_act in (select param_id from sys_param where param_name ='"+ WarehouseActionCaliber.scly+"' )    ";
+        where += SqlJoint.whereSuffixAnd((c) ->{
+            c.eq("data_corp",sessionUser.getCorpId(),true);
+
+            c.ge("fh_rq",map.get("srchRq1"));
+            c.le("fh_rq",map.get("srchRq2"));
+
+            c.eq("fh_type",map.get("codeType"));
+            c.eq("fh_flag",map.get("fhFlag"));
+            c.contains("fh_note",map.get("fhNote"));
+            c.contains("fh_customer",map.get("fhCustomer"));
+        });
+
+        String sql = " select fh_rq,fh_note,fh_customer,fh_act,sum(fh_sl)fh_sl,fh_type,fh_flag,fh_lib,"
+                +" coalesce((select sum(out_sl) from e_ck_out where data_corp=fh.data_corp and out_note= fh.fh_note),0.000) sjfh, "
+                +"  f_getname ( 'GETDWNAME', fh_customer, '', data_corp )   fh_customer_name,f_get_param_name('仓库收发',fh_act,'"+   SessionUser.getCurrentCorpId()   +"') fh_act_name , f_getname('GETGXANDLIBNAME',fh_lib,fh_type,'') fh_lib_name "
+                +" from e_ck_delivery_notice fh where 1=1  " + where+" group by data_corp,fh_rq,fh_note,fh_customer,fh_act,fh_type,fh_flag,fh_customer,fh_lib ";
+        return mScScrwWlDao.QueryMapPageList(dto, sql + " order by fh_rq desc ",true);
+    }
+
+	@Override
+	public BasePage<Map<String,Object>> getBottomLeftList(BaseDto dto) throws IOException {
+		Map<String, String> map = dto.getParamsMap();
+		SessionUser sessionUser=SessionUser.SessionUser();
+		String sql = " select fh_type,fh_lib,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,cpcode_size ,fh_sl,fh_ceiling,fh_lower,fh_contract,fh_code, "
+                +" coalesce((select sum(out_sl) from e_ck_out where data_corp='"+sessionUser.getCorpId()+"' and  out_code= notice.fh_code and out_note= notice.fh_note),0.000) sjfh,  "
+                +" f_getname('GETGXANDLIBNAME',fh_lib,fh_type,'') fh_lib_name,fh_ph,fh_remarks "
+                +" from e_ck_delivery_notice notice "  
+                +" left join e_js_cpcode cpcode on notice.fh_code = cpcode.cpcode_id where  notice.data_corp='"+sessionUser.getCorpId()+"' ";
+		sql += SqlJoint.start()
+                .eq("fh_type",map.get("fhType"),true)
+                .eq("fh_note",map.get("fhNote"),true)
+                .getAndSuffixSqlStr();
+
+		return mScScrwWlDao.QueryMapPageList(dto, sql,true);
+	}
+
+    @Override
+    public BasePage<Map<String,Object>> getBottomRightList(BaseDto dto) throws IOException {
+        Map<String, String> map = dto.getParamsMap();
+        SessionUser sessionUser=SessionUser.SessionUser();
+        String sql = " select f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_name,"
+        		+ "cpcode_size ,cpcode_xp,cpcode_size_en,"
+        		+ "f_getparamname('GETCPCODESIZE',cpcode_size,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_size_name, "
+        		+ "f_getparamname('GETCPCODESIZEEN',cpcode_size_en,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_size_en_name,"
+        		+ "f_getparamname('GETCPCODEXP',cpcode_xp,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')  cpcode_xp_name,"
+        		+ "f_getparamname('GETBYCPCODEFL',cpcode.cpcode_fl,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')cpcode_fl,"
+        		+ "out_ph,out_luono,out_pack,out_js,out_sl,out_code "
+                +" from e_ck_out ou left join e_js_cpcode cpcode on out_code=cpcode_id where ou.data_corp='"+sessionUser.getCorpId()+"' ";
+		
+		sql += SqlJoint.start().eq("out_note", map.get("fhNote"), true).eq("out_code", map.get("fhCode"), true)
+				.getAndSuffixSqlStr();
+		 
+        return mScScrwWlDao.QueryMapPageList(dto, sql,true);
+    }
+
+
+    @Override
+    public BasePage<Map<String, Object>> getDemandNotifyListById(String fhNote, String fhCode) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        String sql = " select notice.fh_note, notice.fh_customer, notice.fh_lib, notice.fh_contract, notice.fh_code, notice.fh_sl, notice.fh_ceiling, notice.fh_lower, to_char(notice.fh_rq,'yyyy-MM-dd') fh_rq,notice.fh_act,\n" +
+                "notice.fh_type, notice.fh_flag, notice.fh_tax, notice.fh_bz, notice.fh_hs, notice.fh_price, notice.fh_remarks, notice.ht_mo, notice.fh_ph, "
+               +" f_getparamname('GETBCPCODENAME',cpcode.cpcode_name,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') as fh_code_name, cpcode.cpcode_size, "
+                +" f_getparamname('GETBYCPCODEFL',cpcode.cpcode_fl,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_fl, "
+                +" f_getname ( 'GETGXANDLIBNAME', notice.fh_lib, notice.fh_type, '' ) fh_lib_name, "
+                +" f_getparamname('GETBYPARENTID',cpcode.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"') cpcode_bz "
+                +" from e_ck_delivery_notice notice "
+                +" left join e_js_cpcode cpcode on notice.fh_code = cpcode.cpcode_id "
+                +" where 1=1 ";
+        sql += SqlJoint.start()
+                .eq("notice.data_corp",sessionUser.getCorpId())
+                .eq("fh_note",fhNote)
+                .eq("fh_code",fhCode).getAndSuffixSqlStr();
+        BaseDto dto = new BaseDto();
+        dto.setPageIndex(0);
+        dto.setPageSize(999999);
+        return mScScrwWlDao.QueryMapPageList(dto,sql,true);
+    }
+    @Override
+    public BasePage<Map<String, Object>> getDemandNotifyListByNote(String fhNote) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        String sql = " select notice.fh_note, notice.fh_customer, notice.fh_lib, notice.fh_contract, notice.fh_code, notice.fh_sl, notice.fh_ceiling, notice.fh_lower, to_char(notice.fh_rq,'yyyy-MM-dd') fh_rq,notice.fh_act,\n" +
+                "notice.fh_type, notice.fh_flag, notice.fh_tax, notice.fh_bz, notice.fh_hs, notice.fh_price, notice.fh_remarks, notice.ht_mo, notice.fh_ph, "
+               +" f_getparamname('GETBCPCODENAME',cpcode.cpcode_name,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')  as fh_code_name, cpcode.cpcode_size, "
+                +" f_getparamname('GETBYCPCODEFL',cpcode.cpcode_fl,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_fl, "
+                +" f_getname ( 'GETGXANDLIBNAME', notice.fh_lib, notice.fh_type, '' ) fh_lib_name, "
+                +" f_getparamname('GETBYPARENTID',cpcode.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"') cpcode_bz "
+                +" from e_ck_delivery_notice notice "
+                +" left join e_js_cpcode cpcode on notice.fh_code = cpcode.cpcode_id "
+                +" where 1=1 ";
+        sql += SqlJoint.start()
+                .eq("notice.data_corp",sessionUser.getCorpId())
+                .eq("fh_note",fhNote)
+                .getAndSuffixSqlStr();
+        BaseDto dto = new BaseDto();
+        dto.setPageIndex(0);
+        dto.setPageSize(999999);
+        return mScScrwWlDao.QueryMapPageList(dto,sql,true);
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getManualNoticeListById(String fhNote, String fhCode) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        String sql = " select notice.fh_note, notice.fh_customer, notice.fh_lib, notice.fh_contract, notice.fh_code, notice.fh_sl, notice.fh_ceiling, notice.fh_lower, to_char(notice.fh_rq,'yyyy-MM-dd') fh_rq,notice.fh_act,\n" +
+                "notice.fh_type, notice.fh_flag, notice.fh_tax, notice.fh_bz, notice.fh_hs, notice.fh_price, notice.fh_remarks, notice.ht_mo, notice.fh_ph, "
+                +" cpcode.cpcode_name as fh_code_name, cpcode.cpcode_size, "
+                +" f_getname ( 'GETGXANDLIBNAME', notice.fh_lib, notice.fh_type, '' ) fh_lib_name, "
+                +" f_getparamname('GETBYCPCODEFL',cpcode.cpcode_fl,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_fl, "
+                +" f_getparamname('GETBYPARENTID',cpcode.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"') cpcode_bz, "
+                +" (select sum(sl) from v_ck_mx ck_mx where ck_mx.corpid = notice.data_corp and ck_mx.lib = notice.fh_lib and ck_mx.code = notice.fh_code   and ck_mx.dtype = notice.fh_type) sl "
+                +" from e_ck_delivery_notice notice "
+                +" left join e_js_cpcode cpcode on notice.fh_code = cpcode.cpcode_id "
+                +" where 1=1 ";
+        sql += SqlJoint.start()
+                .eq("notice.data_corp",sessionUser.getCorpId())
+                .eq("fh_note",fhNote)
+                .eq("fh_code",fhCode).getAndSuffixSqlStr();
+        BaseDto dto = new BaseDto();
+        dto.setPageIndex(0);
+        dto.setPageSize(999999);
+        return mScScrwWlDao.QueryMapPageList(dto,sql,true);
+    }
+    
+    @Override
+    public BasePage<Map<String, Object>> getManualNoticeListByNote(String fhNote) {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        String sql = " select notice.fh_note, notice.fh_customer, notice.fh_lib, notice.fh_contract, notice.fh_code, notice.fh_sl, notice.fh_ceiling, notice.fh_lower, to_char(notice.fh_rq,'yyyy-MM-dd') fh_rq,notice.fh_act,\n" +
+                "notice.fh_type, notice.fh_flag, notice.fh_tax, notice.fh_bz, notice.fh_hs, notice.fh_price, notice.fh_remarks, notice.ht_mo, notice.fh_ph, "
+                +" f_getparamname('GETBCPCODENAME',cpcode.cpcode_name,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') as fh_code_name, cpcode.cpcode_size, "
+                +" f_getname ( 'GETGXANDLIBNAME', notice.fh_lib, notice.fh_type, '' ) fh_lib_name, "
+                +" f_getparamname('GETBYCPCODEFL',cpcode.cpcode_fl,'','技术',cpcode.cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"') cpcode_fl_name, "
+                +" f_getparamname('GETBYPARENTID',cpcode.cpcode_bz,'计量单位','技术','','"+   SessionUser.getCurrentCorpId()   +"') cpcode_bz, "
+                +" (select sum(sl) from v_ck_mx ck_mx where ck_mx.corpid = notice.data_corp and ck_mx.lib = notice.fh_lib and ck_mx.code = notice.fh_code   and ck_mx.dtype = notice.fh_type) sl "
+                +" from e_ck_delivery_notice notice "
+                +" left join e_js_cpcode cpcode on notice.fh_code = cpcode.cpcode_id "
+                +" where 1=1 ";
+        sql += SqlJoint.start()
+                .eq("notice.data_corp",sessionUser.getCorpId())
+                .eq("fh_note",fhNote)
+                .getAndSuffixSqlStr();
+        BaseDto dto = new BaseDto();
+        dto.setPageIndex(0);
+        dto.setPageSize(999999);
+        return mScScrwWlDao.QueryMapPageList(dto,sql,true);
+    }
+
+    @Override
+    public Result update(ECkDeliveryNoticeVo eCkDeliveryNoticeVo) throws Exception  {
+        SessionUser sessionUser=SessionUser.SessionUser();
+        DeliveryNotice deliveryNotice = eCkDeliveryNoticeVo.getDeliveryNotice();
+        String note = eCkDeliveryNoticeVo.getDeliveryNotice().getFhNote();
+        //口径
+        SessionUser securityUser = SessionUser.SessionUser();
+		String fhAct = saleDeliveryNoticeDao.getSingleResult("select f_get_in_out_act('GETACT',?1,?2,?3) "
+				, WarehouseActionCaliber.scly,eCkDeliveryNoticeVo.getDeliveryNotice().getFhType(),securityUser.getCorpId());
+
+        eCkDeliveryNoticeVo.getAddedList().forEach(row ->{
+            row.setFhNote(note);
+            row.setFhRq(deliveryNotice.getFhRq());
+            row.setFhCustomer(deliveryNotice.getFhCustomer());
+            row.setDataMan(sessionUser.getUserId());
+            row.setDataCorp(sessionUser.getCorpId());
+            row.setFhFlag("登记");
+            //产品类型与口径
+            row.setFhType(eCkDeliveryNoticeVo.getDeliveryNotice().getFhType());
+            row.setFhAct(fhAct);
+            //多发少发(浮动+-5%)
+            BigDecimal fhSl =  row.getFhSl();
+            //row.setFhLower(fhSl.multiply(BigDecimal.valueOf(-0.05F)));
+            //row.setFhCeiling(fhSl.multiply(BigDecimal.valueOf(0.05F)));
+            row.setFhLower(fhSl.multiply(BigDecimal.valueOf(0)));//误差0%(金帝实际使用)
+            row.setFhCeiling(fhSl.multiply(BigDecimal.valueOf(0)));//误差0%(金帝实际使用)
+            //操作人,操作时间,公司账套
+            row.setDataMan(sessionUser.getUserId());
+            row.setDataCorp(sessionUser.getCorpId());
+            row.setDataRq(new Date());
+            saleDeliveryNoticeDao.save(row);
+        });
+        eCkDeliveryNoticeVo.getModifyedList().forEach(row ->{
+            row.setFhNote(note);
+            row.setFhRq(deliveryNotice.getFhRq());
+            row.setFhCustomer(deliveryNotice.getFhCustomer());
+            row.setDataMan(sessionUser.getUserId());
+            row.setDataCorp(sessionUser.getCorpId());
+            row.setFhFlag("登记");
+            //产品类型与口径
+            row.setFhType(eCkDeliveryNoticeVo.getDeliveryNotice().getFhType());
+            row.setFhAct(fhAct);
+            //多发少发(浮动+-5%)
+            BigDecimal fhSl =  row.getFhSl();
+            row.setFhLower(fhSl.multiply(BigDecimal.valueOf(0)));//误差0%(金帝实际使用)
+            row.setFhCeiling(fhSl.multiply(BigDecimal.valueOf(0)));//误差0%(金帝实际使用)
+            //操作人,操作时间,公司账套
+            row.setDataMan(sessionUser.getUserId());
+            row.setDataCorp(sessionUser.getCorpId());
+            row.setDataRq(new Date());
+            saleDeliveryNoticeDao.dynamicSave(row, saleDeliveryNoticeDao.findById(new DeliveryNotice.DeliveryNotice_PK(row.getFhNote(), row.getFhCode())).orElse(null));
+        });
+        eCkDeliveryNoticeVo.getDeletedList().forEach(row ->{
+            DeliveryNotice.DeliveryNotice_PK pk = new DeliveryNotice.DeliveryNotice_PK(eCkDeliveryNoticeVo.getDeliveryNotice().getFhNote(),row.getFhCode() );
+            saleDeliveryNoticeDao.deleteById(pk);
+        });
+        return Result.resultOk(eCkDeliveryNoticeVo.getDeliveryNotice());
+    }
+
+    @Override
+    public Result save(ECkDeliveryNoticeVo eCkDeliveryNoticeVo) throws Exception {
+        SessionUser sessionUser=SessionUser.SessionUser();
+    	DeliveryNotice deliveryNotice = eCkDeliveryNoticeVo.getDeliveryNotice();
+    	List<DeliveryNotice> deliveryNoticeMx = eCkDeliveryNoticeVo.getDeliveryNoticeMx();
+        //口径
+		SessionUser securityUser = SessionUser.SessionUser();
+		String fhAct = saleDeliveryNoticeDao.getSingleResult("select f_get_in_out_act('GETACT',?1,?2,?3) "
+				, WarehouseActionCaliber.scly,deliveryNotice.getFhType(),securityUser.getCorpId());
+		String note = sysGenNoteService.getInOutNote(ECkOut.class,deliveryNotice.getFhType(), WarehouseActionCaliber.scly,securityUser.getCorpId());
+    	for(int i = 0; i<=deliveryNoticeMx.size()-1 ;i++) {
+    		deliveryNoticeMx.get(i).setFhNote(note);
+    		deliveryNoticeMx.get(i).setFhRq(deliveryNotice.getFhRq());
+    		deliveryNoticeMx.get(i).setFhCustomer(deliveryNotice.getFhCustomer());
+    		deliveryNoticeMx.get(i).setDataMan(sessionUser.getUserId());
+    		deliveryNoticeMx.get(i).setDataCorp(sessionUser.getCorpId());
+    		deliveryNoticeMx.get(i).setFhFlag("登记");
+
+            //产品类型与口径
+            deliveryNoticeMx.get(i).setFhType(eCkDeliveryNoticeVo.getDeliveryNotice().getFhType());
+            deliveryNoticeMx.get(i).setFhAct(fhAct);
+    		//多发少发(浮动+-5%)
+            BigDecimal fhSl =  deliveryNoticeMx.get(i).getFhSl();
+            deliveryNoticeMx.get(i).setFhLower(fhSl.multiply(BigDecimal.valueOf(-0.05F)));
+            deliveryNoticeMx.get(i).setFhCeiling(fhSl.multiply(BigDecimal.valueOf(0.05F)));
+            //操作人,操作时间,公司账套
+            deliveryNoticeMx.get(i).setDataMan(sessionUser.getUserId());
+            deliveryNoticeMx.get(i).setDataCorp(sessionUser.getCorpId());
+            deliveryNoticeMx.get(i).setDataRq(new Date());
+    		saleDeliveryNoticeDao.save(deliveryNoticeMx.get(i));
+    	}
+    	return Result.resultOk();
+    }
+
+	@Override
+	public Result delete(String fhNote) throws Exception {
+		saleDeliveryNoticeDao.deleteByNote(fhNote);
+		return Result.resultOk();
+	}
+
+	@Override
+	public ModelAndView table(ModelAndView mv, String outNotes)   {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		String sql = "select '日期:'||to_char(min(fh_rq),'yyyy-mm-dd')||'至'||to_char(max(fh_rq),'yyyy-mm-dd') rqstr,'仓库：'||f_get_param_name('库房档案',fh_lib,'"+   SessionUser.getCurrentCorpId()   +"') libname, f_getname('GETCORPNAME', '','',data_corp) corpName,"
+				+ "  f_get_param_name('仓库收发',fh_act,'"+   SessionUser.getCurrentCorpId()   +"') actname,'制单：'||'"+sessionUser.getRealName()+"' manname,'打印时间：'||to_char(now(),'yyyy-mm-dd hh24:mi:ss') now,data_corp,(f_get_param_name('产品大类',fh_type,'"+   SessionUser.getCurrentCorpId()   +"','')||f_get_param_name('仓库收发',fh_act,'"+   SessionUser.getCurrentCorpId()   +"','')) typeAndAct "
+				+ " from e_ck_delivery_notice where fh_note in ('"+outNotes+"')   and  fh_act in (select param_id from sys_param where param_name ='"+ WarehouseActionCaliber.scly+"' )    group by fh_type,fh_lib,fh_act,data_corp   limit 1 ";
+		List<Map> table = saleDeliveryNoticeDao.QueryListMap(sql);
+		if(table.size()>0) {
+			mv.addObject("note", table.get(0).get("note"));
+			mv.addObject("rq", table.get(0).get("rqstr"));
+			mv.addObject("corpName", table.get(0).get("corpname"));
+			mv.addObject("typeAndAct", table.get(0).get("typeandact"));
+			mv.addObject("manName", table.get(0).get("manname"));
+			mv.addObject("libName", table.get(0).get("libname"));
+			mv.addObject("now", table.get(0).get("now"));
+			String mxSql = "select ck.fh_note outnote, f_getparamname('GETBCPCODENAME',cp.cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')||'￠'||(coalesce(cp.cpcode_size,''))||'*'|| case when cpcode_type ='CP' and length(cpcode_size_en)>0 then  cpcode_size_en||'mm'  when  length(cpcode_xp)>0 then cpcode_xp||f_get_param_name('计量单位',cpcode_bz,'"+   SessionUser.getCurrentCorpId()   +"','') else '' end cpname , "
+					+ " round(ck.fh_sl,2)fh_sl,fh_ph,f_getname('GETDWNAME',fh_customer,'',ck.data_corp)customer,f_get_param_name('计量单位',cpcode_bz,'"+   SessionUser.getCurrentCorpId()   +"','')cpcode_bz,fh_remarks "
+					+ " from e_ck_delivery_notice ck ,e_js_cpcode cp where     ck.fh_code=cp.cpcode_id  and fh_note in ('"+outNotes+"')  and fh_act in (select param_id from sys_param where param_name ='"+ WarehouseActionCaliber.scly+"' )  order by fh_rq,fh_note ";
+			List<Map> tableMx = saleDeliveryNoticeDao.QueryListMap(mxSql);
+			if(tableMx.size()>0) {
+				mv.addObject("mx", tableMx);
+				mv.addObject("mxCount", tableMx.size());
+				double sum = 0;
+				for(int i = 0 ; i < tableMx.size() ; i++) {
+					sum += Double.parseDouble(tableMx.get(i).get("fh_sl").toString());
+				}
+				mv.addObject("sum", sum);
+			}
+		}
+		
+		return mv;
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getOutLsList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String where =  SqlJoint.whereSuffixAnd((c) ->{
+            c.eq("out_note",map.get("fhNote"));
+        });
+		String sql = " select  out_code,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')cpcode_name_name ,cpcode_size,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')cpcode_fl_name,out_sl,out_pack "
+				+ " from e_ck_out_ls ls,e_js_cpcode cp where out_code = cpcode_id  "+where;
+		return mScScrwWlDao.QueryToMapPage(baseDto, sql);
+	}
+
+	@Override
+	public Result addOutLsData(DeliveryNotice deliveryNotice) throws Exception {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		String sqlWhere = "";
+		String sqlWhere2 = "";
+		if(deliveryNotice.getPackType().equals("bpack")) {
+			sqlWhere = " and in_bpack = '"+deliveryNotice.getOutPack()+"' ";
+		}else {
+			sqlWhere = " and pack = '"+deliveryNotice.getOutPack()+"' ";
+		}
+		
+		if(deliveryNotice.getPackType().equals("bpack")) {
+			sqlWhere2 = "and out_bpack = '"+deliveryNotice.getOutPack()+"' ";
+		}else {
+			sqlWhere2 = " and out_pack = '"+deliveryNotice.getOutPack()+"' ";
+		}
+		
+		if("0".equals(ckFlagDao.getSingleResult("select count(pack) from v_ck_mx where lib ='"+deliveryNotice.getFhLib()+"'"+sqlWhere))) {
+			return Result.error("该包装号不存在!");
+        }else if(!"0".equals(ckFlagDao.getSingleResult("select count(out_pack) from e_ck_out_ls where out_flag='登记' and  out_act='"+deliveryNotice.getFhAct()+"' and data_act ='P1003' and out_lib='"+deliveryNotice.getFhLib()+"' "+sqlWhere2 ))) {
+        	return Result.error("该包装号已扫描!");
+        }else if("0".equals(ckFlagDao.getSingleResult(" select count(pack) from v_ck_mx where lib ='"+deliveryNotice.getFhLib()+"' and code ='"+deliveryNotice.getFhCode()+"' "+sqlWhere))){
+        	return Result.error("扫描包装与该通知单不匹配，请检查!");
+        }else {
+        	ckFlagDao.executeUpdateSql("insert into e_ck_out_ls (out_rq,out_note,out_customer,out_act,out_code,out_js,out_sl,out_pack,out_bpack,out_price,out_contract,out_lib,out_type,out_flag,data_man,data_date,data_corp,out_bz,out_tax,out_hs,out_ph,out_kw,data_act)"
+        				+ " select fh_rq,fh_note,fh_customer,fh_act,fh_code,1,sl,pack,in_bpack,fh_price,fh_contract,fh_lib,fh_type,'登记','"+sessionUser.getUserId()+"',now(),'"+sessionUser.getCorpId()+"',fh_bz,fh_tax,fh_hs,in_ph,in_kw,'P1003' from e_ck_delivery_notice,v_ck_mx where fh_code=code and fh_lib=lib and fh_note='"+deliveryNotice.getFhNote()+"' and pack ='"+deliveryNotice.getOutPack()+"' ");
+        	return Result.resultOk();
+        }
+	}
+
+	@Override
+	public Result deleteOutLsData(String outNote,String packType,String pack) throws Exception {
+		if(StringUtils.isNotBlank(pack)) {
+			if(packType.equals("bpack")) {
+				ckFlagDao.deleteBPack(pack, "P1003");
+			}else {
+				ckFlagDao.deletePack(pack, "P1003");
+			}
+		}else {
+			ckFlagDao.deleteByNote(outNote,"P1003");
+		}
+		
+		return Result.resultOk();
+	}
+
+	@Override
+	public Result saveOutData(String fhNote) throws Exception {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		List<DeliveryNotice> list = saleDeliveryNoticeDao.QueryListModel(DeliveryNotice.class," select fh_note,fh_code ,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')||' '||cpcode_size cpcode_name,fh_ceiling ,fh_sl ,fh_lower ,sl from (select out_note,out_code,sum(out_sl) sl from e_ck_out_ls where out_note ='"+fhNote+"' group by out_note,out_code) ck ,e_ck_delivery_notice,e_js_cpcode  where out_code=cpcode_id and fh_note=out_note and fh_code=out_code and out_note ='"+fhNote+"'and (sl<fh_sl+fh_lower or sl>fh_sl+fh_ceiling) ");
+		if(list.size()>0) {
+			DeliveryNotice model = list.get(0);
+			return Result.error(model.getFhCode()+model.getCpcodeName()+"重量不符");
+		}else {
+			ckFlagDao.executeUpdateSql(" insert into e_ck_out (out_rq,out_note,out_customer,out_act,out_code,out_js,out_sl,out_pack,out_bpack,out_price,out_contract,out_lib,out_type,out_flag,data_man,data_date,data_corp,out_bz,out_tax,out_hs,out_man,out_date,out_ph,out_kw) " + 
+					" select out_rq,out_note,out_customer,out_act,out_code,out_js,out_sl,out_pack,out_bpack,out_price,out_contract,out_lib,out_type,'库审',data_man,data_date,data_corp,out_bz,out_tax,out_hs,'"+sessionUser.getUserId()+"',now(),out_ph,out_kw from e_ck_out_ls " + 
+					" where out_note = '"+fhNote+"' and data_act = 'P1003' and out_flag='登记'");
+			ckFlagDao.executeUpdateSql("update e_ck_out_ls set out_flag='库审',out_date=now(),out_man='"+sessionUser.getUserId()+"'  where out_note='"+fhNote+"' and  data_act = 'P1003' and out_flag='登记' ");
+			ckFlagDao.executeUpdateSql("update e_ck_delivery_notice set fh_flag='扫描'  where fh_note='"+fhNote+"' ");
+			return Result.resultOk();
+		}
+	}
+
+	@Override
+	public List<SelectVo> getFhCode(String fhNote) {
+		String sql = " select fh_code,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')||'￠'||(coalesce(cpcode_size,''))||'*'|| case when cpcode_type ='CP' and length(cpcode_size_en)>0 then  cpcode_size_en||'mm'  when  length(cpcode_xp)>0 then cpcode_xp||f_get_param_name('计量单位',cpcode_bz,'"+   SessionUser.getCurrentCorpId()   +"','') else '' end  fh_code_name,fh_contract,fh_sl+fh_ceiling fh_max,fh_sl-fh_lower fh_min from e_ck_delivery_notice,e_js_cpcode where fh_code=cpcode_id and  fh_note=?1 ";
+        return ckFlagDao.QueryListMap(sql, fhNote)
+                .stream()
+                .map(row -> new SelectVo(row.get("fh_code"), String.valueOf(row.get("fh_code_name")), row))
+                .collect(Collectors.toList());
+	}
+
+	@Override
+	public DeliveryNotice getDataByNote(String fhNote) {
+		DeliveryNotice deliveryNotice=new DeliveryNotice();
+		String sql=" select  distinct a.out_note,a.out_customer,a.out_lib,a.out_allot_lib,a.out_rq,f_getname('GETDWEXP',a.out_customer,'',a.data_corp)outcustomername,out_type from e_ck_out a where   out_note ='"+fhNote+"' ";
+		deliveryNotice=saleDeliveryNoticeDao.QueryToFirstBean(sql);
+		return deliveryNotice;
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getStockList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap(); 
+		SessionUser sessionUser=SessionUser.SessionUser();
+		String where = SqlJoint.whereSuffixAnd((c) ->{
+			c.eq("corpid",sessionUser.getCorpId());
+            c.eq("lib",map.get("fhLib"));
+            c.eq("code",map.get("fhCode"));
+		});
+	     String sql = " select * from v_ck_mx  where pack not in (select out_pack from e_ck_out_ls where out_flag='登记') "+where;
+	     return mScScrwWlDao.QueryMapPageList(baseDto,sql,true);
+	}
+	
+	
+}

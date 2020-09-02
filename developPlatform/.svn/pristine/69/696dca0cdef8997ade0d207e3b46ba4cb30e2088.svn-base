@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>工程处理</title>
+    </th:block>
+</head>
+<body>
+	<form id="form_home">
+	    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+	        <th:block th:fragment="content">
+	       		<label class="hmq-label" text="日期">
+					<input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				<label class="hmq-label" text="至">
+					<input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+				<label class="hmq-label" text="工程号">
+					<input class="mini-textbox" name="srchBgc" width="120" />
+				</label>
+            
+				<label class="hmq-label" text="品号">
+					<input class="mini-textbox" name="srchCode" width="110" />
+				</label>
+				
+				<label class="hmq-label" text="品名">
+					<input class="mini-textbox" name="srchName" width="110" />
+				</label>
+				<label class="hmq-label" text="规格">
+					<input class="mini-textbox" name="srchSize" width="110" />
+				</label>
+			</th:block>
+	    </th:block>
+	</form>
+	<!--撑满页面-->
+<div class="mini-fit"  style="height: 100%; clear: both; margin-bottom: 0px; padding-bottom: 0px;">
+	<div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+		<div size="60%" showCollapseButton="true">
+		<div class="mini-fit">
+	 		<div tz:datagrid="datagrid" id="srch_top_grid" idField="htNo" sortField="htDate,htNo" sortOrder="desc" sizeList="[50,100,200]" pageSize="100"
+	 		onselectionchanged="onSelectionChanged"   allowCellEdit="true" allowCellSelect="true" multiSelect="true"  
+		  pager="#pager1" showPager="false"  >
+			<div property="columns">
+			<div tz:datagrid="checkcolumn" width="35" ></div>
+				<div tz:datagrid="indexcolumn" width="35">序号</div>
+				<div tz:datagrid="column" field="rq" width="90" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd">日期</div>
+				<div tz:datagrid="column" field="scitem" width="120" align="center">任务单</div>
+                <div tz:datagrid="column" field="bgc" width="130" align="center">本工程</div>
+                <div tz:datagrid="column" field="gy" displayField="gyname" align="center" width="80">工艺</div>
+				<div tz:datagrid="column" field="gx" displayField="gxname" align="center" width="80">工序</div>
+				<div tz:datagrid="column" field="wl_type" displayField="typename" align="center" width="80">大类</div>
+				<div tz:datagrid="column" field="wlcode" width="100" align="center">品号</div>
+				<div tz:datagrid="column" field="wl_name" displayField="zzpname" width="140" align="left">品名</div>
+				<div tz:datagrid="column" field="wl_size"   width="120" align="left">规格</div>
+				<div tz:datagrid="column" field="wlph"   width="120" align="left">牌号</div>
+				<div tz:datagrid="column" field="sl" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" dataType="double">数量</div>
+				<div tz:datagrid="column" field="clprice" width="80" align="right"  numberFormat="#,0.00000" dataType="double">材料单价</div>
+				<div tz:datagrid="column" field="vnote" width="120" align="left">特殊号</div>
+				<div tz:datagrid="column" field="ylpch" width="120" align="left">批次号</div>
+				<div tz:datagrid="column" field="flag" width="80" align="center" renderer="onActionRenderer" >状态</div>
+			    <div tz:datagrid="column" field="gc_cl" align="left" width="100" renderer="onActionRenderer" >处理标识</div>
+       		 	<div tz:datagrid="column" field="gc_qw" align="left" width="130">工程区位</div>
+       		 	<div tz:datagrid="column" field="tcj" displayField="cjname" align="left" width="130">车间</div>
+			    <div tz:datagrid="column" field="tct" displayField="ctname" align="left" width="130">车台</div>
+			    <div tz:datagrid="column" field="tdept"   width="80" align="center">生产部门</div>
+			    <div tz:datagrid="column" field="tbc" displayField="tbcname"  width="80" align="center">生产班次</div>
+				<div tz:datagrid="column" field="czman" displayField="manname"  width="80" align="center">生产人</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+<div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+					<table style="width: 100%;" >
+						<tr>
+							<td style="white-space: nowrap;">
+								<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+							</td>
+							<td style="white-space: nowrap;" align="right" id="btnbar" />
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div showCollapseButton="true">
+				<div class="mini-fit">
+					<div tz:datagrid="datagrid" id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="sc_mo" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+						ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="scMo" sortOrder="asc">
+						<div property="columns">
+							<div tz:datagrid="indexcolumn" width="35">序号</div>
+							<div tz:datagrid="column" field="rq" width="90" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd">日期</div>
+							<div tz:datagrid="column" field="sc_mo" width="120" align="center">任务单</div>
+			                <div tz:datagrid="column" field="bgc" width="130" align="center">本工程</div>
+							<div tz:datagrid="column" field="gx" displayField="gxname" align="left" width="80">工序</div>
+							<div tz:datagrid="column" field="code" width="100" align="left">品号</div>
+							<div tz:datagrid="column" field="tname" displayField="zzpname" width="140" align="left">品名</div>
+							<div tz:datagrid="column" field="tsize"   width="120" align="left">规格</div>
+							<div tz:datagrid="column" field="tph"   width="120" align="left">牌号</div>
+							<div tz:datagrid="column" field="tts" width="120" align="left">批次号</div>
+							<div tz:datagrid="column" field="tsl" width="80" align="right"  numberFormat="#,0.000" summaryType="sum" dataType="double">数量</div>
+							<div tz:datagrid="column" field="gc_flag" width="80" align="center" renderer="onActionRenderer" >状态</div>
+							<div tz:datagrid="column" field="bgc_tl" width="130" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">开始时间</div>
+							<div tz:datagrid="column" field="bgc_wc" width="130" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">完成时间</div>
+			       		 	<div tz:datagrid="column" field="tcj" displayField="cjname" align="left" width="130">车间</div>
+			       		 	<div tz:datagrid="column" field="tct" displayField="ctname" align="left" width="130">车台</div>
+			       		 	<div tz:datagrid="column" field="tbc" displayField="tbcname"  width="80" align="center">生产班次</div>
+							<div tz:datagrid="column" field="do_man" displayField="manname"  width="80" align="center">生产人员</div>
+							<div tz:datagrid="column" width="100%"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/sc/task/gccl";
+	srch_topgrid.bindSearchForm(form);
+	srch_topgrid.setUrl(surl+"/getSrchTopList");
+	srch_bottomgrid.setUrl(surl+"/getSrchBottomList");
+
+	 function search_option() {
+	    	srch_topgrid.load();
+	    	srch_bottomgrid.setData([]);
+	    }
+	    
+	 
+    /**
+	 行改变方法
+	 */
+    function onSelectionChanged(e) {
+		var srch_topgrid = e.sender;
+		var record = srch_topgrid.getSelected();
+		if (record) {
+			srch_bottomgrid.load({
+				params : mini.encode({
+					bgc : record.bgc
+				})
+			});
+		}
+	}
+    
+    srch_topgrid.on("beforeload", function(e) {
+		var data = srch_topgrid.getSelected();
+		if (data) {
+			selectrow = srch_topgrid.getSelected().bgc;
+		}
+	});
+  
+   
+    function onDrawSummaryCellmx(e) {
+		if (e.field == "htCode") {
+			var s = "<span style='color:Brown;'>";
+			s += "合计:</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "htSl") {
+			var s = "<span style='color:Brown;float:right;'>";
+			s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "htJe") {
+			var s = "<span style='color:Brown;float:right;'>";
+			s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+			e.cellHtml = s;
+		}
+	}
+   
+    function split_option(e){
+    	var row = srch_topgrid.getSelected();
+    	if(row){//订单状态以主订单状态为主，所以在这里直接传订单号就行
+    		e.sender.miniopen({url: 'gcclplit.html', action: 'split', data: row, width: 1100, height: 400});
+    	}else{
+    		 hmq.tipDanger("请选择一条记录");
+    	}
+    	
+    }
+    function hp_option(e){
+    	var rows = srch_topgrid.getSelecteds();
+    	if(rows.length>1){
+    		var bgcs="";
+    		var scMo="";
+    		var tbc="";
+    		var gx="";
+    		for(var i=0;i<rows.length;i++){
+    			var row=rows[i];
+    			if(row.scitem!=rows[0].scitem){
+    				return hmq.tipDanger('请选择任务单相同的数据');
+    			}
+    			if(row.gx!=rows[0].gx){
+    				return hmq.tipDanger('请选择工序相同的数据');
+    			}
+   				if (i > 0) {
+   					bgcs += ",";
+				}
+   				bgcs += row.bgc;
+   				scMo=rows[0].scitem;
+   				tbc=rows[0].tbc;
+    		}
+    		mini.confirm("是否对所选数据进行合批操作？", "提示信息", function (action) {
+                 if (action == "ok") {
+                	 var params={
+                			 gx  : gx,
+                			 bgcs : bgcs ,
+                			 scMo : scMo,
+                			 tbc  : tbc
+                	 };
+                	 $['post'](surl+"/gchp", JSON.stringify({
+                     	"params" : mini.encode(params)
+                     }), function (res) {
+                         if (200 === res.code) {
+                             hmq.tipSuccess(res.msg || '保存成功', {
+                                 exec: function () {
+                                	 search_option();
+                                 }
+                             });
+                         } else {
+                             hmq.tipDanger(res.msg || '保存失败');
+                         }
+                     }, null, {
+                         contentType: 'application/json'
+                     });
+                 }
+             });
+    		
+	    	
+    	}else{
+    		 hmq.tipDanger("请选择最少两条记录！");
+    	}
+    }
+    	
+    	
+
+	/**
+	 汇总
+	 */
+ function onDrawSummaryCell(e) {
+		if (e.field == "scrw_no") {
+			var s = "<span style='color:Brown;'>";
+			s += "合计:</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "sgc_sl") {
+			var s = "<span style='color:Brown;float:right;'>";
+			s += "" + parseFloat(e.value).toFixed(3) + "</span>";
+			e.cellHtml = s;
+		}
+		
+	}
+	    
+	    /**
+	     渲染方法
+	     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "rq"&& record.rq!=null) {
+            return mini.formatDate(new Date(record.rq), "yyyy-MM-dd");
+        }
+        
+        if (e.field == "bgc_tl"&& record.bgc_tl!=null) {
+            return mini.formatDate(new Date(record.bgc_tl), "yyyy-MM-dd HH:mm");
+        }
+        
+        if (e.field == "bgc_wc"&& record.bgc_wc!=null) {
+            return mini.formatDate(new Date(record.bgc_wc), "yyyy-MM-dd HH:mm");
+        }
+        if(e.field == "flag"&& record.flag!=null){
+        	if(record.flag=="HG"){
+        		return "合格";
+        	}else{
+        		return "不良";
+        	}
+        }
+        
+        if(e.field == "gc_cl"&& record.gc_cl!=null){
+        	if(record.gc_cl=="SC"){
+        		return "生产";
+        	}else{
+        		return "处理";
+        	} 
+        	
+        }
+        
+    }
+</script>
+
+</body>
+</html>
+
+

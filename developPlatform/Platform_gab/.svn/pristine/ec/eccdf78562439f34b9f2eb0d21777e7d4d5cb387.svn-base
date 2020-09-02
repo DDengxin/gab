@@ -1,0 +1,148 @@
+$(function () {
+
+    var tabcur = GetQueryValue("classify");
+    var reqId = GetQueryValue("reqId");
+
+    $("#tablist li").each(function (index) {
+        var text = $(this).text();
+        if (tabcur == "学术论文" && tabcur == text) {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+            $('.changeTitle').text($(this).text())
+        }
+        if (tabcur == "技术案例" && tabcur == text) {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+            $('.changeTitle').text($(this).text())
+        }
+
+        if (tabcur == "工艺知识" && tabcur == text) {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+            $('.changeTitle').text($(this).text())
+        }
+
+        if (tabcur == "经验分享" && tabcur == text) {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+            $('.changeTitle').text($(this).text())
+        }
+
+        if (tabcur == "行业动态" && tabcur == text) {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+            $('.changeTitle').text($(this).text())
+        }
+
+        if (tabcur == "商会活动" && tabcur == text) {
+            $(".contentin").removeClass("contentin");
+            $(".tabin").removeClass("tabin");
+            $(".content-box>div").eq(index).addClass(" contentin");
+            $(this).addClass("tabin");
+            $('.changeTitle').text($(this).text())
+        }
+
+        /* if(tabcur == "商会活动" && tabcur == text){
+             $(".contentin").removeClass("contentin");
+             $(".tabin").removeClass("tabin");
+             $(".content-box>div").eq(index).addClass(" contentin");
+             $(this).addClass("tabin");
+             $('.changeTitle').text($(this).text())
+         }*/
+    });
+
+    getTemplate();
+
+    function getTemplate() {
+        $.ajax({
+            url: "/gab/getAcademic",
+            type: 'POST',
+            data: {
+                reqId: reqId,
+                type: tabcur
+            },
+            async: true,
+            success: function (res) {
+                date = res.academic.eventDateEnd;
+                console.log(date)
+                TimeStamp = Date.parse(date);
+                nowTimeStamp= Date.parse(new Date());
+                var data = res;
+                var getTpl = Template2.innerHTML, view = document.getElementById("templateDiv");
+                if (tabcur == "学术论文" || tabcur == "经验分享" ) {
+                    getTpl = Template1.innerHTML;
+                }
+                if (tabcur == "商会活动") {
+                    getTpl = Template3.innerHTML;
+                }
+                if( tabcur == "技术案例" ){
+
+                }
+                laytpl(getTpl).render(data, function (html) {
+                    view.innerHTML = html;
+                });
+            }
+        });
+    }
+
+    //商业活动在线报名登录确认
+    $(document).on('click', '#signUp', function () {
+    	verifyLogin({type:'func'},signUp);
+    })
+
+})
+
+//获取Url参数
+function GetQueryValue(queryName) {
+    var query = decodeURI(window.location.search.substring(1));
+    var vars = query.split("&");
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (pair[0] == queryName) { return pair[1]; }
+    }
+    return null;
+}
+
+//商业活动在线报名跳转页面
+function signUp() {
+
+    if (nowTimeStamp > TimeStamp) {
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            layer.open({
+                closeBtn: 1,
+                area: ['500px', '240px'],
+                type: 2,
+                resize: false,
+                title: ['填写报名信息', 'font-size:16px;color:#fff;background:rgb(46,141,237);'],
+                content: ['./activityEnd.html', 'no']
+            });
+        });
+    } else {
+
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            layer.open({
+                closeBtn: 1,
+                area: ['500px', '240px'],
+                type: 2,
+                resize: false,
+                title: ['填写报名信息', 'font-size:16px;color:#fff;background:rgb(46,141,237);'],
+                content: ['./signUp.html?id=' + GetQueryValue("reqId"), 'no']
+            });
+        });
+    }
+}
+
+var nowTimeStamp;
+var TimeStamp;

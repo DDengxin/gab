@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>摘要内容【新增】</title>
+    </th:block>
+</head>
+<body>
+	<form id="form1" method="post">
+		<div >
+			<table style="table-layout:fixed;margin: 0px auto;padding-top:15px;">
+				<tr>
+					<td align="center" height="30">摘要内容：</td>
+					<td>
+	                      <input  id="fdesc" name="fdesc" class="mini-textarea" style="width:200px;" > </input>
+					</td>
+				</tr>
+			</table>
+		</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+	</form>
+<script type="text/javascript">
+     mini.parse();
+     var form = new mini.Form("form1");
+
+     
+     
+     function SetData(options) {
+    	 console.log(options);
+         if ('add' == options.action) {
+             $('[name=action]').val(options.action);
+         } else if ('edit' == options.action) {
+             $.get("/finance/voucher/summary/findsummaryByid/{0}".format(options.data.fid), function (res) {
+                 if (200 === res.code) {
+                     form.setData(res.data);
+                     tableName();
+                 }
+             });
+         }
+     }
+     
+     
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'post';
+            $[method]("/finance/voucher/summary/addSummaryTest", JSON.stringify(form.getData()), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+	
+</script>
+</body>
+
+</html>

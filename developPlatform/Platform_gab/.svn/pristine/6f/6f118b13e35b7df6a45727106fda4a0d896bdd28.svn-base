@@ -1,0 +1,136 @@
+$(function () {
+    // 上传文件的控件初始化
+    _init_upload(['#License', '#BusinessLicense']);
+    // 省市区联动
+    new PCAS("province", "city", "area");
+
+    // 根据厂商类型的下拉选择的值，渲染不同的模板
+    _vendorInit();
+
+    layui.use(['form', 'layer', 'layedit'], function () {
+        var form = layui.form;
+        var layedit = layui.layedit;
+        var layer = layui.layer;
+
+        var edit = layedit.build('company'); //建立编辑器
+
+        // 供应商类型下拉框
+        var firmValue = '';
+        form.on('select(type)', function (data) {
+            // console.log(data.value); //得到被选中的值
+            firmValue = data.value;
+            getSupplyType(firmValue);
+        });
+
+        // 表单值填充
+        $.get("/platform/enroll/SupplyInfo/" + TZ_SETTING.gabUserId, function (res) {
+            console.log(res);
+            res.data.supply.headImg == null ? _init_upload(['#License', '#BusinessLicense']) : fileShow('License', res.data.supply.headImg)
+            //给表单赋值
+            form.val("supply", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                "telphone": res.data.gUserInfo.userMtel
+            });
+
+            if (res.data.supply.supplyType != null) {
+                form.val('supply', res.data.supply)
+            }
+
+        })
+
+        form.on('submit(supply)', function (data) {
+            var jsonData = {};
+            jsonData.gUserInfo = { type: data.field.supplyType };
+            jsonData.supply = data.field;
+            jsonData.supply.content = layedit.getContent(edit);
+
+            var layerTip = layer.load();
+            $.ajax({
+                url: "/platform/enroll/gab/authsupplysave",
+                data: JSON.stringify(jsonData),
+                type: 'post',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (res) {
+                    if (res.code == 200) {
+                        layer.msg(res.msg, { icon: 1 });
+                    }else {
+                        layer.msg(res.msg || '操作失败', {time: 3000, icon: 5});
+                    }
+                },
+                error: function () {
+                    layer.msg('请求有错误', { icon: 5 });
+                },
+                complete: function () {
+                    layer.close(layerTip);
+                }
+            })
+
+            return false;
+        })
+    });
+
+
+
+})
+
+// 厂商切换展示
+function _vendorShow(Template) {
+    _pageShow(Template, "container");
+}
+
+// 根据不同的厂商渲染不同的模板
+function _pageShow(Template, name) {
+    var getTpl = Template.innerHTML, view = document.getElementById(name);
+    laytpl(getTpl).render({}, function (html) {
+        view.innerHTML = html;
+        layui.use('form', function () {
+            var form = layui.form;
+            form.render();
+        })
+    });
+}
+
+// 厂商初始化
+function _vendorInit() {
+    _vendorShow(JjBussinessMsg);
+    // 关键字
+    $.FreeTags('jjTags');
+    $('.sidebar').css('height', '1938px');
+}
+
+// 回显文件名
+function fileShow(el, is_init_img) {
+    $("#" + el).resetUploader({
+        pickerid: is_init_img,
+        filecount: 1,
+        view: "edit",
+    });
+}
+
+// 
+function getSupplyType(firmValue) {
+    if (firmValue == "夹具厂商") {
+        _vendorShow(JjBussinessMsg);
+        // 关键字
+        $.FreeTags('jjTags');
+        $('.sidebar').css('height', $('.right').height() + 'px');
+    }
+    if (firmValue == "辅件厂商") {
+        _vendorShow(FjBussinessMsg);
+        // 关键字
+        $.FreeTags('jjTags');
+        $('.sidebar').css('height', $('.right').height() + 'px');
+    }
+    if (firmValue == "整合厂商") {
+        _vendorShow(ZhBussinessMsg);
+        // 关键字
+        $.FreeTags('jjTags');
+        $('.sidebar').css('height', $('.right').height() + 'px');
+    }
+    if (firmValue == "特色经贸商") {
+        _vendorShow(TsBussinessMsg);
+        // 关键字
+        $.FreeTags('jjTags');
+        $('.sidebar').css('height', $('.right').height() + 'px');
+    }
+}

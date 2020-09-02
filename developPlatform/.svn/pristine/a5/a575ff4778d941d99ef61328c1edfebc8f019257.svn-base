@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产登记【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input name="sid" class="mini-hidden"/>
+        <input id="action" name="action" class="mini-hidden"/>
+       <table class="hmq-modify-table">
+            <tr>
+                <td title>资产编码</td>
+                <td content >
+                    <input class="mini-textbox" name="code" vtype="required"/>
+                </td>
+                <td title>资产名称</td>
+                <td content >
+                    <input class="mini-textbox" name="name" vtype="required"/>
+                </td>
+            </tr>
+           <tr>
+               <td title>资产类别</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>录入期间</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>使用部门</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>开始使用日期</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>折旧方式</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>预计使用期限</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>固定资产科目</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>累计折旧科目</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>折旧费用科目</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>税金科目</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>资产购入对方科目</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>资产清理科目</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>减值准备科目</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>减值准备对方科目</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>原值</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>税额</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>残值率</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>预计残值</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>减值准备</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>已折旧期间</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>期初累计折旧</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+               <td title>期初净值</td>
+               <td content >
+                   <input class="mini-textbox" name="name" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>月折旧</td>
+               <td content >
+                   <input class="mini-textbox" name="code" vtype="required"/>
+               </td>
+           </tr>
+           <tr>
+               <td title>备注</td>
+               <td content colspan="3">
+                   <input class="mini-textarea" name="remarks" height="50"/>
+               </td>
+           </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+
+    /**
+     * 科目选择框
+     * @param e
+     */
+    function chooseKM(e){
+        var btnEdit = e.sender;
+        mini.open({
+            targetWindow: window.parent,
+            url: "/finance/voucher/vouch/accountselect.html",
+            title: "科目选择列表",
+            width: 650,
+            height: 380,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data); //必须
+                    if (data) {
+                        btnEdit.setValue(data.fnumber);
+                        btnEdit.setText(data.fnumbername);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            debugger;
+            $.get("getById/{0}".format(options.data.sid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+           });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+            function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                    contentType: 'application/json'
+            });
+        }
+    }
+
+
+
+
+
+
+
+
+</script>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售合同【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+     	<input id="action" name="action" class="mini-hidden"/>
+     	<input id="cwRq" name="cwRq" class="mini-hidden" value="new Date()"/>
+     	<input class="mini-hidden" name="orient" id="orient" />
+		<input  class="mini-hidden" name="outType" id="outType" width="100"/>	
+		<input  class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <table class="hmq-modify-table">
+            <tr>
+            	<td title>单号：</td>
+                <td content>
+                    <input  id="cwNote" name="cwNote"  class="mini-textbox"  emptyText="自动生成"  allowInput="false"  />
+                </td>
+                <td title>销售客户：</td>
+                <td content>
+                    <input  id="cwDw" name="cwDw"   emptyText="请选择..." 
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"  readonly="readonly"  />
+                </td>
+                <td title>库房：</td>
+                <td content>
+                    <input class="mini-combobox" readonly="readonly"   name="cwLib" id="cwLib" url="/system/parameter/getParamsSelectListByParentId/仓库/库房档案/CP" allowInput="false"   />
+                </td>
+                <td title>币种：</td>
+                <td content>
+                    <input class="mini-combobox" readonly="readonly" name="cwBz" id="cwBz" url="/cg/yw/purchaseFile/purchaseContract/getHtBz"   allowInput="false" />
+                </td>
+             </tr>
+             <tr>
+            	<td title>税率：</td>
+                <td content>
+                    <input class="mini-combobox" required name="cwShl" id="cwShl" url="/cg/yw/purchaseFile/purchaseContract/getHtTax"  />
+                </td>
+                <td title>付款日期：</td>
+                <td content>
+                    <input class="mini-datepicker"  required name="cwFkrq" dateFormat="yyyy-MM-dd"  value="new Date()" />
+                </td>
+               <!--  <td title>付款方式：</td>
+                <td content>
+                    <input class="mini-combobox" name=""   url="/system/parameter/getParamsSelectList/销售/结算方式"  />
+                </td> -->
+            </tr>
+        </table>
+    </form>
+    <fieldset style="width:1300px;">
+        <div class="fieldset-body">
+            <div tz:datagrid="datagrid" id="datagrid" idField="out_contract" sortField="out_contract" sortOrder="asc" style="width:1300px;height:450px;"
+             url="/sale/saleProduct/saleSettle/getSettleList"  showEmptyText="true" alwaysShowEmptyText="true" 
+              allowCellEdit="true" allowCellSelect="true" multiSelect="true"   editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+             showPager="false"   OnCellCommitEdit="OnCellCommitEdit"  allowCellValid="true"  showColumnsMenu="true" 
+             showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" ondrawsummarycell="onDrawSummaryCell" >
+                <div property="columns">
+					<div tz:datagrid="indexcolumn" width="35" ></div>
+					<div tz:datagrid="column" field="cwNote" align="center" width="150" visible="false" ></div>
+					<div tz:datagrid="column" field="cwAct" align="center" width="150" visible="false" ></div>
+					<div tz:datagrid="column" field="cwRq" width="90" align="center" headerAlign="center" allowSort="true">日期</div>
+					<div tz:datagrid="column" field="cwItem" align="center" width="120">订单</div>
+                    <div tz:datagrid="column" field="cwCode" align="center" width="100">编码</div>
+                    <div tz:datagrid="column" field="cpcodeName" name ="cpcodeName" align="left" width="120">名称</div>
+                    <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" align="left" width="120">规格</div>
+                    <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" align="left" width="120">长度</div>
+                    <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" align="left" width="120">标重</div>
+                    <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl"align="left" width="140">大类</div>
+                    <div tz:datagrid="column" field="cwJs" align="right" width="70" numberFormat="#,0.00" summaryType="sum">件数</div>
+                    <div tz:datagrid="column" field="cwSl" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum">数量</div>
+                    <div tz:datagrid="column" field="cwPrice" width="70" align="right"  numberFormat="#,0.0000" >单价</div>
+                    <div tz:datagrid="column" field="cwSje" width="80" align="right"  numberFormat="#,0.00" summaryType="sum">金额</div>
+                    <div tz:datagrid="column" field="cwhl" align="center" width="100" visible="false">汇率</div>
+                    <div tz:datagrid="column" field="cwBz" width="80" align="center">币种</div>
+                    <div tz:datagrid="column" field="cwSm" width="180" align="left" >说明
+                        <input property="editor" class="mini-textbox" />
+                    </div>
+                    <div tz:datagrid="column" field="" width="100%" ></div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="Settle" iconCls="icon-save" id="saveBtn">结算</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get('datagrid');
+    grid.setEmptyText('数据为空，<a class="text-link" href="javascript:addRow()">增加一条</a>');
+  	//销售客户列表
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url : "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data:"C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerName);
+                }
+            }
+        });
+    }
+	/**
+     	保存
+     */
+    function Settle() {
+		if (form.validate() && form.isValid()) {
+        	grid.validate();
+			if (grid.isValid() == false) {
+				var error = grid.getCellErrors()[0];
+				grid.beginEditCell(error.record, error.column);
+				return;
+			} 
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed',false);
+            $(entrydata).each(function (index) {
+            	entrydata[index].rightOrd = index;
+            	entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+            	eCwYsyf: form.getData(true),
+            	eCwYsyfMx: entrydata,
+                deletedList:deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+         } 
+    }
+	 /**
+	 回调函数
+	 */
+    function SetData(options) {
+    	var formData = options.data.formData;
+    	var row = options.data.row;
+    	if ("true" == formData.orient) {
+    		mini.get("outType").setValue(formData.outType);
+    		mini.get("paramMod").setValue(formData.paramMod);
+        }
+
+         //动态列转换
+         hmq.business.dynamicProductParams(formData.outType, {
+             miniDataGrid:grid,
+             success: function (map, res) {},
+             error: function (res) {
+                 hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+             }
+         });
+        if ('add' == options.action) {
+            grid.clearData();
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action||'view' == options.action) {
+            $.get("getByNote/{0}".format(row.outNote), function (res) {
+            	 if (200 === res.code) { 
+                    form.setData(res.data,false);
+                    var data = mini.decode(res.data);
+                    mini.get("cwDw").setText(data.dwName);
+                     grid.load({
+                        params: JSON.stringify({
+                        		outNote: form.getField('cwNote').getValue(),
+                        		paramMod : form.getField('paramMod').getValue()
+                        	})
+                    }); 
+                 }       
+            });         
+        }               
+    }                   
+	/**
+	 汇总方法
+	 */
+	function onDrawSummaryCell(e) {
+		if (e.field == "cwItem") {
+			e.cellHtml = "<span style='color:Brown;'> 合计:</span>";
+		}
+		if (e.field == "cwSl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+		}
+		if (e.field == "cwJs") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(2) + "</span>";
+		}
+		if (e.field == "cwSje") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+		}
+	}
+	
+	function OnCellBeginEdit(e) {
+		var record = e.record;
+		var field = e.field;
+	}
+	
+	/**
+	 
+	 */
+	function OnCellCommitEdit(e) {
+		var editor = e.editor;
+		editor.validate();
+		if (editor.isValid() == false) {
+			hmq.tipDanger(editor.getErrorText());
+			e.cancel = true;
+		}
+		var grid = e.sender;
+		var record = e.record;
+		var field = e.field, value = e.value;
+	}
+  
+	function getMiniValue(key, defaultValue) {
+	    if (key == null || key == undefined || key == "") {
+	        return defaultValue;
+	    }
+	    return key;
+	}
+	
+	function getMiniDate(key) {
+	    return mini.formatDate(new Date(key), "yyyy-MM-dd");
+	}
+	
+
+</script>
+</html>

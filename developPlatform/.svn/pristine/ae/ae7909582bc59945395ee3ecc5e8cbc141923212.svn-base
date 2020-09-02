@@ -1,0 +1,98 @@
+package com.tengzhi.business.system.fileauth.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.system.fileauth.dao.FileAuthDao;
+import com.tengzhi.business.system.fileauth.service.FileAuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class FileAuthServiceImpl implements FileAuthService {
+    @Autowired
+    private FileAuthDao fileAuthDao;
+
+    /**
+     * 获取列表信息
+     */
+    @Override
+    public Result findAll(BaseDto dto) {
+        Map<String, String> map = dto.getParamsMap();
+        String arNote = map.get("arNote");
+        String arTitle = map.get("arTitle");
+        String genUserName = map.get("genUserName");
+        String linkUserName = map.get("linkUserName");
+        SessionUser user = SessionUser.SessionUser();
+
+        String where = SqlJoint.where(c -> {
+            c.eq("a.ar_note", arNote);
+            c.eq("ar_title", arTitle);
+            c.eq("data_corp", user.getCorpId());
+            c.contains("f_getname('TransformUser',b.gen_user_id,'','')", genUserName);
+            c.contains("f_getname('USERNAMERWTOCOL',b.link_user_id,'','')", linkUserName);
+        }, true);
+        String sql = "select a.ar_note,a.ar_type,a.ar_location,a.ar_secrecy,a.ar_version,a.ar_title,f_getname('GETARTYPENAME', a.ar_type, '', '') ar_type_name,f_getname('GETARTYPENAME', a.ar_location, '', '') ar_location_name,f_getname('GETARTYPENAME', a.ar_secrecy, '', '') ar_secrecy_name,f_getname('TransformUser',b.gen_user_id,'','') gen_user_name,f_getname('USERNAMERWTOCOL',b.link_user_id,'','') link_user_name,b.link_user_id,b.link_dept_id,b.gen_user_id,b.gen_time from e_xt_archive a left join e_xt_archive_r_right b on a.ar_note=b.ar_note " + where;
+        if ("".equals(where) || null == where) {
+            sql = sql + " where a.ar_newest = true";
+        } else {
+            sql = sql + " and a.ar_newest = true";
+        }
+        return fileAuthDao.QueryMapPageList(dto, sql, true).getResult();
+    }
+
+    /**
+     * 授权新建
+     *
+     * @param map
+     */
+    @Override
+    public void FileAuthSave(Map<String, Object> map) {
+        String arNote = map.get("arNote").toString();
+        String genUserId = map.get("gen_user_id").toString();
+        Timestamp genTime = new Timestamp(System.currentTimeMillis());
+        fileAuthDao.FileAuthDelete(arNote);//先删除后保存
+        List<Map<String, Object>> roleMap = (List<Map<String, Object>>) map.get("roleMap");
+        StringBuffer sbdeptlist = new StringBuffer();
+        StringBuffer sbuserlist = new StringBuffer();
+        roleMap.forEach(item -> {
+            sbdeptlist.append(item.get("dept_id").toString()).append(",");
+            sbuserlist.append(item.get("user_id").toString()).append(",");
+        });
+        if (!sbuserlist.toString().isEmpty() && !sbuserlist.equals("")) {
+            fileAuthDao.FileAuthAdd(arNote, sbdeptlist.subSequence(0, sbdeptlist.length() - 1).toString(), sbuserlist.subSequence(0, sbuserlist.length() - 1).toString(), genUserId, genTime);
+        }
+    }
+
+    /**
+     * 文库档案授权-用户列表
+     *
+     * @param baseDto
+     * @return
+     * @throws IOException
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public BasePage<Map<String, Object>> findUserRightAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return fileAuthDao.QueryMapPageList(baseDto,"select a.user_id,a.nick_name,a.dept_id,a.dept_name,case when position(','||a.user_id|| ',' in ','||b.link_user_id||',' )>0 then 'Y' else null end isflag,'' parent_id\r\n" +
+                "from sys_user a left join e_xt_archive_r_right b on position(','||a.user_id|| ',' in ','||b.link_user_id||',' )>0 and b.ar_note='" + map.get("arNote") + "'  where  a.nick_name like '%" + map.get("roleName") + "%' and a.is_forbidden is false and a.delete_logo is false order by a.dept_name",false);
+    }
+
+    /**
+     * 清除权限
+     */
+    @Override
+    public void delete(String arNote) {
+        fileAuthDao.FileAuthDelete(arNote);
+    }
+}

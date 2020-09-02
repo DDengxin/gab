@@ -1,0 +1,51 @@
+package com.tengzhi.business.sc.capacity.specification.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.sc.capacity.specification.service.MScGgclService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Map;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/12 0012 14:27
+ * @Description:
+ */
+
+@RestController
+@RequestMapping(value = "/sc/capacity/specification/")
+public class MScGgclController {
+
+    private MScGgclService mScGgclService;
+
+    @Autowired
+    public MScGgclController(MScGgclService mScGgclService) {
+        this.mScGgclService = mScGgclService;
+    }
+
+    @GetMapping(value="*.html")
+    public ModelAndView index(ModelAndView modelAndView){
+        return modelAndView;
+    }
+
+    @PostMapping(value = "/findAll")
+    public Result findAll(BaseDto baseDto){
+        Result resultAll = mScGgclService.findAll(baseDto).getResult();
+        return resultAll;
+    }
+
+
+
+
+
+
+
+
+}

@@ -1,0 +1,20 @@
+#【【【辽宁金帝】】】生产环境Tomcat端口配置
+server:
+  port: 80
+
+spring:
+  profiles:
+    include: prod-base #引入其他配置文件
+  datasource:
+    url: jdbc:postgresql://122.112.193.222:5432/tz_lnjd?currentSchema=lnjd&allowMultiQueries=true #部署数据库连接
+    password: 'LNJD@2020' #密码
+    username: 'lnjd' #账号
+
+kkfileview:
+  ip: 124.70.136.207
+  port: 8012
+
+collocate:
+  business:
+    userName: 1001 #超级用户
+    defaultCorp: JD #登录页面展示的默认账套

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>数据图表</title>
+</th:block>
+</head>
+<body>
+    <form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<label class="hmq-label" text="图表编号">
+					<input class="mini-textbox" id="datachartId" name="datachartId" />
+				</label>
+				<label class="hmq-label" text="图表名称">
+					<input class="mini-textbox" id="datachartName" name="datachartName" />
+				</label>
+				<label class="hmq-label" text="图表模块">
+					<input class="mini-textbox" id="datachartModule" name="datachartModule" />
+				</label>
+			</th:block>
+		</th:block>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="datachartId" url="/system/datachart/queryall">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn"></div>
+				<div tz:datagrid="column" field="datachartId" width="200">图标编号</div>
+				<div tz:datagrid="column" field="datachartName" width="150">图表名称</div>
+				<div tz:datagrid="column" field="datachartModule"  width="150">图表模块</div>
+				<div tz:datagrid="column" field="datachartFile"  width="200">图表文件</div>
+				<div tz:datagrid="column" field="datachartSm" width="200">图表说明</div>
+				<div tz:datagrid="column" field="datachartFlag" width="80" align="center">启用状态</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form_home");
+		var grid = mini.get("srch_grid");
+		grid.bindSearchForm(form);
+		function search_option() {
+			grid.load();
+		}
+	    grid.on("DrawCell", function (e) {
+	        if ('datachartFlag' === e.field) {
+	            e.cellHtml = e.value=='true' ? '是' : '否';
+	        } 
+	    });
+
+		 function add_option(e) {
+		        e.sender.miniopen({url: "add.html", action: 'add', data: "" ,width:800 ,height:500});
+		    }
+
+		 function edit_option(e) {
+		        var row = grid.getSelected();
+		        if (row) {
+		            e.sender.miniopen({url: 'add.html', action: 'edit', data: row,width:800 ,height:500});
+		        } else {
+		            hmq.tipDanger("请选择一条数据");
+		        }
+		    }
+
+	    function delete_option(){
+	        var row = grid.getSelected();
+	        if (row) {
+	            mini.confirm("确定删除吗", "删除信息", function (action) {
+	                if (action == "ok") {
+	                    $['delete']("delete.html/{0}".format(row.datachartId), function (res) {
+	                        if (200 === res.code) {
+	                            grid.reload();
+	                        } else {
+	                            hmq.tipDanger(res.msg);
+	                        }
+	                    });
+	                }
+	            });
+	        } else {
+	            hmq.tipDanger("请选择一条数据");
+	        }
+	    }
+		
+	</script>
+</body>
+</html>

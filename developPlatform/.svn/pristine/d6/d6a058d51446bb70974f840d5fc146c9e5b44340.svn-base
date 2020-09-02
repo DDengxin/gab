@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>工装档案</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<form id="form1">
+			<input id="action" name="action" class="mini-hidden" /> 
+			<table style="padding: 2px; border-bottom: 0; table-layout: fixed;">
+				<tr>
+					
+					<td align="right" width="80px">产品编码：</td>
+						<td> <input emptyText="请选择..."  
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onDeptClickHander"  required id="gmCpcode"  name="gmCpcode" /></td>
+                    <td align="right" width="80px">产品名称：</td> 
+                    <td><input class="mini-textbox" readonly name="codename" id="codename" width="120px"  /></td>    	
+                <td align="right" width="80px" >数量：</td>
+                <td >
+                    <input class="mini-textbox" readonly name="sl" id="sl" width="120px"  />
+                </td>
+				</tr>
+			</table>
+		</form>
+		<fieldset style="width: 800px;">
+			<div class="fieldset-body">
+				<div tz:datagrid="datagrid" id="button-grid" idField="htId"
+					sortField="htId" sortOrder="asc"
+					style="width: 100%; height: 450px;"
+					url="/mesGz/gzck/getSrchBottomList" showEmptyText="true"
+					alwaysShowEmptyText="true" allowCellEdit="true"
+					allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true"
+					editNextRowCell="true" allowMoveColumn="true" showPager="false"
+					oncellvalidation="onCellValidation"
+					OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true"
+					showColumnsMenu="true" showSummaryRow="true"
+					OnCellBeginEdit="OnCellBeginEdit"
+					ondrawsummarycell="onDrawSummaryCell">
+					<div property="columns">
+					<!-- 	<div tz:datagrid="checkcolumn" width="35"></div> -->
+						<div tz:datagrid="column" field="gmCode" align="center"
+							width="128">
+							工模编号<input property="editor" class="mini-textbox" />
+						</div>
+						<div tz:datagrid="column" field="gmSl" width="80" align="right"
+							numberFormat="#,0.00" summaryType="sum">
+							数量
+						</div>
+						<div tz:datagrid="column" field="gmCl" width="80" align="right"
+							numberFormat="#,0" summaryType="sum">
+							使用产量 <input property="editor" class="mini-textbox" />
+						</div>
+                        <div tz:datagrid="column" field="gmSc" align="center"
+							width="128">
+							使用时长<input property="editor" class="mini-textbox" />
+						</div>
+						<div tz:datagrid="column" field="" width="100%"></div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="mini-toolbar hmq-toolbar">
+	<!-- 	<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+		<a class="mini-button" onclick="delRow" iconCls="icon-remove"
+			id="delBtn">删行</a> <a class="mini-button" onclick="delAll"
+			iconCls="icon-remove" id="delAllBtn">删单</a> -->
+			 <a class="mini-button"
+			onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a> <a
+			class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+   /*  button_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:addRow()">增加一条</a>'); */
+    /**
+	 新增行
+	 */
+
+    
+    
+     
+    /**
+     *  产品编码选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/mesGz/gzda/gzmj.html",
+            title: "【产品编码】选择",
+            data:"root",
+            width: 500,
+            height: 420,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.code);
+                    btnEdit.setText(data.code);
+                    mini.get("codename").setValue(data.cpcode_name);
+                    mini.get("codename").setText(data.cpcode_name);
+                    mini.get("sl").setValue(data.sl);
+                    mini.get("sl").setText(data.sl);
+                    var x=mini.get("sl").getValue();
+                    for(var i=0;i<x;i++){
+                    	var newRow = {
+                    			gmSl : "1",
+                			 };
+                	       button_grid.addRow(newRow, 0);
+                    }
+                }
+            }
+        });
+    }
+    
+
+    
+	/**
+     	保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+        	button_grid.validate();
+			if (button_grid.isValid() == false) {
+				var error = button_grid.getCellErrors()[0];
+				button_grid.beginEditCell(error.record, error.column);
+				return;
+			}
+            var buttons = button_grid.getChanges();
+	       /*   //判断包转号是否重复
+            for(var i=0;i<buttons.length;i++){
+        		var row= buttons[i];
+        		if(checkExists(row)){
+		    		return hmq.tipDanger("第"+(i+1)+"行包装号重复，不能保存！");
+		    	}
+        	} 
+            var deletedList = button_grid.getChanges('removed',false); */
+             var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+            	eCkIn: form.getData(),
+            	eCkInMx: buttons,
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            }); 
+        }
+    }
+	
+    
+    function checkExists(row){
+    	var isflag=false;
+    	var buttons = button_grid.getData();
+    	for(var i=0;i<buttons.length;i++){
+    		var indexrow= buttons[i];
+    		var inPack=indexrow.inPack;
+    		if(!isNull(inPack)){
+	    		if(indexrow.id!=row.id){
+		    		if(indexrow.inPack==row.inPack){
+			    		 isflag=true;
+			    		 break;
+			    	}
+		    	}
+    		}
+    	}
+    	return isflag;
+    }
+    
+	 /**
+	 回调函数
+	 */
+    function SetData(options) {
+        if ('add' == options.action) {
+            button_grid.clearData();
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+        	var row = options.data;
+            $.get("getById/{0}".format(row.gmCode), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    setIdDisable("inCustomer");
+                    var data = mini.decode(res.data);
+                    mini.get("inCustomer").setText(data.inCustomer);
+                    button_grid.load({
+                        params: JSON.stringify({inNote: form.getField('inNote').getValue()})
+                    });
+                }
+            });
+        }
+    }
+     
+	  
+	 
+        
+
+
+    /**
+	 验证数量、金额不小于0
+	 */
+	function onCellValidation(e) {
+    	
+		if (e.field == "inKfcode") {
+			if (isNull(e.value)) {
+				e.isValid = false;
+				e.errorText = "采购编码不能为空！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		
+		if (e.field == "inJs") {
+			if(isNaN(e.value)){
+				e.isValid = false;
+				e.errorText = "件数必须为数字！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+			
+			if (isNull(e.value) || e.value <= 0) {
+				e.isValid = false;
+				e.errorText = "件数不能小于0！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		
+		if (e.field == "inSl") {
+			if(isNaN(e.value)){
+				e.isValid = false;
+				e.errorText = "数量必须为数字！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+			
+			if (isNull(e.value) || e.value <= 0) {
+				e.isValid = false;
+				e.errorText = "数量不能小于0！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		
+		if (e.field == "inZl") {
+			if(isNaN(e.value)){
+				e.isValid = false;
+				e.errorText = "重量必须为数字！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+			if (isNull(e.value) || e.value < 0) {
+				e.isValid = false;
+				e.errorText = "重量不能小于0！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		if (e.field == "inPrice") {
+			if(isNaN(e.value)){
+				e.isValid = false;
+				e.errorText = "单价必须为数字！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+			if (isNull(e.value) || e.value < 0) {
+				e.isValid = false;
+				e.errorText = "单价不能小于0！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		
+		if (e.field == "inPack") {
+			if (!isNull(e.value) ) {
+				if(isEixstsPack(e.value)){
+					e.isValid = false;
+					e.errorText = "包装号不能重复！";
+					button_grid.beginEditCell(e.record, e.field);
+					return hmq.tipDanger(e.errorText);
+				}
+			}
+		}
+	}
+   
+	/**
+	判断包装号是否存在
+	*/
+function isEixstsPack(value) {
+	 var row = button_grid.findRow(function(row) {
+		if (row.inPack == value)
+			return true;
+	});
+	return false;
+}
+	
+
+	/**
+	 汇总方法
+	 */
+	function onDrawSummaryCell(e) {
+		if (e.field == "inContract") {
+			var s = "<span style='color:Brown;'>";
+			s += "合计:</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "gmSl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+		}
+		if (e.field == "gmCl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+		}
+		if (e.field == "inZl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+		}
+	}
+	
+	function OnCellBeginEdit(e) {
+		var record = e.record;
+		var field = e.field;
+	}
+	
+
+	function OnCellCommitEdit(e) {
+		var editor = e.editor;
+		editor.validate();
+		if (editor.isValid() == false) {
+			hmq.tipDanger(editor.getErrorText());
+			e.cancel = true;
+		}
+		var button_grid = e.sender;
+		var record = e.record;
+		var field = e.field, value = e.value;
+
+	}
+  
+	function onButtonEdit(e) {
+		var btnEdit = this;
+		var cgStype =mini.get("cgStype").getValue();
+		if (e.source.id == "inContract") {
+			if(mini.get("inCustomer").getValue()==""){
+				hmq.tipDanger("请选择供应商！");
+				return;
+			}
+			if(mini.get("inBz").getValue()==""){
+				hmq.tipDanger("请选择币种！");
+				return;
+			}
+			if(mini.get("inTax").getValue()==""){
+				hmq.tipDanger("请选择税率！");
+				return;
+			}
+			var parms={
+					inSupplier : mini.get("inCustomer").getValue(),
+					inSuppliername : mini.get("inCustomer").getText(),
+					inBz : mini.get("inBz").getValue(),
+					inTax : mini.get("inTax").getValue(),
+					cgStype : cgStype
+					
+			};
+		
+	}
+		if (e.source.id == "inKfcode") {
+			return miniopen({
+				targetWindow: window.top,
+		        url: "/mesGz/gzck/wlbmselectlist.html",
+				title : "工量模具选择列表",
+				width : 1300,
+				height : 620,
+				onload : function() {
+					var iframe = this.getIFrameEl();
+					var data = {
+						action : "search",
+						cgStype : "GZMJ"
+						
+					};
+					iframe.contentWindow.SetData(data);
+				},
+				ondestroy : function(action) {
+					if (action == "ok") {
+						var iframe = this.getIFrameEl();
+						var rows = iframe.contentWindow.GetMutiData();
+						rows = mini.clone(rows); //必须
+						var dataRows = appendRow2(rows);
+						if (dataRows.length > 0) {
+							btnEdit.setValue(dataRows[0].cpcodeid);
+							btnEdit.setText(dataRows[0].cpcodeid);
+							var row = button_grid.getSelected();
+							button_grid.updateRow(row, {
+								cpcodeDp: dataRows[0].cpcodebz,
+								inKfcode : dataRows[0].cpcodeid,
+								cpcodeName: dataRows[0].cpcodename,
+								cpcodeSize: dataRows[0].cpcodesize,
+								cpcodeBz: dataRows[0].cpcodebz,
+								inHs : dataRows[0].cpcode02
+							});
+	
+							if (dataRows.length > 1) {
+								for ( var i = 1; i < dataRows.length; i++) {
+									var r = dataRows[i];
+									var newRow = {
+											cpcodeDp : r.cpcodebz,
+											inKfcode : r.cpcodeid,
+											cpcodeName: r.cpcodename,
+											cpcodeSize: r.cpcodesize,
+											cpcodeBz: r.cpcodebz,
+											inHs : r.cpcode02
+									};
+									button_grid.addRow(newRow, 0);
+								}
+	
+							}
+							button_grid.clearSelect();
+						}
+					}
+				}
+			});
+	}
+		
+}
+	
+	
+	
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+    /*  员工选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url:"/personnel/checkWorkAttendance/leave/worker.html",
+            title: "【员工】选择页面",
+            width: 750,
+            data:{},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }	
+	 
+	 
+	/**
+	 附件行
+	 */
+            function appendRow(rows) {
+	           var retRows = [];
+	           for (var i = 0; i < rows.length; i++) {
+		       if (!isEixsts(rows[i])) {
+			   retRows.push(rows[i]);
+		     } else {
+			hmq.tipDanger("数据已添加");
+		     }
+	          }
+	      return retRows;
+        }
+	
+	
+	
+	/**
+	判断是否存在
+	*/
+        function isEixsts(data) {
+	     var row = button_grid.findRow(function(row) {
+		   if (row.inKfcode == data.cpcodeid)
+			return true;
+	     });
+	      if (row != null) {
+		   return true;
+	       } 
+	      return false;
+          }
+       /**
+   附件行
+   */
+   function appendRow2(rows) {
+      var retRows = [];
+    for ( var i = 0; i < rows.length; i++) {
+	if (!isEixsts2(rows[i])) {
+		retRows.push(rows[i]);
+	} else {
+		hmq.tipDanger("数据已添加");
+	}
+    }
+    return retRows;
+     }
+/**
+判断是否存在
+*/
+    function isEixsts2(data) {
+       var row = button_grid.findRow(function(row) {
+	    if (row.inKfcode == data.cpcodeid)
+		return true;
+      });
+     if (row != null) {
+	   return true;
+     } 
+return false;
+}
+
+</script>
+</html>

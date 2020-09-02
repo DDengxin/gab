@@ -1,0 +1,7 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingNotice.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.personnel.personnelTraining.trainingNotice.model.EHrTrainingNotice;
+
+public interface TrainingNoticeDao extends BasedaoRepository<EHrTrainingNotice, String> {
+}

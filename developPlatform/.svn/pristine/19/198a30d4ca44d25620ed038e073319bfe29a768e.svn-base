@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>凭证字【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="cgStype" name="cgStype" class="mini-hidden"/>
+        <input id="cgName" name="cgName" class="mini-hidden"/>
+        <table style="padding:5px;border-bottom:0;">
+            <tr>
+                <td align="left" width="80px">单号：</td>
+                <td>
+                    <input class="mini-textbox"  id="fgenerateid" name="fgenerateid" width="120" allowInput="true" />
+                </td>
+            </tr>     
+           	<tr>   
+                <td align="left" width="80px">凭证字：</td>
+                <td>
+                    <input class="mini-textbox" required id="fname" name="fname" width="120" allowInput="true"/>
+                </td>
+            </tr>
+            <tr>    
+                <td align="left" width="80px">打印标题：</td>
+                <td>
+                    <input class="mini-textbox" required id="fprefix" name="fprefix" width="120" />
+                </td>
+           </tr>
+           <tr>    
+                <td align="left" width="80px">申请类别：</td>
+              
+                
+                <td><select  required id="fisdefault" name="fisdefault" class="mini-combobox" style="width:120px;" emptyText="全部">
+                    <option value="1">默认</option>
+                    <option value="0">不默认</option>
+
+                </select></td>
+            </tr>
+
+        </table>
+    </form>
+
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == mini.getbyName('action').getValue() ? 'post' : 'put';
+            $[method]("/finance/voucher/certificateWord/addCertificateWord", JSON.stringify(form.getData()), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            if ('add' == mini.getbyName('action').getValue()) {
+                                //重置表单
+                                var fgenerateid = form.getField('fgenerateid').getValue();
+                                form.reset();
+                                form.getField('fgenerateid').setValue(fgenerateid);
+                                form.setChanged(false);
+                                //标记表单保存状态
+                                PAGE_SAVE_FLAG = true;
+                            } else {
+                                CloseWindow('refresh');
+                            }
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+
+
+
+
+    /**
+     * 单元格完成编辑时验证
+     **/
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+
+    }
+
+
+
+
+
+
+
+
+</script>
+</html>

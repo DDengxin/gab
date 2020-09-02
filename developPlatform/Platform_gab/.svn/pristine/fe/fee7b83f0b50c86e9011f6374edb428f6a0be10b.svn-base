@@ -1,0 +1,13 @@
+package com.tengzhi.business.platform.form.service.impl;
+
+import javax.transaction.Transactional;
+
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.service.impl.CommunalServiceImpl;
+import com.tengzhi.business.platform.form.model.DynamicFormDetail;
+@Service
+@Transactional
+public class DynamicFormDetailServiceImpl  {
+
+}

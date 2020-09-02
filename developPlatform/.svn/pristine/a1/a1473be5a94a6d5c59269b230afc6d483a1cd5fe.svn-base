@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>生产工艺选择</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1" >
+        <input id="action" name="action" class="mini-hidden"/>
+
+        <table style="padding:5px;border-bottom:0;align-content: center">
+            <tr>
+                <td align="right" width="90px">合同号:</td>
+                <td>
+                    <input  id="htNo" name="htNo"  class="mini-textbox"  readonly="readonly" />
+                    <input  id="itemMo" name="itemMo"  class="mini-hidden"   />
+                    <input  id="scMo" name="scMo"  class="mini-hidden"   />
+                </td>
+                <td align="right" width="90px" >合同客户:</td>
+                <td>
+                    <input  id="masterId" name="masterId"  class="mini-buttonedit"   readonly="readonly" />
+                </td>
+
+                <td align="right" width="90px" for="cpcodeXp">产品产地:</td>
+                <td content>
+                    <input class="mini-combobox" name="cpcodeXp" allowInput="true" popupMaxHeight="200" readonly="readonly" />
+                </td>
+
+                <td align="right" width="90px" for="cpcodeSize" >产品材质:</td>
+                <td content>
+                    <input id="tname" name="tname" class="mini-textbox"  readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="90px" for="cpcodeSize" >产品规格:</td>
+                <td content>
+                    <input id="tsize" name="tsize" class="mini-textbox"  readonly="readonly" />
+                </td>
+                <td align="right" width="90px">产品种类:</td>
+                <td>
+                    <input id="ttype" name="ttype" class="mini-treeselect" multiSelect="false" url="/system/parameter/getParamsTreeList/技术/XCZL" textField="combtext" valueField="combid"
+                           readonly="readonly"  parentField="pid"   popupWidth="240" popupHeight="180" allowInput="true" valueFromSelect="true"  />
+                </td>
+                <td align="right" width="90px" >订单原料:</td>
+                <td>
+                    <input  id="xcxm22" name="xcxm22"  class="mini-textbox"  readonly="readonly" />
+                </td>
+                <td align="right" width="90px" >产品用途:</td>
+                <td>
+                    <input  id="xcxm20" name="xcxm20"  class="mini-textbox"   readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="90px" >炉号类别:</td>
+                <td>
+                    <input  id="xcxm14" name="xcxm14"  class="mini-textbox"  readonly="readonly" />
+                </td>
+                <td align="right" width="90px" >执行标准:</td>
+                <td>
+                    <input  id="xcxm15" name="xcxm15"  class="mini-textbox"  readonly="readonly" />
+                </td>
+                <td align="right" width="90px" >指定炉号:</td>
+                <td>
+                    <input  id="xcxm16" name="xcxm16"  class="mini-textbox"  readonly="readonly" />
+                </td>
+                <td align="right" width="90px" >成份要求:</td>
+                <td>
+                    <input  id="xcxm17" name="xcxm17"  class="mini-textbox"  readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right" width="90px" >标准用料:</td>
+                <td>
+                    <input  id="bzyl" name="bzyl"  class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"   />
+                    <input  id="ylBz" name="ylBz"  class="mini-hidden"   />
+                </td>
+                <td align="right" width="90px" >代用用料:</td>
+                <td>
+                    <input  id="tdyl" name="tdyl"  class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"  />
+                    <input  id="ylTl" name="ylTl"  class="mini-hidden"   />
+                </td>
+                <td align="right" width="90px" >其他用料:</td>
+                <td>
+                    <input  id="qtyl" name="qtyl"  class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"  />
+                </td>
+                <td align="right" width="90px" >临时用料:</td>
+                <td>
+                    <input  id="lsyl" name="lsyl"  class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"   />
+                    <input  id="ylLs" name="ylLs"  class="mini-hidden"   />
+                </td>
+
+            </tr>
+
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grid" idField="code" style="width:100%;height:100%"  oncellbeginedit="OnCellBeginEdit" url="/sc/pd/khgy/getByscgy"
+             allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+             showPager="false" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+             showSummaryRow="true" sortMode="client">
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="scgyOrd" width="60" align="center">序号
+                    <input property="editor" class="mini-textbox" vtype="int;"/>
+                </div>
+                <div tz:datagrid="column" field="scgyGc" displayField="gcName"  align="center"  width="120">
+                    工程
+                    <input property="editor" required class="mini-treeselect" multiSelect="false" valueFromSelect="true"
+                           parentField="pid" value="无"  popupWidth="180" popupHeight="250" popupMaxHeight="260" allowInput="true" url="/js/cpgy/scgx/getGxAllTreeList/XC"/>
+                </div>
+
+                <div tz:datagrid="column" field="scgyGx" displayField="gxName" align="center"  width="120">
+                    工序
+                    <input property="editor" required class="mini-treeselect" multiSelect="false" valueFromSelect="true"
+                           parentField="pid" value="无"  popupWidth="180" popupHeight="250" popupMaxHeight="260" allowInput="true" url="/js/cpgy/scgx/getGxAllTreeList/XC" />
+                </div>
+
+                <div tz:datagrid="column" field="scgyKsize" align="left" width="120">
+                    规格
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column"  field="scgyCz" width="80" align="left">
+                    材质
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="scgyYqsm" width="250" align="left">
+                    要求说明
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column"  field="itemMo" name="itemMo" width="80" align="left" visible="false">
+                </div>
+                 <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+
+    /**
+     新增行:判断form表单是否填写并设置不可编辑
+     */
+    function addRow() {
+        var index = button_grid.getData().length;
+        var newRow = {
+            name: ""
+        };
+        button_grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+
+    /**
+     * Description:修改保存删除操作
+     * @author: huangbiao
+     * @date: 2020/8/7 0007 17:37
+     * @param:
+     * @return:
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            button_grid.validate();
+            if (button_grid.isValid() == false) {
+                var error = button_grid.getCellErrors()[0];
+                button_grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var buttons =  buttons = button_grid.getData();
+            $(buttons).each(function (index) {
+                buttons[index].rightOrd = index;
+                buttons[index]._state = buttons[index]._state || 'added';
+            });
+
+            $['post']("/sc/pd/khgy/saveData", JSON.stringify({
+                mScKfgylist: form.getData(true),
+                mScKfgylistGc: buttons
+
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+
+    function SetData(options) {
+        var cpcodeType = options.data.cpcodeType;
+        var row = options.data.row;
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniForm: form,
+            success: function (map, res) {
+                if ('add' == options.action) {
+                    mini.getbyName("action").setValue(options.action);
+                    form.setData(row, true);
+                    mini.get("itemMo").setValue(row.htMo);
+                    mini.get("tname").setValue(row.cpcodeXp);
+                    mini.get("tsize").setValue(row.cpcodeName);
+                    mini.get("ttype").setValue(row.standard);
+                    mini.get("ylBz").setValue(row.bzyl);
+                    mini.get("ylTl").setValue(row.tdyl);
+                    mini.get("ylLs").setValue(row.lsyl);
+
+                    mini.get("masterId").setText(row.htCustomerName);
+                    mini.get("masterId").setValue(row.htCustomer);
+                    button_grid.load({
+                        params: JSON.stringify({masterId: row.htCustomer,ttype: row.standard, itemMo :row.htMo })//将表单note参数放进请求
+                    });
+                }
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+
+    /**
+     验证数量、金额不小于0
+     */
+    function onCellValidation(e) {
+
+        if (e.field == "scgyGc") {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "工程不能为空！";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }else if (e.field == "scgyGx" ) {
+            if (isNull(e.value)) {
+                e.isValid = false;
+                e.errorText = "工序不能为空！";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        } else if (e.field == "scgyKsize" ) {
+            if (isNaN(e.value)) {
+                e.isValid = false;
+                e.errorText = "规格必须为数字";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+            if (isNull(e.value) || e.value <= 0) {
+                e.isValid = false;
+                e.errorText = "规格不能小于0";
+                button_grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+
+    }
+
+    /**
+     * 单元格完成编辑时验证
+     **/
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+
+    }
+    function OnCellBeginEdit(e) {
+        var field = e.field;
+        var record = e.record;
+        if (field == "clCode") {
+            mini.get("clCode").setUrl("/js/cpgy/scgx/getGxAllTreeList/{0}".format("ROOT"));
+        }
+
+    }
+
+    function onButtonEdit(e) {
+        var btnEdit = this;
+        var param={
+            action : "search",
+            cgStype : "YL"
+
+        };
+        return miniopen({
+            targetWindow: window.top,
+            url : "../sale/saleProduct/saleContract/wlbmselect.html",
+            title : "编码单选择列表",
+            width: 1300,
+            height: 620,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = {
+                    action: "search",
+                    cgStype:  "YL"
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.cpcodeId);
+                    btnEdit.setText(data.cpcodeName+'*'+data.cpcodeSize);
+                }
+            }
+        });
+    }
+
+</script>
+</html>

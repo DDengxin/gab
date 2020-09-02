@@ -1,0 +1,87 @@
+<html layout:decorator="~{gab/layout/gabPlatformFrame}" xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="">
+<th:block layout:fragment="header">
+    <title>用户注册</title>
+    <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/application.css}"/>
+    <script type="text/javascript" th:src="@{/static/gab/js/application.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <div class="application_content">
+        <div class="application_content_list">
+            <h2>会员注册</h2>
+            <div class="tabchange">
+                <div class="content-box">
+                    <div class="content contentin" id="login-div">
+                        <form name="application-firm" id="login-form" class="layui-form" lay-filter="login-form">
+                            <div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">账户类型<i>*</i></label>
+                                    <div class="layui-input-inline">
+                                        <select name="userType" lay-verify="required" lay-filter="userType" id="register_type">
+                                            <option value=""></option>
+                                            <option value="供应厂商">供应厂商</option>
+                                            <option value="专家团队">专家团队</option>
+                                            <option value="需求用户">需求用户</option>
+                                        </select>
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">请选择账户类型（供应厂商、专家团队、需求用户）</div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">用&nbsp;&nbsp;户&nbsp;&nbsp;名<i>*</i></label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="userId" required lay-verify="required|userid" autocomplete="off" class="layui-input">
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">请输入您的用户名</div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">手机号码<i>*</i></label>
+                                    <div class="layui-input-inline">
+                                        <input type="text" name="userMtel" required lay-verify="phone" autocomplete="off"
+                                               class="layui-input">
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">请输入您的手机号码</div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">验&nbsp;&nbsp;证&nbsp;&nbsp;码<i>*</i></label>
+                                    <div class="layui-input-inline" style="width: 253px; margin-right: 91px;">
+                                        <input type="text" name="randCode" required lay-verify="required"
+                                               autocomplete="off" class="layui-input">
+                                    </div>
+                                    <div class="layui-btn layui-btn-danger" id="request-randcode">获取验证码</div>
+                                    <div class="layui-form-mid layui-word-aux">请输入您的验证码</div>
+                                </div>
+
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">设置密码<i>*</i></label>
+                                    <div class="layui-input-inline">
+                                        <input type="password" name="userPwd" required lay-verify="required"
+                                               autocomplete="off" class="layui-input">
+                                    </div>
+                                    <div class="layui-form-mid layui-word-aux">请设置您的密码</div>
+                                </div>
+                            </div>
+                            <div class="fr">
+                                <img src="../../static/gab/images/sj.jpg" alt="">
+                            </div>
+
+                            <div class="btn">
+                                <div class="btn_content">
+                                    <input type="button" lay-submit lay-filter="login-form" id="firm-reg" value="立即申请">
+                                    <div class="sub-content">
+                                        <input type="checkbox" id="rem-firm" name="firmAgree" lay-skin="primary" lay-verify="obligatory">
+                                        我已阅读并同意
+                                        <a href="#">《用户协议》</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block layout:fragment="footer"></th:block>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+     <title>结算账户</title>
+    </th:block>
+</head>
+<body>
+	</form>
+	<form id="srch_form" method="post">
+		<div class="mini-toolbar" style="padding: 2px; border-bottom: 0;">
+			<input id="id" name="id" class="mini-hidden" readonly="readonly" />
+			<table style="width: 100%;">
+				<tr>
+					<td style="white-space: nowrap;"><label>名称:</label> <input
+						id="ftempname" name="ftempname" class="mini-textbox"
+						style="width: 80px;" /></td>
+				</tr>
+			</table>
+		</div>
+	</form>
+
+	<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="ksid"  showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="accountid" width="100%">账户id</div>
+            <div tz:datagrid="column" field="accountname" width="100%">账户名称</div>
+			<div tz:datagrid="column" field="qcje" width="100%">期初金额</div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form("srch_form");
+	var grid = mini.get("srch_grid");
+	var mxgrid = mini.get("mx_grid");
+	var surl = "/finance/voucher/settlementAcNo";
+	grid.setUrl(surl + "/getSrchList");
+	function search_option() {
+		var params = form.getData(true);
+		grid.load({
+			params : mini.encode(params)
+		});
+		mxgrid.setData([]);
+	}
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: '380px', height: '150px'});
+    }
+    function edit_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'edit', data: row, width: '380px', height: '150px'});
+    }
+	function onSelectionChanged(e) {
+		var grid = e.sender;
+		var record = grid.getSelected();
+		if (record) {
+			mxgrid.load({
+				params : mini.encode({
+					item : record.ftempassistid
+				})
+			});
+		}
+	}
+</script>
+
+
+</html>

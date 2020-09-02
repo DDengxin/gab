@@ -1,0 +1,116 @@
+package com.tengzhi.business.cg.da.sysCustomer.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.da.sysCustomer.dao.SysCustomerDao;
+import com.tengzhi.business.cg.da.sysCustomer.model.SysCustomer;
+import com.tengzhi.business.cg.da.sysCustomer.service.SysCustomerService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class SysCustomerServiceImpl implements SysCustomerService{
+	@Autowired
+	private SysCustomerDao sysCustomerDao;
+	@Autowired
+	private SysParamDao sysParamDao;
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	@Override
+	public BasePage<SysCustomer> findAll(BaseDto baseDto) throws IOException {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		Map<String, String> map = baseDto.getParamsMap();
+		String customerId = map.get("customerId");
+		String customerName = map.get("customerName");
+		String customerBuyer = map.get("customerBuyer");
+		String customerFlag = map.get("customerFlag");
+		String sqlwhere = " where customer_type='S' and data_corp='"+sessionUser.getCorpId()+"' ";
+		if(StringUtils.isNotEmpty(customerId)){
+			sqlwhere+=" and customer_id like '%"+customerId+"%'";
+		}
+		if(StringUtils.isNotEmpty(customerName)) {
+			sqlwhere+=" and customer_name like '%"+customerName+"%'";
+		}
+		if(StringUtils.isNotEmpty(customerBuyer)) {
+			sqlwhere+=" and customer_buyer like '%"+customerBuyer+"%'";
+		}
+		if(StringUtils.isNotEmpty(customerFlag)) {
+			sqlwhere+=" and customer_flag = '"+customerFlag+"'";
+		}
+
+		String sql="select customer_id,customer_name,customer_exp,customer_buyer,customer_province,customer_uid,customer_flag,data_man,data_rq,f_get_param_name('采购人员',customer_buyer,'"+   SessionUser.getCurrentCorpId()   +"','') customerbuyername,"
+				+ "customer_je,customer_day,customer_level,f_getname('GETUSERNAME', data_man, '', data_corp) datamanname,"
+				+ "f_getname('GETDWEXP', customer_uid, '',data_corp) lastcustomername,f_get_param_name('区域城市',customer_province,'"+   SessionUser.getCurrentCorpId()   +"','') customerprovincename from sys_customer"+sqlwhere+" ";
+
+		return sysCustomerDao.QueryPageLists( baseDto,sql);
+	
+	}
+	@Override
+	public SysCustomer save(SysCustomer sysCustomer) throws Exception {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String paramValue1 = sysParamDao.getParamValue1("公司类型", "GHDW");
+		sysCustomer.setCustomerId(sysGenNoteService.getNote(SysCustomer.class, paramValue1, "", 4));
+		
+		if(judgeUnique(sysCustomer)) {
+			sysCustomer.setDataMan(securityUser.getUsername());
+			sysCustomer.setDataRq(new Date());
+			sysCustomer.setCustomerType("S");
+			sysCustomer.setDataCorp(securityUser.getCorpId());
+			sysCustomer.setCustomerUid(sysCustomer.getCustomerId());//上级单位
+			return sysCustomerDao.save(sysCustomer);
+		}else {
+		throw new Exception("编码已存在");		}
+	}
+	
+	
+	
+	
+	@Override
+	public boolean judgeUnique(SysCustomer sysCustomer) {
+		SessionUser sessionUser=SessionUser.SessionUser();
+		return sysCustomerDao.findAll(Specifications.where((c)->{
+			c.eq("customerId", sysCustomer.getCustomerId());
+			c.eq("dataCorp",sessionUser.getCorpId());
+		})).size()<=0;
+	}
+	@Override
+	public SysCustomer findByCustomerId(String customerId) {
+		SysCustomer sys=sysCustomerDao.findByCustomerId(customerId);
+		sys.setLastcustomername(sysCustomerDao.lastCustomername(sys.getCustomerUid(), sys.getDataCorp()));
+		return sys;
+		
+	}
+	@Override
+	public void update(SysCustomer sysCustomer) {
+		sysCustomerDao.dynamicSave(sysCustomer, sysCustomerDao.findByCustomerId(sysCustomer.getCustomerId()));
+	}
+	@Override
+	public void deleteByCustomerId(String customerId) {
+		
+		sysCustomerDao.deleteById(customerId);
+	}
+	@Override
+	public List<Map> getTreeList(String mod, String type) {
+		String sqlString="select param_id combid,param_name combtext,parent_id pid from  sys_param  where param_mod='"+mod+"' and param_type='"+type+"' and param_status='true' and parent_id='CGRY' ";
+		return sysCustomerDao.QueryListMap(sqlString);
+	}
+	@Override
+	public List<Map> getCityList(String mod, String type) {
+		String sqlString="select param_id combid,param_name combtext,parent_id pid from  sys_param  where param_mod='"+mod+"' and param_type='"+type+"' and param_status='true' AND parent_id NOT IN('JPO','HW','DJ1') AND param_id NOT IN('DJ1')";
+		return sysCustomerDao.QueryListMap(sqlString);
+	}
+	
+
+}

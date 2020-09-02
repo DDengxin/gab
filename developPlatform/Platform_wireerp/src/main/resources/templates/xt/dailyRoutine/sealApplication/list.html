@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>公章申请</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="申请日期">
+            <input id="srchRq1" name="srchRq1" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input id="srchRq2" name="srchRq2" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input id="srchNote" name="srchNote" class="mini-textbox" width="110"/>
+        </label>
+        <label class="hmq-label" text="使用公司">
+            <input id="srchUseCorp" name="srchUseCorp" class="mini-combobox" width="100"
+                   url="/personnel/eHrWorker/selectCorp" showNullItem="true" nullItemText="全部"/>
+        </label>
+        <label class="hmq-label" text="公章类型">
+            <select id="srchType" name="srchType" class="mini-combobox" width="90">
+                <option value="">全部</option>
+                <option value="公章">公章</option>
+                <option value="法人章">法人章</option>
+                <option value="法务章">法务章</option>
+            </select>
+        </label>
+        <label class="hmq-label" text="用途类别">
+            <select id="srchCategory" name="srchCategory" class="mini-combobox" width="110">
+                <option value="">全部</option>
+                <option value="业务用章">业务用章</option>
+                <option value="公司贷款">公司贷款</option>
+                <option value="工程项目">工程项目</option>
+                <option value="资金外出">资金外出</option>
+                <option value="其他">其他</option>
+            </select>
+        </label>
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="note" sortOrder="desc" url="/xt/dailyRoutine/sealApplication/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="rq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="note" width="120" align="center">单号</div>
+            <div tz:datagrid="column" field="useCorp" displayField="useCorpName" width="80" align="center">使用公司</div>
+            <div tz:datagrid="column" field="useDept" displayField="useDeptName" width="100" align="center">使用部门</div>
+            <div tz:datagrid="column" field="sealPage" width="80" align="center">盖章页数</div>
+            <div tz:datagrid="column" field="sealCorp" displayField="sealCorpName" width="80" align="center">公章公司</div>
+            <div tz:datagrid="column" field="sealType" width="100" align="center">公章类型</div>
+            <div tz:datagrid="column" field="useCategory" width="100" align="center">用途类别</div>
+            <div tz:datagrid="column" field="useDescription" width="200" align="left">用途</div>
+            <div tz:datagrid="column" field="flag" width="80" align="center">状态</div>
+            <div tz:datagrid="column" field="dataMan" displayField="dataManName" width="100" align="center">申请人</div>
+            <div tz:datagrid="column" field="deliverDept" displayField="deliverDeptName" width="100" align="center">送交部门</div>
+            <div tz:datagrid="column" field="isOut" width="80" align="center">是否外带</div>
+            <div tz:datagrid="column" field="outAddr" width="120" align="left">外带地点</div>
+            <div tz:datagrid="column" field="estimatedTime" width="130" align="center">预计归还时间</div>
+            <div tz:datagrid="column" field="realTime" width="130" align="center">实际归还时间</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form =new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option(){
+        grid.load();
+    }
+
+    /**
+     * 新增
+     * @param e
+     */
+    function add_option(e){
+        var row = grid.getSelected();
+        e.sender.miniopen({url : 'add.html',action : 'add', data : {row : row,formData : form.getData()},width :600,height : 400});
+    }
+
+    /**
+     * 编辑
+     * @param e
+     */
+    function edit_option(e){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,"登记"),function(res){
+                if(200==res.code){
+                    e.sender.miniopen({url : 'add.html', action : 'edit', data: {row: row, formData: form.getData()}, width : 600, height : 400});
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     * @param e
+     */
+    function delete_option(e){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,"登记"),function(res){
+                if(200==res.code){
+                    mini.confirm("注意:确定要删除吗？","删除信息",function(action){
+                        if(action=="ok"){
+                            $['delete']("delete/{0}".format(row.note),function(res){
+                                if(200==res.code){
+                                    grid.reload();
+                                }else{
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 确认
+     */
+    function confirm_option(e){
+        var row = grid.getSelected();
+        if(row){
+            $['put']("getFlag/{0}/{1}".format(row.note,"登记"),function(res){
+                if(200==res.code){
+                    mini.confirm("注意:确定要确认吗 ？", "确认信息", function (action) {
+                        if (action == "ok") {
+                            $.put("confirm/{0}".format(row.note), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                }else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 取消确认
+     */
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.note,'确认'),function(res){
+                if(200==res.code){
+                    mini.confirm("注意：确定要取消确认吗？","取消确认",function(action){
+                        if(action=="ok"){
+                            $['put']("cancle/{0}".format(row.note),function(res){
+                                if(200==res.code){
+                                    grid.reload();
+                                }else{
+                                    hmq.tipDanger(res.msg)
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+
+    }
+</script>
+
+</html>

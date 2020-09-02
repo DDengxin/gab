@@ -1,0 +1,139 @@
+package com.tengzhi.business.system.right.model;
+
+import com.tengzhi.base.jpa.model.BaseModel;
+
+import javax.persistence.*;
+import java.io.Serializable;
+
+@Entity
+@Table(name = "sys_right")
+public class SysRight  extends BaseModel {
+    @Id
+    private String rightId;
+    private String parentId;
+    private String rightName;
+    private String rightLink;
+    private String rightResource;
+    private String rightType;
+    private String rightIconCls;
+    private String description;
+    private Boolean isForbidden;
+    private Integer rightOrd;
+    private String rightTrigger;
+    private String parentName;
+    private String rightModule;
+    @Transient
+    private String _state;
+
+    public String getRightId() {
+        return rightId;
+    }
+
+    public void setRightId(String rightId) {
+        this.rightId = rightId;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getRightName() {
+        return rightName;
+    }
+
+    public void setRightName(String rightName) {
+        this.rightName = rightName;
+    }
+
+    public String getRightLink() {
+        return rightLink;
+    }
+
+    public void setRightLink(String rightLink) {
+        this.rightLink = rightLink;
+    }
+
+    public String getRightResource() {
+        return rightResource;
+    }
+
+    public void setRightResource(String rightResource) {
+        this.rightResource = rightResource;
+    }
+
+    public String getRightType() {
+        return rightType;
+    }
+
+    public void setRightType(String rightType) {
+        this.rightType = rightType;
+    }
+
+    public String getRightIconCls() {
+        return rightIconCls;
+    }
+
+    public void setRightIconCls(String rightIconCls) {
+        this.rightIconCls = rightIconCls;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getIsForbidden() {
+        return isForbidden;
+    }
+
+    public void setIsForbidden(Boolean isForbidden) {
+        this.isForbidden = isForbidden;
+    }
+
+    public Integer getRightOrd() {
+        return rightOrd;
+    }
+
+    public void setRightOrd(Integer rightOrd) {
+        this.rightOrd = rightOrd;
+    }
+
+    public String getRightTrigger() {
+        return rightTrigger;
+    }
+
+    public void setRightTrigger(String rightTrigger) {
+        this.rightTrigger = rightTrigger;
+    }
+
+    public String get_state() {
+        return _state;
+    }
+
+    public void set_state(String _state) {
+        this._state = _state;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
+
+    public String getRightModule() {
+        return rightModule;
+    }
+
+    public void setRightModule(String rightModule) {
+        this.rightModule = rightModule;
+    }
+}

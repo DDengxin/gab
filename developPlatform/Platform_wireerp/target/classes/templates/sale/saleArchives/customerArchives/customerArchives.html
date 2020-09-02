@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>客户档案</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" id="stype" name="stype" value="C"/>
+        <label class="hmq-label" text="单位编码">
+            <input class="mini-textbox" name="customerId"/>
+        </label>
+        <label class="hmq-label" text="单位名称"> <input
+                class="mini-textbox" name="customerName"/>
+        </label>
+        <label class="hmq-label" text="业务人员">
+            <div name="customerBuyer" class="mini-combobox" popupMaxHeight="250" multiSelect="true"
+                 url="/system/parameter/getParamsSelectList/销售/业务员"
+                 showClose="true" oncloseclick="e.sender.setValue('');">
+                <div property="columns">
+                    <div header="#" field="text"></div>
+                </div>
+            </div>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="customerId" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="customerId" align="center" width="80">单位编码</div>
+            <div tz:datagrid="column" field="customerName" align="left" width="180">单位名称</div>
+            <div tz:datagrid="column" field="customerIdEn" width="100" visible="false">英文名称</div>
+            <div tz:datagrid="column" field="customerExp" align="left" width="120">单位简称</div>
+            <div tz:datagrid="column" field="customerJe" align="left" width="100" numberFormat="#,0.00">客户金额</div>
+            <div tz:datagrid="column" field="customerDay" align="left" width="100">付款天数</div>
+            <div tz:datagrid="column" field="customerLevel" align="left" width="100">客户级别</div>
+            <div tz:datagrid="column" field="customerUid" displayField="lastcustomername" align="left" width="180">上级单位</div>
+            <div tz:datagrid="column" field="customerBuyer" displayField="customerbuyername" align="left" width="80">业务人员</div>
+            <div tz:datagrid="column" field="customerProvince" displayField="customerprovincename" align="left" width="80">单位区域</div>
+            <div tz:datagrid="column" field="customerCity" align="left" width="120" visible="false">单位城市</div>
+            <div tz:datagrid="column" field="customerFlag" align="center" width="60">状态</div>
+            <div tz:datagrid="column" field="dataMan" align="center" displayField="datamanname" width="80">操作人员</div>
+            <div tz:datagrid="column" field="dataRq" align="center" width="120">操作日期</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "customerFlag") {
+            e.cellHtml = 'Y' === e.value ? '启用' : '禁用';
+        }
+    });
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("customerArchives.html/{0}".format(row.customerId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+
+
+</body>
+</html>

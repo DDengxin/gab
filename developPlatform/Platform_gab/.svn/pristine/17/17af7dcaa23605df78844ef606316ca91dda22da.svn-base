@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+	<div th:fragment="CommonFooter" id="_CommonFooter_">
+		<div class="footer">
+			<div class="footer_content">
+				<div class="footer_menu_list">
+					<div class="footer_menu_list_content" th:with="menu=${@bar.getParamValue()}">
+
+						<dl th:each="firstMenu : ${menu}" th:if="${firstMenu.level} eq '1' ">
+							<dt th:text="${firstMenu.paramName}">平台信息</dt>
+							<dd th:each="secondMenu : ${menu}"
+								th:if="${secondMenu.level} eq '2' and ${secondMenu.parentId} eq ${firstMenu.paramId}">
+								<a th:href="@{''+${secondMenu.url}}" th:text="${secondMenu.paramName}">平台简介</a>
+							</dd>
+						</dl>
+
+					</div>
+				</div>
+				<div class="footer_link">
+					<div class="footer_link_content">
+						友情链接：
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+						<a href="#">腾智信息</a>
+					</div>
+				</div>
+				<div class="belong">
+					<p>版权所有：***************** ICP备浙999999号</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</html>

@@ -1,0 +1,75 @@
+package com.tengzhi.business.finance.capitalManager.capitalType.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.capitalManager.capitalType.dao.CapitalTypeDao;
+import com.tengzhi.business.finance.capitalManager.capitalType.model.EFVoucherCapitaltype;
+import com.tengzhi.business.finance.capitalManager.capitalType.service.CapitalTypeService;
+import com.tengzhi.business.project.projectProcess.projectTask.model.EXmXmrw;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+@Service
+@Transactional
+public class CapitalTypeServiceImpl implements CapitalTypeService {
+
+    @Autowired
+    private CapitalTypeDao dao;
+
+    @Override
+    public EFVoucherCapitaltype save(EFVoucherCapitaltype model) throws Exception {
+        model.setDataCorp(SessionUser.SessionUser().getCorpId());
+        model.setFid(UUID.randomUUID().toString());
+        return dao.save(model);
+    }
+
+    @Override
+    public BasePage<EFVoucherCapitaltype> getList(BaseDto baseDto) throws IOException {
+        Map<String,String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(item->{
+            item.eq("data_corp",SessionUser.SessionUser().getCorpId());
+            item.contains("fnumber",map.get("fnumber"));
+            item.contains("fname",map.get("fname"));
+        });
+        String sql = " select *,  " +
+                " case when fdeprmethod2=100 then '平均年限法' else '不提折旧' end fdeprmethod2_name, " +
+                " (select fnumber||fname from e_f_voucher_ac ac where ac.faccountid= ffaacctid) ffaacctid_name," +
+                " (select fnumber||fname from e_f_voucher_ac ac where ac.faccountid= fdepracctid) fdepracctid_name " +
+                " from e_f_voucher_capitaltype "+where;
+        return dao.QueryPageLists(baseDto , sql );
+    }
+
+    @Override
+    public EFVoucherCapitaltype findById(String sid) {
+        return dao.QueryToFirstBean(" select *," +
+                " (select fnumber||fname from e_f_voucher_ac ac where ac.faccountid= ffaacctid) ffaacctid_name," +
+                " (select fnumber||fname from e_f_voucher_ac ac where ac.faccountid= fdepracctid) fdepracctid_name " +
+                " from e_f_voucher_capitaltype where fid='"+sid+"' ");
+    }
+
+    @Override
+    public void update(EFVoucherCapitaltype model) {
+        EFVoucherCapitaltype dbModel = dao.findById(model.getFid()).orElse(null);
+        dao.dynamicSave(model, dbModel);
+    }
+
+    @Override
+    public void deleteByNote(String cId) {
+        dao.deleteById(cId);
+    }
+
+    public List<Map<String,Object>> getCapitalSelectList(){
+        return dao.QueryToMap(" select *,fnumber||fname fullname," +
+                " (select fnumber||fname from e_f_voucher_ac ac where ac.faccountid= ffaacctid) ffaacctid_name," +
+                " (select fnumber||fname from e_f_voucher_ac ac where ac.faccountid= fdepracctid) fdepracctid_name " +
+                " from e_f_voucher_capitaltype where data_corp='"+SessionUser.SessionUser().getCorpId()+"' ");
+    }
+}

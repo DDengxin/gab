@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)http://www.jq22.com/demo/jSignature-master201704170038/ -->
+<html lang="en" class=" js canvas no-touch borderradius csscolumns fullscreen" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="initial-scale=1.0, target-densitydpi=device-dpi">
+    <meta name="viewport" content="initial-scale=1.0, width=device-height">
+    <script type="text/javascript" th:src="@{/static/script/signature/modernizr.js}"></script>
+    <!--[if lt IE 9]>
+    <script type="text/javascript" th:src="@{/static/script/signature/flashcanvas.js}"></script>
+    <![endif]-->
+    <style type="text/css">
+
+        div {
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
+
+        input {
+            padding: .5em;
+            margin: .5em;
+        }
+
+        select {
+            margin: .5em;
+        }
+
+        #signatureparent {
+            color: darkblue;
+            /* 		background-color:darkgrey; */
+            /*max-width:600px;*/
+            /* 		padding:20px; */
+        }
+
+        /*This is the div within which the signature canvas is fitted*/
+        #signature {
+            border: 2px dotted black;
+            background-color: lightgrey;
+        }
+
+        /* Drawing the 'gripper' for touch-enabled devices */
+        html.touch #content {
+            float: left;
+            width: 92%;
+        }
+
+        html.touch #scrollgrabber {
+            float: right;
+            width: 4%;
+            margin-right: 2%;
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAFCAAAAACh79lDAAAAAXNSR0IArs4c6QAAABJJREFUCB1jmMmQxjCT4T/DfwAPLgOXlrt3IwAAAABJRU5ErkJggg==)
+        }
+
+        html.borderradius #scrollgrabber {
+            border-radius: 1em;
+        }
+
+    </style>
+</head>
+<body style="">
+<div>
+    <div id="content">
+        <div id="signatureparent">
+            <div></div>
+            <div id="signature"></div>
+        </div>
+        <div id="tools"></div>
+        <div>
+            <div id="displayarea"></div>
+        </div>
+    </div>
+    <div id="scrollgrabber"></div>
+</div>
+<script type="text/javascript" th:src="@{/static/script/signature/jquery-1.10.2.js}"></script>
+<script type="text/javascript" th:src="@{/static/script/signature/jquery.min.js}"></script>
+<script type="text/javascript">
+    jQuery.noConflict()
+</script>
+<script type="text/javascript">
+    (function ($) {
+        var topics = {};
+        $.publish = function (topic, args) {
+            if (topics[topic]) {
+                var currentTopic = topics[topic],
+                    args = args || {};
+
+                for (var i = 0, j = currentTopic.length; i < j; i++) {
+                    currentTopic[i].call($, args);
+                }
+            }
+        };
+        $.subscribe = function (topic, callback) {
+            if (!topics[topic]) {
+                topics[topic] = [];
+            }
+            topics[topic].push(callback);
+            return {
+                "topic": topic,
+                "callback": callback
+            };
+        };
+        $.unsubscribe = function (handle) {
+            var topic = handle.topic;
+            if (topics[topic]) {
+                var currentTopic = topics[topic];
+                for (var i = 0, j = currentTopic.length; i < j; i++) {
+                    if (currentTopic[i] === handle.callback) {
+                        currentTopic.splice(i, 1);
+                    }
+                }
+            }
+        };
+    })(jQuery);
+
+</script>
+<script type="text/javascript" th:src="@{/static/script/signature/jSignature.min.noconflict.js}"></script>
+<script type="text/javascript">
+    (function ($) {
+
+        $(document).ready(function () {
+
+            var $sigdiv = $("#signature").jSignature({'UndoButton': true})
+
+                , $tools = $('#tools')
+                , $extraarea = $('#displayarea')
+                , pubsubprefix = 'jSignature'
+
+            $('<input type="button" value="还原">').bind('click', function (e) {
+                $sigdiv.jSignature('reset')
+            }).appendTo($tools)
+
+            $('<input type="button" value="确定">').bind('click', function (e) {
+                var data = $sigdiv.jSignature('getData', 'image')
+                $.publish(pubsubprefix + data[0], data);
+            }).appendTo($tools)
+
+            $.subscribe(pubsubprefix + 'image/png;base64', function (data) {
+                parent.signature(data[0] + ',' + data[1]);
+                window.CloseOwnerWindow();
+            });
+        })
+
+    })(jQuery);
+</script>
+</body>
+</html>

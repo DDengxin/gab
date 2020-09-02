@@ -1,0 +1,151 @@
+package com.tengzhi.business.platform.shopping.model;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Entity
+@Table(name = "e_xs_contract")
+public class G_EXsContract {
+	@Id
+	private String htNo;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date htDate;
+	private String htType;
+	private String htCustomer;
+	private String htItemType;
+	private String htCurrency;
+	private BigDecimal htTax;
+	private String htSettlement;
+	private String htValidity;
+	private String htAddress;
+	private String htTransportCosts;
+	private String htTransportMode;
+	private String htRequirements;
+	private String htSupplement;
+	private String dataMan;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm",timezone="GMT+8")
+	private Date dataRq;
+	private String dataCorp;
+	private String htFlag;
+	private String htStype;
+	public String getHtNo() {
+		return htNo;
+	}
+	public void setHtNo(String htNo) {
+		this.htNo = htNo;
+	}
+	public Date getHtDate() {
+		return htDate;
+	}
+	public void setHtDate(Date htDate) {
+		this.htDate = htDate;
+	}
+	public String getHtType() {
+		return htType;
+	}
+	public void setHtType(String htType) {
+		this.htType = htType;
+	}
+	public String getHtCustomer() {
+		return htCustomer;
+	}
+	public void setHtCustomer(String htCustomer) {
+		this.htCustomer = htCustomer;
+	}
+	public String getHtItemType() {
+		return htItemType;
+	}
+	public void setHtItemType(String htItemType) {
+		this.htItemType = htItemType;
+	}
+	public String getHtCurrency() {
+		return htCurrency;
+	}
+	public void setHtCurrency(String htCurrency) {
+		this.htCurrency = htCurrency;
+	}
+	public BigDecimal getHtTax() {
+		return htTax;
+	}
+	public void setHtTax(BigDecimal htTax) {
+		this.htTax = htTax;
+	}
+	public String getHtSettlement() {
+		return htSettlement;
+	}
+	public void setHtSettlement(String htSettlement) {
+		this.htSettlement = htSettlement;
+	}
+	public String getHtValidity() {
+		return htValidity;
+	}
+	public void setHtValidity(String htValidity) {
+		this.htValidity = htValidity;
+	}
+	public String getHtAddress() {
+		return htAddress;
+	}
+	public void setHtAddress(String htAddress) {
+		this.htAddress = htAddress;
+	}
+	public String getHtTransportMode() {
+		return htTransportMode;
+	}
+	public void setHtTransportMode(String htTransportMode) {
+		this.htTransportMode = htTransportMode;
+	}
+	public String getHtRequirements() {
+		return htRequirements;
+	}
+	public void setHtRequirements(String htRequirements) {
+		this.htRequirements = htRequirements;
+	}
+	public String getHtSupplement() {
+		return htSupplement;
+	}
+	public void setHtSupplement(String htSupplement) {
+		this.htSupplement = htSupplement;
+	}
+	public String getDataMan() {
+		return dataMan;
+	}
+	public void setDataMan(String dataMan) {
+		this.dataMan = dataMan;
+	}
+	public Date getDataRq() {
+		return dataRq;
+	}
+	public void setDataRq(Date dataRq) {
+		this.dataRq = dataRq;
+	}
+	public String getDataCorp() {
+		return dataCorp;
+	}
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+	public String getHtFlag() {
+		return htFlag;
+	}
+	public void setHtFlag(String htFlag) {
+		this.htFlag = htFlag;
+	}
+	public String getHtStype() {
+		return htStype;
+	}
+	public void setHtStype(String htStype) {
+		this.htStype = htStype;
+	}
+	public String getHtTransportCosts() {
+		return htTransportCosts;
+	}
+	public void setHtTransportCosts(String htTransportCosts) {
+		this.htTransportCosts = htTransportCosts;
+	}
+	
+}

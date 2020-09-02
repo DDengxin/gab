@@ -1,0 +1,60 @@
+package com.tengzhi.business.sc.task.blcl.service.impl;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.sc.task.blcl.service.BlclService;
+import com.tengzhi.business.sc.task.sctack.dao.ScTackDao;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class BlclServiceImpl implements BlclService {
+
+	@Autowired
+	private ScTackDao scTackDao;
+	
+
+	
+	
+	@Override
+	public BasePage<Map<String, Object>> getSrchGridList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String where=" where 1=1 ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            where+=" and rq >='"+map.get("srchRq1")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            where+=" and rq <='"+map.get("srchRq2")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchBgc"))) {
+			where+=" and bgc like '%"+map.get("srchBgc")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			where+=" and code like '%"+map.get("srchCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+			where+=" and f_getparamname('GETBCPCODENAME',tname,'','技术',wl_type,'') like '%"+map.get("srchName")+"%' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			where+=" and tsize like '%"+map.get("srchSize")+"%'";
+		}
+		String sql="select *,f_getparamname('GETBCPCODENAME',tname,'','技术',wl_type,'') zzpname,f_getname('GETGXNAME', gx, '', '') gxname,f_getparamname('GETTYPEBYRAMNAME', tcj, '生产车间', '', '', '') cjname,f_getname('GETJTNAMES', tct, '', '') ctname"
+				+ ",f_getname('GETUSERNAME',do_man,'',data_corp) manname,f_get_param_name('生产班次',tbc,'cn',false) tbcname "
+				+ " from  v_sc_blgc "+where ;
+		String countsql="select count(*) cn from ("+sql+") t";
+		baseDto.setSortField("rq");
+		baseDto.setSortOrder("desc");
+		return scTackDao.QueryPageList(sql,countsql,baseDto);
+	}
+
+	
+}

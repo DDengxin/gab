@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>流程管理</title>
+</th:block>
+</head>
+<body>
+	<form id="form" name="form" method="post">
+		<table style="width: 100%;">
+			<tr>
+				<td style="white-space: nowrap;">
+					<label class="hmq-label" text="流程名称">
+						<input class="mini-textbox" name="params" id="params" />
+					</label>
+					<label class="hmq-label" text="业务ID">
+						<input class="mini-textbox" name="BusinessKey" id="BusinessKey" />
+					</label>
+				</td>
+			</tr>
+		</table>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div class="mini-splitter" style="width: 100%; height: 100%;">
+			<div size="60%" showCollapseButton="true">
+				<div tz:datagrid="datagrid" id="srch_grid" idField="createTime" url="/workflowInstances/processInstances" onselect="rowSelectHander">
+					<div property="columns">
+						<div tz:datagrid="indexcolumn"></div>
+						<div tz:datagrid="column" field="ProcessInstanceId" width="100" align="center">实例ID</div>
+						<div tz:datagrid="column" field="ProcessDefinitionId" width="100" align="center">流程定义ID</div>
+						<div tz:datagrid="column" field="name" width="150" align="center">流程名称</div>
+						<div tz:datagrid="column" field="isEnded" width="80" align="center" renderer="onActionRenderer">执行完成</div>
+						<div tz:datagrid="column" field="isSuspended" width="80" align="center" renderer="onActionRenderer">是否暂停</div>
+						<div tz:datagrid="column" field="ActivityId" width="80" align="center" renderer="onActionRenderer">活动标识</div>
+						<div tz:datagrid="column" field="BusinessKey" width="100" align="center">业务ID</div>
+					</div>
+				</div>
+			</div>
+			<div showCollapseButton="true">
+				<div style="width: 100%; height: 100%;">
+					<div class="mini-fit" style="width: 99%;">
+						<iframe id="diagram-viewer-iframe"  scrolling="no" name="diagram-viewer-iframe" width="100%" height="100%" frameborder="0" allowtransparency="true"></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form");
+		var grid = mini.get("srch_grid");
+		function search_option() {
+			var params = mini.get("params").getValue();
+			var BusinessKey = mini.get("BusinessKey").getValue();
+			grid.load({
+				"params" : params,
+				"BusinessKey" : BusinessKey
+			});
+		}
+
+		//动态判断
+		function onActionRenderer(e) {
+			if ('isSuspended' == e.field || 'ActivityId' == e.field || 'isEnded' == e.field) {
+				return e.value ? '是' : '否';
+			}
+		}
+
+		/**
+		 * 行点击事件
+		 **/
+		function rowSelectHander(e) {
+			var ProcessInstanceId = grid.getSelected().ProcessInstanceId;
+			if (ProcessInstanceId == null || ProcessInstanceId == "") {
+				hmq.tipDanger("实例ID不能为空");
+				return;
+			}
+			if (e.sender == grid) {
+				window.frames["diagram-viewer-iframe"].location.href = "/workflowInstances/toView?id="+ProcessInstanceId;
+			}
+		}
+
+		//删除流程
+		function delete_option(e) {
+			var ProcessInstanceId = grid.getSelected().ProcessInstanceId;
+			if (ProcessInstanceId == null || ProcessInstanceId == "") {
+				hmq.tipDanger("实例ID不能为空");
+				return;
+			}
+			$.ajax({
+				url : "/workflowInstances/deleteProcessInstance",
+				type : 'post',
+				data : {
+					id : ProcessInstanceId,
+					stime : (new Date()).getTime()
+				},
+				cache : false,
+				success : function(data) {
+					if (data.code == "200") {
+						hmq.tipSuccess("删除成功！");
+						search_option();
+					} else {
+						hmq.tipDanger("删除失败！");
+					}
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					hmq.tipDanger("删除失败！");
+				}
+			});
+		}
+
+		//修改流程
+		function edit_option(e) {
+			var ProcessInstanceId = grid.getSelected().ProcessInstanceId;
+			if (ProcessInstanceId == null || ProcessInstanceId == "") {
+				hmq.tipDanger("实例ID不能为空");
+				return;
+			}
+			$.ajax({
+				url : "/workflowInstances/editById",
+				type : 'post',
+				data : {
+					id : ProcessInstanceId,
+					stime : (new Date()).getTime()
+				},
+				cache : false,
+				success : function(data) {
+					if (data.code == "200") {
+						hmq.tipSuccess("修改成功！");
+						search_option();
+					} else {
+						hmq.tipDanger("修改失败！");
+					}
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					hmq.tipDanger("修改失败！");
+				}
+			});
+		}
+	</script>
+</body>
+</html>

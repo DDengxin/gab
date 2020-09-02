@@ -1,0 +1,41 @@
+package com.tengzhi.business.platform.specialist.need.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.enroll.model.G_Supply;
+import com.tengzhi.business.platform.specialist.need.vo.needVo;
+import com.tengzhi.business.system.user.model.SysUser;
+
+@SuppressWarnings("rawtypes")
+public interface NeedService  extends BaseService{
+
+	BasePage<Map<String,Object>> sreach(BaseDto baseDto) throws IOException;
+
+	void deleteByNote(String needNote);
+
+	Map<String, Object> getNeedPaging(String params, String pageIndex, String pageSize) throws Exception;
+
+	void updateNeed(needVo needVo) throws Exception;
+
+	List<Map<String, Object>> getTypeNeed(String type,String note) throws IOException;
+
+	List<Map<String, Object>> getFirmNeed(String firm) throws IOException;
+
+	List<Map<String, Object>> getNeedByDataMan(String man, String note) throws IOException;
+
+	Result saveNeed(needVo needVo) throws Exception;
+
+	Map<String, Object> examination(String needNote);
+
+	Map<String, Object> findById(String needNote, String cpcodeXp);
+
+	List<Map<String, Object>> getNeed(String type, String value, String form) throws IOException;
+
+
+}

@@ -1,0 +1,28 @@
+package com.tengzhi.business.system.org.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.system.org.model.SysOrg;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+/**
+ * @author 王翔
+ * @create 2020-04-12
+ */
+public interface SysOrgDao extends BasedaoRepository<SysOrg,String> {
+
+
+     SysOrg findByOrgId(String orgId);
+
+     SysOrg findByOrgNameAndDeleteLogo(String orgName,Boolean bool);
+
+     SysOrg findByOrgIdAndDeleteLogo(String orgId,Boolean bool);
+
+     @Modifying
+     @Query("update SysOrg set deleteLogo=true where tierId like :orgId")
+     void delLogByTierId(@Param("orgId") String orgId);
+     
+     int countByTierIdLikeAndState(String orgId,Boolean bool);
+
+}

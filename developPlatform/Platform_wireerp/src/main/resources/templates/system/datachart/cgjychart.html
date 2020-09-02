@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(_,_,_,${'jquery-1.12.4,common,echarts'})}">
+        <title>采购-交易额</title>
+    </th:block>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript">
+    var titlename =hmq.getQueryString("name");
+    var container = document.getElementById('container');
+    var chart = echarts.init(container);
+
+    //绑定尺寸改变事件,可以动态调整图表大小
+    hmq.addEvents(window, 'resize', chart.resize);
+    $(window).on("load", function (e) {
+        $.get("/system/datachart/getChartDatalist",function (res) {
+            if (200 === res.code) {
+                var datalist = res.data.CGJYL;
+                var titlestr=['product', '合同金额', '交易金额', '未开票金额','应收金额'];
+                var datastr =[];//封装列数据
+                datastr.push(titlestr);
+                var trblist=[];//封装显示列
+                for (let i = 0; i <datalist.length ; i++) {
+                    var strlist = [];
+                    strlist.push(datalist[i].rq);
+                    strlist.push(datalist[i].htzje);
+                    strlist.push(datalist[i].jyzje);
+                    strlist.push(datalist[i].wkpzje);
+                    strlist.push(datalist[i].yszje);
+                    datastr.push(strlist);
+                    trblist.push({type:"bar"});
+                }
+                setchardata(datastr,trblist,titlename);
+
+            }
+        });
+    });
+
+    function setchardata(datalist,typelist,titlename){
+          var option = {
+              title: {
+                      text: titlename
+                  },
+                legend: {},
+                toolbox: {
+                    show: true,
+                    orient: 'vertical',
+                    left: 'right',
+                    top: 'center',
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                tooltip: {},
+                dataset: {
+                    source: datalist
+                },
+                xAxis: {type: 'category'},
+                yAxis: {},
+                series: typelist
+            };
+                chart.setOption(option,true);
+            }
+</script>
+</body>
+</html>

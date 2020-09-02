@@ -1,0 +1,81 @@
+package com.tengzhi.business.mesGz.gzda.controller;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.annotations.Log;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.mesGz.gzda.model.GzdaVo;
+import com.tengzhi.business.mesGz.gzda.service.GzcodeService;
+
+@RestController
+@RequestMapping("/mesGz/gzda/")
+public class GzdaController {
+
+	@Autowired
+	private GzcodeService gzcodeService;
+
+	@GetMapping("*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "gzcode/list")
+	@Log("查询工装档案信息")
+	public Result getInboxList(BaseDto baseDto) throws IOException {
+		return gzcodeService.findAll(baseDto).getResult();
+	}
+
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	// @GetMapping("/staffRecordList.html")
+	@PostMapping(value = "gzmj.html")
+	public List<Map> getList(BaseDto baseDto) throws IOException {
+		return gzcodeService.findGzmj(baseDto);
+	}
+
+	
+	
+	
+	       /*	*//**
+			 * 
+			 * @description: Post新增Restful
+			 *//*
+				 * @RequestMapping(value="add.html",method=RequestMethod.PUT) public Result
+				 * add(@RequestBody GzdaVo vo) throws IOException,Exception { return
+				 * gzcodeService.save(vo); }
+				 */
+
+	/**
+	 * 删除数据列表
+	 *
+	 * @return
+	 */
+	@DeleteMapping(value = "l/delete/cpcode/{cpcodeId}")
+    public Result delete(@PathVariable(value = "cpcodeId") String cpcodeId) {
+//		gzcodeService.delete(cpcodeId);
+		return Result.resultOk();
+	}
+	
+}

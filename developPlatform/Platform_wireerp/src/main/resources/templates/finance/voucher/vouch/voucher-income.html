@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" >
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>科目</title>
+	</th:block>
+<style>
+.asLabel .mini-textbox-border,.asLabel .mini-textbox-input,.asLabel .mini-buttonedit-border,.asLabel .mini-buttonedit-input,.asLabel .mini-textboxlist-border
+	{
+	border: 0;
+	background: none;
+	cursor: default;
+}
+
+.asLabel .mini-buttonedit-button,.asLabel .mini-textboxlist-close {
+	display: none;
+}
+
+.asLabel .mini-textboxlist-item {
+	padding-right: 8px;
+}
+</style>
+</head>
+<body >
+	<form id="srch_from" method="post">
+		<div class="mini-toolbar" style="padding:1px;border-bottom:0;">
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<label>日期: </label>
+						<input id="srch_rq1" name="srch_rq1" class="mini-datepicker" style="width:110px;" showClearButton="false" />
+						<label>至: </label>
+						<input id="srch_rq2" name="srch_rq2" class="mini-datepicker" style="width:110px;" showClearButton="false" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div id="srch_grid" class="mini-datagrid" style="width:100%;height:100%;" pager="#pager1" showPager="false" pageSize="100" multiSelect="true" showSummaryRow="true"
+			ondrawsummarycell="onDrawSummaryCell">
+			<div property="columns">
+				<div type="indexcolumn">序号</div>
+				<div field="fdate" width="90" align="center" allowSort="true" dateFormat="yyyy-MM-dd" renderer="onActionRenderer" headerAlign="center">日期</div>
+				<div field="fvoucherid" width="100" align="center" allowSort="true" headerAlign="center" visible="false"></div>
+				<div field="fvoucherno" width="100" align="center" allowSort="true" headerAlign="center">凭证字号</div>
+				<div field="fexplanation" width="120" align="left" allowSort="true" headerAlign="center">摘要</div>
+				<div field="faccountid" displayField="fnumbername" width="150" align="left" allowSort="true" headerAlign="center">科目</div>
+				<div field="debit" width="100" align="right" allowSort="true" summaryType="sum" numberFormat="#,0.00" headerAlign="center">借方金额</div>
+				<div field="credit" width="100" align="right" allowSort="true" summaryType="sum" numberFormat="#,0.00" headerAlign="center">贷方金额</div>
+				<div field="fusername" width="100" align="center" allowSort="true" headerAlign="center">制单人</div>
+				<div></div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar" style="padding:0px;border-bottom:1;">
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;" sizeList="[50,100,200]"></div>
+				</td>
+				<td style="white-space:nowrap;" align="right" id="btnbar"></td>
+			</tr>
+		</table>
+	</div>
+
+	<div id="editWindow" class="mini-window" title="转存损益" style="width:800px;height:404px" showModal="true" allowResize="true" allowDrag="true">
+		<form id="form1" method="post">
+			<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+				<label>凭证字:</label>
+				<select id="fgroupid" name="fgroupid" onvaluechanged="fgroupidvaluechanged" url="encodeURI(encodeURI('/engine/ba/cm/select/getComboList.do?select_id=select_cw_pzz'))" class="mini-combobox"
+					style="width:80px;" textField="combtext" valueField="combid" required="true">
+				</select><!--  asLabel -->
+				<select id="fvoucherno" name="fvoucherno" class="mini-combobox" style="width:100px;" allowInput="false" required="true" textfield="combtext" valuefield="combid"></select>
+				<label>凭证日期: </label>
+				<input id="fdate" name="fdate" class="mini-datepicker " style="width:110px;" onvaluechanged="fgroupidvaluechanged"/>
+				<label>凭证摘要: </label>
+				<input id="fexplanation" name="fexplanation" class="mini-textbox " style="width:110px;" value="结转损益" />
+			</div>
+			<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+				<label>会计期间:</label>
+				<input id="fyearperiod" textfield="combtext" valuefield="combid" name="fyearperiod" class="mini-combobox" style="width:110px;" />
+				<label>凭证类型</label>
+				<select id="ftranstype" name="ftranstype" class="mini-combobox" style="width:60px;" required="true">
+					<option value="收益">收益</option>
+					<option value="损益">损益</option>
+				</select>
+				<label>利润科目: </label>
+				<input id="fsdbid" name="fsdbid" class="mini-treeselect" style="width:250px;" multiSelect="false" valueFromSelect="false" textField="fnumbername" valueField="faccountid" parentField="fparentid"
+					value="" allowInput="true" showRadioButton="false" showFolderCheckBox="false" nullitemtext="请选择..." shownullitem="true" emptytext="请选择..." />
+				<a class="mini-button" iconCls="icon-search" onclick="search_option()">查询</a>
+
+			</div>
+			<div id="editgrid" class="mini-datagrid" style="width:100%;height:270px;" idField="ksid" url="/cw/ba/pzgl/voucher/income/getIncomeList.do" allowResize="true" showPager="false" allowCellEdit="true"
+				allowCellSelect="true" editNextOnEnterKey="true" editNextRowCell="true" multiSelect="true" sortMode="client" sizeList="[50,100,200]" pageSize="200" OnCellCommitEdit="OnCellCommitEdit"
+				showColumnsMenu="true" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell">
+				<div property="columns">
+					<div type="checkcolumn"></div>
+					<div type="indexcolumn">序号</div>
+					<div field="faccountid" width="80" align="left" allowSort="true" headerAlign="center" visible="false"></div>
+					<div field="fnumber" width="80" align="left" allowSort="true" headerAlign="center">科目编码</div>
+					<div field="fname" width="120" align="left" allowSort="true" headerAlign="center">科目名称</div>
+					<div field="famount" width="100" align="right" allowSort="true" summaryType="sum" numberFormat="#,0.00" headerAlign="center">金额</div>
+					<div field="lrnumber" width="80" align="left" allowSort="true" headerAlign="center">利润科目编码</div>
+					<div field="lrname" width="120" align="left" allowSort="true" headerAlign="center">利润科目名称</div>
+					<div field="fsettleno" width="120" align="left" allowSort="true" headerAlign="center" visible="false">凭证类型</div>
+					<div field="fitemid" align="left" allowSort="true" headerAlign="center" visible="false"></div>
+					<div field="fcustomid" align="left" allowSort="true" headerAlign="center" visible="false"></div>
+					<div field="fdeptid" align="left" allowSort="true" headerAlign="center" visible="false"></div>
+					<div field="fsupplierid" align="left" allowSort="true" headerAlign="center" visible="false"></div>
+					<div field="fempid" align="left" allowSort="true" headerAlign="center" visible="false"></div>
+					<div field="finventoryid" align="left" allowSort="true" headerAlign="center" visible="false"></div>
+				</div>
+			</div>
+			<div id="editf" class="mini-toolbar" style="padding:2px;border-bottom:0;">
+				<table style="width:100%;">
+					<tr>
+						<td style="width:100%;" align="left">
+							<a class="mini-button" iconCls="icon-save" id="btnsave" onclick="saveData()">保存</a>
+							<a class="mini-button" iconCls="icon-close" onclick="javascript:cancelRow()">关闭</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</form>
+	</div>
+	<script th:inline="javascript">
+
+		var PERIOD = /*[[${CurrentPeriod}]]*/ "01";
+		var YEAR = /*[[${CurrentYear}]]*/ "1900";
+		var STARTPERIOD = /*[[${StartPeriod}]]*/ "01";
+		var STARTYEAR = /*[[${StartYear}]]*/ "1900";
+		var CORPID = /*[[${corp_id}]]*/ "TZ";
+	</script>
+	<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+		var form = new mini.Form("srch_from");
+		var editWindow = mini.get("editWindow");
+		var editform = new mini.Form("form1");
+		var editgrid = mini.get("editgrid");
+		var vurl = "/cw/ba/pzgl/voucher/voucher";
+		var surl = "/cw/ba/pzgl/voucher/income";
+		grid.setUrl(surl + "/getSrchGridList.do");
+		mini.get("fyearperiod").setUrl(encodeURI(encodeURI("/finance/voucher/vouch/select_cw_curyearmonth&code=" + parent.DATEBASE.currentperiod)));
+		mini.get("fyearperiod").setValue(parent.DATEBASE.currentperiod);
+		mini.get("fsdbid").setUrl(encodeURI(encodeURI("/finance/voucher/vouch/getSubjectTreeList.do")));
+		function search_option() {
+			var parms = form.getData(true);//设置true，获取的日期格式是"2010-11-12"字符串。
+			grid.load({
+				parms : mini.encode(parms)
+			});
+		}
+
+		function search_option() {
+			if (mini.get("fyearperiod").getValue() == "") {
+				hmq.tipDanger( "请选择会计期间", "danger");
+				return;
+			}
+			if (mini.get("fsdbid").getValue() == "") {
+				hmq.tipDanger( "请选择利润科目", "danger");
+				return;
+			}
+			var parms = editform.getData(true);
+			editgrid.load({
+				parms : mini.encode(parms)
+			});
+		}
+		function fgroupidvaluechanged() {
+			getCurrentMonthNextfvoucherno();
+		}
+
+		function jz_option() {
+			editWindow.show();
+		}
+
+		function cancelRow() {
+			editWindow.hide();
+		}
+
+		function onDrawSummaryCell(e) {
+			var result = e.result;
+			var sumdata = mini.decode(result.sumdata);
+			//服务端汇总计算
+			if (sumdata && e.field == "fvoucherno") {
+				var s = "<span style='color:Brown;'>";
+				s += "合计:</span>";
+				e.cellHtml = s;
+			}
+			if (sumdata && e.field == "debit") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.sl).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+			if (sumdata && e.field == "credit") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.je).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+			if (sumdata && e.field == "famount") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.famount).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+		}
+
+		//绘制行
+		function onActionRenderer(e) {
+			if (e.field == "fdate") {
+				return mini.formatDate(new Date(e.record.fdate), "yyyy-MM-dd");
+			}
+		}
+
+		function getCurrentMonthNextfvoucherno() {
+			var a = mini.get("fdate").getFormValue();
+			//var b = mini.get("fgroupid").getText(); //2019-05-13之前版本
+			var b = mini.get("fgroupid").getFormValue();
+			var n = isNull(a) ? YEAR + "-" + (PERIOD.length == 1 ? "0" + 1 : PERIOD) : a;
+			var c = "";
+			var o = {
+				fdate : n,
+				fgroup : b,
+				fvoucherid : c
+			};
+			$.ajax({
+				//url : vurl + "/getCurrentMonthNextfvoucherno.do",//2019-05-13之前版本
+				url: "/cw/ba/pzgl/voucher/associated/getCurrentMonthNextfvoucherNumber.do",
+				type : 'post',
+				data : {
+					stime : (new Date()).getTime(),
+					parms : mini.encode(o)
+				},
+				cache : false,
+				success : function(data) {
+					if (data.status) {
+						//mini.get("fvoucherno").setValue(data.fvoucherno);//2019-05-13之前版本
+					 mini.get("fvoucherno").load(data.list);
+					} else {
+						hmq.tipDanger( data.message, "danger");
+					}
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					hmq.tipDanger( "网络请求失败!", "danger");
+					// CloseWindow();
+				}
+			});
+		}
+
+		function saveData() {
+			editform.validate();
+			if (editform.isValid() == false) {
+				return;
+			}
+			var json = mini.encode(editform.getData());
+			var entrydata = editgrid.getData();
+			if(entrydata.length ==0){
+				hmq.tipDanger( "明细数量不能为空!", "danger");
+				return;
+			}			
+			var entryjson = mini.encode(entrydata);
+			mini.get("btnsave").disable();
+			$.ajax({
+				url : surl + "/save.do",
+				type : 'post',
+				data : {
+					headdata : json,//表头数据
+					entrydata : entryjson,//表体数据
+					stime : (new Date()).getTime()
+				},
+				cache : false,
+				success : function(data) {
+					mini.get("btnsave").enable();
+					if (data.status) {
+						mini.get("fgroupid").setValue();
+						editgrid.clearRows();
+						editWindow.hide();
+						search_option();
+						isminichange = true;
+						form.setChanged(false);
+					} else {
+						mini.alert(data.message);
+					}
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					hmq.tipDanger( "网络请求失败!", "danger");
+				}
+			});
+		}
+	</script>
+
+</body>
+</html>

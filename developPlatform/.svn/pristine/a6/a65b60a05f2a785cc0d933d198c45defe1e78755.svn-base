@@ -1,0 +1,70 @@
+package com.tengzhi.business.sc.pd.khgy.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.sc.pd.khgy.dao.MScKfgylistDao;
+import com.tengzhi.business.sc.pd.khgy.dao.MScKfgylistGcDao;
+import com.tengzhi.business.sc.pd.khgy.service.KhgyService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Map;
+
+
+/**
+ * @Auther: 龚行礼
+ * @Date: 2020/8/24 0013 21:45
+ * @Description:客户工艺
+ */
+
+@Service
+@Transactional
+public class KhgyServiceImpl implements KhgyService {
+	
+	
+	@Autowired
+	private MScKfgylistDao mScKfgylistDao;
+	@Autowired
+	private MScKfgylistGcDao mScKfgylistGcDao;
+
+	
+
+
+	@Override
+	public BasePage<Map<String, Object>> getSrchTopList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+		String where=" and a.data_corp='"+securityUser.getCorpId()+"' ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			where+=" and item_rq >='"+map.get("srchRq1")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			where+=" and item_rq <='"+map.get("srchRq2")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+			where+=" and ht_no like '%"+map.get("srchNo")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCustomer"))) {
+			where+=" and master_id like '%"+map.get("srchCustomer")+"%'";
+		}
+
+		String sqlString=" select b.*,a.ht_no,a.ht_code,f_getname('GETDWEXP',b.master_id,'',a.data_corp) master_name from  e_xs_contract_detailed a ,m_sc_kfgylist b where a.ht_mo=b.item_mo  "+where;
+		return mScKfgylistDao.QueryMapPageList(baseDto, sqlString+" order by item_rq desc,item_mo desc ", true);
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getSrchBottomList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sqlString=" select *,f_getname('GETGXNAME',scgy_gc,'','') gc_name  from  m_sc_kfgylist_gc where item_mo='"+map.get("itemMo")+"' order by scgy_Ord asc ";
+		return  mScKfgylistGcDao.QueryMapPageList(baseDto, sqlString , true);
+	}
+
+
+	
+	
+
+}

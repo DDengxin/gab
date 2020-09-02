@@ -1,0 +1,82 @@
+package com.tengzhi.business.platform.shopping.service.impl;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.shopping.dao.ShoppingCartSqlDao;
+import com.tengzhi.business.platform.shopping.dao.ShoppingCartDao;
+import com.tengzhi.business.platform.shopping.model.ShoppingCart;
+import com.tengzhi.business.platform.shopping.service.ShoppingService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+public class ShoppingServiceImpl implements ShoppingService {
+    @Autowired
+    SysGenNoteService sysGenNoteService;
+    @Autowired
+    ShoppingCartDao shoppingCartDao;
+
+    @Autowired
+    ShoppingService shoppingService;
+    @Autowired
+    ShoppingCartSqlDao shoppingCartSqlDao;
+
+
+    @Override
+    public Result addShoppingCart(String dataMan, String productNum) throws Exception {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        //如果购物车没有已存在的商品
+        if (shoppingCartDao.getproductNum(productNum,sessionUser.getUserId())==null){
+            return shoppingService.save(dataMan, productNum);
+        }else {
+            return Result.error ("该商品已存在");
+        }
+    }
+
+    @Override
+    public Result save(String dataMan, String productNum) throws Exception {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        SessionUser sessionUser = SessionUser.SessionUser();
+        String supplyNote = shoppingCartDao.getSupplyNote(dataMan);
+        String productId = sysGenNoteService.getNote("g_shopping","SHOP","yyyyMM",4);
+        shoppingCart.setProductCompany(supplyNote);
+        shoppingCart.setProductNum(productNum);
+        shoppingCart.setProductId(productId);
+        shoppingCart.setProductCount(1);
+        shoppingCart.setOperatorTime(new Date());
+        shoppingCart.setOperator(sessionUser.getUserId());
+        shoppingCart.setOperatorCompany(sessionUser.getCorpId());
+        shoppingCart.setOwner(sessionUser.getUserId());
+        shoppingCartDao.save(shoppingCart);
+        return Result.resultOkMsg("加入购物车成功");
+
+    }
+
+    @Override
+    public List<Map<String, Object>> findAll(String owner) {
+        List<Map<String, Object>> myShoppingCart = shoppingCartSqlDao.getMyShoppingCart(owner);
+        return myShoppingCart;
+    }
+
+    @Override
+    public Result deleteByPId(String productId) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        String userId = sessionUser.getUserId();
+        shoppingCartDao.delete(productId,userId);
+        return Result.resultOkMsg("删除成功");
+    }
+
+    @Override
+    public Result updateByPId(String productId, String count) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        String userId = sessionUser.getUserId();
+        shoppingCartDao.updateCount(count, productId,userId);
+        return Result.resultOk();
+    }
+}

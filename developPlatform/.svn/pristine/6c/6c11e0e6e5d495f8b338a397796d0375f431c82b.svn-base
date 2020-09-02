@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>规格产能</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input id="cnStype" name="cnStype" class="mini-hidden"/>
+        <input id="cpcodeType" name="cpcodeType" class="mini-hidden"/>
+
+        <label class="hmq-label" text="产能编码">
+            <input class="mini-textbox" name="clId"/>
+        </label>
+        <label class="hmq-label" text="事业部">
+            <input class="mini-combobox" name="clCj" url="/sc/capacity/specification/findCj" textField="param_name" valueField="param_id" emptyText="全部" nullItemText="全部" showNullItem="true"  width="120"/>
+        </label>
+        <label class="hmq-label" for="ggclSize" text="代表规格">
+            <input class="mini-textbox" name="ggclSize" id="ggclSize" width="100"/>
+        </label>
+        <label class="hmq-label" for="cpcodeFl" text="种类">
+           <input class="mini-combobox" name="cpcodeFl" id="cpcodeFl" emptyText="全部" nullItemText="全部" showNullItem="true" allowInput="true" valueFromSelect="true" >
+       </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="cl_id" url="/sc/pd/jdcn/findAll" showPageInfo="false" >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn">序号</div>
+            <div tz:datagrid="column" field="clId" width="120" align="center">产能编码</div>
+            <div tz:datagrid="column" name="clCj" field="clCj" displayField="clcjname" width="100">事业部</div>
+            <div tz:datagrid="column" name="cpcodeFl" field="clCode" width="100" displayField="cpcodeFlName" >种类</div>
+            <div tz:datagrid="column" name="ggclSize" field="ggclSize"width="100" numberFormat="#,0.00">代表规格</div>
+            <div tz:datagrid="column" name="sizeMin" field="sizeMin"width="80" numberFormat="#,0.00" >最小规格</div>
+            <div tz:datagrid="column" field="sizeMax"width="80" numberFormat="#,0.00" >最大规格</div>
+            <div tz:datagrid="column" name="clBcl" field="clBcl"width="80" align="right">班产能</div>
+            <div tz:datagrid="column" field="clRbs" width="80" align="right">日班数</div>
+            <div tz:datagrid="column" field="clRcl" width="80" align="right">日产能</div>
+            <div tz:datagrid="column" field="clYts" width="80" align="center">月天数</div>
+            <div tz:datagrid="column" field="clYcl" width="80" align="right" >月产能</div>
+            <div tz:datagrid="column" field="dataDate" width="80" align="center">操作日期</div>
+            <div tz:datagrid="column" name="dataMan" field="dataMan" displayField="dataManName" width="80">操作人员</div>
+        </div>
+        <div tz:datagrid="column" width="100%"></div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    var cntype = hmq.getQueryString("stype");
+    var cpcodeType = hmq.getQueryString("cpcodeType");
+    mini.get("cpcodeType").setValue(cpcodeType);
+    mini.get("cnStype").setValue(cntype);
+
+    grid.bindSearchForm(form);
+
+    // 页面初始化模块和类型 START
+    if (hmq.isNotEmpty(cpcodeType)) {
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniForm: form,
+            miniDataGrid: grid,
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+    }
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        e.sender.miniopen({url: "/sc/pd/jdcn/add.html", width:950,height:600,action: 'add', data:
+                {cpcodeType: cpcodeType,cntype:cntype}});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "/sc/pd/jdcn/add.html",width:950,height:600, action: 'edit', data: {row:
+                    row, cpcodeType: cpcodeType,cntype:cntype}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/sc/capacity/specification/deleteById/{0}".format(row.clId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

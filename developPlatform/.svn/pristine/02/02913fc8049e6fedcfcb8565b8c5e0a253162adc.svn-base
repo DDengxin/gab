@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" >
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>科目</title>
+	</th:block>
+<style>
+.asLabel .mini-textbox-border,.asLabel .mini-textbox-input,.asLabel .mini-buttonedit-border,.asLabel .mini-buttonedit-input,.asLabel .mini-textboxlist-border
+	{
+	border: 0;
+	background: none;
+	cursor: default;
+}
+
+.asLabel .mini-buttonedit-button,.asLabel .mini-textboxlist-close {
+	display: none;
+}
+
+.asLabel .mini-textboxlist-item {
+	padding-right: 8px;
+}
+</style>
+</head>
+<body onload="init('date','srch_rq1','srch_rq2','')">
+	<form id="form1" method="post">
+		<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<label>类型:</label>
+						<select id="srch_type" name="srch_type" class="mini-combobox" style="width:100px;" emptyText="全部" onvaluechanged="onvaluechanged">
+							<option value="出货">出货</option>
+							<option value="采购">采购</option>
+							<option value="销售">销售</option>
+							<option value="收款">收款</option>
+							<option value="付款">付款</option>
+							<option value="转账">转账</option>
+						</select>
+						<label>日期:</label>
+						<input id="srch_rq1" name="srch_rq1" class="mini-datepicker" style="width:105px;" required="true" />
+						<label>至 :</label>
+						<input id="srch_rq2" name="srch_rq2" class="mini-datepicker" style="width:105px;" required="true" />
+						<label>单号:</label>
+						<input id="srch_no" name="srch_no" class="mini-textbox" style="width:100px;" />
+						 <label>库房: </label>
+                    		<input id="srch_lib" name="srch_lib" class="mini-combobox" allowInput="false"
+                           url="encodeURI(encodeURI('../../../../engine/ba/cm/select/getComboList.do?select_id=lib_selectlist&lib_type=XC'))"
+                           textField="combtext" valueField="combid" nullItemText="全部" emptyText="全部" showNullItem="true"
+                           style="width:250px;" multiSelect="true"/>
+						<label>单位:</label>
+						<input id="srch_dw" name="srch_dw" class="mini-textbox" style="width:100px;" />
+						<input id="lbl_shl" name="lbl_shl" class="mini-textbox asLabel" style="width:40px;" allowInput="false" value="税率:" />
+						<input  url = "../../../../engine/ba/cm/select/getComboList.do?select_id=shlselect"  showNullItem="true" nullItemText="全部" valuefield = "combid" style = "width: 100px;"  emptytext = "请选择"  required = "false" name = "srch_shl" textfield = "combtext" id = "srch_shl"  class = "mini-combobox" />
+						<!-- <input id="srch_shl" name="srch_shl" class="mini-textbox" style="width:100px;" /> -->
+						<label>有无凭证:</label>
+						<select id="srch_pz" name="srch_pz" class="mini-combobox" style="width:100px;">
+							<option value="">全部</option>
+							<option value="有">有</option>
+							<option value="无">无</option>
+						</select>
+						<label>凭证号:</label>
+						<input id="srch_pzno" name="srch_pzno" class="mini-textbox" style="width:100px;" />
+						<label>金额:</label>
+						<input id="srch_je" name="srch_je" class="mini-textbox" style="width:100px;" />
+						<label>备注:</label>
+						<input id="srch_sm" name="srch_sm" class="mini-textbox" style="width:140px;" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div id="grid" class="mini-datagrid" style="width:100%;height:100%;" url="/cw/ba/pzgl/voucher/associated/gridlist.do" pageSize="500" multiSelect="true" allowCellSelect="true" sortMode="client"
+			showPager="false" pager="#pager1" ondrawsummarycell="onDrawSummaryCell" showSummaryRow="true">
+			<div property="columns">
+				<div type="checkcolumn"></div>
+				<div type="indexcolumn">序号</div>
+				<div field="id" width="100" align="center" allowSort="true" headerAlign="center" visible="false"></div>
+				<div field="rq" width="90" align="center" allowSort="true" dateFormat="yyyy-MM-dd" renderer="onActionRenderer" headerAlign="center">日期</div>
+				<div field="pztype" width="70" align="center" allowSort="true" headerAlign="center">单据类型</div>
+				<div field="note" width="100" align="center" allowSort="true" headerAlign="center">单号</div>
+				<div field="lib" displayField="libname" width="90" align="left" allowSort="true" headerAlign="center">（出货）库房</div>
+				<div field="dw" displayField="dwexp" width="180" align="left" allowSort="true" headerAlign="center">单位</div>
+				<div field="sl" width="80" align="right" allowSort="true" headerAlign="center" numberFormat="#,0.00" summaryType="sum">数量</div>
+				<div field="je" width="100" align="right" allowSort="true" numberFormat="#,0.00" headerAlign="center" summaryType="sum">金额</div>
+				<div field="bz" width="80" align="center" allowSort="true" headerAlign="center" visible="false">币种</div>
+<!-- 				<div field="type" width="80" align="center" allowSort="true" headerAlign="center" visible="false">方式</div>
+ -->			<div field="stype" width="120" align="left" allowSort="true" headerAlign="center" visible="true">账户</div>
+				<div field="shl" displayField="shlv"  width="80" align="right" allowSort="true" headerAlign="center" >税率</div>
+				<div field="se" width="100" align="right" allowSort="true" headerAlign="center" numberFormat="#,0.00" summaryType="sum">税额</div>
+				<div field="bhsje" width="100" align="right" allowSort="true" headerAlign="center" numberFormat="#,0.00" summaryType="sum" renderer="onActionRenderer">不含税金额</div>
+				<div field="flag" width="80" align="center" allowSort="true" headerAlign="center">状态</div>
+				<div field="pzno" headerAlign="center" width="90" align="left" allowSort="true">凭证号</div>
+				<div field="pzid" headerAlign="center" width="90" align="left" visible="false"></div>
+				<div field="pzop" headerAlign="center" width="70" align="left">操作人</div>
+				<div field="ftype" headerAlign="center" width="70" align="left" visible="false">凭证类型</div>
+				<div field="sm" headerAlign="center" width="200" align="left">备注</div>
+				<div width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar" style="border-bottom:1;">
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;" sizeList="[100,200]"></div>
+				</td>
+				<td style="white-space:nowrap;" align="right" id="btnbar" />
+			</tr>
+		</table>
+	</div>
+
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form1");
+		var grid = mini.get("grid");
+
+		function srch_option() {
+			var stype = mini.get("srch_type").getValue();
+			if (stype == "出货" || stype == "采购" || stype == "销售") {
+				grid.hideColumn(10);
+				//grid.hideColumn(12);
+				grid.showColumn(7);
+				//grid.showColumn(11);
+				//grid.showColumn(12);
+			} else if (stype == "收款" || stype == "付款" || stype == "转账") {
+				grid.hideColumn(7);
+				//grid.hideColumn(9);
+				//grid.hideColumn(11);
+				//grid.hideColumn(12);
+				//grid.hideColumn(13);
+				grid.showColumn(10);
+			}
+			var parms = form.getData(true);
+			grid.load({
+				parms : mini.encode(parms)
+			});
+		}
+
+		/**
+		导出
+		 */
+		function export_option() {
+			var columns = grid.getBottomColumns();
+			columns = columns.clone();//
+			for ( var i = columns.length - 1; i >= 0; i--) {
+				var column = columns[i];
+				if (!column.field) {
+					columns.removeAt(i);
+				} else {
+					var c = {
+						header : column.header,
+						field : column.field,
+						headerAlign : column.headerAlign,
+						width : column.width,
+						vtype : column.vtype,
+						align : column.align,
+						displayField : column.displayField,
+						dateFormat : column.dateFormat,
+						dataType : column.dataType
+					};
+					columns[i] = c;
+				}
+			}
+			var data = form.getData(true);
+			DownLoad("../voucher/associated/download.do", {
+				type : "excel",
+				columns : columns,
+				parms : mini.encode(data)
+			});
+		}
+
+		function onvaluechanged() {
+			var stype = mini.get("srch_type").getValue();
+			if (stype == "出货" || stype == "采购" || stype == "销售" || stype == "付款") {
+				mini.get("srch_shl").show();
+				mini.get("lbl_shl").show();
+			} else if (stype == "收款" || stype == "转账") {
+				mini.get("srch_shl").hide();
+				mini.get("lbl_shl").hide();
+			}
+		}
+
+		function add_option() {
+			//var row = grid.getSelected();
+			var rows = grid.getSelecteds();
+			if (rows.length>0) {
+				$.ajax({
+					url : "../voucher/associated/juge.do",// 跳转到 action   
+					data : {
+						parm : id,
+						entrydata : mini.encode(rows),
+						stime : (new Date()).getTime()
+					},
+					type : "post",
+					cache : false,
+					dataType : "json",
+					success : function(data) {
+						if (data.status) {
+							var vurl = "/cw/ba/pzgl/voucher/voucher-associated.html";
+							var vtitle = "【凭证录入】生成";
+							miniopen(vurl, vtitle, rows, "associated", 1100, 502);
+						} else {
+							mini.alert(data.message);
+						}
+					},
+					error : function() {
+						form.unmask();
+						mini.alert("网络操作请求失败!");
+					}
+				});
+			} else {
+				hmq.tipDanger( "请选中一条记录!", "danger");
+			}
+		}
+
+		function del_option() {
+			var row = grid.getSelected();
+			if (row.pzid) {
+				mini.confirm("您确认要删除此凭证吗？删除后将不可恢复，并会产生断号。", "提示信息", function(action) {
+					if (action == "ok") {
+						del.disabled = true;
+						grid.loading("操作中，请稍后......");
+						$.ajax({
+							url : "/cw/ba/pzgl/voucher/voucher/removeAll.do",// 跳转到 action
+							data : {
+								parms : row.pzid,
+								stime : (new Date()).getTime()
+							},
+							type : "post",
+							cache : false,
+							dataType : "json",
+							success : function(data) {
+								del.disabled = false;
+								if (data.status) {
+									grid.reload();
+								} else {
+									mini.alert(data.message);
+								}
+							},
+							error : function() {
+								hmq.tipDanger( "网络操作请求失败！", "danger");
+							}
+						});
+					}
+				});
+			} else {
+				hmq.tipDanger( "请选中有凭证号的记录", "danger");
+			}
+		}
+
+		//绘制行
+		function onActionRenderer(e) {
+			if (e.field == "fp_date") {
+				return mini.formatDate(new Date(e.record.fp_date), "yyyy-MM-dd");
+			}
+			if (e.field == "bhsje") {
+				return parseFloat(e.record.je-e.record.se).toFixed(2);
+			}
+			if (e.field == "rq") {
+				return mini.formatDate(new Date(e.record.rq), "yyyy-MM-dd");
+			}
+			if (e.field == "shl") {
+				if (e.value != null) {
+					return e.value * 100 + "%";
+					//return e.value;
+				}
+			}
+		}
+
+		function onDrawSummaryCell(e) {
+			var result = e.result;
+			var sumdata = mini.decode(result.sumdata);
+			console.log(result.sumdata);
+			if (sumdata && e.field == "sl") {
+				e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(sumdata.sl).toFixed(0) + "</span>";
+			}
+			if (sumdata && e.field == "je") {
+				e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(sumdata.je).toFixed(2) + "</span>";
+			}
+			if (sumdata && e.field == "se") {
+				e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(sumdata.se).toFixed(2) + "</span>";
+			}
+			if (sumdata && e.field == "bhsje") {
+				e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(sumdata.bhsje).toFixed(2) + "</span>";
+			}
+			if (e.field == "note") {
+				e.cellHtml = "<span style='color:Brown;float:right;'>合计:</span>";
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<th:block
+        th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+    <title>生成工艺卡</title>
+</th:block>
+<script type="text/javascript" src="/static/javascript/qrcode.js"></script>
+<script type="text/javascript" src="/static/javascript/qrcode.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        html,body,ul,li,ol,dl,dd,dt,p,h1,h2,h3,h4,h5,h6,form,fieldset,legend,img,input,figure,figcaption {
+            margin: 0;
+            padding: 0;
+        }
+
+        b,
+        strong {
+            font-weight: normal;
+        }
+
+        em,
+        i {
+            font-style: normal;
+        }
+
+        a,
+        u {
+            text-decoration: none;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container{
+            width: 100%;
+            overflow: hidden;
+        }
+        table{
+            /* width: 100%; */
+            border-collapse: collapse;
+            font-size: 14px;
+            font-family: '微软雅黑';
+            color: #333;
+            text-align: center;
+            margin: 0 auto;
+        }
+        table thead tr td:first-child img{
+            width: 150px;
+            height: 50px;
+        }
+        table thead tr>td:first-child+td{
+            font-size: 20px;
+            font-weight: bold;
+        }
+        table thead tr td:first-child+td+td img{
+            width: 134px;
+            height: 94px;
+        }
+        table tbody tr td{
+            width: 100px;
+            border: 1px solid #333;
+            height: 28px;
+        }
+        table tbody tr td:first-child+td{
+            padding: 5px;
+        }
+        table tbody tr td:first-child+td img{
+            width: 525px;
+            height: 235px;
+        }
+        .t{
+            font-weight: bold;
+            width: 20px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <table cellspacing="0" cellpadding="0">
+        <thead>
+        <tr>
+            <td colspan="4">
+                <!--<img src="/static/img/image001.png" alt="">-->
+                <img src="/static/img/login/logo.png" alt="">
+            </td>
+            <td colspan="2">生产工艺卡</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td rowspan="5" class="t">生产任务</td>
+            <td >任务单号</td>
+            <td id="scMo" align="left" colspan="2"></td>
+            <td>安排日期</td>
+            <td  id="apRq" colspan="4"></td>
+            <td rowspan="4"  style="padding-bottom:8px;" align="center">
+                <div id="qrcode" style="width:100px; height:80px;" ></div>
+            </td>
+        </tr>
+        <tr>
+            <td >产品名称</td>
+            <td  id="cpcodeName" align="left" colspan="2"></td>
+            <td>产品规格</td>
+            <td  id="cpcodeSize"  align="left" colspan="4"></td>
+        </tr>
+        <tr>
+            <td >生产数量</td>
+            <td id="scSl" colspan="2"></td>
+            <td >生产交期</td>
+            <td id="scJq" colspan="4"></td>
+        </tr>
+        <tr>
+            <td>加工车间</td>
+            <td id="cj" align="left" colspan="2"></td>
+            <td >使用客户</td>
+            <td id="kh"  align="left" colspan="4"></td>
+        </tr>
+        <tr>
+            <td >订单要求</td>
+            <td colspan="9"></td>
+        </tr>
+        </tbody>
+        <tbody>
+        <tr>
+            <td rowspan="4" class="t">产品标准</td>
+            <td>项目</td>
+            <td colspan="2">标准</td>
+            <td >项目</td>
+            <td colspan="5">标准</td>
+        </tr>
+        <tr>
+            <td>dk</td>
+            <td colspan="2"  align="left">12.9-12.95</td>
+            <td >L</td>
+            <td colspan="5"  align="left">19.8</td>
+        </tr>
+        <tr>
+            <td>K</td>
+            <td colspan="2"  align="left">7.83-8</td>
+            <td >t</td>
+            <td colspan="5"  align="left">4-4.5</td>
+        </tr>
+        <tr>
+            <td>s</td>
+            <td colspan="2"  align="left">6.02-6.12</td>
+            <td >中经</td>
+            <td colspan="5"  align="left">7.13±0.02</td>
+        </tr>
+        </tbody>
+        <tbody>
+        <tr>
+            <td class="t">产品图纸</td>
+            <td colspan="9">
+                <img src="/static/img/image005.png" alt="">
+            </td>
+
+        </tr>
+        </tbody>
+        <tbody id="gxlist">
+        <tr>
+            <td rowspan="7" class="t">生产工序</td>
+            <td>序号</td>
+            <td colspan="2"> 工序</td>
+            <td>生产数量</td>
+            <td colspan="5">要求</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var scmo = hmq.getQueryString("scMo");
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width : 90,
+        height : 90
+    });
+    if(scmo.length>0){
+        qrcode.makeCode(scmo);
+        $['post']("gykview/{0}".format(scmo), function (res) {
+            if (200 === res.code) {
+                        var modeldata = res.data.model;
+                        document.getElementById("scMo").innerText=modeldata.scMo;
+                        document.getElementById("cj").innerText=modeldata.cj;
+                        document.getElementById("apRq").innerText=modeldata.apRq;
+                        document.getElementById("cpcodeName").innerText=modeldata.cpcodeName;
+                        document.getElementById("cpcodeSize").innerText=modeldata.cpcodeSize;
+                        document.getElementById("kh").innerText=modeldata.kh;
+                        document.getElementById("scSl").innerText=modeldata.scSl;
+                        document.getElementById("scJq").innerText=modeldata.scJq;
+
+                        var gxlistdata = res.data.model.mx;
+                        var addtrlist = "";
+                        for(var i=0;i<gxlistdata.length;i++){
+                            addtrlist+="<tr>";
+                            addtrlist+="<td>"+(1+i)+"</td>";
+                            addtrlist+="<td colspan=\"2\">"+gxlistdata[i].gx_name+"</td>";
+                            addtrlist+="<td>"+gxlistdata[i].gx_sl+"</td>";
+                            addtrlist+="<td colspan=\"5\">"+(gxlistdata[i].gx_jsyq==null?"":gxlistdata[i].gx_jsyq) +"</td>";
+                            addtrlist+="</tr>";
+                        }
+                           var table = document.getElementById("gxlist");
+                            table.innerHTML = table.innerHTML+addtrlist;
+               /* var img = document.getElementById('mgstc');
+                img.src='templates/sc/task/sctask/images/image005.png';*/
+            } else {
+
+                hmq.tipDanger(res.msg || '信息获取失败');
+
+            }
+        });
+    }
+</script>
+
+</html>

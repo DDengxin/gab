@@ -1,0 +1,119 @@
+	<div class="list_right"  th:fragment="CommonExpertDetailRight" id="_CommonExpertDetailRight_" >
+				<div class="people">
+					<img class="people-img" src="" default-img="/static/gab/images/wt.png"  alt="">
+					<div class="abvalue">
+						爱帮值：
+						<b>98.6</b>
+					</div>
+					<div class="peo_rate" id="peo"></div>
+				</div>
+				<div class="details_content">
+					<div class="ability">
+						<h4>擅长分析</h4>
+						<ul>
+							<li>专长名称</li>
+							<li>专长关键词</li>
+							<li>专长名称</li>
+							<li>专长关键词</li>
+						</ul>
+					</div>
+					<div class="askexpert">
+						<h4>咨询专家</h4>
+						<p>有问题需要获取此专家的专业意见？</p>
+						<ul>
+							<li>
+								<a href="javascript:void(0);">
+									<i class="iconfont icon-zhangdan"></i>
+									我的需求
+								</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);">
+									<i class="iconfont icon-xinxi"></i>
+									我想咨询
+								</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);">
+									<i class="iconfont icon-dian_hua"></i>
+									电话咨询
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="recommend">
+						<h4>相关领域专家推荐</h4>
+						<ul id="recommend-ul">
+
+							
+						</ul>
+					</div>
+				</div>
+				
+				<script type="text/javascript">
+				$(document).ready(function(){ 					
+					//获取url地址栏中的参数
+					function GetQueryValue(queryName) {
+						var query = decodeURI(window.location.search.substring(1));
+						var vars = query.split("&");
+						for (var i = 0; i < vars.length; i++) {
+							var pair = vars[i].split("=");
+							if (pair[0] == queryName) {
+								return pair[1];
+							}
+						}
+						return null;
+					}
+					$.ajax({
+						type: "get",
+						contentType: "application/json;charset=UTF-8",
+						url: '/gab/getByidExpert?id=' + GetQueryValue("id"),
+						success: function (e) {
+							var data = e;
+							var e = e.data[0];  //headimgsrc  people-img
+							$(".people-img").attr('src', e.headimgsrc);
+							
+						   var recommend = $("#recommend-ul");
+							var random_data = data.random_data;			
+							var recommend_html = "";
+							$.each(random_data, function (i, obj) {
+								console.log(obj)
+								recommend_html += `<li>
+																<a href="expertDetails.html?id=${obj.expert_note}">
+																<img src="${obj.headimgsrc}" default-img="/static/gab/images/wt.png"  alt="">
+																<div class="fr">
+																	<p>
+																		<b>${obj.nick_name}</b>
+<!--																		<span>${ !!obj.supply_name_x ?obj.supply_name_x :"" }</span>-->
+																	</p>
+																	<p>
+																		从业年限：
+																		<i>${ !!obj.job_age ? obj.job_age :"" }</i>
+																		年
+																	</p>
+																	<p class="advantage"> 特长：${obj.strengths}</p>
+																</div>
+															</a> </li>`;
+
+							});
+
+
+							recommend.html(!!recommend_html ? recommend_html : "无可推荐专家，等待更新！");
+						},
+						//请求失败，包含具体的错误信息
+						error: function (e) {
+
+						}
+					});
+					
+					
+					
+					}); 
+				
+				
+				
+	
+</script>
+				
+				
+			</div>

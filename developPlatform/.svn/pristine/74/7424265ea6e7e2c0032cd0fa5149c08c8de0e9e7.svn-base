@@ -1,0 +1,69 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.yw.purchaseRequisition.model.EcgRequisition;
+import com.tengzhi.business.cg.yw.purchaseRequisition.model.EcgRequisition.EcgRequisition_PK;
+import com.tengzhi.business.cg.yw.purchaseRequisition.vo.EcgRequisitiontVo;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.ck.yw.ckck.service.WarehouseOutService;
+import com.tengzhi.business.finance.voucher.dao.CertificateWordDao;
+import com.tengzhi.business.finance.voucher.model.CertificateWord;
+import com.tengzhi.business.finance.voucher.service.CertificateWordService;
+import com.tengzhi.business.finance.voucher.vo.CertificateWordVo;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class CertificateWordServiceImpl implements CertificateWordService {
+	@Autowired
+	CertificateWordDao certificateWordDao;
+
+	@Override
+	public BasePage<CertificateWord> getSrchTopList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser = SessionUser.SessionUser();
+		String sqlString = "select  fgenerateid,fname,fprefix,finternalind,fdigit,fisdefault " +
+				" from e_f_voucher_certificateword  where group by fgenerateid,fname,fprefix,finternalind,fdigit,fisdefault ";
+		return certificateWordDao.QueryPageLists(baseDto, sqlString + " order by fisdefault desc");
+	}
+
+	@Override
+	public Result save(CertificateWord certificateWord) throws Exception {
+		return null;
+	}
+
+
+	@Override
+	public ModelAndView table(ModelAndView mv, String outNote) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public Result update(CertificateWord CertificateWord) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+
+	}
+
+	@Override
+	public boolean judgeUnique(CertificateWord CertificateWord) {
+		return false;
+	}
+}

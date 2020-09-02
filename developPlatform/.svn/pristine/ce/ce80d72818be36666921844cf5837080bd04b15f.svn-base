@@ -1,0 +1,125 @@
+package com.tengzhi.business.system.role.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.base.tools.ehcache.util.EhcacheMenu;
+import com.tengzhi.base.tools.ehcache.util.EhcacheTemplate;
+import com.tengzhi.business.system.role.dao.SysRoleDao;
+import com.tengzhi.business.system.role.model.SysRole;
+import com.tengzhi.business.system.role.service.SysRoleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class SysRoleServiceImpl implements SysRoleService {
+    @Autowired
+    private SysRoleDao sysRoleDao;
+
+    @Autowired
+    private EhcacheTemplate template;
+    @Override
+    public BasePage<SysRole> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysRoleDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.contains("roleId", map.get("roleId"));
+            c.contains("roleName", map.get("roleName"));
+            c.eqbool("isForbidden", map.get("isForbidden"));
+        }));
+    }
+
+    @Override  
+    public SysRole findByRoleId(String roleId) {
+        return sysRoleDao.findByRoleId(roleId);
+    }
+
+
+    @Override
+    public SysRole save(SysRole sysRole) throws Exception {
+        if (judgeUnique(sysRole)) {
+            sysRole.setGenTime(new Date());
+            sysRole.setModifyTime(new Date());
+            sysRole.Validate();
+            return sysRoleDao.save(sysRole);
+        } else {
+            throw new RuntimeException("名称已存在");
+        }
+    }
+
+
+    @Override
+    public void AuthSave(Map<String, Object> map) {
+        SessionUser user=SessionUser.SessionUser();
+        template.removeLike("ehCacheConfig",EhcacheMenu.menu.getGroup_unique()+user.getUserId());
+        template.removeLike("ehCacheConfig",EhcacheMenu.button.getGroup_unique()+user.getUserId());
+        String rid = map.get("roleId").toString();
+        String rightModule = map.get("rightModule").toString();
+        sysRoleDao.authDelete(rid, rightModule);
+        sysRoleDao.flush();
+        List<Map<String, Object>> rightMap = (List<Map<String, Object>>) map.get("rightMap");
+        rightMap.forEach(item -> {
+            sysRoleDao.authAdd(UUIDUtil.uuid(), rid, String.valueOf(item.get("rightId")), rightModule);
+        });
+    }
+
+
+    @Override
+    public void update(SysRole sysRole) {
+        SessionUser user=SessionUser.SessionUser();
+        template.removeLike("ehCacheConfig",EhcacheMenu.menu.getGroup_unique()+user.getUserId());
+        template.removeLike("ehCacheConfig",EhcacheMenu.button.getGroup_unique()+user.getUserId());
+        sysRole.setModifyTime(new Date());
+        sysRoleDao.dynamicSave(sysRole, sysRoleDao.findByRoleId(sysRole.getRoleId()));
+    }
+
+    @Override
+    public void deleteByRoleId(String roleId) {
+        SessionUser user=SessionUser.SessionUser();
+        template.removeLike("ehCacheConfig", EhcacheMenu.menu.getGroup_unique()+user.getUserId());
+        template.removeLike("ehCacheConfig",EhcacheMenu.button.getGroup_unique()+user.getUserId());
+        sysRoleDao.deleteById(roleId);
+    }
+
+    @Override
+    public boolean judgeUnique(SysRole sysRole) {
+        return sysRoleDao.findAll(Specifications.where((c) -> {
+            c.eq("roleName", sysRole.getRoleName());
+        })).size() <= 0;
+    }
+
+    @Override
+    public List<Map<String, Object>> findSysRightAll(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixAnd((c) -> {
+            c.contains("right_name", map.get("rightName"));
+        });
+        String sql = " WITH RECURSIVE role_tree AS ( "
+                + " SELECT right_id,right_name,right_module,parent_id,right_icon_cls,is_forbidden,right_ord "
+                + " FROM sys_right where parent_id = 'ROOT' and is_forbidden = false and right_module = '" + map.get("rightModule") + "' "
+                + " UNION ALL "
+                + " SELECT sys_right.right_id,sys_right.right_name,sys_right.right_module,sys_right.parent_id,sys_right.right_icon_cls,sys_right.is_forbidden,sys_right.right_ord "
+                + " FROM sys_right join role_tree on sys_right.parent_id = role_tree.right_id  and sys_right.is_forbidden = role_tree.is_forbidden and sys_right.right_module = role_tree.right_module  "
+                + " ) "
+                + " select role_tree.*, (case when right_r_role.right_id is null then false else true end) is_checked "
+                + " from role_tree "
+                + " left join ( SELECT id, right_id FROM sys_role_r_right WHERE role_id = '" + map.get("roleId") + "' ) right_r_role "
+                + " on role_tree.right_id = right_r_role.right_id "
+                + where
+                + " order by role_tree.right_id asc,role_tree.right_ord asc ";
+        return sysRoleDao.QueryToMap(sql);
+
+    }
+
+
+}
+

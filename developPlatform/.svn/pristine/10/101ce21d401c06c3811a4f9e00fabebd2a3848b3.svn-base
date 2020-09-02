@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>员工请假原因</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block
+            th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="日期">
+                <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+            </label>
+            <label class="hmq-label" text="至">
+                <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+            </label>
+            <!--<label class="hmq-label" text="时间"> <input
+                class="mini-datepicker"  name="qjKrp" />
+            </label>
+            <label class="hmq-label" text="至"> <input
+                class="mini-datepicker"  name="qjDrp" />
+            </label>-->
+            <label class="hmq-label" text="请假单号"> <input
+                    class="mini-textbox" name="qjNote"/>
+            </label>
+            <label class="hmq-label" text="员工部门">
+                <input name="srchWorkerDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                       url="/system/dept/combobox/getDeptTreeList"
+                       showClose="true" oncloseclick="onCloseClickClearValue"/>
+            </label>
+            <!--<label class="hmq-label" text="员工">
+            <input  id="workerId"  name="workerId"  emptyText="全部"
+                       allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"  />
+            </label>-->
+            <label class="hmq-label" text="员工姓名"> <input
+                    class="mini-textbox" name="workerName"/>
+            </label>
+            <label class="hmq-label" text="员工工号"> <input
+                    class="mini-textbox" name="workerId"/>
+            </label>
+
+        </th:block>
+    </th:block>
+</form>
+
+<!--充满页面-->
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="jbqjId" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="qjRq" align="center" width="120">请假日期</div>
+            <div tz:datagrid="column" field="qjNote" width="120">请假单号</div>
+
+            <div tz:datagrid="column" field="workerId" displayField="workerName" align="center" width="70">请假员工</div>
+            <div tz:datagrid="column" field="workerDeptName" align="center" width="70">员工部门</div>
+            <!-- <div tz:datagrid="column" field="qjDtype" align="center" width="65">大类</div> -->
+            <div tz:datagrid="column" field="qjZtype" align="center" width="65">请假类型</div>
+            <!-- 	<div tz:datagrid="column" field="qjXtype" align="center" width="65">小类</div> -->
+            <div tz:datagrid="column" field="qjKrq" align="center" width="120" dateFormat="yyyy-MM-dd HH:mm" renderer="onActionRenderer">开始时间</div>
+            <div tz:datagrid="column" field="qjDrq" align="center" width="120" dateFormat="yyyy-MM-dd HH:mm" renderer="onActionRenderer">结束时间</div>
+            <div tz:datagrid="column" field="qjSc" align="center" width="65">请假时长</div>
+            <!-- <div tz:datagrid="column" field="qjKq" align="center" width="80" >考勤时长</div> -->
+            <div tz:datagrid="column" field="qjFlag" align="center" width="70">请假状态</div>
+            <!-- <div tz:datagrid="column" field="qjMonth" align="center" width="65">考勤月份</div> -->
+            <div tz:datagrid="column" field="dataMan" align="center" width="80">操作人</div>
+            <div tz:datagrid="column" field="dataDate" align="center" width="120">操作日期</div>
+            <!-- <div tz:datagrid="column" field="dataCorp" align="center" width="65">所属公司</div> -->
+            <div tz:datagrid="column" field="qjSy" align="left" width="280">请假事由</div>
+
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form)
+
+    function search_option() {
+        grid.load();
+    }
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "qjKrq") {
+            return mini.formatDate(new Date(record.qjKrq), "yyyy-MM-dd HH:mm");
+        }
+        if (e.field == "qjDrq") {
+            return mini.formatDate(new Date(record.qjDrq), "yyyy-MM-dd HH:mm");
+        }
+
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "qjZtype") {
+            if (e.value == "XJ") {
+                e.cellHtml = '休假';
+            } else if (e.value == "BJ") {
+                e.cellHtml = '病假';
+            } else if (e.value == "SJ") {
+                e.cellHtml = '事假';
+            }
+        }
+    });
+
+
+    /* 新增 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 600, height: 400});
+    }
+
+    /* 修改*/
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.qjNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: 600, height: 400});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一条数据");
+        }
+    }
+
+    /* 删除*/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.qjNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("确定删除吗", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("leave.html/{0}".format(row.jbqjId), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /*  员工选择 */
+    function onSupplierClick() {
+        var btnEdit = this;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "【请假员工】选择页面",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    function confrim_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.qjFlag != "登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+            } else {
+                hmq.business.approvalConfirm({
+                    businessId: row.qjNote,
+                    url: '/personnel/checkWorkAttendance/leave/add.html',
+                    error: function (res) {
+						hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+
+    }
+
+	//TODO:lxh 没有取消方法
+
+    /**
+     * 提交
+     * 该方法是否无用？？？？？？？
+     * @param e
+     */
+    function submit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.qjNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'submit', data: row, width: 600, height: 400});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条数据");
+        }
+    }
+
+</script>
+
+
+</body>
+</html>

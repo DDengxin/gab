@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+	<title>合批</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden">
+		<form id="form1">
+			 <table class="hmq-modify-table" style="padding: 50">
+			  <tr>
+                <td title>生产日期：</td>
+                <td content >
+                    <input id="rq" name="rq" class="mini-datepicker" />
+                </td>
+                <td title>生产交期：</td>
+                <td content >
+                    <input id="scjq" name="scjq" class="mini-datepicker"  />
+                </td>
+            </tr>
+            <tr>
+                <td title>订单明细：</td>
+                <td content >
+                   <input id="htMo" name="htMo" class="mini-textbox"   readonly="readonly"/>
+                </td>
+                <td title>编码：</td>
+                <td content >
+                    <input id="code"  name="code" class="mini-textbox" readonly="readonly"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>名称：</td>
+                <td content >
+                   <input id="sname" name="sname" class="mini-textbox"   readonly="readonly"/>
+                </td>
+                <td title>规格：</td>
+                <td content >
+                    <input id="size" name="size" class="mini-textbox"   readonly="readonly"/>
+                </td>
+            </tr>
+           
+           <tr>
+                <td title>订单数量：</td>
+                <td content >
+                   <input id="htsl" name="htsl" class="mini-textbox" readonly="readonly"/>
+                </td>
+                <td title>生产数量：</td>
+                <td content >
+                   <input  id="scsl" name="scsl" class="mini-textbox" value="1" vtype="float;required;" />
+                </td>
+            </tr>
+             <tr>
+                <td title>生产要求：</td>
+                <td content colspan="3">
+                    <input id="scyq" name="scyq" class="mini-textarea" height="120px"/>
+                </td>
+            </tr>
+            
+        </table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+mini.parse();
+var form = new mini.Form("form1");
+
+function SetData(options) {
+   if ('hp' == options.action) {
+    	$.get("/sale/saleProduct/saleContract/getByHpId/{0}".format(options.data), function (res) {
+            if (200 === res.code) {
+            	  var data = mini.decode(res.data);
+            	  form.setData(res.data, true);
+            	  mini.get("rq").setValue(mini.formatDate(new Date(), "yyyy-MM-dd"));
+            	  mini.get("htMo").setValue(data.htmo);
+            	  mini.get("scsl").setValue(data.htsl);
+            	  
+            }
+        });
+    }
+}
+
+function SaveData() {
+    if (form.validate() && form.isValid()) {
+    	var htsl=mini.get("htsl").getValue();
+    	var scsl=mini.get("scsl").getValue();
+    	if(parseFloat(scsl)<=0){
+    		return  hmq.tipDanger('生产数量不能小于等于0!',{targetWindow:window});
+    	}
+    	if(parseFloat(htsl)<parseFloat(scsl)){
+    		return  hmq.tipDanger('生产数量不能大于订单数量！',{targetWindow:window});
+    	}
+        $['post']("/sc/task/sctask/xsddHp",JSON.stringify(form.getData(true)),
+        function (res) {
+            if (200 === res.code) {
+                hmq.tipSuccess(res.msg || '保存成功', {
+                    exec: function () {
+                        CloseWindow('refresh',false);
+                    }
+                });
+            } else {
+                hmq.tipDanger(res.msg || '保存失败');
+            }
+        }, null, {
+            contentType: 'application/json'
+        });
+    }
+}</script>
+</html>

@@ -1,0 +1,165 @@
+$(function () {
+	$('#tablist>li').each(function () {
+		$(this).click(function () {
+			// console.log($(".tabin").html()==$(this).html());
+			var type = "服务需求";
+			// if ($(".tabin").html()==$(this).html()){
+			//
+			//
+			// }else {
+			//
+			// 	$("#ConfigForm").css({"display":"none"})
+			// }
+			$(".tabin").removeClass("tabin");
+			$(this).addClass("tabin");
+
+			if(!!$(".tabin").html()){
+				type = $(".tabin").html();
+				needServiceSwitch(type)
+			}
+			// $(".contentin").removeClass("contentin");
+			// $(".content-box>div").eq(index).addClass("contentin");
+			getNeedService();
+		})
+	})
+
+	new PCAS("P1", "C1");
+
+	// getSysParams("needType", "平台参数", "表单配置", "CPXQ");
+	// getSysParams("serviceResult", "平台参数", "表单配置", "FWXQ");
+
+	//行业分类值改变事件
+	$("#cpcodeXp").change(function () {
+		formConfig({classify:$("#cpcodeXp").val(),index:2,show:'front'});
+	});
+
+	//服务成果值改变事件
+	$("#serviceResult").change(function () {
+		formConfig({classify:$("#serviceResult").val(),index:2,show:'front',container:"#ServicefigForm"});
+	});
+
+	getNeedService();
+})
+
+function getNeedService() {
+	var type = "产品需求";
+	if(!!$(".tabin").html()){
+		type = $(".tabin").html();
+	}
+	if (type=="产品需求") {
+		getSysParams("cpcodeXp", "技术", "夹具大类", "CP");
+	}else {
+		getSysParams("cpcodeXp", "技术", "服务大类", "HW");
+	}
+}
+function needServiceSwitch(type) {
+	if (type=="产品需求"){
+		$("#needForm").val("CP");
+		$.ajax({
+			type: "get",
+			url: "/system/parameter/getParams/CP/夹具分类",
+			success: function (res) {
+				// console.log(res)
+				$("span[name='introduceName']").html("需求介绍<i>*</i>")
+				$("span[name='applyName']").html("应用需求<i>*</i>")
+				for(var i=0;i<res.length;i++){
+					var _name=res[i].paramValue1;
+					var _value=res[i].paramName;
+					$("span[name='"+_name+"_Name']").html(_value+"<i>*</i>")
+
+				}
+
+			}
+		});
+	} else {
+		$("#needForm").val("HW");
+		$.ajax({
+			type: "get",
+			url: "/system/parameter/getParams/HW/服务分类",
+			success: function (res) {
+				$("span[name='introduceName']").html("服务介绍<i>*</i>")
+				$("span[name='applyName']").html("应用服务<i>*</i>")
+				for(var i=0;i<res.length;i++){
+					var _name=res[i].paramValue1;
+					var _value=res[i].paramName;
+					$("span[name='"+_name+"_Name']").html(_value+"<i>*</i>")
+				}
+
+			}
+		});
+	}
+}
+
+function show(dom) {
+	dom = "#" + dom;
+	$(dom).removeClass("selectHide");
+	$(dom).addClass("selectShow");
+}
+
+function hide(dom) {
+	dom = "#" + dom;
+	$(dom).removeClass("selectShow");
+	$(dom).addClass("selectHide");
+}
+
+function save(type) {
+	var jsonData = "";
+	var url = "";
+	var flow = {}
+	//菜单ID
+	if(type=="product"){
+		var need = getFrontForm("#productNeedForm");
+		need.needForm=$("#needForm").val();
+		need.needProvince=need.P1
+		need.needCity=need.C1
+		url = "saveNeed";
+		flow = {
+			menuId: "R400024",
+			title: need.cpcodeName,
+			url: "/platform/specialist/need/examination.html?cpcodeType=CP",
+		}
+		jsonData = JSON.stringify({'g_Need':JSON.stringify(need),'dynamic':JSON.stringify(getFrontForm("#ConfigForm")),'flow':JSON.stringify(flow)});
+	}else if(type=="service"){
+		var service = getFrontForm("#serviceForm");
+		need.needForm=$("#needForm").val();
+		service.needProvince=need.P1
+		service.needCity=need.C1
+		url = "saveService";
+		flow = {
+			menuId: "R2006",
+			title: service.serviceTitle,
+			url: "/platform/manage/examination.html?cpcodeType=HW",
+		}
+		jsonData = JSON.stringify({'g_ServiceManage':JSON.stringify(service),'dynamic':JSON.stringify(getFrontForm("#ServicefigForm")),'flow':JSON.stringify(flow)});
+	}
+	$.ajax({
+		type: "POST",
+		url: url,
+		data: jsonData,
+		contentType: 'application/json',
+		success: function (res) {
+			if (200 === res.code) {
+				layui.use('layer', function () {
+					var layer = layui.layer;
+					layer.msg('提交成功', { time: 5000, icon: 6 });
+				});
+				if(type=="product"){
+					$('form')[0].reset();
+					needImg();
+					needFile();
+					makingPlanFile();
+				}else if(type=="service"){
+					$('form')[1].reset();
+					productDrawingFile();
+					productImg();
+					productFile();
+				}
+			} else {
+				layui.use('layer', function () {
+					var layer = layui.layer;
+					layer.msg('提交失败', { time: 5000, icon: 5 });
+				});
+			}
+		}
+	});
+}

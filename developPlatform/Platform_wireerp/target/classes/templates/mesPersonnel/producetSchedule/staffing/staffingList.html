@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员定岗</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="员工">
+            <input id="workerId" name="workerId" emptyText="请选择" allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"/>
+        </label>
+    </th:block>
+</th:block>
+
+<!--充满页面-->
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="dgId" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="workRq" width="80" align="center">申请日期</div>
+            <div tz:datagrid="column" field="workId" width="80" align="center">员工工号</div>
+            <div tz:datagrid="column" field="workName" width="80" align="center">员工姓名</div>
+            <div tz:datagrid="column" field="workDept" displayField="deptName" width="80" align="center">员工部门</div>
+            <div tz:datagrid="column" field="workBb" displayField="bbName" width="80" align="center">员工班别</div>
+            <div tz:datagrid="column" field="workCt" displayField="ctName" width="80" align="center">分配车台</div>
+            <div tz:datagrid="column" field="dataMan" displayField="manName" width="80" align="center">操作人</div>
+            <div tz:datagrid="column" field="dataDate" width="120" align="center">操作时间</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form)
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 300, height: 350});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: 300, height: 350});
+        } else {
+            hmq.tipDanger("请选择一条数据");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定删除吗", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("delete.html/{0}_{1}_{2}".format(row.workId, row.workRq, row.workBb), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条数据");
+        }
+    }
+
+    function onSupplierClick() {
+        var btnEdit = this;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "员工选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    function submit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'submit', data: row, width: 600, height: 400});
+        } else {
+            hmq.tipDanger("请选择一条数据");
+        }
+    }
+
+</script>
+</body>
+</html>

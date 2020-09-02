@@ -1,0 +1,26 @@
+package com.tengzhi.business.platform.common.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.common.model.RegionVo;
+import com.tengzhi.business.platform.enroll.model.G_Expert;
+
+public interface OperatorService extends BaseService  {
+	BasePage<G_Expert> getAllExpert(BaseDto baseDto) throws Exception;
+
+	Map<String, Object> getAcademic(String reqId, String type);
+
+
+	List<RegionVo> getRegion();
+	
+   Result	getAllLikeSearch(String  SearchKeyword);
+
+	void digui(List<RegionVo> city);
+}

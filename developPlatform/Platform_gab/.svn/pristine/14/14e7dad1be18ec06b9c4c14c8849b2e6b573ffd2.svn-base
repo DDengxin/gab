@@ -1,0 +1,22 @@
+package com.tengzhi.business.platform.shopping.dao;
+
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.shopping.model.GShopAddr;
+
+@Repository
+public interface AddrDao extends BasedaoRepository<GShopAddr,String> {
+	
+	@Modifying
+	@Query(value = "update e_cw_customer_address set default_bool = 'false' where address_note != :addressNote and address_type = 'GAB'",nativeQuery = true)
+	int setAllFalse(@Param(value = "addressNote") String addressNote);
+
+	@Modifying
+	@Query(value = "update e_cw_customer_address set default_bool = 'true' where address_note = :addressNote and address_type = 'GAB'",nativeQuery = true)
+	int setTrue(@Param(value = "addressNote") String addressNote);
+
+}

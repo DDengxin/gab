@@ -1,0 +1,65 @@
+package com.tengzhi.business.sc.da.cardAbnormal.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormal;
+import com.tengzhi.business.sc.da.cardAbnormal.service.EHrAttendanceAbnormalService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/5 0005 11:33
+ * @Description: 异常刷卡控制层
+ */
+
+@RestController
+@RequestMapping(value = "/sc/da/cardAbnormal/")
+public class EHrAttendanceAbnormalController {
+
+    @Autowired
+    private EHrAttendanceAbnormalService eHrAttendanceAbnormalService;
+
+    @GetMapping(value = "*.html")
+    public ModelAndView EHrAttendanceAbnormal(ModelAndView modelAndView){
+        return modelAndView;
+    }
+
+    /**
+     *@role:
+     *@Author:      huangbiao
+     *@Date:        2020/8/5 0005 16:50
+     *@Param:       [baseDto]
+     *@return:      com.tengzhi.base.jpa.result.Result
+     *@Description: 获取所有生产人员的打卡异常记录
+     **/
+    @PostMapping(value = "/findAttendanceAbnormalAll")
+    public Result findAttendanceAbnormalAll(BaseDto baseDto){
+        baseDto.getParamsMap().keySet().forEach((k)-> System.out.println(baseDto.getParamsMap().get(k)));
+        Result resultAll = eHrAttendanceAbnormalService.findAll(baseDto).getResult();
+        return resultAll;
+    }
+
+    @GetMapping(value = "/findByKqType")
+    public List<SelectVo> findByKqType(){
+        List<EHrAttendanceAbnormal> byKqTypes = eHrAttendanceAbnormalService.findByKqType();
+        List<SelectVo> collect = byKqTypes.stream().map(item -> new SelectVo(item.getSid(), item.getKqType())).collect(Collectors.toList());
+        return collect;
+    }
+
+
+
+
+
+
+
+}

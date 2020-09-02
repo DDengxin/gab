@@ -1,0 +1,227 @@
+package com.tengzhi.business.system.upload.controller;
+
+import cn.hutool.core.io.IoUtil;
+import com.tengzhi.base.ehcache.config.ManagerCacheConfig;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.annotations.Anonymous;
+import com.tengzhi.base.tools.http.reponse.HttpResponseUtil;
+import com.tengzhi.business.resouces.vo.ResultVo;
+import com.tengzhi.business.system.upload.UploadVo;
+import com.tengzhi.business.system.upload.service.SysUploadService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Controller
+@RequestMapping("/system/upload/")
+@CacheConfig(cacheNames = "ehCacheConfig")
+public class SysUploadController {
+    private static ConcurrentHashMap<String, Vector> arrayMap = new ConcurrentHashMap<>();
+
+    @Autowired
+    private SysUploadService sysUploadService;
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    @Autowired
+    private Environment environment;
+
+    /**
+     * 或取附件id
+     */
+    @PostMapping("getFileID")
+    @Anonymous
+    public @ResponseBody
+    Map<String, Object> getFileID() {
+        return sysUploadService.getFileID();
+    }
+
+    /**
+     * 通过id获取文件
+     *
+     * @param viewid
+     * @return
+     */
+    @PostMapping("listByViewid")
+    public @ResponseBody
+    Result listByViewid(String viewid) {
+        return sysUploadService.listByViewid(viewid);
+    }
+
+    /**
+     * 刪除
+     *
+     * @param parms
+     * @return
+     */
+    @PostMapping("delete")
+    public @ResponseBody
+    Map<String, Object> delete(String parms) throws IOException {
+        return sysUploadService.delete(parms);
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param file
+     * @param req
+     * @return
+     */
+    @PostMapping("uploadFile")
+    @Anonymous
+    public @ResponseBody
+    Map<String, Object> uploadFile(MultipartFile file, HttpServletRequest req) {
+        return sysUploadService.uploadFile(file, req);
+    }
+
+    @PostMapping("Info/{uuid}")
+    @Anonymous
+    public @ResponseBody
+    Map<String, Object> Info(@PathVariable String uuid) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("ip", environment.getProperty("kkfileview.ip"));
+        m.put("port", environment.getProperty("kkfileview.port"));
+        return m;
+    }
+
+    /**
+     * 文件下载
+     *
+     * @param uuid
+     * @param request
+     * @param response
+     * @return
+     */
+    @GetMapping("download")
+    @Anonymous
+    public void download(String uuid, HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> rmap = sysUploadService.download(uuid, request, response);
+        if ("true".equals(String.valueOf(rmap.get("status")))) {
+            HttpResponseUtil.writeJson(response, rmap);
+        } else {
+            return;
+        }
+    }
+
+    /**
+     * 判断文件是否预览
+     *
+     * @param uuid    uuid
+     * @param file_id 文件关联ID
+     * @return ResultDto { flag:{true:可预览|false:不可预览} data:{message = y,n 时候为路径},
+     * detail:uuid message:{y:转换成功|n：已转换|v：其他可预览|x：不可预览} }
+     */
+    @PostMapping("preview")
+    @Anonymous
+    public @ResponseBody
+    ResultVo preview(String uuid, String file_id, HttpServletRequest request) {
+        return sysUploadService.preview(uuid, file_id, request);
+    }
+
+    /**
+     * 获取文件对象(所有文件)
+     *
+     * @param uuid    uuid
+     * @param file_id 文件关联ID
+     * @return String 该处不使用对象返回的原因是，如果是文件类型，文件字符串大，导致传输会很慢
+     */
+    @PostMapping("readFile")
+    public @ResponseBody
+    String readFile(String uuid, String file_id, HttpServletRequest request) {
+        return sysUploadService.readFile(uuid, file_id, request);
+    }
+
+    /**
+     * 文件上传分片
+     *
+     * @param file
+     * @param req
+     * @return
+     */
+    @RequestMapping("uploadFiles")
+    public @ResponseBody
+    Map<String, Object> uploadFiles(MultipartFile file, HttpServletRequest req, String guid,
+                                    String md5value, String chunks, String chunk, String id, String name, String type, String lastModifiedDate,
+                                    int size) {
+        String fileName;
+        try {
+            int index;
+            String ext = name.substring(name.lastIndexOf("."));
+            // 判断文件是否分块
+            if (chunks != null && chunk != null) {
+                index = Integer.parseInt(chunk);
+                fileName = index + ext;
+                synchronized (arrayMap) {
+                    if (!arrayMap.containsKey(md5value)) {
+                        arrayMap.put(md5value, new Vector<Object>());
+                    }
+                    Vector<Object> arrayList = arrayMap.get(md5value);
+                    arrayList.add(new UploadVo(chunks, chunk, file.getInputStream(), fileName, ext));
+                    arrayMap.put(md5value, arrayList);
+                    if (arrayList.size() == Integer.valueOf(chunks)) {// 分片上传完成
+                        java.util.Vector<InputStream> vector = new java.util.Vector<InputStream>();
+                        for (int i = arrayList.size() - 1; i >= 0; i--) {
+                            UploadVo temporary = (UploadVo) arrayList.get(i);
+                            InputStream newInputStream = temporary.getFile();
+                            vector.addElement(newInputStream);
+                        }
+                        Enumeration<InputStream> e = vector.elements();
+                        SequenceInputStream sequenceInputStream = new SequenceInputStream(e);
+                        MultipartFile multipartFile = new MockMultipartFile(name, sequenceInputStream);
+                        Map<String, Object> rmap = sysUploadService.uploadFile(multipartFile, req);
+                        arrayMap.remove(md5value);
+                        return rmap;
+                    }
+                }
+                return Result.resultOk().put("message", "上传成功");
+            } else {
+                return sysUploadService.uploadFile(file, req);
+            }
+        } catch (Exception e) {
+            arrayMap.remove(md5value);
+            return Result.error().put("message", "上传失败");
+        }
+    }
+
+    /**
+     * 通过请求获取图片(已开启缓存)
+     *
+     * @param linePrimary 业务表关联主键ID
+     * @param uuid        文件唯一标识ID
+     * @param response
+     * @throws IOException
+     */
+    @Anonymous
+    @GetMapping(value = "getImage", produces = MediaType.IMAGE_JPEG_VALUE)
+    @CrossOrigin(origins = "*") //支持跨域(前提是spring security已开启)
+    @Cacheable(cacheManager = ManagerCacheConfig.CacheManagerName.EHCACHE_CACHE_MAANGER, key = "#linePrimary + #uuid")
+    public @ResponseBody
+    byte[] image(@RequestParam(value = "line_primary", required = false) String linePrimary,
+                 @RequestParam(value = "uuid", required = false) String uuid,
+                 HttpServletResponse response) throws IOException {
+        return IoUtil.readBytes(sysUploadService.getImage(linePrimary, uuid));
+    }
+
+
+}

@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" >
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>科目</title>
+	</th:block>
+
+	<style type="text/css">
+		.New_Button,.Edit_Button,.Delete_Button,.Update_Button,.Cancel_Button {
+			font-size: 11px;
+			color: #1B3F91;
+			font-family: Verdana;
+			margin-right: 5px;
+		}
+	</style>
+
+</head>
+<body>
+	<div class="mini-fit">
+		<div class="mini-tabs" style="width:100%;height:100%;" activeIndex="0" onactivechanged="onActivechanged">
+			<div title="资产">
+				<div class="mini-fit">
+					<div id="add_grid0" class="mini-treegrid" style="width:100%;height:100%;" resultAsTree="false" showTreeIcon="true" treeColumn="faccountid" idField="faccountid" name="faccountid" parentField="fparentid" expandOnLoad="false" onnodedblclick="onNodeDblClick" expandOnDblClick="false">
+						<div property="columns">
+							<div field="faccountid" name="faccountid" align="center" headerAlign="center" allowSort="true">序号</div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="center" allowSort="true">编码</div>
+							<div field="fname" width="80" headerAlign="center" align="center" allowSort="true">
+								名称
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fsystemtype" width="80" headerAlign="center" align="center" allowSort="true">
+								类别
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fdc" width="80" headerAlign="center" align="center" allowSort="true">
+								余额方向
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								辅助核算
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								外币
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								数量
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								状态
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div title="负债">
+
+				<div class="mini-fit">
+					<div id="add_grid1" class="mini-treegrid" style="width:100%;height:100%;" showTreeIcon="true" treeColumn="faccountid" idField="faccountid" name="faccountid" parentField="fparentid" resultAsTree="false" expandOnLoad="false" onnodedblclick="onNodeDblClick" expandOnDblClick="false">
+						<div property="columns">
+							<div field="faccountid" name="faccountid" align="center" headerAlign="center" allowSort="true">序号</div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="center" allowSort="true">
+								编码
+							</div>
+							<div field="fname" width="80" headerAlign="center" align="center" allowSort="true">
+								名称
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fsystemtype" width="80" headerAlign="center" align="center" allowSort="true">
+								类别
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fdc" width="80" headerAlign="center" align="center" allowSort="true">
+								余额方向
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								辅助核算
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								外币
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								数量
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								状态
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+
+			<div title="共同">
+				<div class="mini-fit">
+					<div id="add_grid2" class="mini-treegrid" style="width:100%;height:100%;" showTreeIcon="true" treeColumn="faccountid" idField="faccountid" name="faccountid" parentField="fparentid" resultAsTree="false" expandOnLoad="false" onnodedblclick="onNodeDblClick" expandOnDblClick="false">
+						<div property="columns">
+							<div field="faccountid" name="faccountid" align="center" headerAlign="center" allowSort="true">序号</div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="center" allowSort="true">编码</div>
+							<div field="fname" width="80" headerAlign="center" align="center" allowSort="true">
+								名称
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fsystemtype" width="80" headerAlign="center" align="center" allowSort="true">
+								类别
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fdc" width="80" headerAlign="center" align="center" allowSort="true">
+								余额方向
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								辅助核算
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								外币
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								数量
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								状态
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div title="权益">
+				<div class="mini-fit">
+					<div id="add_grid3" class="mini-treegrid" style="width:100%;height:100%;" showTreeIcon="true" treeColumn="faccountid" idField="faccountid" name="faccountid" parentField="fparentid" resultAsTree="false" expandOnLoad="false" onnodedblclick="onNodeDblClick" expandOnDblClick="false">
+						<div property="columns">
+
+
+							<div field="faccountid" name="faccountid" align="center" headerAlign="center" allowSort="true">序号</div>
+
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="center" allowSort="true">
+								编码
+								<!-- 					<input property="editor" class="mini-textbox" />
+ -->
+							</div>
+							<div field="fname" width="80" headerAlign="center" align="center" allowSort="true">
+								名称
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fsystemtype" width="80" headerAlign="center" align="center" allowSort="true">
+								类别
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fdc" width="80" headerAlign="center" align="center" allowSort="true">
+								余额方向
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								辅助核算
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								外币
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								数量
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								状态
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<div title="成本">
+				<div class="mini-fit">
+					<div id="add_grid4" class="mini-treegrid" style="width:100%;height:100%;" showTreeIcon="true" treeColumn="faccountid" idField="faccountid" name="faccountid" parentField="fparentid" resultAsTree="false" expandOnLoad="false" onnodedblclick="onNodeDblClick" expandOnDblClick="false">
+						<div property="columns">
+
+
+							<div field="faccountid" name="faccountid" align="center" headerAlign="center" allowSort="true">序号</div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+
+							<div field="fnumber" width="80" headerAlign="center" align="center" allowSort="true">
+								编码
+								<!-- 					<input property="editor" class="mini-textbox" />
+ -->
+							</div>
+							<div field="fname" width="80" headerAlign="center" align="center" allowSort="true">
+								名称
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fsystemtype" width="80" headerAlign="center" align="center" allowSort="true">
+								类别
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fdc" width="80" headerAlign="center" align="center" allowSort="true">
+								余额方向
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								辅助核算
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								外币
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								数量
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								状态
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div title="损益">
+<!--				id="srch_grid" sortField="paramOrd" treeColumn="paramName"-->
+<!--				idField="paramId" parentField="parentId" -->
+<!--				expandOnLoad="0" showTreeLines="true" ShowTreeicon="false" pageSize="10000"-->
+<!--				virtualScroll="true" showPageInfo="false" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" style="width:100%;height:100%;" allowSort="true" align="center" class="mini-treegrid"-->
+<!--				<div class="mini-fit">-->
+					<div id="add_grid5" class="mini-treegrid" style="width:100%;height:100%;" showTreeIcon="true" 
+						 treeColumn="faccountid"
+						 idField="faccountid"
+						 name="faccountid"
+						 parentField="fparentid" 
+						 resultAsTree="true" 
+						 expandOnLoad="0"
+						 onnodedblclick="onNodeDblClick" 
+						 expandOnDblClick="false">
+						<div property="columns">
+
+
+							<div field="faccountid" name="faccountid" align="center" headerAlign="center" allowSort="true">序号</div>
+
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="center" allowSort="true">
+								编码
+								<!-- 					<input property="editor" class="mini-textbox" />
+ -->
+							</div>
+							<div field="fname" width="80" headerAlign="center" align="center" allowSort="true">
+								名称
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fsystemtype" width="80" headerAlign="center" align="center" allowSort="true">
+								类别
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="fdc" width="80" headerAlign="center" align="center" allowSort="true">
+								余额方向
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								辅助核算
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								外币
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								数量
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+
+							<div field="lxr_position" width="80" headerAlign="center" align="center" allowSort="true">
+								状态
+								<!-- <input property="editor" class="mini-textbox" /> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar">
+		<form id="add_form" method="post">
+			<input id="id" name="id" class="mini-hidden" readonly="readonly" />
+			<input id="action" name="action" class="mini-hidden" readonly="readonly" />
+
+		</form>
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;" sizeList="[50,100,200]"></div>
+				</td>
+				<td style="white-space:nowrap;" align="right" id="btnbar" />
+			</tr>
+		</table>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("add_form");
+		var surl = "/finance/voucher/accout";
+		var grid = null;
+		var tabname = null;
+
+		var isminichange = false;//用来控制关闭后是否刷新主界面  
+
+		function onActivechanged(e) {
+			grid = mini.get("add_grid" + e.index);
+			tabname = e.tab.title;
+			// search_option();
+
+			// grid = mini.get("add_grid" + e.index);
+			 search_option(e.index, e.tab.title);
+		}
+
+
+
+		/**
+		 查询方法
+		 */
+		// function search_option() {
+		// 	grid.setUrl(surl + "/list");
+		// 	var parms = {
+		// 		tabname : tabname
+		// 	};
+		// 	grid.load({
+		// 		params : mini.encode(parms)
+		// 	});
+		// }
+
+
+
+
+		/**
+		查询方法
+		 */
+		function search_option(index, tabname) {
+			var parm = {
+				tabname : tabname
+			};
+			$.ajax({
+				url : surl + "/list",
+				type : 'post',
+				data : {
+					params : mini.encode(parm),
+					stime : (new Date()).getTime(),
+					pageIndex: 0,
+					pageSize: 500,
+					sortField:"faccountid",
+					sortOrder:"faccountid"
+				},
+				cache : false,
+				success : function(data) {
+					var list = data.data;
+					grid.loadList(list, "faccountid", "fparentid");
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					minitips("系统提示", "网络请求失败", "danger");
+				}
+			});
+
+		}
+
+		//控制是否刷新主界面
+		function isRefrush(isminichange) {
+			if (isminichange) {
+				if (window.CloseOwnerWindow)
+					return window.CloseOwnerWindow("refrush");
+				else
+					window.close();
+			} else {
+				if (window.CloseOwnerWindow)
+					return window.CloseOwnerWindow("close");
+				else
+					window.close();
+			}
+		}
+		//修改关闭窗口时提示数据保存
+		function CloseWindow(action) {
+			if (action == "close" && form.isChanged()) {
+				mini.confirm("数据被修改了，是否先保存？", "提示信息", function(returndata) {
+					if (returndata != "ok") {
+						isRefrush(isminichange);
+					}
+				});
+				return false;
+			}
+			isRefrush(isminichange);
+			if (window.CloseOwnerWindow)
+				return window.CloseOwnerWindow(action);
+			else
+				window.close();
+		}
+		function onCancel(e) {
+			CloseWindow("close");
+		}
+
+		function GetData() {
+			var node = grid.getSelectedNode();
+			return node;
+		}
+		function search() {
+			var key = mini.get("key").getValue();
+			if (key == "") {
+				grid.clearFilter();
+			} else {
+				key = key.toLowerCase();
+				grid.filter(function(node) {
+					var text = node.text ? node.text.toLowerCase() : "";
+					if (text.indexOf(key) != -1) {
+						return true;
+					}
+				});
+			}
+		}
+		function onKeyEnter(e) {
+			search();
+		}
+		function onNodeDblClick(e) {
+			onOk();
+		}
+		//////////////////////////////////
+		function CloseWindow(action) {
+			if (window.CloseOwnerWindow)
+				return window.CloseOwnerWindow(action);
+			else
+				window.close();
+		}
+
+		function onOk() {
+			var node = grid.getSelectedNode();
+			if (node && grid.isLeaf(node) == false) {
+				alert("不能选中父节点");
+				return;
+			}
+
+			CloseWindow("ok");
+		}
+		function onCancel() {
+			CloseWindow("cancel");
+		}
+	</script>
+</body>
+</html>

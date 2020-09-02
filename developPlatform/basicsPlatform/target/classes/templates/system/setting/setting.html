@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>参数管理</title>
+    </th:block>
+    <style>
+        body {
+            font-size: 18px;
+        }
+
+        .parent {
+            display: flex;
+            flex-direction: row;
+            padding: 30px;
+            flex-wrap: wrap;
+        }
+
+        .parentImg {
+            display: flex;
+            flex-direction: row;
+            padding: 10px;
+            _width: 80%;
+            flex-wrap: wrap;
+        }
+
+        .child {
+            display: flex;
+            flex-direction: row;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            padding-left: 50px;
+            padding-right: 50px;
+            width: 500px;
+        }
+
+        .childImg {
+            display: flex;
+            flex-direction: column;
+            width: 33.332%;
+            height: auto;
+            padding: 10px 5%;
+        }
+
+        .divImg {
+            border: solid 2px #dadada;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 302px;
+            height: 202px;
+        }
+
+        .img {
+            cursor: pointer;
+            border-radius: 3px;
+            margin-right: 20px;
+            max-width: 300px;
+            max-height: 200px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .labelImg {
+            margin-top: 10px;
+            width: 302px;
+            height: auto;
+            text-align: center;
+        }
+
+        .uploadSpan {
+            flex: 1;
+        }
+
+        .button {
+            width: 50px;
+        }
+
+        .span {
+            flex: 5
+        }
+
+        .input {
+            margin-left: 5px;
+            flex: 2;
+        }
+
+        .hr {
+            text-align: center;
+            height: 1px;
+            width: 96%;
+            margin-left: 2%;
+            border-color: #dadada;
+            background-color: #dadada;
+        }
+    </style>
+</head>
+<body>
+<div class="mini-fit" id="all">
+    <form id="form1">
+        <div class="parent" id="parent"></div>
+        <div class="hr"></div>
+        <div class="parentImg" id="uploadImg">
+
+            <div class="childImg">
+                <div class="divImg">
+                    <label for="SYS_SETTING_XTTB_FILE">
+                        <img class="img" id="SYS_SETTING_XTTB_IMG" name="SYS_SETTING_XTTB_IMG" th:src="${SYS_SETTING_XTTB}==null ? @{/static/img/common/shortcut.png} :  @{${SYS_SETTING_XTTB}}" alt="系统图标"
+                             th:attr="defalut-image=|@{/static/img/common/shortcut.png}|"
+                             onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+                    </label>
+                </div>
+                <input type="file" style="display: none;" id="SYS_SETTING_XTTB_FILE" name="SYS_SETTING_XTTB_FILE">
+                <input class="mini-hidden" id="SYS_SETTING_XTTB" name="SYS_SETTING_XTTB" th:value="${TEXT_SYS_SETTING_XTTB}"/>
+                <label class="labelImg">系统图标(50Ｘ50)</label>
+            </div>
+
+            <div class="childImg">
+                <div class="divImg">
+                    <label for="SYS_SETTING_ZYTB_FILE">
+                        <img class="img" id="SYS_SETTING_ZYTB_IMG" name="SYS_SETTING_ZYTB_IMG" th:src="${SYS_SETTING_ZYTB}==null ? @{/static/img/common/index_logo.png} :  @{${SYS_SETTING_ZYTB}}" alt="主页图标"
+                             th:attr="defalut-image=|@{/static/img/common/index_logo.png}|"
+                             onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+                    </label>
+                </div>
+                <input type="file" style="display: none;" id="SYS_SETTING_ZYTB_FILE" name="SYS_SETTING_ZYTB_FILE">
+                <input class="mini-hidden" id="SYS_SETTING_ZYTB" name="SYS_SETTING_ZYTB" th:value="${TEXT_SYS_SETTING_ZYTB}"/>
+                <label class="labelImg">主页图标(130Ｘ26)</label>
+            </div>
+
+            <div class="childImg">
+                <div class="divImg">
+                    <label for="SYS_SETTING_DLTB_FILE">
+                        <img class="img" id="SYS_SETTING_DLTB_IMG" name="SYS_SETTING_DLTB_IMG" th:src="${SYS_SETTING_DLTB}==null ? @{/static/img/login/logo.png} :  @{${SYS_SETTING_DLTB}}" alt="登录图标"
+                             th:attr="defalut-image=|@{/static/img/login/logo.png}|"
+                             onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+                    </label>
+                </div>
+                <input type="file" style="display: none;" id="SYS_SETTING_DLTB_FILE" name="SYS_SETTING_DLTB_FILE">
+                <input class="mini-hidden" id="SYS_SETTING_DLTB" name="SYS_SETTING_DLTB" th:value="${TEXT_SYS_SETTING_DLTB}"/>
+                <label class="labelImg">登录图标(252Ｘ50)</label>
+            </div>
+
+            <div class="childImg">
+                <div class="divImg">
+                    <label for="SYS_SETTING_DLTP1_FILE">
+                        <img class="img" id="SYS_SETTING_DLTP1_IMG" name="SYS_SETTING_DLTP1_IMG" th:src="${SYS_SETTING_DLTP1}==null ? @{/static/img/login/login_swiper1.jpg} :  @{${SYS_SETTING_DLTP1}}" alt="登录轮播图片1"
+                             th:attr="defalut-image=|@{/static/img/login/login_swiper1.jpg}|"
+                             onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+                    </label>
+                </div>
+                <input type="file" style="display: none;" id="SYS_SETTING_DLTP1_FILE" name="SYS_SETTING_DLTP1_FILE">
+                <input class="mini-hidden" id="SYS_SETTING_DLTP1" name="SYS_SETTING_DLTP1" th:value="${TEXT_SYS_SETTING_DLTP1}"/>
+                <label class="labelImg">登录轮播图片1(615Ｘ554)</label>
+            </div>
+
+            <div class="childImg">
+                <div class="divImg">
+                    <label for="SYS_SETTING_DLTP2_FILE">
+                        <img class="img" id="SYS_SETTING_DLTP2_IMG" name="SYS_SETTING_DLTP2_IMG" th:src="${SYS_SETTING_DLTP2}==null ? @{/static/img/login/login_swiper2.jpg} :  @{${SYS_SETTING_DLTP2}}" alt="登录轮播图片2"
+                             th:attr="defalut-image=|@{/static/img/login/login_swiper2.jpg}|"
+                             onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+                    </label>
+                </div>
+                <input type="file" style="display: none;" id="SYS_SETTING_DLTP2_FILE" name="SYS_SETTING_DLTP2_FILE">
+                <input class="mini-hidden" id="SYS_SETTING_DLTP2" name="SYS_SETTING_DLTP2" th:value="${TEXT_SYS_SETTING_DLTP2}"/>
+                <label class="labelImg">登录轮播图片2(615Ｘ554)</label>
+            </div>
+
+            <div class="childImg">
+                <div class="divImg">
+                    <label for="SYS_SETTING_DLTP3_FILE">
+                        <img class="img" id="SYS_SETTING_DLTP3_IMG" name="SYS_SETTING_DLTP3_IMG" th:src="${SYS_SETTING_DLTP3}==null ? @{/static/img/login/login_swiper3.jpg} :  @{${SYS_SETTING_DLTP3}}" alt="登录轮播图片3"
+                             th:attr="defalut-image=|@{/static/img/login/login_swiper3.jpg}|"
+                             onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+                    </label>
+                </div>
+                <input type="file" style="display: none;" id="SYS_SETTING_DLTP3_FILE" name="SYS_SETTING_DLTP3_FILE">
+                <input class="mini-hidden" id="SYS_SETTING_DLTP3" name="SYS_SETTING_DLTP3" th:value="${TEXT_SYS_SETTING_DLTP3}"/>
+                <label class="labelImg">登录轮播图片3(615Ｘ554)</label>
+            </div>
+
+
+            <div class="childImg">
+                <div class="divImg">
+                    <label for="SYS_SETTING_LOGIN_BG_FILE">
+                        <img class="img" id="SYS_SETTING_LOGIN_BG_IMG" name="SYS_SETTING_LOGIN_BG_IMG" th:src="${SYS_SETTING_LOGIN_BG}==null ? @{/static/img/login/login_bg.jpg} :  @{${SYS_SETTING_LOGIN_BG}}" alt="登录背景"
+                             th:attr="defalut-image=|@{/static/img/login/login_bg.jpg}|"
+                             onerror="this.src=this.getAttribute('defalut-image');this.onerror = null;"/>
+                    </label>
+                </div>
+                <input type="file" style="display: none;" id="SYS_SETTING_LOGIN_BG_FILE" name="SYS_SETTING_LOGIN_BG_FILE">
+                <input class="mini-hidden" id="SYS_SETTING_LOGIN_BG" name="SYS_SETTING_LOGIN_BG" th:value="${TEXT_SYS_SETTING_LOGIN_BG}" />
+                <label class="labelImg">登录背景(1920Ｘ930)</label>
+            </div>
+
+        </div>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="ResetData" iconCls="icon-cancel" id="resetBtn">重置</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var textImg = ["SYS_SETTING_XTTB", "SYS_SETTING_ZYTB", "SYS_SETTING_DLTB", "SYS_SETTING_DLTP1", "SYS_SETTING_DLTP2", "SYS_SETTING_DLTP3", "SYS_SETTING_LOGIN_BG"];
+
+    getSetting();
+
+    /**
+     * 获取系统配置，遍历非图片控件
+     **/
+    function getSetting() {
+        $.get("getSetting", function (res) {
+            var htmlVal = "";
+            for (var i = 0; i < res.length; i++) {
+                switch (res[i].param_value1) {
+                    case "mini-textbox":
+                        var sys_value = "";
+                        if (!!res[i].sys_value) {
+                            sys_value = res[i].sys_value;
+                        }
+                        htmlVal = '<div class="child"><label class="label">' + res[i].param_name + ':</label><input inputStyle="font-size:16px" class="input mini-textbox" id="' + res[i].param_id + '" name="' + res[i].param_id + '" value="' + sys_value + '" emptyText="' + res[i].param_value2 + '"></div>';
+                        if (res[i].param_id == 'SYS_SETTING_XTJZ') {
+                            htmlVal = '<div class="child"><label class="label">' + res[i].param_name + ':</label><input inputStyle="font-size:16px" class="input mini-textbox" maxlength="1" id="' + res[i].param_id + '" name="' + res[i].param_id + '" value="' + sys_value + '" emptyText="' + res[i].param_value2 + '"></div>';
+                        }
+                        $("#parent").append(htmlVal);
+                        mini.parse();
+                        break;
+                    case "mini-combobox":
+                        htmlVal = '<div class="child"><label class="label">' + res[i].param_name + ':</label><input inputStyle="font-size:16px" class="input mini-combobox" id="' + res[i].param_id + '" name="' + res[i].param_id + '" allowInput="false" valueFromSelect="true" url="/system/setting/combobox/params?content=' + res[i].param_value2 + '" value="' + res[i].sys_value + '" emptyText="ERP"></div>';
+                        $("#parent").append(htmlVal);
+                        mini.parse();
+                        break;
+                    case "mini-combobox-multiSelect":
+                        htmlVal = '<div class="child"><label class="label">' + res[i].param_name + ':</label><input inputStyle="font-size:16px" class="input mini-combobox" multiSelect="true" id="' + res[i].param_id + '" name="' + res[i].param_id + '" allowInput="false" valueFromSelect="true" url="' + res[i].param_value2 + '" value="' + res[i].sys_value + '" emptyText="为空显示全部"></div>';
+                        $("#parent").append(htmlVal);
+                        mini.parse();
+                        break;
+                    default:
+                }
+            }
+        });
+    }
+
+    /**
+     * 确保line_primary值唯一
+     **/
+    for (var i = 0; i < textImg.length; i++) {
+        var id = "#" + textImg[i];
+        var dom = mini.get(id);
+        var val = dom.getValue();
+        if (!!val) {
+
+        } else {
+            dom.setValue(getFileId());
+        }
+    }
+
+    /**
+     * 保存表单数据
+     **/
+    function SaveData() {
+        if (saveImg()) {
+            var data = JSON.stringify(form.getData());
+            if (form.validate() && form.isValid()) {
+                $.ajax({
+                    url: "save",
+                    dataType: "json",
+                    async: true,
+                    data: {
+                        "data": data
+                    },
+                    type: "POST",
+                    success: function (req) {
+                        parent.location.reload();
+                    },
+                    complete: function () {
+                        //请求完成的处理
+                    },
+                    error: function () {
+                        //请求出错处理
+                    }
+                });
+            }
+        } else {
+            showToast("图片上传失败", 1000);
+        }
+    }
+
+    /**
+     * 保存图片(同步请求)
+     * @returns {boolean}
+     */
+    function saveImg() {
+        var flag = true;
+        for (var i = 0; i < textImg.length; i++) {
+            var id = "#" + textImg[i];
+            var dom = mini.get(id);
+            var file = $("#" + textImg[i] + "_FILE")[0].files[0];
+            var line_primary = dom.getValue();
+            var formData = new FormData();
+            formData.append("file", file);
+            formData.append("pid", line_primary);
+            if (!!file) {
+                $.ajax({
+                    url: "saveImg",
+                    type: 'POST',
+                    async:false,
+                    cache: false,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data.states) {
+                            flag = true;
+                        } else {
+                            flag = false;
+                        }
+                    },
+                    error: function (err) {
+                        flag = false;
+                    }
+                });
+            }
+        }
+        return flag;
+    }
+
+    /**
+     * 重置表单
+     * @constructor
+     */
+    function ResetData() {
+        form.setData();
+        for (var i = 0; i < textImg.length; i++) {
+            if (textImg[i] == "SYS_SETTING_XTTB") {
+                $('#' + textImg[i] + '_IMG').attr('src', "/static/img/common/shortcut.png")
+            } else if (textImg[i] == "SYS_SETTING_ZYTB") {
+                $('#' + textImg[i] + '_IMG').attr('src', "/static/img/common/index_logo.png")
+            } else if (textImg[i] == "SYS_SETTING_DLTB") {
+                $('#' + textImg[i] + '_IMG').attr('src', "/static/img/login/logo.png")
+            } else if (textImg[i] == "SYS_SETTING_DLTP1") {
+                $('#' + textImg[i] + '_IMG').attr('src', "/static/img/login/login_swiper1.jpg")
+            } else if (textImg[i] == "SYS_SETTING_DLTP2") {
+                $('#' + textImg[i] + '_IMG').attr('src', "/static/img/login/login_swiper2.jpg")
+            } else if (textImg[i] == "SYS_SETTING_DLTP3") {
+                $('#' + textImg[i] + '_IMG').attr('src', "/static/img/login/login_swiper3.jpg")
+            } else if (textImg[i] == "SYS_SETTING_LOGIN_BG") {
+                $('#' + textImg[i] + '_IMG').attr('src', "/static/img/login/login_bg.jpg")
+            }
+        }
+    }
+
+    /****************************图片与file控件的联动************************************/
+    $('#SYS_SETTING_XTTB_FILE').change(function () {
+        var fileObj = this.files[0];
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#SYS_SETTING_XTTB_IMG').attr('src', fileReader.result)
+        }
+    });
+
+    $('#SYS_SETTING_ZYTB_FILE').change(function () {
+        var fileObj = this.files[0];
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#SYS_SETTING_ZYTB_IMG').attr('src', fileReader.result)
+        }
+    });
+
+    $('#SYS_SETTING_DLTB_FILE').change(function () {
+        var fileObj = this.files[0];
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#SYS_SETTING_DLTB_IMG').attr('src', fileReader.result)
+        }
+    });
+
+    $('#SYS_SETTING_DLTP1_FILE').change(function () {
+        var fileObj = this.files[0];
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#SYS_SETTING_DLTP1_IMG').attr('src', fileReader.result)
+        }
+    });
+
+    $('#SYS_SETTING_DLTP2_FILE').change(function () {
+        var fileObj = this.files[0];
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#SYS_SETTING_DLTP2_IMG').attr('src', fileReader.result)
+        }
+    });
+
+    $('#SYS_SETTING_DLTP3_FILE').change(function () {
+        var fileObj = this.files[0];
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#SYS_SETTING_DLTP3_IMG').attr('src', fileReader.result)
+        }
+    });
+    $('#SYS_SETTING_LOGIN_BG_FILE').change(function () {
+        var fileObj = this.files[0];
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(fileObj);
+        fileReader.onload = function () {
+            $('#SYS_SETTING_LOGIN_BG_IMG').attr('src', fileReader.result)
+        }
+    });
+    /****************************END 图片与file控件的联动************************************/
+
+    /**
+     * 自定义提示框
+     * @param msg
+     * @param duration
+     */
+    function showToast(msg, duration) {
+        duration = isNaN(duration) ? 3000 : duration;
+        var m = document.createElement('div');
+        m.innerHTML = msg;
+        m.style.cssText = "width:20%; min-width:40px; background:#000; opacity:0.6; height:auto;min-height: 30px; color:#fff; line-height:30px; text-align:center; border-radius:4px; position:fixed; top:50%; left:40%; z-index:999999;";
+        document.body.appendChild(m);
+        setTimeout(function () {
+            var d = 0.5;
+            m.style.webkitTransition = '-webkit-transform ' + d + 's ease-in, opacity ' + d + 's ease-in';
+            m.style.opacity = '0';
+            setTimeout(function () {
+                document.body.removeChild(m)
+            }, d * 1000);
+        }, duration);
+    }
+</script>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>培训计划</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="培训方式">
+            <input class="mini-combobox" name="jhFrom" id="jhFrom" url="/system/parameter/getParamsSelectListByParentId/人事/培训方式/PXFS"
+                   onvaluechanged="onParamModValueChanged" nullItemText="全部" showNullItem="true" width="100"/>
+        </label>
+        <label class="hmq-label" text="培训单号"> <input
+                class="mini-textbox" name="jhNote"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="jhNote" showPageInfo="false" url="/personnel/personnelTraining/trainingPlan/pxjhList.html"
+         onRowDblClick ="onRowDblClick">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="jhNy"  align="left" width="120" >培训月度</div>
+            <div tz:datagrid="column" name="jhNote" field="jhNote" align="center" width="100">培训计划编号</div>
+            <div tz:datagrid="column" field="jhTitle"  align="left" width="260">培训主题</div>
+            <div tz:datagrid="column" field="jhType"  align="center" width="70">培训类型</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function SetData(options) {
+        search_option();
+    }
+
+
+    function search_option() {
+        grid.load();
+    }
+
+    function confirm(e) {
+        if (grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选择一条数据');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+
+    function GetData() {
+        return grid.getSelected();
+    }
+
+
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

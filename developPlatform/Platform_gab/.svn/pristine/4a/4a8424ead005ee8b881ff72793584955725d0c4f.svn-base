@@ -1,0 +1,312 @@
+.order_content {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 103px;
+}
+
+.order_content .order_content_list {
+    width: 1200px;
+    overflow: hidden;
+    margin: 0 auto;
+    padding: 20px 0 97px;
+}
+
+.order_content h2 {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.order_content h2:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.order_content h3 {
+    font-size: 24px;
+    color: #e80000;
+    font-weight: bold;
+    margin: 30px 0 14px;
+}
+
+form {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid rgb(214, 214, 214);
+    padding: 28px;
+}
+
+form>div {
+    width: 100%;
+    overflow: hidden;
+}
+
+form>div p {
+    width: 100%;
+    height: 42px;
+    background: rgb(242, 242, 242);
+    line-height: 42px;
+    padding-left: 20px;
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+form>div ul {
+    width: 100%;
+    overflow: hidden;
+}
+
+form>div ul li {
+    padding-left: 20px;
+}
+
+.concat-msg ul li {
+    width: 100%;
+    height: 34px;
+    line-height: 34px;
+    overflow: hidden;
+    margin-bottom: 22px;
+}
+
+.concat-msg ul li span {
+    display: inline-block;
+    height: 100%;
+    width: 70px;
+    color: #666;
+    font-size: 16px;
+    vertical-align: middle;
+    float: left;
+}
+
+.concat-msg ul li input {
+    width: 334px;
+    height: 32px;
+    line-height: 32px;
+    border: 1px solid rgb(214, 214, 214);
+    border-radius: 5px;
+    text-indent: 1em;
+}
+
+.com-sel {
+    display: block;
+    cursor: pointer;
+    float: left;
+}
+
+.com-opt {
+    border: 1px solid rgb(214, 214, 214) !important;
+    border-radius: 5px;
+    width: 334px;
+    height: 34px;
+    line-height: 34px;
+    padding: 0 22px 0 15px;
+    outline-style: none;
+    color: #666666;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background: url(../images/jiantou.png) no-repeat 310px center transparent;
+    background-size: 5%;
+    cursor: pointer;
+    display: block !important;
+    margin-right: 10px;
+}
+
+/*清除ie的默认选择框样式清除，隐藏下拉箭头*/
+select::-ms-expand { display: none; }
+
+.product-msg {
+    width: 100%;
+    overflow: hidden;
+}
+
+.product-msg .company {
+    width: 100%;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e80000;
+    color: #409fff;
+    font-size: 16px;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+    margin-top: -15px;
+}
+
+table {
+    width: 100%;
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 60px;
+}
+
+table tr:first-child {
+    height: 52px;
+    line-height: 52px;
+    background: none;
+}
+
+table tr {
+    background: rgb(248, 248, 248);
+    height: 105px;
+}
+
+table tr td {
+    width: 10%;
+    text-align: center;
+}
+
+table tr .proName {
+    width: 25%;
+}
+table tr .proNameAlign{
+    text-align: left;
+    padding: 0 15px;
+}
+
+table tr img {
+    width: 90px;
+    height: 90px;
+}
+
+table tr td div{
+    display: inline-block;
+}
+
+table tr td input[type="text"]{
+    width: 54px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-top: 1px solid rgb(214, 214, 214);
+    border-bottom: 1px solid rgb(214, 214, 214);
+    float: left;
+    border-color: rgb(214,214,214);
+    border-left: none;
+    border-right: none;
+    font-size: 16px;
+    color: #666;
+}
+table tr td span{
+    display: block;
+    float: left;
+    width: 24px;
+    height: 30px;
+    line-height: 28px;
+    text-align: center;
+    border: 1px solid rgb(214, 214, 214);
+    outline: none;
+    color: #666;
+    cursor: pointer;
+}
+table tr td div span:hover{
+    color: #e80000;
+    border-color: #e80000;
+}
+
+.other-msg {
+    width: 100%;
+    overflow: hidden;
+}
+
+.other-msg ul {
+    width: 100%;
+    overflow: hidden;
+}
+
+.other-msg ul li {
+    width: 100%;
+    overflow: hidden;
+    font-size: 16px;
+    color: #666;
+}
+
+.other-msg ul li strong {
+    width: 138px;
+    margin-bottom: 30px;
+    display: block;
+    float: left;
+}
+
+.other-msg ul li textarea {
+    border: 1px solid rgb(214, 214, 214);
+    resize: none;
+    text-indent: 1em;
+    padding-top: 3px;
+}
+
+input[type="radio"] {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-left: 15px;
+    margin-right: 5px;
+}
+
+.other-msg ul li input[value="true"], .other-msg ul li input[value="true"] {
+    margin-left: 0;
+}
+
+.layui-form-radio {
+    display: none;
+}
+
+.layui-form input[type=radio] {
+    display: inline-block;
+}
+
+.other-msg textarea {
+    width: 970px;
+    height: 98px;
+    border-color: rgb(214, 214, 214);
+    border-radius: 5px;
+}
+
+.btn {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 86px;
+    height: 45px;
+    position: relative;
+}
+
+.btn input {
+    width: 242px;
+    height: 45px;
+    border: none;
+    background: #e80000;
+    color: #fff;
+    text-align: center;
+    line-height: 45px;
+    margin: 0 auto;
+    font-size: 18px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -121px;
+    outline: none;
+    cursor: pointer;
+}
+.btn input:hover {
+    background: rgba(232, 0, 0, 0.6);
+}

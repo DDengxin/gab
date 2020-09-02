@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,editormd,upload'})}">
+        <title>操作手册【新增】</title>
+    </th:block>
+    <style type="text/css">
+        #arContent-editormd{
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body >
+
+
+<div class="mini-fit" style="overflow-y: hidden;">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="uuid" id="uuid" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>模块</td>
+                <td content>
+                    <input class="mini-combobox" name="module" allowInput="false" required
+                           data="[{id:'ERP',text:'ERP'},{id:'MES',text:'MES'}]" valueFromSelect="true" onvaluechanged="onchanged(this)"/>
+                    <!--url="./combobox/rightModule"-->
+                </td>
+                <td title>类型</td>
+                <td content>
+                  <!--  <input class="mini-textbox" name="type"/>-->
+                    <input class="mini-combobox" name="type" id="type" allowInput="false" required
+                           data="[{id:'KF',text:'开发文档'},{id:'SC',text:'操作手册'}]" valueFromSelect="true"/>
+                </td>
+                <td title>小类</td>
+                <td content>
+                 <!--   <input class="mini-textbox" name="subclass" />-->
+                    <input class="mini-combobox" name="subclass" allowInput="true"
+                           url="/system/developarchive/selectsubclass"   />
+                </td>
+                <td title>标签</td>
+                <td content>
+                    <input class="mini-combobox" name="label" allowInput="true"
+                           url="/system/developarchive/selectlabel"  />
+                </td>
+                <td title>关联菜单</td>
+                <td content>
+                    <!--    <input class="mini-textbox" name="bindId"/>-->
+                    <input name="bindId" id="bindId" textName="parentName" emptyText="请选择..."
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onMenuClickHander"/>
+                </td>
+            </tr>
+            <tr>
+               <!-- <td title>父级节点</td>
+                <td content>
+                    <input required name="parentUuid" id="parentUuid" textName="parentName" emptyText="请选择..." value="ROOT" text="无"
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onMenuClickHander"/>
+                </td>-->
+                <td title>标题</td>
+                <td content colspan="3">
+                    <input class="mini-textbox" name="title" required/>
+                </td>
+                <td title>状态</td>
+                <td content>
+                    <input class="mini-combobox" name="state" id="state" required url="encodeURI('/dict/boolean?t=启用&f=禁用')" />
+                </td>
+                <td title>管理员权限</td>
+                <td content>
+                    <input class="mini-combobox" name="isSuperView" id="isSuperView" required url="encodeURI('/dict/boolean?t=是&f=否')" />
+                </td>
+                <td title>创建人</td>
+                <td content>
+                    <input class="mini-textbox" name="genName" />
+                </td>
+            </tr>
+
+            <tr rowspan="10">
+                <td title>内容</td>
+                <td content colspan="9">
+                    <div class="editormd" id="arContent-editormd" >
+                        <textarea class="editormd-markdown-textarea" id="editormd" name="arContent"></textarea>
+                        <!-- 第二个隐藏文本域，用来构造生成的HTML代码，方便表单POST提交，这里的name可以任意取，后台接受时以这个name键为准 -->
+                        <textarea class="editormd-html-textarea" id="content" name="ar-editormd-html-textarea" type="hidden"></textarea>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td title>附件</td>
+                <td content colspan="7">
+                    <div id="uploader"></div>
+                    <input id="fileId" name="fileId" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var actstr = hmq.getQueryString("act");
+    var redbol=false;
+    if(actstr=="view"){
+        redbol=true;
+    }
+    $(window).on("load", function (e) {
+        //初始化markdown编辑器
+        window.ArContentEditor = editormd("arContent-editormd", {
+            placeholder: '本编辑器支持Markdown编辑，左边编写，右边预览',  //默认显示的文字，这里就不解释了
+            //width: "100%",
+            height: 435,
+            syncScrolling: "single",
+            path: hmq.getPath("/static/script/editor/lib/"),   //就是editor的lib目录
+            //theme: "default",//工具栏主题
+            //previewTheme: "default",//预览主题
+            //editorTheme: "default",//编辑主题
+            saveHTMLToTextarea: true, //保存html到本地的textarea
+            emoji: true, //是否允许图标
+            taskList: true, //
+            tocm: true,         // Using [TOCM]
+            tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+            flowChart: true,             // 开启流程图支持，默认关闭
+            sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+            imageUpload: true,     //开启图片上传
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"], //允许上传的图片格式
+            imageUploadURL: "/editormd/upload", //上传的路径，就是mvc的controller路径
+            readOnly : redbol,
+            toolbarIcons: function () {  //自定义工具栏，后面有详细介绍
+                var strinput="full";
+                if (actstr == "view") {
+                    strinput="mini";
+                }
+                return editormd.toolbarModes[strinput]; // full, simple, mini
+
+            }
+        });
+    });
+
+
+    function SetData(options) {
+        mini.getByName("action").setValue(options.action);
+        if ('add' == options.action) {
+            mini.get("state").select(0);
+            mini.get("type").select(0);
+            mini.get("isSuperView").select(1);
+            var fileId =getFileId();
+            mini.get("fileId").setValue(fileId);
+            $("#uploader").filesUpload({
+                pickerid: fileId,
+                filecount: 50,
+            });
+        } else if (!!~['view','edit'].indexOf(options.action)) {
+            $.get("archiveByDataId",{uuid:options.data.uuid},function (res) {
+                if (200 === res.code) {
+
+                    form.setData(res.data);
+                  /*  if(res.data.parentUuid=="ROOT"){
+                        mini.get("parentUuid").setText("无");
+                    }else{
+                        mini.get("parentUuid").setText(res.data.titleName);
+                    }*/
+
+                     mini.get("bindId").setText(res.data.rightName);
+
+                    var fileId =getFileId();
+                    if(mini.get("fileId").getValue()){
+                        fileId=mini.get("fileId").getValue();
+                    }else{
+                        mini.get("fileId").setValue(fileId);
+                    }
+                    if(options.action=="view"){
+                        form.setEnabled(false);
+                        $("#uploader").filesUpload({
+                            pickerid: fileId,
+                            filecount: 50,
+                            view:"view",
+                            viewdownload:true
+                        });
+                        $("#saveBtn").hide();
+                    }else{
+                    $("#uploader").filesUpload({
+                        pickerid: fileId,
+                        filecount: 50,
+                    });
+                    }
+                    //markdown回显
+                   setTimeout(function(){
+                    window.ArContentEditor.setMarkdown(res.data.content);
+
+                       if(options.action=="view") {
+                           window.ArContentEditor.previewing();
+                           window.ArContentEditor.hideToolbar();
+                       }
+                     },100);
+
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var data = form.getData();
+            data.content =  $(form.el).find('[name=arContent]').text();
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("archiveDataSava",JSON.stringify(data),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+    /**
+     * @Param:
+     * @return:
+     * @Author: zs
+     * @Date: 2020/08/25 11:19
+     * @description: 菜单选择器
+     */
+    function onMenuClickHander(e) {
+        var btnEdit = e.sender;
+
+        if(btnEdit.id=="bindId") {
+            var rightmoud = form.getData().module;
+            if (rightmoud != "") {
+                return miniopen({
+                    targetWindow: window.top,
+                    url: "right/hierarchyMenuTree.html",
+                    title: "【菜单】选择",
+                    width: 500,
+                    height: 620,
+                    action: mini.getByName("action").getValue(),
+                    data: {
+                        rightModule: form.getData().module,
+                    },
+                    ondestroy: function (action) {
+                        if (action == "ok") {
+                            var iframe = this.getIFrameEl();
+                            var data = iframe.contentWindow.GetData();
+                            btnEdit.setValue(data.rightId);
+                            btnEdit.setText(data.rightName);
+
+                        }
+                    }
+                });
+            } else {
+                hmq.tipDanger('模块不能为空');
+            }
+        }
+        if(btnEdit.id=="parentUuid"){
+            return miniopen({
+                targetWindow: window.top,
+                url: "/system/developarchive/parentlist.html",
+                title: "【父级节点】选择",
+                width: 600,
+                height: 620,
+                action: mini.getByName("action").getValue(),
+                data: null,
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        btnEdit.setValue(data.uuid);
+                        btnEdit.setText(data.title);
+
+                    }
+                }
+            });
+        }
+    }
+
+    function onchanged(e){
+        mini.get("bindId").setValue("");
+        mini.get("bindId").setText("");
+    }
+</script>
+</html>

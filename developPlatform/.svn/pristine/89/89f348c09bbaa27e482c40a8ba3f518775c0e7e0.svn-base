@@ -1,0 +1,111 @@
+package com.tengzhi.business.xt.dailyRoutine.wcsq.vo;
+
+import com.tengzhi.business.xt.dailyRoutine.wcsq.model.EXtWcsq;
+import com.tengzhi.business.xt.dailyRoutine.wcsq.model.EXtWcsqZc;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.StreamSupport;
+
+public class EXtWcsqVo implements Serializable {
+
+    EXtWcsq eXtWcsq;
+    List<EXtWcsqZc> eXtWcsqZc,
+    addedList = new ArrayList<>(),
+    modifyedList = new ArrayList<>(),
+    deletedList = new ArrayList<>();
+    private String taskid;
+    private String opinion;
+    private String businessId;
+    private String instanceId;
+
+    public EXtWcsq geteXtWcsq() {
+        return eXtWcsq;
+    }
+
+    public void seteXtWcsq(EXtWcsq eXtWcsq) {
+        this.eXtWcsq = eXtWcsq;
+    }
+
+    public List<EXtWcsqZc> geteXtWcsqZc() {
+        return eXtWcsqZc;
+    }
+
+    public void seteXtWcsqZc(List<EXtWcsqZc> eXtWcsqZc) {
+        this.eXtWcsqZc = eXtWcsqZc;
+    }
+
+    public List<EXtWcsqZc> getAddedList() {
+        return addedList;
+    }
+
+    public void setAddedList(List<EXtWcsqZc> addedList) {
+        this.addedList = addedList;
+    }
+
+    public List<EXtWcsqZc> getModifyedList() {
+        return modifyedList;
+    }
+
+    public void setModifyedList(List<EXtWcsqZc> modifyedList) {
+        this.modifyedList = modifyedList;
+    }
+
+    public List<EXtWcsqZc> getDeletedList() {
+        return deletedList;
+    }
+
+    public void setDeletedList(List<EXtWcsqZc> deletedList) {
+        this.deletedList = deletedList;
+    }
+
+    public String getTaskid() {
+        return taskid;
+    }
+
+    public void setTaskid(String taskid) {
+        this.taskid = taskid;
+    }
+
+    public String getOpinion() {
+        return opinion;
+    }
+
+    public void setOpinion(String opinion) {
+        this.opinion = opinion;
+    }
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public static EXtWcsqVo initEXtWcsqVo(EXtWcsqVo eXtWcsqVo){
+        StreamSupport.stream(eXtWcsqVo.geteXtWcsqZc().spliterator(),false).forEach(eXtWcsqZc ->{
+            switch (eXtWcsqZc.get_state()){
+                case "added" :
+                    eXtWcsqZc.setNote(eXtWcsqVo.geteXtWcsq().getNote());
+                    eXtWcsqVo.getAddedList().add(eXtWcsqZc);
+                    break;
+                case "modified" :
+                    eXtWcsqVo.getModifyedList().add(eXtWcsqZc);
+                    break;
+                case "removed" :
+                    eXtWcsqVo.getDeletedList().add(eXtWcsqZc);
+            }
+        } );
+        return eXtWcsqVo;
+    }
+}

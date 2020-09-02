@@ -1,0 +1,247 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+	xmlns:o="urn:schemas-microsoft-com:office:office"
+	xmlns:x="urn:schemas-microsoft-com:office:excel"
+	xmlns="http://www.w3.org/TR/REC-html40"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>打印模板</title>
+</th:block>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6, form,
+	fieldset, legend, img, input, figure, figcaption {
+	margin: 0;
+	padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-size: 16px;
+	font-weight: normal;
+}
+
+ul, ol, li {
+	list-style: none;
+}
+
+b, strong {
+	font-weight: normal;
+}
+
+em, i {
+	font-style: normal;
+}
+
+a, u {
+	text-decoration: none;
+}
+
+img {
+	border: 0;
+	display: block;
+}
+
+input {
+	outline: none;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.container {
+	width: 100%;
+	margin: 0 auto;
+	padding: 10px;
+}
+
+.company, .category {
+	font-weight: bold;
+	font-family: '微软雅黑';
+	font-size: 21px;
+	line-height: 29px;
+	color: #000;
+	text-align: center;
+}
+.rq{
+	text-align: left;
+}
+table {
+	width: 100%;
+	text-align: center;
+	border-collapse: collapse;
+	font-size: 16px;
+}
+
+tbody td {
+	border: 1px solid #000;
+}
+
+.header td {
+	border: 1px solid #000;
+}
+
+.footer td{
+	border: 1px solid #000;
+}
+
+table tr {
+	width: 100%;
+	font-size: 16px;
+}
+
+table tr td {
+	padding: 5px;
+	font-size: 16px;
+}
+
+table tr .xh {
+	width: 5%;
+	line-height: 15px;
+}
+
+table tr .note {
+	width: 7%;
+	line-height: 15px;
+}
+table tr .pack {
+	width: 7%;
+	line-height: 15px;
+}
+table tr .name {
+	/* width: 20%; */
+	line-height: 15px;
+}
+table tr .customer {
+	width: 14%;
+	line-height: 15px;
+}
+table tr .remarks {
+	width: 15%;
+	line-height: 15px;
+}
+table tr .num {
+	width: 7%;
+	line-height: 15px;
+}
+
+table tr .dw {
+	width: 7%;
+	line-height: 15px;
+}
+
+
+table tr .ph {
+	width: 15%;
+	line-height: 15px;
+}
+
+table tr .kw {
+	width: 10%;
+	line-height: 15px;
+}
+</style>
+</head>
+
+<body>
+	<div class="container">
+		<table cellpadding="0" cellspacing="0">
+			<thead>
+				<tr>
+					<td colspan="12">
+						<p class="company" th:text="${corpName}"></p>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="12">
+						<p style="line-height: 5px" class="category" th:text="${typeAndAct}">
+							
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="6">
+						<b  style="line-height: 20px" class="rq" th:text="${rq}"></b> 
+					</td>
+					<!-- <td colspan="3">
+						<b  style="line-height: 20px" class="companyS">单位：<span th:text="${customername}"></span></b> 
+					</td> -->
+					<td colspan="6">
+						<b  style="line-height: 20px" class="companyS" th:text="${libName}"></b> 
+					</td>
+					<!-- <td colspan="3">
+						<b  style="line-height: 20px" class="number">单号：<span th:text="${fhNote}"></span></b>
+					</td> -->
+				</tr>
+
+				<tr class="header">
+					<td class="xh">序号</td>
+					<td class="note" >单号</td>
+					<td class="customer"  >部门</td>
+					<td class="name" colspan="2">名称及规格</td>
+					<td class="num">数量</td>
+					<td class="dw">单位</td>
+					<td class="ph">批号</td>
+					<td class="remarks" colspan="2"  >备注</td>
+				</tr>
+			</thead>
+
+			<tbody th:each="mx,index:${mx}">
+				<tr>
+					<td class="xh" th:text="${index.count}"></td>
+					<td class="note" th:text="${mx.outnote}"></td>
+					<td class="customer" th:text="${mx.customer}" ></td>
+					<td class="name" style="text-align:left" colspan="2" th:text="${mx.cpname}"></td>
+					<td class="num" th:text="${mx.fh_sl}"></td>
+					<td class="dw" th:text="${mx.cpcode_bz}"></td>
+					<td class="ph" th:text="${mx.fh_ph}"></td>
+					<td class="remarks"  th:text="${mx.fh_remarks}" colspan="2" ></td>
+				</tr>
+			</tbody>
+			<tbody th:if="${mxCount<8}" th:each="i:${#numbers.sequence(1,8-mxCount)}">
+				<tr>
+					<td class="xh" th:text="${i+mxCount}"></td>
+					<td class="note" ></td>
+					<td class="customer"  ></td>
+					<td class="name" style="text-align:left" colspan="2"></td>
+					<td class="num"></td>
+					<td class="dw"></td>
+					<td class="ph"></td>
+					<td class="remarks" colspan="2" ></td>
+				</tr>
+			</tbody>
+
+				<tr class="footer">
+					<td class="xh">合计</td>
+					<td class="name" colspan="4"></td>
+					<td class="num" th:text="${sum}"></td>
+					<td width="740" colspan="4"></td>
+				</tr>
+			
+			<tfoot>
+				<tr>
+					<td colspan="2">
+							<b class="pz">改包：</b> 
+					</td>
+					<td colspan="2">
+							<b class="zd" th:text="${manName}"></b> 
+					</td>
+					<td colspan="2">
+							<b class="pz">批准：</b> 
+					</td>
+					<!-- 
+					<td colspan="2">
+							<b class="ck">出库： </b>
+					</td> -->
+					<td colspan="6">
+							<b class="dydate" th:text="${now}"></b>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</body>
+</html>

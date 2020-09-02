@@ -1,0 +1,340 @@
+* {
+    margin: 0;
+    padding: 0
+}
+html,body{
+	width:100%;
+	height:100%;
+}
+body {
+    font: 12px/1.5 "微软雅黑";
+}
+
+a, img {
+    border: none;
+}
+
+a {
+    text-decoration: none;
+    color: #333;
+}
+
+ul li, ol li {
+    list-style: none;
+}
+
+.w {
+    width: 1011px;
+    margin: 0 auto;
+}
+
+:focus {
+    outline: 0;
+}
+
+.btn {
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+[disabled].btn {
+    cursor: not-allowed;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    opacity: .65;
+}
+
+/*login page*/
+.icon {
+    text-align: center;
+    line-height: 120px;
+}
+
+.input-account {
+    background: url(../../img/login/user.png) no-repeat 10px center;
+    height: 42px;
+    border: 1px solid #cfcfcf;
+    line-height: 38px;
+    font-size: 14px;
+    color: #666;
+    padding-left: 40px;
+    width: 285px;
+    border-radius: 3px;
+}
+input::-webkit-input-placeholder { color:#c1c1c1 }
+input:-moz-placeholder { color:#c1c1c1}
+input::-moz-placeholder { color:#c1c1c1 }
+input:-ms-input-placeholder { color:#c1c1c1 }
+
+.input-password {
+    width: 285px;
+    border-radius: 3px;
+    background: url(../../img/login/password.png) no-repeat 10px center;
+    height: 42px;
+    border: 1px solid #cfcfcf;
+    line-height: 38px;
+    font-size: 14px;
+    color: #666;
+    padding-left: 40px;
+}
+
+.input-randcode {
+    width: 285px;
+    background: url(../../img/login/password.png) no-repeat 10px center;
+    height: 42px;
+    border: 1px solid #cfcfcf;
+    line-height: 38px;
+    font-size: 14px;
+    color: #666;
+    padding-left: 40px;
+    border-radius: 3px;
+}
+
+.input-checkbox {
+    width: 20px;
+    height: 20px;
+    float: left
+}
+
+.btn-login {
+    width: 285px;
+    height: 40px;
+    text-align: center;
+    color: #fff;
+    font-size: 18px;
+    line-height: 40px;
+    border: none;
+    cursor: pointer;
+    font-family: "微软雅黑";
+    background: #073296;
+    margin-top: 10px;
+    border-radius: 3px;
+}
+
+body {
+    background-image: url("../../img/login/login_bg.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.tar-btn {
+    background-color: white;
+    font-size: 20px;
+    width: 140px;
+    height: 50px;
+    text-align: center;
+    color: #3f3b3a;
+    line-height: 40px;
+    border: none;
+    cursor: pointer;
+    font-family: "微软雅黑";
+    padding-bottom: 0;
+}
+
+.tab-bar {
+	height: 100%;
+    overflow: hidden;
+    padding: 0px 55px 0px 80px;
+}
+
+.tab-bar li{
+	width:50%;
+	height: 50px;
+    overflow: hidden;
+    float:left;
+    margin-bottom: 20px;
+    border-bottom:1px solid #eeeeee
+}
+.active{
+	border-bottom:1px solid #ff9e00 !important;
+}
+
+.tab-page {
+    display: none;
+    padding: 0px 41px 6px 80px;
+}
+
+.tab-page > li {
+    margin-bottom: 15px;
+}
+
+.verification-code-box {
+    width: 285px;
+    height: 42px;
+    position: relative;
+    overflow: hidden;
+}
+
+.verification-code-box > input {
+    padding-right: 104px;
+}
+
+.verification-code-box span {
+    position: absolute;
+    display: block;
+    width: 104px;
+    height: 38px;
+    right: 1px;
+    top: 2px;
+    line-height: 38px;
+    overflow: hidden;
+}
+
+.verification-code {
+    float: left;
+    width: 104px;
+    height: 40px;
+}
+
+.main-bg {
+    width: 100%;
+    height: 528px;
+    min-width: 1011px;
+    position: absolute;
+    top: 50%;
+    margin-top: -264px;
+}
+
+.main-img {
+    float: left;
+}
+
+.login {
+    width: 420px;
+    height: 528px;
+    background: #fff;
+    float: left;
+    overflow: hidden;
+}
+
+.remember-password-line {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 0px;
+    text-indent: 1.2em;
+}
+
+.captcha {
+    margin-top: -1px;
+    margin-left: 5px;
+    color: #fff !important;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+    width: 96px;
+}
+
+.footer-bar {
+    position: fixed;
+    bottom: 10px;
+    left: 0px;
+    width: 100%;
+    text-align: center;
+    color: #fefefe;
+}
+.footer-bar a{
+	color:#ffb400;
+	text-decoration: underline;
+	margin-right:14px
+}
+.footer-bar span{
+	margin-right:14px
+}
+.footer-bar span b{
+	 color: #ffb400;
+}
+.swiper-slide{
+	position:relative !important;
+}
+.pagination {
+  position: absolute;
+  z-index: 20;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+}
+.swiper-pagination-switch {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background: #b4d9f7;
+  margin: 0 5px;
+  cursor: pointer;
+}
+.swiper-active-switch {
+  background: #ffb400;
+}
+.company{
+	width:100%;
+	font-size:36px;
+	position:absolute;
+	top:44px;
+	left:45px;
+	color:#fff;
+	z-index:99
+}
+.company p{
+	margin-bottom:0
+}
+.company p:nth-of-type(1){
+	font-size:31px
+}
+.remember-password-content {
+            position: relative;
+        }
+
+        .remember-password-content input[type=checkbox]{
+            width: 16px;
+            height: 16px;
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+            font-size: initial;
+        }
+
+        .remember-password-content .remember-me-label {
+            color: #646261;
+            margin-left: 25px;
+            cursor: pointer;
+        }
+        .remember-password-content .remember-me-label::selection{
+            background: rgba(0,0,0,0);
+        }
+        .remember-password-content span {
+            position: absolute;
+            top: 1px;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #d6d6d6;
+            border-radius: 3px;
+            background: url(../../img/login/check.png);
+            background-size: 16px;
+            background-repeat: no-repeat;
+            background-position-x: 0px;
+            background-position-y: 20px;
+            -webkit-transition: background-position-y 0.1s linear;
+            -o-transition: background-position-y 0.1s linear;
+            transition: background-position-y 0.1s linear;
+        }
+
+        .remember-password-content input[type=checkbox]:checked+span {
+            background-position-y: 0px;
+        }
+
+/*END login page*/

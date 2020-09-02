@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>生产员工请假管理</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block
+            th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <!--<label class="hmq-label" text="日期"> <input
+                class="mini-datepicker"  name="qjKrp" />
+            </label>
+            <label class="hmq-label" text="至"> <input
+                class="mini-datepicker"  name="qjDrp" />
+            </label>-->
+            <label class="hmq-label" text="日期">
+                <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+            </label>
+            <label class="hmq-label" text="至">
+                <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+            </label>
+            <label class="hmq-label" text="员工部门">
+                <input name="srchWorkerDept"  class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                       url="/system/dept/combobox/comboboxDeptTreeListByProduction"
+                       showClose="true" oncloseclick="onCloseClickClearValue"/>
+            </label>
+            <label class="hmq-label" text="员工姓名"> <input
+                    class="mini-textbox" name="workerName" />
+            </label>
+            <label class="hmq-label" text="员工工号"> <input
+                    class="mini-textbox" name="workerId" />
+            </label>
+            <label class="hmq-label" text="加班单号"> <input
+                    class="mini-textbox" name="qjNote" />
+            </label>
+            <label class="hmq-label" text="加班类型"> <input class="mini-combobox" name="qjZtype"  url="/personnel/checkWorkAttendance/workOvertime/addType"
+                                                         textField="param_name" valueField="param_id"
+            />
+            </label>
+
+
+
+
+        </th:block>
+    </th:block>
+</form>
+
+<!--铺满页面-->
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="jbqjId" sortField="dataDate,qjRq" sortOrder="desc" showPageInfo="false"
+         url="findStaffOvertimeAll">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="qjRq" align="center" width="130">加班日期</div>
+            <div tz:datagrid="column" field="qjNote" width="120">加班单号</div>
+
+            <div tz:datagrid="column" field="workerId" displayField="workerName" align="center" width="130">加班员工</div>
+            <div tz:datagrid="column" field="workerDeptName" align="center" width="130">员工部门</div>
+            <!-- <div tz:datagrid="column" field="qjDtype" align="center" width="65">大类</div> -->
+
+            <div tz:datagrid="column" field="qjZtype"align="center" width="130" >加班类型</div>
+            <!-- <div tz:datagrid="column" field="qjXtype" align="center" width="65">小类</div> -->
+            <div tz:datagrid="column" field="qjKrq" align="center" width="150" dateFormat="yyyy-MM-dd HH:mm"
+                 renderer="onActionRenderer" >开始时间</div>
+            <div tz:datagrid="column" field="qjDrq" align="center" width="150" dateFormat="yyyy-MM-dd HH:mm"
+                 renderer="onActionRenderer" >结束时间</div>
+            <div tz:datagrid="column" field="qjSc" align="center" width="130">加班时长</div>
+            <!-- <div tz:datagrid="column" field="qjKq" align="center" width="80" >考勤时长</div> -->
+            <div tz:datagrid="column" field="qjFlag" align="center" width="130">加班状态</div>
+            <!-- <div tz:datagrid="column" field="qjMonth" align="center" width="65">考勤月份</div> -->
+
+            <div tz:datagrid="column" field="dataMan" align="center" width="130">操作人员</div>
+            <div tz:datagrid="column" field="dataDate" align="center" width="150" >操作日期 </div>
+            <!-- <div tz:datagrid="column" field="dataCorp" align="center" width="65">所属公司</div> -->
+            <div tz:datagrid="column" field="qjSy" align="left" width="280">加班事由</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form)
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "qjZtype") {
+            if(e.value=="PS"){
+                e.cellHtml ='平时';
+            }else if(e.value=="ZM"){
+                e.cellHtml ='周末';
+            }else if(e.value=="JR"){
+                e.cellHtml ='节日';
+            }
+        }
+    });
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "qjKrq") {
+            return mini.formatDate(new Date(record.qjKrq), "yyyy-MM-dd HH:mm");
+        }
+        if (e.field == "qjDrq") {
+            return mini.formatDate(new Date(record.qjDrq), "yyyy-MM-dd HH:mm");
+        }
+
+    }
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row ,width:600 ,height:400});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.qjNote,'登记'), function (res) {
+                if (200 === res.code) {
+                    e.sender.miniopen({url: 'add.html', action: 'edit', data: row,width:600 ,height:400});
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.qjNote,'登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                        if (action == "ok") {
+                            $['delete']("deleteStaff/{0}".format(row.jbqjId), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                    hmq.tipDanger(res.msg);
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /*  员工选择 */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url:"/personnel/checkWorkAttendance/leave/worker.html",
+            title: "【请假员工】选择页面",
+            width: 750,
+            data:{},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                }
+            }
+        });
+    }
+
+    /**
+     * 确认
+     **/
+    function confirm_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if('登记' != row.qjFlag){
+                hmq.tipDanger("当前状态不允许操作");
+            }else{
+                /* 	hmq.business.approvalConfirm({
+                        title: "【{qjNote}】{qjZtype}:{dataMan}(时长:{qjSc})".format(row),
+                        businessId: row.qjNote,
+                        url: '/personnel/checkWorkAttendance/workOvertime/add.html',
+                    }); */
+
+                hmq.business.approvalConfirm({
+                    businessId: row.qjNote,
+                    url: 'system/workflow/process/startFinishFirstStep',
+                    error: function (res) {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+
+
+            }
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if ( '确认' != row.qjFlag) {
+                hmq.tipDanger("当前状态不允许操作");
+            } else {
+                hmq.business.approvalCancel({
+                    businessId : row.qjNote,
+                    error : function(res) {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+
+
+</script>
+
+
+
+
+
+</body>
+</html>

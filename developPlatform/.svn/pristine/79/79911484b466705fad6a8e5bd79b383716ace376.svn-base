@@ -1,0 +1,20 @@
+spring:
+   thymeleaf:
+      cache: false
+      encoding: UTF-8
+      mode: HTML
+      prefix: classpath:/templates/
+      suffix: .html
+      check-template: true #渲染前是否检查模板是否存在
+      check-template-location: true #是否检查模板位置是否存在
+      produce-partial-outpu-while-processing: true #Thymeleaf是应该尽快开始写入部分输出还是缓冲直到模板处理完成
+      servlet:
+         content-type: text/html
+   messages:
+      basename: i18n/messages #语言国际化
+      encoding: UTF-8
+      use-code-as-default-message: false
+   jackson:
+      time-zone: GMT+8 #设置时区
+      date-format: yyyy/MM/dd HH:mm:ss
+      

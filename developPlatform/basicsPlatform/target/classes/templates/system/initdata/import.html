@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>邮件配置</title>
+</th:block>
+   <style type="text/css">
+    .asLabel .mini-textbox-border,
+    .asLabel .mini-textbox-input,
+    .asLabel .mini-buttonedit-border,
+    .asLabel .mini-buttonedit-input,
+    .asLabel .mini-textboxlist-border
+    {
+        border:0;background:none;cursor:default;
+    }
+    .asLabel .mini-buttonedit-button,
+    .asLabel .mini-textboxlist-close
+    {
+        display:none;
+    }
+    .asLabel .mini-textboxlist-item
+    {
+        padding-right:8px;
+    }    
+    </style>
+</head>
+<body>
+	<form id="form_home" action="UploadServlet" method="post" enctype="multipart/form-data">
+		<div class="mini-toolbar" style="padding: 2px; border-bottom: 0;">
+			<input id="dbTable" name="dbTable" class="mini-hidden" />
+			<input id="dataType" name="dataType" class="mini-hidden" />
+			<table style="table-layout: fixed;">
+				<tr>
+					<td align="right" width="60px" height="30">文件:</td>
+					<td>
+			            <input id="dbName" name="dbName" class="mini-textbox asLabel" />
+					</td>
+				</tr>
+				<tr>
+					<td align="right" width="60px" height="30">文件:</td>
+					<td>
+						<input type="file" name="files" class="file" id="fileField" size="28" />
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div style="text-align: center; padding: 20px;">
+			<a class="mini-button" iconCls="icon-download" onclick="template()">模板下载</a>
+			<a class="mini-button" type="submit" onclick="SaveData();" iconCls="icon-ok">确定</a>
+			<a class="mini-button" iconCls="icon-close" onclick="CloseWindow">关闭</a>
+		</div>
+	</form>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form_home");
+
+		$("#fileField").change(function() {
+			var file = this.files[0];
+			if (file.size > 10 * 1024 * 1024) { //限制上传文件的 大小10M
+				hmq.tipDanger("上传文件不能大于10M");
+				return false;
+			}
+			var type = this.value.toLowerCase().split('.').splice(-1);
+			if (type[0] != "xlsx" && type[0] != "xls") {
+				document.getElementById('fileField').value = '';
+				hmq.tipDanger("只能上传excel");
+				return false;
+			}
+		});
+
+		function template() {
+            var dbtable=mini.get("dbTable").getValue();
+            var dbname=mini.get("dbName").getValue();
+			window.location.href = "/system/initdata/template/"+dbname+"/"+dbtable;
+		}
+
+		function SaveData() {
+			   var dbtable=mini.get("dbTable").getValue();
+	            var dbname=mini.get("dbName").getValue();
+			var files = $('#fileField').val();
+			if (files != '') {
+				var formData = new FormData($("#form_home")[0]);
+				$.ajax({
+					url : "/system/initdata/upload",
+					type : 'POST',
+					data : formData,
+					async : false,
+					cache : false,
+					contentType : false,
+					processData : false,
+					success : function(res) {
+						if (200 === res.code) {
+							hmq.tipSuccess(res.msg || '上传成功', {
+								exec : function() {
+									CloseWindow('refresh');
+								}
+							});
+						} else {
+							hmq.tipDanger(res.msg || '上传失败');
+						}
+					},
+					error : function(returnInfo) {
+					}
+				});
+			} else {
+				hmq.tipDanger("请选择文件");
+			}
+		}
+		
+	    function SetData(options) {
+	        var row = options.data.row;
+	      
+
+
+	        if ('add' == options.action) {
+	      
+	                form.setData({
+	                    dbName: row.dbName,
+	                    dbTable: row.dbTable,
+	                    dataType:row.dataType,
+	                },false);	               	          
+	        } 
+	    }
+
+	</script>
+</body>
+</html>

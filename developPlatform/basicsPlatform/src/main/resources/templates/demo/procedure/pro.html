@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title></title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button"  iconCls="icon-save" onclick="H" id="saveBtn1">函数</a>
+    <a class="mini-button"  iconCls="icon-save" onclick="K" id="saveBtn2">存储过程</a>
+</div>
+</body>
+<script type="text/javascript">
+
+    function H() {
+        $.post("/demo/procedure/ProcedureCall",function (res) {
+            if (200 === res.code) {
+                alert(res.code);
+            } else {
+                alert(res.msg);
+            }
+        });
+    }
+
+    function K() {
+        $.post("/demo/procedure/ProcedureCalls",function (res) {
+            if (200 === res.code) {
+                alert(res.code);
+            } else {
+                alert(res.msg);
+            }
+        });
+    }
+
+</script>
+</html>

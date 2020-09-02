@@ -1,0 +1,260 @@
+package com.tengzhi.base.jpa.dao.impl;
+
+import com.tengzhi.base.jpa.dao.BasicsDao;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.tools.reflect.SelfResultTransformer;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.query.internal.NativeQueryImpl;
+import org.hibernate.transform.Transformers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.StoredProcedureQuery;
+import java.lang.reflect.ParameterizedType;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author lqy
+ *
+ * @param <T>  实体类
+ * @param <ID> 主键类型
+ */
+public class BasicsDaoImpl<T, ID> implements BasicsDao<T, ID> {
+	@PersistenceContext
+	private EntityManager em;
+
+	private Class<T> clazz = null;
+
+	public BasicsDaoImpl() {
+		ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
+		this.clazz = (Class<T>) pt.getActualTypeArguments()[0];
+	}
+
+	@Override
+	public T save(T t) {
+		em.persist(t);
+		return t;
+	}
+
+	public void savebean(Object clazz) {
+		em.persist(clazz);
+	}
+
+	@Override
+	public T update(T t) {
+		return em.merge(t);
+	}
+
+
+	@Override
+	public StoredProcedureQuery callStore(String ProcedureName,Map<String,Object> ParamMap) {
+		StoredProcedureQuery store = em.createNamedStoredProcedureQuery(ProcedureName);
+		for (Map.Entry<String,Object> entry : ParamMap.entrySet()) {
+			store.setParameter(entry.getKey(), entry.getValue());
+		}
+		store.execute();
+		return store;
+	}
+
+	@Override
+	public void deleteById(ID id) {
+		T t = em.getReference(clazz, id);
+		em.remove(t);
+	}
+
+	@Override
+	public int executeUpdate(String jpql, Object... obj) {
+		Query query = em.createQuery(jpql);
+		if (obj.length > 0) {
+			for (int i = 0; i < obj.length; i++) {
+				query.setParameter((i + 1), obj[i]);
+			}
+		}
+		return query.executeUpdate();
+	}
+
+	@Override
+	public int executeUpdateBysql(String sql, Object... obj) {
+		Query query = em.createNativeQuery(sql);
+		if (obj.length > 0) {
+			for (int i = 0; i < obj.length; i++) {
+				query.setParameter((i + 1), obj[i]);
+			}
+		}
+		return query.executeUpdate();
+	}
+
+	@Override
+	public T getBean(String jpql, Object... obj) {
+		try {
+			Query query = em.createQuery(jpql);
+			if (obj.length > 0) {
+				for (int i = 0; i < obj.length; i++) {
+					query.setParameter((i + 1), obj[i]);
+				}
+			}
+			return (T) query.getSingleResult();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public List<?> query(String sql, Class<?> clazz, Map<String, Object> map) {
+		Query q = em.createNativeQuery(sql);
+		if (!map.isEmpty()) {
+			for (String key : map.keySet()) {
+				String value = map.get(key).toString();//
+				q.setParameter(key, value);
+			}
+		}
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(new SelfResultTransformer(clazz));
+		return q.getResultList();
+	}
+
+	@Override
+	public List<?> query(String sql, Class<?> clazz, String... params) {
+		Query q = em.createNativeQuery(sql);
+		if (params != null && params.length > 0) {
+			for (int i = 0; i < params.length; i++) {
+				q.setParameter(i + 1, params[i]);
+			}
+		}
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(new SelfResultTransformer(clazz));
+		return q.getResultList();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<?> query(String sql, Class<?> V) {
+		Query q = em.createNativeQuery(sql);
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(new SelfResultTransformer(V));
+		return q.getResultList();
+	}
+
+	@Override
+	public List<Map<String, Object>> queryToMap(String sql) {
+		Query q = em.createNativeQuery(sql);
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);// 转换为map对象
+		return q.getResultList();
+	}
+	
+	@Override
+	public List<Map<String, Object>> queryToMapTransformers(String sql) {
+		Query q = em.createNativeQuery(sql);
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(com.tengzhi.base.jpa.extension.Transformers.ALIAS_TO_CAMEL_ENTITY_MAP);// 转换为map对象
+		return q.getResultList();
+	}
+	@Override
+	public List<T> queryBean(String sql) {
+		Query q = em.createNativeQuery(sql);
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(new SelfResultTransformer(clazz));
+		return q.getResultList();
+	}
+
+	@Override
+	public List<T> queryBean(String sql, String... obj) {
+		Query q = em.createNativeQuery(sql);
+		if (obj.length > 0) {
+			for (int i = 0; i < obj.length; i++) {
+				q.setParameter((i + 1), obj[i]);
+			}
+		}
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(new SelfResultTransformer(clazz));
+		return q.getResultList();
+	}
+
+	@Override
+	public String querySingleConversion(String sql, String... obj) { 
+		Query q = em.createNativeQuery(sql);
+		if (obj.length > 0) {
+			for (int i = 0; i < obj.length; i++) {
+				q.setParameter((i + 1), obj[i]);
+			}
+		}
+		return (String) q.getSingleResult();
+	}
+
+	@Override
+	public List<T> queryBean(String sql, Map<String, Object> map) {
+		Query q = em.createNativeQuery(sql);
+		if (!map.isEmpty()) {
+			for (String key : map.keySet()) {
+				String value = map.get(key).toString();//
+				q.setParameter(key, value);
+			}
+		}
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(new SelfResultTransformer(clazz));
+		return q.getResultList();
+	}
+
+	@Override
+	public List<Map<String, Object>> query(String sql, Map<String, Object> map) {
+		Query q = em.createNativeQuery(sql);
+		if (!map.isEmpty()) {
+			for (String key : map.keySet()) {
+				String value = map.get(key).toString();//
+				q.setParameter(key, value);
+			}
+		}
+		q.unwrap(NativeQueryImpl.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);// 转换为map对象
+		return q.getResultList();
+	}
+
+	@Override
+	public Result QueryPageList(String sql, String countSql, Map<String, Object> map, BaseDto dto) {
+		return QueryPageList(sql, countSql, null, map, dto);
+	}
+
+	@Override
+	public Result QueryPageList(String sql, String countSql, Class<?> V, Map<String, Object> map, BaseDto dto) {
+		String orderby = "";
+		Pageable pageable = null;
+		if (StringUtils.isNotBlank(dto.getSortField())) {
+			orderby = " order by ";
+			if (Direction.DESC.name().equals(String.valueOf(dto.getSortOrder()).toUpperCase())) {
+				orderby += dto.getSortField() + " " + Direction.DESC;
+			} else {
+				orderby += dto.getSortField() + " " + Direction.ASC;
+			}
+		}
+		pageable = PageRequest.of(dto.getPageIndex(), dto.getPageSize());
+		Query query = em.createNativeQuery("select * from (" + sql + ") t " + orderby);
+		Query countQuery = em.createNativeQuery(countSql);
+		if (map != null && !map.isEmpty()) {
+			for (String key : map.keySet()) {
+				String value = map.get(key).toString();//
+				query.setParameter(key, value);
+				countQuery.setParameter(key, value);
+			}
+		}
+		if (V != null) {
+			query.unwrap(NativeQueryImpl.class).setResultTransformer(new SelfResultTransformer(V));
+		} else {
+			query.unwrap(NativeQueryImpl.class)
+					.setResultTransformer(com.tengzhi.base.jpa.extension.Transformers.ALIAS_TO_CAMEL_ENTITY_MAP);// 转换为map对象
+		}
+		query.setFirstResult((int) pageable.getOffset());
+		query.setMaxResults(pageable.getPageSize());
+		List<Map<String, Object>> rankEntities = query.getResultList();
+		BigInteger totalCount = (BigInteger) countQuery.getSingleResult();
+		Page<Map<String, Object>> page = new PageImpl<>(rankEntities, pageable, totalCount.longValue());
+		return Result.formPage(page.getContent(), page.getTotalElements());
+	}
+
+	@Override
+	public Result QueryPageList(String sql, Map<String, Object> map, BaseDto dto) {
+		String countsql = "select count(1) from (" + sql + ") t";
+		return QueryPageList(sql, countsql, map, dto);
+	}
+
+}

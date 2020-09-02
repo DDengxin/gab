@@ -1,0 +1,106 @@
+package com.tengzhi.business.xt.transaction.service.impl;
+
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.file.FileUtil;
+import com.tengzhi.business.cg.yw.purchaseContract.model.ECgContract;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.upload.model.SysUpload;
+import com.tengzhi.business.xt.transaction.dao.TransactionDao;
+import com.tengzhi.business.xt.transaction.model.Transaction;
+import com.tengzhi.business.xt.transaction.service.TransactionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class TransactionServiceImpl implements TransactionService {
+
+    @Autowired
+    private TransactionDao transactionDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto dto) {
+        Map<String, String> map = dto.getParamsMap();
+        String where = SqlJoint.whereSuffixAnd((c) -> {
+            c.eq("data_corp", SessionUser.SessionUser().getCorpId(),true);
+            c.ge("sw_rq", map.get("srchRq1"));
+            c.le ("sw_rq", map.get("srchRq2"));
+
+            c.contains("sw_note", map.get("srchNode"));
+            c.eq("sw_type", map.get("srchType"));
+            c.eq("sw_dept", map.get("srchDept"));
+            c.eq("sw_man", map.get("srchMan"));
+        });
+        String sql = " select *, "
+                + " f_getname ( 'GETDEPTNAME', sw_dept, '', data_corp ) sw_dept_name, "
+                + " f_getname ( 'GETUSERNAME', sw_man, '', data_corp ) sw_man_name, "
+                + " f_get_param_name('日常事务',sw_type,data_corp,'财务',FALSE) sw_type_name, "
+                + " f_get_param_name ( f_get_param_name ( '日常事务', sw_type,data_corp, '财务', FALSE ), sw_stype,data_corp, '财务', FALSE ) sw_stype_name, "
+                + " f_getname ( 'GETUSERNAME', data_man, '', data_corp ) date_man_name, "
+                + " f_getname ( 'GETCORPEXP', '', '', data_corp ) data_corp_name "
+                + " from e_xt_swsq   where 1=1 " + where;
+        return transactionDao.QueryMapPageList(dto, sql, true);
+    }
+
+    @Override
+    public Result save(Transaction transaction) throws Exception {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        transaction.setSwNote(sysGenNoteService.getyyyyMMddNote4(ECgContract.class, "SW"));
+        transaction.setDataMan(sessionUser.getUserId());
+        transaction.setDataDate(new Date());
+        transaction.setDataCorp(sessionUser.getCorpId());
+        transaction.setSwFlag("登记");
+        transactionDao.save(transaction);
+        return Result.resultOk(transaction.getSwNote());
+    }
+
+    @Override
+    public void update(Transaction transaction) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        transaction.setSwRq(DateUtil.parseDate(DateUtil.format(transaction.getSwRq(), "yyyy-MM-dd")));
+        transaction.setDataMan(sessionUser.getUserId());
+        transaction.setDataDate(new Date());
+        transaction.setDataCorp(sessionUser.getCorpId());
+        transaction.setSwFlag("登记");
+        transactionDao.update(transaction);
+    }
+
+    @Override
+    public void delete(String swNote) {
+        String fileId = transactionDao.getFileId(swNote);
+        List<SysUpload> sysUploads = transactionDao.getUuid(fileId);
+        FileUtil util = FileUtil.getInstance();
+        for (SysUpload sysUpload : sysUploads) {
+            if (!StrUtil.isNullOrUndefined(sysUpload.getUuid())) {
+                transactionDao.deleteByUuid(sysUpload.getUuid());
+                util.deletefile(sysUpload.getFile_path(), false);
+            }
+        }
+        transactionDao.deleteData(swNote);
+    }
+
+    @Override
+    public Transaction find(String swNote) {
+        return transactionDao.find(swNote);
+    }
+
+    @Override
+    public String getManName(String swMan) {
+        return transactionDao.getDeptName(swMan, SessionUser.SessionUser().getCorpId());
+    }
+
+}

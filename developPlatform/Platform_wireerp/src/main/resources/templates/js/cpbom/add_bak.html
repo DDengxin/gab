@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>成品BOM【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+     	<input id="action" name="action" class="mini-hidden"/>
+     	<table class="hmq-modify-table">
+        	<tr>
+            	<td title>产品编码：</td>
+                <td content>
+                    <input id="cpcodeId" name="cpcodeId" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false" required="required"/>
+                </td>
+                <td title>产品名称：</td>
+                <td content>
+                    <input id="cpcodeName" name="cpcodeName" class="mini-textbox" disabled="disabled" readonly="readonly"/>
+                </td>
+        	</tr>
+        	<tr>
+            	<td title>BOM说明：</td>
+                <td content colspan="3">
+                    <input id="cpcodeSm" name="cpcodeSm" class="mini-textarea" style="height:60px;"/>
+                </td>
+        	</tr>
+        </table>
+    </form>
+	<div tz:datagrid="datagrid" id="datagrid" idField="cpcodeUid" sortField="cpcodeUid" sortOrder="asc" style="width:100%;height:300px;" url="" allowCellEdit="true" allowCellSelect="true" multiSelect="true"  sortMode="client" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true" showPager="false" allowCellValid="true" showColumnsMenu="true" showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" >
+		<div property="columns">
+			<div tz:datagrid="checkcolumn" width="15" ></div>
+				<div tz:datagrid="comboboxcolumn" field="cpcodeType" width="60" align="center">类型
+					<input property="editor" required class="mini-combobox" url="/system/parameter/getParamsSelectListByParentId/技术/产品大类/CPDL" textField="text" valueField="id"/>
+				</div>
+				<div tz:datagrid="column" field="cpcodeUid" width="60" align="center">上级品号
+					<input property="editor" name="cpcodeUid" required class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false"/>
+				</div>
+				<div tz:datagrid="column" field="cpcodeStype" width="60" align="center">级别
+					<input property="editor" required class="mini-textbox" />
+				</div>
+				<div tz:datagrid="column" field="cpcodeBl" width="60" align="center">配比
+					<input property="editor" required class="mini-textbox" />
+				</div>
+				<div tz:datagrid="column" field="cpcodeSh" width="60" align="center">损耗
+					<input property="editor" required class="mini-textbox" />
+				</div>
+			</div>
+		</div>
+	</div>
+
+<div class="mini-toolbar hmq-toolbar">
+ 	<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+  	<a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get('datagrid');
+    
+    /**
+	 新增行
+	 */
+    function addRow(){
+		var index =grid.getData().length;
+		var newRow = {};
+    	grid.addRow(newRow, index+1);
+    }
+    
+    /**
+	 删除行
+	 */
+    function delRow(){
+    	 var rows = grid.getSelecteds();
+         if(rows.length>0){
+        	 grid.removeRows(rows,true);
+         }else{
+        	 hmq.tipDanger('请选择需要删除的行！');
+         }
+    }
+    
+	/**
+     	保存
+     */
+    function SaveData() {
+    	if (form.validate() && form.isValid()) {
+    		grid.validate();
+			if (grid.isValid() == false) {
+				var error = grid.getCellErrors()[0];
+				grid.beginEditCell(error.record, error.column);
+				return;
+			}
+            var gridData = grid.getChanges();
+            if(gridData==""){
+            	gridData=grid.getData();
+            }
+            $(gridData).each(function (index) {
+            	gridData[index].rightOrd = index;
+            	gridData[index]._state = gridData[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            for(let i = 0;i<gridData.length;i++){
+            	gridData[i].cpcodeId = form.getData(true).cpcodeId;
+            	gridData[i].cpcodeSm = form.getData(true).cpcodeSm;
+            }
+            for(let i = 0;i<gridData.length;i++){
+            	$[method]("add.html", JSON.stringify(gridData[i]), function (res) {
+                    if (200 === res.code && i === (gridData.length-1)) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+            }
+        }
+    }
+	
+    
+	 /**
+	 回调函数
+	 */
+    function SetData(options) {
+        if ('add' == options.action) {
+            grid.clearData();
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+        	var row = options.data;
+            $.get("getById/{0}".format(row.cpcodeId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    mini.get("cpcodeId").setValue(res.data.cpcodeId);
+                    mini.get("cpcodeId").setText(res.data.cpcodeId);
+                    $.get("cpcodeName/{0}".format(res.data.cpcodeId), function (res) {
+                    	mini.get("cpcodeName").setValue(res);
+                        mini.get("cpcodeName").setText(res);
+                    });
+                    mini.get("cpcodeName").setValue(res.data.cpcodeId);
+                    mini.get("cpcodeName").setText(res.data.cpcodeId);
+                    var data = mini.decode(res.data);
+                    grid.setUrl("/js/cpbom/getSrchBottomList");
+                    grid.load({
+                        params: JSON.stringify({cpcodeId: res.data.cpcodeId})
+                    });
+                	mini.get("cpcodeId").setReadOnly(true);
+                }       
+            });         
+        }               
+    }                   
+                                             
+    function onButtonEdit(e) {
+    	var row = grid.getSelected();
+		var btnEdit = this;
+		var index =grid.getData().length;
+		var type ;
+		if (e.source.id == "cpcodeId") {
+			type = "CP";
+		}else{
+			if(!!row.cpcodeType){
+				type=row.cpcodeType;
+			}else{
+				hmq.tipDanger("请先选择类型");
+				return null;
+			}
+		}
+		return miniopen({
+			targetWindow: window.top,
+			url: "/sale/saleProduct/saleContract/wlbmselect.html",
+			title : "编码单选择列表",
+			width : 1300,
+			height : 620,
+			onload : function() {
+				var iframe = this.getIFrameEl();
+				var data = {
+					action : "search",
+					cgStype : type
+				};
+				iframe.contentWindow.SetData(data);
+			},
+			ondestroy : function(action) {
+				if (action == "ok") {
+					if (e.source.id == "cpcodeId") {
+						var iframe = this.getIFrameEl();
+						var rows = iframe.contentWindow.GetData();
+						rows = mini.clone(rows);
+						btnEdit.setValue(rows.cpcodeid);
+						btnEdit.setText(rows.cpcodeid);
+						mini.get("cpcodeName").setValue(rows.cpcodename);
+						var row = grid.getSelected();
+						grid.addRow(newRow, 0);
+					}else{
+						var iframe = this.getIFrameEl();
+						var rows = iframe.contentWindow.GetData();
+						rows = mini.clone(rows);
+						btnEdit.setValue(rows.cpcodeid);
+						btnEdit.setText(rows.cpcodeid);
+						var row = grid.getSelected();
+						grid.addRow(newRow, 0);
+					}
+				}
+				grid.clearSelect();
+			}
+		});
+	}
+    
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+    
+</script>
+</html>

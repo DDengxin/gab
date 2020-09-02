@@ -1,0 +1,85 @@
+package com.tengzhi.business.xt.getINOut.wlcl.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.xt.getINOut.wlcl.dao.WlclDao;
+import com.tengzhi.business.xt.getINOut.wlcl.model.EXtWlcl;
+import com.tengzhi.business.xt.getINOut.wlcl.service.WlclService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Map;
+@Service
+@Transactional
+public class WlclServiceImpl implements WlclService {
+
+    @Autowired
+    private WlclDao wlclDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto baseDto) throws IOException {
+        Map<String,String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(c->{
+           c.ge("rc_rq",map.get("srchRq1"));
+           c.le("rc_rq",map.get("srchRq2"));
+           c.eq("rc_cp",map.get("srchCp"));
+        });
+        String sql = "select note,to_char(rc_rq,'yyyy-MM-dd')rc_rq,data_corp,rc_cp,rc_driver,to_char(rc_sjrc,'MM-dd hh24:mi')rc_sjrc,to_char(rc_sjcc,'MM-dd hh24:mi')rc_sjcc,rc_rs,rc_sm,rc_flag from e_xt_wlcl "+where;
+        return wlclDao.QueryMapPageList(baseDto,sql,true);
+    }
+
+    @Override
+    public EXtWlcl save(EXtWlcl eXtWlcl) throws Exception {
+        String note = sysGenNoteService.getNote(EXtWlcl.class,"WLCL","yyMM",4);
+        eXtWlcl.setNote(note);
+        eXtWlcl.setRcFlag("登记");
+
+        return wlclDao.save(eXtWlcl);
+    }
+
+    @Override
+    public void update(EXtWlcl eXtWlcl) {
+        wlclDao.dynamicSave(eXtWlcl,wlclDao.findById(eXtWlcl.getNote()).orElse(null));
+
+    }
+
+    @Override
+    public Map<String, Object> findByNote(String note) {
+        return wlclDao.QueryToFirstMap("select note,to_char(rc_rq,'yyyy-MM-dd')rc_rq,data_corp,rc_driver,to_char(rc_sjcc,'yyyy-MM-dd hh24:mi')rc_sjcc," +
+                "to_char(rc_sjrc,'yyyy-MM-dd hh24:mi')rc_sjrc,rc_cp,rc_rs,rc_sm,rc_flag from e_xt_wlcl where note =:1",note);
+    }
+
+    @Override
+    public void deleteByNote(String note) {
+        wlclDao.deleteByNote(note);
+    }
+
+    @Override
+    public Result getFlag(String note, String flag) {
+        String flagString = wlclDao.getFlag(note);
+        if(flag.equals(flagString)){
+            return Result.resultOkMsg("操作成功");
+        }
+        return Result.error("该单不是“"+flag+"”状态，不能操作");
+    }
+
+    @Override
+    public Result confirm(String note) {
+        wlclDao.updateFlag(note,"确认");
+        return Result.resultOkMsg("确认");
+    }
+
+    @Override
+    public Result cancle(String note) {
+        wlclDao.updateFlag(note,"登记");
+        return Result.resultOkMsg("取消确认");
+    }
+}

@@ -1,0 +1,73 @@
+package com.tengzhi.business.platform.specialist.chamberactivities.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.specialist.chamberactivities.model.G_chamber;
+import com.tengzhi.business.platform.specialist.chamberactivities.model.chamberActivities;
+import com.tengzhi.business.platform.specialist.chamberactivities.service.ChamberActivitiesService;
+import com.tengzhi.business.platform.specialist.chamberactivities.service.ChamberService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+
+@RestController
+@RequestMapping("/platform/specialist/chamberactivities")
+public class ChamberActivitiesControler {
+
+    @Autowired
+    private ChamberActivitiesService chamberActivitiesService;
+    @Autowired
+    private ChamberService chamberService;
+
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    @PostMapping(value = "inquiry")
+    public Result inquiry(BaseDto baseDto) throws Exception {
+        return chamberActivitiesService.findAll(baseDto).getResult();
+    }
+    @GetMapping(value = "uniqueQuery/{id}")
+    public Result uniqueQuery(@PathVariable String id) {
+        return Result.resultOk(chamberActivitiesService.findById(id));
+    }
+    @PostMapping("addArticle")
+    public Result addArticle(@RequestBody chamberActivities chamberActivities){
+        chamberActivitiesService.save(chamberActivities);
+        return Result.resultOk();
+    }
+    @PutMapping("addArticle")
+    public Result modify(@RequestBody chamberActivities chamberActivities) {
+        chamberActivitiesService.update(chamberActivities);
+        return Result.resultOk();
+    }
+    @DeleteMapping(value = "deleteArticle/{id}")
+    public Result delete(@PathVariable String id) {
+        chamberActivitiesService.deleteById(id);
+        return Result.resultOk();
+    }
+
+    @PutMapping(value = "show/{id}")
+    public Result show(@PathVariable String id) {
+        chamberActivitiesService.showById(id);
+        return Result.resultOk();
+    }
+    
+    @PostMapping("addChamber")
+    public Result addChamber(@RequestBody G_chamber g_chamber){
+    	Result rs =new  Result();
+    	rs =chamberService.save(g_chamber);
+        return rs;
+        }
+    
+    
+    @PostMapping(value = "srchchamber")
+    public Result srchchamber(BaseDto baseDto) throws Exception {
+            return chamberService.findAll(baseDto).getResult();
+    }
+
+}
+

@@ -1,0 +1,23 @@
+$(function () {
+    $('#username').val(TZ_SETTING.nickName);
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on('submit(securityForm)', function (data) {
+            
+            return false;
+        })
+    })
+
+    /**
+	 * 搜索
+	 * 1、点击搜索按钮搜索
+	 * 2、回车键搜索
+	 */
+	$('#search').click(function () {
+	});
+	$('#searchContent').keypress(function (evt) {
+		var e = evt || window.event;
+		if (e.keyCode == 13) {
+		}
+	});
+})

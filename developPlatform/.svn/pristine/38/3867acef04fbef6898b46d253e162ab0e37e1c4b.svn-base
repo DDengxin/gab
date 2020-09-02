@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>设备档案</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="机台编码">
+            <input class="mini-textbox" name="machineId" width="95px"/>
+        </label>
+        <label class="hmq-label" text="机台编号">
+            <input class="mini-textbox" name="machineNo" width="95px"/>
+        </label>
+        <label class="hmq-label" text="机台名称">
+            <input class="mini-textbox" name="machineName" width="95px"/>
+        </label>
+        </label>
+        <label class="hmq-label" text="机台大类">
+            <input class="mini-combobox" name="machineDtype" width="95px" url="/mSbJt/sb/getMachineZtype" emptyText="全部" nullItemText="全部" showNullItem="true"/>
+        </label>
+        </label>
+        <label class="hmq-label" text="机台分类">
+            <input class="mini-combobox" name="machineZtype" width="95px" url="/mSbJt/sb/getMachineDtype" emptyText="全部" nullItemText="全部" showNullItem="true"/>
+        </label>
+        </label>
+        <label class="hmq-label" text="机台工段">
+            <input class="mini-textbox" name="machineWorkshop" width="95px"/>
+        </label>
+        <label class="hmq-label" text="机台工序">
+            <input class="mini-combobox" name="machineProcess"
+                   url="/js/cpgy/scgx/getGxAllSelectList" width="95px" emptyText="全部" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="巡检项目">
+            <input class="mini-textbox" name="machineInspection" width="95px"/>
+        </label>
+        <label class="hmq-label" text="机台位置">
+            <input class="mini-textbox" name="machineAddress" width="95px"/>
+        </label>
+        <label class="hmq-label" text="机台状态">
+            <input class="mini-combobox" name="machineFlag" emptyText="全部" nullItemText="全部" showNullItem="true"
+                   textField="text" valueFiled="id"
+                   data="[{id:'启用',text:'启用'},{id:'禁用',text:'禁用'}]" width="95"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width:100%;height:100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" style="width:100%;height:100%;" idField="machineId"
+                     onselectionchanged="onSelectionChanged" sortField="machineNo" sortOrder="desc">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="40">序号</div>
+                        <div tz:datagrid="column" field="machineId" width="130" align="center">机台编码</div>
+                        <div tz:datagrid="column" field="machineNo" width="100" align="center">机台编号</div>
+                        <div tz:datagrid="column" field="machineName" width="100" align="center">机台名称</div>
+
+                        <div tz:datagrid="column" field="machineDtype" displayField="dtypeName" width="100" align="center">机台大类</div>
+                        <div tz:datagrid="column" field="machineZtype" displayField="ztypeName" width="100" align="center">机台分类</div>
+                        <!--  <div tz:datagrid="column" field="machineXtype" width="100" align="center">机台小类</div> -->
+                        <div tz:datagrid="column" field="machineWorkshop" displayField="cjName" width="100" align="center">机台车间</div>
+                        <div tz:datagrid="column" field="machineProcess" displayField="gxName" width="100" align="center">机台工序</div>
+                        <div tz:datagrid="column" field="machineAddress" width="100" align="center">机台位置</div>
+                        <!-- <div tz:datagrid="column" field="machineHelp" width="100" align="center">机台帮助</div>
+                        <div tz:datagrid="column" field="machineWarning" width="100" align="center">机台警示</div> -->
+                        <div tz:datagrid="column" field="machineFlag" width="100" align="center">机台状态</div>
+                        <div tz:datagrid="column" field="machineSm" width="150" align="center">机台说明</div>
+                        <!--  <div tz:datagrid="column" field="dataMan" width="100" align="center">操作人员</div>
+                        <div tz:datagrid="column" field="dataDate" width="150" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm" >操作日期</div>
+                        <div tz:datagrid="column" field="dataCorp" width="130" align="center" visible="false">所属公司</div>  -->
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid" style="width:100%;height:100%;" idField="machineId" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"  sortField="machineId" sortOrder="asc">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="40">序号</div>
+                        <!-- <div tz:datagrid="column" field="machineId" width="90" align="center">机台编码</div> -->
+                        <div tz:datagrid="column" field="machineBid" width="100" align="center">部件编码</div>
+                        <div tz:datagrid="column" field="machineBname" width="100" align="center">部件名称</div>
+                        <div tz:datagrid="column" field="machineIndate" width="100" align="center">部件启用</div>
+                        <div tz:datagrid="column" field="machineJe" width="100" align="center" numberFormat="#,0.00">部件金额</div>
+                        <div tz:datagrid="column" field="machineZid" width="100" align="center">资产编码</div>
+                        <div tz:datagrid="column" field="machineType" width="100" align="center">部件类型</div>
+                        <div tz:datagrid="column" field="machineFlag" width="100" align="center">部件状态</div>
+                        <div tz:datagrid="column" field="machineSm" width="100" align="center">部件说明</div>
+                        <div tz:datagrid="column" field="dataMan" width="100" align="center">操作人员</div>
+                        <div tz:datagrid="column" field="dataDate" width="100" align="center">操作日期</div>
+                        <div tz:datagrid="column" field="dataCorp" width="180" align="center" visible="false">所属公司</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    //srch_topgrid.frozenColumns(0, 5);
+    var surl = "/mSbJt/sb";
+
+    srch_topgrid.setUrl(surl + "/getSrchTopList");
+    srch_bottomgrid.setUrl(surl + "/getSrchBottomList");
+
+    srch_topgrid.bindSearchForm(form);
+
+    function search_option() {
+        srch_topgrid.load();
+        srch_bottomgrid.setData([]);
+    }
+
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params: mini.encode({
+                    machineId: record.machineId
+                })
+            });
+        }
+    }
+
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().machineId;
+        }
+    });
+
+    /**
+     * @Param:
+     * @Author:Gxl
+     * @Date: 2020/4/22 17:12
+     * @description:常规新增函数
+     */
+    function add_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 998, height: 380});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "add.html", action: 'edit', data: row, width: 998, height: 380});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("delete/{0}".format(row.machineId), function (res) {
+                        if (200 === res.code) {
+                            srch_topgrid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+</script>
+</html>

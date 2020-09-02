@@ -1,0 +1,160 @@
+package com.tengzhi.business.production.productionSite.siteTask.controller;
+
+import java.io.IOException;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.production.productionSite.siteTask.Vo.MScGclistSlVo;
+import com.tengzhi.business.production.productionSite.siteTask.Vo.MScGclistVo;
+import com.tengzhi.business.production.productionSite.siteTask.service.SiteTaskService;
+import com.tengzhi.business.resouces.vo.SelectVo;
+
+@RestController
+@RequestMapping("/production/productionSite/siteTask")
+public class SiteTaskController {
+	
+   
+    @Autowired
+	private SiteTaskService siteTaskService;
+	
+	@GetMapping("/*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+	
+	 /**
+     * @throws IOException 
+     * @Param: [vo]
+     * @description:现场任务list
+     */
+    @PostMapping("/getTopLeftGridList")
+	public  Result getTopLeftGridList(BaseDto baseDto) throws IOException {
+		return siteTaskService.getTopLeftGridList(baseDto).getResult();
+	}
+    
+    /**
+     * @throws IOException 
+     * @Param: [vo]
+     * @description:现场任务list
+     */
+    @PostMapping("/getTopRightGridList")
+	public  Result getTopRightGridList(BaseDto baseDto) throws IOException {
+		return siteTaskService.getTopRightGridList(baseDto).getResult();
+	}
+    
+    /**
+     * @throws IOException 
+     * @Param: [vo]
+     * @description:现场任务list
+     */
+    @PostMapping("/getTopRightGcGridList")
+	public  Result getTopRightGcGridList(BaseDto baseDto) throws IOException {
+		return siteTaskService.getTopRightGcGridList(baseDto).getResult();
+	}
+    
+    
+    
+    /**
+     * @throws IOException 
+     * @Param: [vo]
+     * @description:下料list
+     */
+    @PostMapping("/getBottomRightGcGridList")
+	public  Result getBottomRightGcGridList(BaseDto baseDto) throws IOException {
+		return siteTaskService.getBottomRightGcGridList(baseDto).getResult();
+	}
+    
+    
+    /**
+     * @Param: [vo]
+     * @description: Get(获取数据|通过ID获取对象)Restful
+     */
+    @GetMapping(value = "/getByRwGx/{scMo}/{gxId}")
+    public Result getByRwGx(@PathVariable(value = "scMo") String scMo,@PathVariable(value = "gxId") String gxId) {
+        return Result.resultOk(siteTaskService.getByRwGx(scMo,gxId));
+    }
+    
+    @PutMapping("/getByPack")
+   	public  Result getByPack(@RequestBody BaseDto baseDto) throws IOException {
+   		return siteTaskService.getByPack(baseDto);
+   	}
+    
+    @PutMapping("/getCount")
+   	public  Result getCount(@RequestBody BaseDto baseDto) throws IOException {
+   		return siteTaskService.getCount(baseDto);
+   	}
+    
+
+    /**
+     * 
+     * @description: 工序投料新增
+     */
+    @PostMapping(value = "tladd")
+    public Result tladd(@RequestBody MScGclistSlVo vo) throws Exception {
+    	return  siteTaskService.tladd(vo);
+    }
+    
+    
+    /**
+     * 
+     * @description:工序下料
+     */
+    @PostMapping(value = "/gxxl")
+    public Result gxxl(@RequestBody MScGclistVo vo) throws Exception {
+        return siteTaskService.gxxl(vo);
+    }
+    
+    
+    @PutMapping("/getByTl")
+   	public  Result getByTl(@RequestBody BaseDto baseDto) throws Exception {
+   		return siteTaskService.getByTl(baseDto);
+   	}
+    
+    @PutMapping("/getTlflag")
+   	public  Result getTlflag(@RequestBody BaseDto baseDto) throws Exception {
+   		return siteTaskService.getTlflag(baseDto);
+   	}
+    
+    /**
+     * 
+     * @description:工序下料牌号下拉框
+     */
+    @GetMapping("/getTph/{rwMo}/{gxId}")
+	public Set<SelectVo> getTph(@PathVariable(name = "rwMo") String rwMo,@PathVariable(name = "gxId") String gxId) {
+		return siteTaskService.getTph(rwMo,gxId);
+	}
+    
+    /**
+     * 
+     * @description:工序下料原料批次下拉框
+     */
+    @GetMapping("/getTts/{rwMo}/{gxId}")
+	public Set<SelectVo> getTts(@PathVariable(name = "rwMo") String rwMo,@PathVariable(name = "gxId") String gxId) {
+		return siteTaskService.getTts(rwMo,gxId);
+	}
+    
+    /**
+     * 
+     * @description:工序下料原料批次下拉框
+     */
+    @GetMapping("/getGxFlag")
+	public Set<SelectVo> getGxFlag() {
+		return siteTaskService.getGxFlag();
+	}
+    
+    @PostMapping("/getDataByGch/{gch}")
+	public Result getDataByGch(@PathVariable(name = "gch") String gch) throws Exception {
+		return siteTaskService.getDataByGch(gch);
+	}
+}

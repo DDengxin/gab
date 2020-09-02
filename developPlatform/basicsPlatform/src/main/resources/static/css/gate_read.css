@@ -1,0 +1,307 @@
+html,body,ul,li,ol,dl,dd,dt,p,h1,h2,h3,h4,h5,h6,form,fieldset,legend,img,input,figure,figcaption{margin:0;padding:0;}
+h1,h2,h3,h4,h5,h6{font-size:16px;font-weight:normal;}
+ul,ol,li{list-style:none;}
+b,strong{font-weight:normal;}
+em,i{font-style:normal;}
+a,u{text-decoration: none;}
+img{border:0;display:block;}
+input{outline:none;}
+*{box-sizing:border-box;}
+html,body{
+    width: 100%;
+    height: 100%;
+}
+.container{
+    width: 100%;
+    height: 100%;
+    background: #f1f1f1;
+}
+.container .content{
+    width: 100%;
+    height: 100%;
+    padding: 18px;
+    background: #f1f1f1;
+}
+.wrap{
+    width: 100%;
+    float: left;
+    height: 100%;
+    position: relative;
+}
+.wrap .top,
+.wrap .bottom{
+    width: 100%;
+    height: 48.4%;
+}
+.wrap .bottom{
+    position: absolute;
+    bottom: 0;
+}
+.container .content .wrap .noticOne,
+.container .content .wrap .noticTwo,
+.container .content .wrap .noticThree,
+.container .content .wrap .noticSix,
+.container .content .wrap .noticFour,
+.container .content .wrap .noticFive{
+    width: 32.5%;
+    float: left;
+    background: #fff;
+    height: 48.5%;
+}
+.container .content .wrap .noticOne,
+.container .content .wrap .noticTwo,
+.container .content .wrap .noticThree,
+.container .content .wrap .noticSix,
+.container .content .wrap .noticFour,
+.container .content .wrap .noticFive{
+    height: 100%;
+}
+.container .content .wrap .noticOne,
+.container .content .wrap .noticFour{
+    float: left;
+}
+.container .content .wrap .noticTwo,
+.container .content .wrap .noticFive{
+    float: left;
+}
+/*.container .content .wrap .noticThree,
+.container .content .wrap .noticSix{
+    float: left;
+}*/
+.container .content .menu{
+    width: 26%;
+    height: 100%;
+    float: right;
+    background: #fff;
+}
+
+
+.noticFour,
+.noticFive,
+.noticSix,
+.menu,
+.noticOne,
+.noticThree,
+.noticTwo{
+    width: 100%;
+    height: 100%;
+    padding: 0 18px;
+}
+.noticOne,
+.noticTwo,
+.noticThree,
+.noticFour,
+.noticFive,
+.noticSix{
+    padding: 0 18px 18px 0;
+    margin-right: 10px;
+}
+.noticSix .note_top,
+.noticFour .note_top,
+.noticFive .note_top,
+.menu .note_top,
+.noticOne .note_top,
+.noticTwo .note_top,
+.noticThree .note_top{
+    width: 100%;
+    height: 54px;
+    line-height: 54px;
+    border-bottom: 1px solid #e1e1e1;
+    position: relative;
+}
+
+.noticSix .note_top .title_top,
+.noticFour .note_top .title_top,
+.noticFive .note_top .title_top,
+.menu .note_top .title_top,
+.noticOne .note_top .title_top,
+.noticTwo .note_top .title_top,
+.noticThree .note_top .title_top{
+    font-size: 17px;
+    margin-left: 10px;
+    color: #333333;
+}
+.noticSix .note_top .line,
+.noticFour .note_top .line,
+.noticFive .note_top .line,
+.noticOne .note_top .line,
+.noticTwo .note_top .line,
+.noticThree .note_top .line{
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    display: block;
+    width: 60px;
+    border-bottom: 2px solid #4093fe;
+}
+.noticSix .note_top >ul>li .more,
+.noticFour .note_top >ul>li .more,
+.noticFive .note_top >ul>li .more{
+    float: right;
+    font-size: 15px;
+    color: #4093fe;
+}
+.noticOne .note_top >ul>li .more,
+.noticTwo .note_top >ul>li .more,
+.noticThree .note_top >ul>li .more{
+    float: right;
+    font-size: 15px;
+    color: #4093fe;
+}
+.noticSix .note_content,
+.noticFour .note_content,
+.noticFive .note_content,
+.noticOne .note_content,
+.noticTwo .note_content,
+.noticThree .note_content{
+    width: 100%;
+    overflow: hidden;
+    padding: 10px 0 20px 0;
+}
+.noticFour .note_content,
+.noticFive .note_content{
+	height:80%
+}
+.noticFour .note_content .note_det,
+.noticFive .note_content .note_det{
+    width: 100%;
+    font-size: 15px;
+    margin-bottom: 15px;
+    overflow: hidden;
+} 
+.note_det .note_left{
+    float: left;
+    color: #666;
+}
+.note_det .note_left a{
+    color: #666;
+    cursor: pointer;
+}
+.note_det .note_left a:hover{
+    color: #4093fe;
+    text-decoration: underline;
+}
+.note_left .span-cut{
+	display:inline-block;
+	vertical-align: bottom;
+    max-width:330px;
+    overflow: hidden;
+    word-break: keep-all;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-left: 10px;
+}
+.note_det .note_left .message{
+    display: inline-block;
+    width: 64px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #ff0000;
+    background: #ffefef;
+    behavior: url(css/PIE.htc);
+    border-radius: 5px;
+}
+.note_det b{
+    float: right;
+    color: #999;
+    font-weight: normal;
+}
+
+
+.menu .note_top .line{
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    display: block;
+    width: 100px;
+    border-bottom: 2px solid #4093fe;
+}
+.menu .note_content{
+    width: 100%;
+    overflow: hidden;
+    padding: 10px 0 20px;
+}
+.menu .note_content .menu_name{
+    width: 100%;
+    /*overflow: hidden; */
+    /*display: table; */
+    text-align:center;
+}
+.menu .note_content .menu_name:after{
+	/* content:''; */
+    /* width: 100%; */
+    /* display:inline-block; */
+    /* display: table; */
+    /* text-align:justify; */
+}
+.menu .note_content .menu_name li{
+    width: 25%;
+    /* display: table-cell; */
+    display:inline-block;
+    /* margin-left: 18px; */
+}
+.menu .note_content .menu_name li:first-child{
+    margin-left: 0;
+}
+.menu .note_content .menu_name li a{
+    display: block;
+    width: 100%;
+    height: 100px;
+    font-size: 14px;
+    color: #4093fe;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.menu .note_content .menu_name li a i{
+    font-size: 38px;
+}
+.menu .note_content .menu_name li a>span{
+    display: block;
+    width: 100%;
+    height: 84px;
+    border: 1px solid #f1f1f1;
+    margin-bottom: 10px;
+}
+.menu .note_content .menu_name li a>p{
+    width: 100%;
+    text-align: center;
+}
+.menu .note_content .calendar{
+    width: 100%;
+}
+.layui-inline{
+    width: 100%;
+}
+#layui-laydate1{
+    width: 100%;
+}
+.laydate-box-todo{
+    width: 100%;
+    padding: 0 0 0 30px;
+    margin-top: 10px;
+    overflow-y: auto;
+    min-height: 104px !important;
+}
+.laydate-box-todo::-webkit-scrollbar{
+    display: none;
+}
+.info-line{
+	font-size: 15px;
+    height: 20px;
+    line-height: 20px;
+    margin-bottom: 8px;
+}
+.info-line a:hover{
+	color: #4093fe;
+    text-decoration: underline;
+}
+.layui-badge{
+    width: 58px;
+    height: 20px !important;
+    line-height: 20px !important;
+    text-align: center;
+    float: right;
+}

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购订单选择页面</title>
+    </th:block>
+    <style type="text/css">
+        .New_Button, .Edit_Button, .Delete_Button, .Update_Button, .Cancel_Button {
+            font-size: 11px;
+            color: #1B3F91;
+            font-family: Verdana;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="采购单号">
+            <input class="mini-textbox" name="srchNo" width="120px"/>
+        </label>
+        <label class="hmq-label" text="采购编码">
+            <input class="mini-textbox" name="srchCode" width="100px"/>
+        </label>
+        <label class="hmq-label" text="供货单位">
+            <input id="srchSupplier" class="mini-buttonedit" name="srchSupplier" readonly="readonly" width="150px"/>
+        </label>
+        <label class="hmq-label" text="">
+            <input id="srchBz" class="mini-hidden" name="srchBz" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" readonly="readonly" width="90px"/>
+        </label>
+        <label class="hmq-label" text="">
+            <input id="srchShl" class="mini-hidden" name="srchShl" url="/cg/yw/purchaseFile/purchaseContract/getHtTax" readonly="readonly" width="80px"/>
+        </label>
+        <input class="mini-hidden" id="cgStype" name="cgStype" width="120px"/>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+
+    </th:block>
+
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick" style="width:100%;height:70%;"
+         idField="id" selectOnLoad="true"
+         sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true"
+         url="/cg/yw/purchaseFile/purchaseContract/getCgddSelectList"
+    >
+        <div property="columns">
+            <div tz:datagrid="column" field="optionrow" width="45" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+            <div tz:datagrid="column" field="id" width="130" align="center" allowSort="true" headerAlign="center" visible="false"></div>
+            <div tz:datagrid="column" field="htdate" width="80" align="center" headerAlign="center" allowSort="true" dateFormat="yyyy-MM-dd">采购日期</div>
+            <div tz:datagrid="column" field="htno" width="110" align="center" headerAlign="center" allowSort="true">采购单号</div>
+            <div tz:datagrid="column" field="htsupplier" width="80" align="left" headerAlign="center" allowSort="true">供货单位</div>
+            <div tz:datagrid="column" field="htcode" width="110" align="left" headerAlign="center" allowSort="true">编码</div>
+            <div tz:datagrid="column" field="cpcodename" width="110" align="left" headerAlign="center" allowSort="true">名称</div>
+            <div tz:datagrid="column" field="cpcodesize" width="110" align="left" headerAlign="center" allowSort="true">规格</div>
+            <div tz:datagrid="column" field="cpcodedp" width="60" align="center" headerAlign="center" allowSort="true">单位</div>
+            <div tz:datagrid="column" field="htjs" width="80" align="right" summaryType="sum" numberFormat="#,0.00">件数</div>
+            <div tz:datagrid="column" field="htsl" width="80" align="right" summaryType="sum" dataType="double" numberFormat="#,0.0000">订单数量</div>
+            <div tz:datagrid="column" field="shsl" width="80" align="right" summaryType="sum" dataType="double" numberFormat="#,0.0000">已收数量</div>
+            <div tz:datagrid="column" field="thsl" width="80" align="right" summaryType="sum" dataType="double" numberFormat="#,0.0000">已退数量</div>
+            <div tz:datagrid="column" field="wssl" width="80" align="right" summaryType="sum" dataType="double" numberFormat="#,0.0000">数量</div>
+            <div tz:datagrid="column" field="htprice" width="80" align="right" numberFormat="#,0.0000">单价</div>
+            <div tz:datagrid="column" field="htje" width="80" align="right" numberFormat="#,0.00" summaryType="sum">金额</div>
+            <div tz:datagrid="column" field="htbz" width="90" align="center">币种</div>
+            <div tz:datagrid="column" field="httax" width="80" align="center" renderer="onActionRenderers">税率</div>
+            <div tz:datagrid="column" field="hths" width="60" align="center">核算</div>
+            <div tz:datagrid="column" field="htjq" width="80" align="center" headerAlign="center" allowSort="true" dateFormat="yyyy-MM-dd">交期</div>
+            <div tz:datagrid="column" field="htsm" width="120" align="left" headerAlign="center" allowSort="true">说明</div>
+            <div tz:datagrid="column" field="" width="100%"></div>
+        </div>
+    </div>
+    <div tz:datagrid="datagrid" id="return_grid" style="width:100%;height:30%;" sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var return_grid = mini.get("return_grid");
+    var form = new mini.Form("form1");
+    grid.bindSearchForm(form);
+
+    /**
+     * 本地筛选
+     **/
+    function search_option() {
+        if (mini.get("srchSupplier").getValue() == "") {
+            hmq.tipDanger("请选择供应商！");
+            return;
+        }
+        if (mini.get("srchBz").getValue() == "") {
+            hmq.tipDanger("请选择币种！");
+            return;
+        }
+        if (mini.get("srchShl").getValue() == "") {
+            hmq.tipDanger("请选择税率！");
+            return;
+        }
+
+        grid.load();
+    }
+
+
+    function isnotExit(record) {
+        var dataRows = return_grid.getData();
+        //需要判断是否已经加入
+        if (dataRows.length > 0) {
+            for (var i = 0; i < dataRows.length; i++) {
+                var dataRow = dataRows[i];
+                if (dataRow.id == record.id) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    var columns = grid.getColumns();
+    return_grid.set({
+        columns: columns
+    });
+    return_grid.hideColumn("indexcolumn");
+
+    function onActionRenderer(e) {
+        var grid_id = e.sender.id;
+        var s = "";
+        if (grid_id == "srch_grid") {
+            s = ' <a class="mini-button"  style="width:30px;color:red;" href="javascript:addRow()">' + "+" + '</a>';
+        }
+        if (grid_id == "return_grid") {
+            s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">' + "-" + '</a>';
+        }
+        return s;
+    }
+
+
+    /**
+     渲染方法
+     */
+    function onActionRenderers(e) {
+        var record = e.record;
+        if (e.field == "htTax") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+
+    }
+
+    function addRow() {
+        var row = grid.getSelected();
+        var data = return_grid.getData();
+        row = mini.clone(row); //必须
+        grid.removeRow(grid.getSelected());
+        return_grid.addRow(row, 0);
+
+
+    }
+
+    function removeRow() {
+        var row = return_grid.getSelected();
+        return_grid.removeRow(row);
+        grid.addRow(row, 0);
+    }
+
+
+    function SetData(data) {
+        if (data.action == "search") {
+            data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+            mini.get("srchSupplier").setValue(data.sid.inSupplier);
+            mini.get("srchSupplier").setText(data.sid.inSuppliername);
+            mini.get("srchBz").setValue(data.sid.inBz);
+            mini.get("srchShl").setValue(data.sid.inTax);
+            mini.get("cgStype").setValue(data.sid.cgStype);
+            search_option();
+        }
+
+    }
+
+    function confirm() {
+        CloseWindow("ok");
+    }
+
+    function GetData() {
+        var row = grid.getSelected();
+        return row;
+    }
+
+    function GetMutiData() {
+        var rows = return_grid.getData();
+        return rows;
+    }
+
+    function onRowDblClick(e) {
+        addRow();
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

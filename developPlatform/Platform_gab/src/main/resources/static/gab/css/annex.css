@@ -1,0 +1,106 @@
+.addRow{
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    margin-left: 20px;
+    cursor: pointer;
+    text-align: center;
+    padding: 0 !important;
+    background: #e80000;
+    border: none;
+    font-weight: bold;
+}
+.addRow:hover{
+    background: rgba(232, 0, 0, .6);
+}
+.addContent {
+    display: block;
+    width: 100% !important;
+    padding: 20px 0 0 130px;
+}
+
+.addContent .addContent-table {
+    width: 849px;
+    overflow: hidden;
+    color: #666666;
+    font-size: 16px;
+    border: 1px solid #c8c8c8;
+    border-radius: 5px;
+    display: table;
+}
+
+.addContent .addContent-table .addHead {
+    width: 100%;
+    height: 34px;
+    display: table-row;
+    background: #f4f4f4;
+}
+
+.addContent .addContent-table .addHead span {
+    display: inline-block;
+    width: 45%;
+    height: 100%;
+    line-height: 34px;
+    text-align: center;
+    display: table-cell;
+    border-left: 1px solid #c8c8c8;
+}
+.addContent .addContent-table .addHead span+span+span {
+    width: 10%;
+}
+
+.addContent .addContent-table .addHead span:first-child {
+    border-left: none;
+}
+
+.addContent .addContent-table .addBody {
+    width: 100%;
+    overflow: hidden;
+    display: table-row;
+}
+.addContent .addContent-table .addBody:hover {
+    background: #f4f4f4;
+}
+
+.addContent .addContent-table .addBody>div {
+    width: 45%;
+    text-align: center;
+    padding: 10px 0;
+    border-top: 1px solid #c8c8c8;
+    display: table-cell;
+    height: auto;
+    vertical-align: middle;
+    border-left: 1px solid #c8c8c8;
+}
+.addContent .addContent-table .addBody>div+div+div {
+    width: 10%;
+}
+.addContent .addContent-table .addBody>div input{
+    height: 37px;
+}
+.addContent .addContent-table .addBody>div:first-child {
+    border-left: none;
+}
+.addContent .addContent-table div .delete{
+    width: 100%;
+    text-align: center;
+}
+.addContent .addContent-table div .delete i{
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    color: #666;
+    cursor: pointer;
+    text-align: center;
+    padding: 0 !important;
+    line-height: 28px;
+    border-radius: 5px;
+    background: #fff;
+    font-weight: bold;
+    border: 1px solid #c8c8c8;
+}
+.addContent .addContent-table div .delete i:hover{
+    background: rgba(232, 0, 0, 1);
+    color: #fff;
+    border-color: #e80000;
+}

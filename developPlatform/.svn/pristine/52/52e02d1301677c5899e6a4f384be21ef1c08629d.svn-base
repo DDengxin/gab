@@ -1,0 +1,48 @@
+package com.tengzhi.IM.Dwr.config;
+import org.directwebremoting.servlet.DwrListener;
+import org.directwebremoting.servlet.DwrServlet;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+public class DwrConfig {
+	      @Bean
+	    public ServletRegistrationBean<DwrServlet> dwr() {
+	        ServletRegistrationBean<DwrServlet> servlet = new ServletRegistrationBean<DwrServlet>(new DwrServlet(), "/dwr/*");
+	        Map<String, String> initParam = new HashMap<>();
+			//配置自定义DWR js Session管理监听器
+		 	initParam.put("org.directwebremoting.extend.ScriptSessionManager","com.tengzhi.IM.Dwr.ScriptSession.DWRScriptSessionManager");
+	        //<!--配置初始化参数 关闭发送请求 会话跨域安全-->
+		 	initParam.put("crossDomainSessionSecurity", "false");
+		 	//<!--允许js脚本远程处理 java-->
+	        initParam.put("allowScriptTagRemoting", "true");
+	        //<!--配置DWR注解可以使用在什么类上 注解配置-->
+	        initParam.put("classes", "java.lang.Object");
+	        //<!--设置为true启用轮询和长连接-->
+	        initParam.put("activeReverseAjaxEnabled", "true");
+	        //<!--默认情况下，DWR首先创建应用程序范围对象使用。
+		 	// 这将在应用服务器启动时创建它们项目启动时创建DWR内置对象-->
+	        initParam.put("initApplicationScopeCreatorsAtStartup", "true");
+	        //<!--配置服务器响应等待时间1分钟 如果1分钟这个请求没有给我响应PASS掉 断开连接-->
+	        initParam.put("maxWaitAfterWrite", "60000");
+	        //<!--配置初始化参数 开启Debug 需要引入commons-logging-1.2.jar -->
+	        initParam.put("debug", "true");
+	        //<!--配置日志输出级别 警告级别-->
+	        initParam.put("logLevel", "WARN");
+	        //自定义配置，org.directwebremoting.impl.StartupUtil#configureFromInitParams name.equals("customConfigurator")
+	        //DwrServlet#init 初始化this.container
+	        initParam.put("customConfigurator", "com.tengzhi.IM.Dwr.config.DwrXml");
+	        servlet.setInitParameters(initParam);
+	        return servlet;
+	    }
+
+	    @Bean
+	    public ServletListenerRegistrationBean<DwrListener> dwrListener() {
+	        return new ServletListenerRegistrationBean<DwrListener>(new DwrListener());
+	    }
+}

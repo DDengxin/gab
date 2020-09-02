@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head >
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>巡检编码选择页面</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchSingleBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="机台编码">
+            <input class="mini-textbox" name="machineId" width="95px"/>
+        </label>
+        <label class="hmq-label" text="机台名称">
+            <input class="mini-textbox" name="machineName" width="95px"/>
+        </label>
+        </label>
+        <label class="hmq-label" text="机台大类">
+            <input class="mini-combobox" name="machineDtype" width="95px" url="/mSbJt/sb/getMachineZtype" emptyText="全部" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="巡检项目">
+            <input class="mini-textbox" name="inspectionProject" width="95px"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+
+</th:block>
+
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_top_grid"  style="width:100%;height:100%;" idField="machineId"
+         sizeList="[50,100,200]" pageSize="100"  url="/mSbJt/sb/getSrchTopList"
+         onrowdblclick="onRowDblClick"
+         pager="#pager1" showPager="false" sortField="machineId" sortOrder="desc" >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="40">序号</div>
+            <div tz:datagrid="column" field="machineId" width="130" align="center">机台编码</div>
+            <div tz:datagrid="column" field="machineNo" width="100" align="center">机台编号</div>
+            <div tz:datagrid="column" field="machineName" width="100" align="center">机台名称</div>
+            <div tz:datagrid="column" field="machineDtype" displayField="dtypeName" width="100" align="center">机台大类</div>
+            <div tz:datagrid="column" field="machineZtype" displayField="ztypeName" width="100" align="center">机台分类</div>
+            <div tz:datagrid="column" field="machineWorkshop" displayField="cjName" width="100" align="center">机台车间</div>
+            <div tz:datagrid="column" field="machineProcess" displayField="gxName" width="100" align="center">机台工序</div>
+            <div tz:datagrid="column" field="machineInspection"  displayField="inspectionname" width="100" align="center">巡检项目</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var id=srch_top_grid  = mini.get("srch_top_grid");
+    srch_top_grid.bindSearchForm(form);
+
+
+    function SetData(options) {
+       /* mini.get("machineId").setValue(options.data.machineId);*/
+        search_option();
+    }
+
+
+
+    function search_option() {
+        srch_top_grid.load();
+    }
+
+    function confirm(e) {
+        if (srch_top_grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选择一条数据');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+
+    function GetData() {
+        return srch_top_grid.getSelected();
+    }
+
+
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+package com.tengzhi.business.cg.yw.purchaseContract.dao.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.yw.purchaseContract.dao.ECgContractSqlDao;
+import com.tengzhi.business.cg.yw.purchaseContract.model.ECgContract;
+
+import cn.hutool.core.util.ObjectUtil;
+@Repository
+public class ECgContractSqlDaoImpl  extends BasicsDaoImpl<ECgContract, String> implements ECgContractSqlDao{
+
+	@Override
+	public List findList(BaseDto dto) {
+		Map<String, String> map  = dto.getParamsMap();
+		
+		SessionUser securityUser=SessionUser.SessionUser();
+		String sqlWhere = " a.data_corp='"+securityUser.getCorpId()+"' ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+			sqlWhere+=" and ht_date >='"+map.get("srchRq1")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+			sqlWhere+=" and ht_date <='"+map.get("srchRq2")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+			sqlWhere+=" and ht_no like '%"+map.get("srchNo")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCustromer"))) {
+			sqlWhere+=" and ht_supplier = '"+map.get("srchCustromer")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			sqlWhere+=" and ht_code like '%"+map.get("srchCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchHtType"))) {
+			sqlWhere+=" and ht_type like '%"+map.get("srchHtType")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			sqlWhere+=" and cpcode_size like '%"+map.get("srchSize")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchFl"))) {
+			sqlWhere+=" and cpcode_fl = '"+map.get("srchFl")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+			sqlWhere+=" and cpcode_name = '"+map.get("srchName")+"'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("htStype"))) {
+			sqlWhere+=" and cg_stype = '"+map.get("htStype")+"'";
+		}
+		
+		String  sql="  select  a.*,f_get_param_name('采购合同',ht_type,'cn') httypename,f_getname('GETDWEXP',ht_supplier,'',a.data_corp) htsupplierexp,f_get_param_name('交易币种',ht_bz) bzname "
+				+ ",f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cg_stype,'')  cpcodename,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cg_stype,'') cpcodefl,COALESCE(b.in_js,0) injs,COALESCE(b.in_sl,0) insl,COALESCE(b.in_zl,0) inzl "
+				+ " from v_cg_ht a left join v_shsl b on (a.ht_no=b.in_contract and a.ht_code=b.in_code and a.data_corp=b.data_corp) where "+sqlWhere;
+		
+		
+		return super.queryToMap(sql);
+	}
+}

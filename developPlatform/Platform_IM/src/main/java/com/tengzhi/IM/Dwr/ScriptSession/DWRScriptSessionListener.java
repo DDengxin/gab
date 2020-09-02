@@ -1,0 +1,41 @@
+package com.tengzhi.IM.Dwr.ScriptSession;
+
+import com.tengzhi.IM.Dwr.controller.Dwrmsg;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import org.directwebremoting.event.ScriptSessionEvent;
+import org.directwebremoting.event.ScriptSessionListener;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-05-31
+ *
+ * DWR3.0提供ScriptSessionListener监听接口  重写此接口
+ * 不能使用DWR原生的接口 内部机制是 一个HTTP请求绑定多个scriptSession会话
+ * 如果客户端刷新多次会创建 绑定多个ScriptSession会话
+ * 那我就不能取出当前这个用户的ScriptSession了 会引起混乱
+ * DWR 绑定原生接口状况 URL地址绑定一个Set集合->Set<ScriptSession>
+ */
+public class DWRScriptSessionListener implements ScriptSessionListener {
+
+
+    /**
+     * TODO:ScriptSession创建事件
+     * @param event
+     */
+    @Override
+    public void sessionCreated(ScriptSessionEvent event) {}
+
+
+    /**
+     * TODO:ScriptSession销毁事件
+     * @param scriptSessionEvent
+     */
+    @Override
+    public void sessionDestroyed(ScriptSessionEvent scriptSessionEvent) {
+        SecurityUser securityUser= (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Dwrmsg.getJavascriptSessionMap().remove(securityUser.getUserId());
+        System.out.println("DWR服务端与"+securityUser.getRealName()+"用户ScriptSession会话断开连接");
+    }
+
+}

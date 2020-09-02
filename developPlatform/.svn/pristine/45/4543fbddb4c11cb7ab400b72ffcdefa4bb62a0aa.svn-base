@@ -1,0 +1,100 @@
+package com.tengzhi.business.finance.generalLedger.service.impl;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.excel.ExcelUtil;
+import com.tengzhi.business.cg.yw.purchaseSettle.dao.ECwYsyfDao;
+import com.tengzhi.business.finance.generalLedger.dao.GeneralLedgerDao;
+import com.tengzhi.business.finance.generalLedger.service.GeneralLedgerService;
+import com.tengzhi.business.system.user.model.SysUser;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class GeneralLedgerServiceImpl implements GeneralLedgerService {
+
+	@Autowired
+	private ECwYsyfDao eCwYsyfDao;
+	
+	@Autowired
+	private GeneralLedgerDao generalLedgerDao;
+	
+	@Override
+	public Map<String, Object> getDataList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		String corpId = SessionUser.SessionUser().getCorpId();
+		String sqlWhere = "  where cw_stype = '"+map.get("cwStype")+"'   ";
+		if(ObjectUtil.isNotEmpty(map.get("cwDw"))) {
+			sqlWhere+="  and cw_dw= '"+map.get("cwDw")+"' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("cwBz"))) {
+			sqlWhere+="  and cw_bz= '"+map.get("cwBz")+"' ";
+		}
+		String sql = " select cw_stype,cw_dw \"cwDw\",cw_bz \"cwBz\",f_get_param_name('交易币种','RMB','"+   SessionUser.getCurrentCorpId()   +"','',false) \"bzName\",qc,bqfs,bqsfk,qmje,qcfp,bqfpfs,bqfpsfk,qmfpje,qmfpwk,f_getname('GETDWEXP',cw_dw,'','"+corpId+"')dwname,f_getname('CUSTOMERBUYER',cw_dw,'','"+corpId+"')buyer from f_v_yfyszz_copy1('"+corpId+"','"+map.get("srchRq1")+"','"+map.get("srchRq2")+"')a  "+sqlWhere;
+		rmap.put("data", eCwYsyfDao.QueryListMap(sql));
+		rmap.put("status", true);
+		return rmap;
+	}
+	
+	@Override
+	public Map<String, Object> getYSList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Map<String, Object> rmap = new HashMap<String, Object>();
+
+		SessionUser sessionUser=SessionUser.SessionUser();
+		if(ObjectUtil.isNotEmpty(map.get("srchDw"))) {
+			String rq1 = map.get("srchRq1");
+			String rq2 = map.get("srchRq2");
+			String dw = map.get("srchDw");
+			String cwStype = map.get("cwStype");
+			String sfkXtype = "";
+			if("CG".equals(cwStype)){
+				sfkXtype ="FK";
+			}else {
+				sfkXtype ="SK";
+			}
+
+			String sql = " select cw_dw,cw_bz,cw_rq,cw_note,f_getname('GETDWEXP',cw_dw,'','"+sessionUser.getCorpId()+"')dwname ,sum(qc)qc,sum(bqfs)bqfs,sum(bqsfk)bqsfk,(coalesce(sum(qc),0)+coalesce(sum(bqfs),0)-coalesce(sum(bqsfk),0))qmje,sum(bqkp)bqkp from ("
+						+ "	 select  cw_dw,cw_bz,current_date cw_rq,cw_act,'上期' cw_note,cw_sje qc,0 bqfs,0 bqsfk ,0 bqkp,'' remarks from e_cw_ysyf  where cw_flag='确认' and  cw_rq<='"+rq1+"'  and cw_dw ='"+ dw+"' and  cw_stype = '"+cwStype+"' "+
+						" union all  " + 
+						" select  sfk_dw,sfk_bz,current_date,'','上期',sfk_bzje*(-1),0,0,0 ,'' from e_cw_sfk  where sfk_flag='确认' and sfk_rq<='"+rq1+"'  and sfk_dw ='"+ dw+"'  and  sfk_xtype = '"+sfkXtype+"' "+
+						" union all " + 
+						" select  cw_dw,cw_bz,cw_rq,cw_act,cw_note,0,cw_sje,0,case when cw_fph='N' then 0 else cw_sje end bqkp,'' from e_cw_ysyf  where   cw_flag='确认' and cw_rq>='"+rq1+"' and cw_rq<='"+rq2+"' and cw_dw ='"+ dw+"'  and  cw_stype = '"+cwStype+"' "+
+						" union all  " + 
+						" select  sfk_dw,sfk_bz,sfk_rq,'',sfk_note,0,0,sfk_bzje,0 ,sfk_mess from e_cw_sfk  where sfk_flag='确认' and  sfk_rq>='"+rq1+"' and sfk_rq<='"+rq2+"' and sfk_dw ='"+ dw+"'  and  sfk_xtype = '"+sfkXtype+"' "
+								+ " )a  group by cw_dw,cw_bz,cw_rq,cw_note order by cw_rq,cw_bz,cw_note";
+			rmap.put("data", eCwYsyfDao.QueryListMap(sql));
+		}else {
+			
+		}
+		
+		rmap.put("status", true);
+		return rmap;
+	}
+
+	@Override
+	public void exportExcel(HttpServletResponse response, HttpServletRequest request) throws IOException {
+		//获取ExcelUitl实例
+		ExcelUtil util = ExcelUtil.getInstance();
+		//初始化dto对象
+		BaseDto dto = BaseDto.ValueOfRequest(request);
+		//将导出的页面定义为0
+		dto.setPageIndex(0);
+		//查询数据并且生成Excel
+		util.ExcelToWeb(request, "应付总账", response, generalLedgerDao.findList(dto));
+	}
+	
+}

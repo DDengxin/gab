@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+		<title>需求发布【新增】</title>
+	</th:block>
+	<script type="text/javascript" th:src="@{/static/gab/js/PCASClass.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/formConfig.js}"></script>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden">
+		<form id="form1">
+			<table class="hmq-modify-table" style="padding: 50">
+            <tr>
+                <td title for="cpcodeName">需求名称:</td>
+                <td content>
+                    <input id="cpcodeName" name="cpcodeName" class="mini-textbox"/>
+                    <input id="needNote" name="needNote" class="mini-hidden"/>
+                    <input id="needForm" name="needForm" class="mini-hidden"/>
+                </td>
+                <td title for="cpcodeSize">需求字段（工位）:</td>
+                <td content>
+                    <input id="cpcodeSize" name="cpcodeSize" class="mini-textbox"/>
+                </td>
+                <td title for="cpcodeSizeEn">需求字段（动力）:</td>
+                <td content>
+                	<input id="cpcodeSizeEn" name="cpcodeSizeEn" class="mini-textbox"/>
+                </td>
+                <td title for="cpcodeFl">需求字段（分类）:</td>
+                <td content>
+                	<input id="cpcodeFl" name="cpcodeFl" class="mini-textbox"/>
+                </td>
+            </tr>
+            <tr>
+            	<td title for="cpcodeXp">应用行业:</td>
+                <td content>
+                	<input id="cpcodeXp" name="cpcodeXp" class="mini-combobox" textField="text" valueField="id" onvaluechanged="config"/>
+                </td>
+                <td title>需求省份:</td>
+                <td content>
+                    <select class="mini-combobox" id="provinceId" name="provinceId" onvaluechanged="needProvinceChanged()"></select>
+                	<input class="mini-hidden" id="needProvince" name="needProvince"/>
+                </td>
+                <td title>需求城市:</td>
+              	<td content>
+                    <select class="mini-combobox" id="needCity" name="needCity"></select>
+                </td>
+                <td title>截止时间:</td>
+                <td content>
+                    <input id="endTime" name="endTime" minDate="new Date()" class="mini-datepicker"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>任务周期:</td>
+                <td content>
+                    <input id="dutyCycle" name="dutyCycle" class="mini-textbox" vtype="float"/>
+                </td>
+            </tr>
+	        <tbody id="ConfigForm">
+	        
+	        </tbody>
+            <tr>
+                <td title>需求介绍:</td>
+                <td content colspan="7">
+                    <input id="introduce" name="introduce" class="mini-textarea" height="80"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>应用需求:</td>
+                <td content colspan="7">
+                    <input id="apply" name="apply" class="mini-textarea" height="80"/>
+                </td>
+            </tr>
+            <tr>
+            	<td title>需求方案:</td>
+                <td content colspan="3">
+                    <div id="needPlanDiv"></div>
+                    <input id="needPlan" name="needPlan" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+            	<td title>需求图片:</td>
+                <td content colspan="3">
+                    <div id="needImgDiv"></div>
+                    <input id="needImg" name="needImg" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>需求附件:</td>
+              	<td content colspan="3">
+                    <div id="needFileDiv"></div>
+                    <input id="needFile" name="needFile" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+mini.parse();
+var form = new mini.Form("form1");
+
+function SetData(options) {
+    if ('add' == options.action) {
+        $('[name=action]').val(options.action);
+        data = mini.clone(options);
+        //默认截止日期为明天
+        var date = new Date();
+     	date.setDate(date.getDate() + 1);
+        mini.get("endTime").setValue(date);
+        //上传控件初始化
+        var planId = getFileId();
+        mini.get("needPlan").setValue(planId);
+        $("#needPlanDiv").filesUpload({
+            pickerid: planId,
+            filecount: 1,
+        });
+        var imgId = getFileId();
+        mini.get("needImg").setValue(imgId);
+        $("#needImgDiv").filesUpload({
+            pickerid: imgId,
+            filecount: 1,
+        });
+        var fileId = getFileId();
+        mini.get("needFile").setValue(fileId);
+        $("#needFileDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 1,
+        });
+        setNeedGrid(options.data);
+        form.setChanged(false);
+    } else if ('edit' == options.action) {
+    	formConfig({classify:options.data.row.cpcodeXp,index:4,show:"backstage"});
+    	setNeedGrid(options.data.form);
+    	$.get("findById/{0}/{1}".format(options.data.row.needNote,options.data.row.cpcodeXp), function (res) {
+            if (200 === res.code) {
+            	console.log(res.data);
+                form.setData(res.data);
+                mini.get("cpcodeXp").setValue(res.data.cpcodeXp);
+              //上传控件初始化
+                $("#needPlanDiv").filesUpload({
+                	pickerid: mini.get("needPlan").getValue(),
+                    filecount: 1,
+                });
+                $("#needImgDiv").filesUpload({
+                    pickerid: mini.get("needImg").getValue(),
+                    filecount: 1,
+                });
+                $("#needFileDiv").filesUpload({
+                    pickerid: mini.get("needFile").getValue(),
+                    filecount: 1,
+                });
+            }
+        });
+    }
+}
+
+function SaveData() {
+  if (form.validate() && form.isValid()) {
+        var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+        var json=form.getData();
+        json.cpcodeXp=json.cpcodeXp;
+        var jsonData = JSON.stringify({'g_Need':JSON.stringify(json),'dynamic':JSON.stringify(getFormData("ConfigForm",false))});
+        $[method]("saveNeed",jsonData,
+        function (res) {
+            if (200 === res.code) {
+                hmq.tipSuccess(res.msg || '保存成功', {
+                    exec: function () {
+                        CloseWindow('refresh',false);
+                    }
+                });
+            } else {
+                hmq.tipDanger(res.msg || '保存失败');
+            }
+        }, null, {
+            contentType: 'application/json'
+        });
+    } 
+}
+
+//省市联动
+var sarr = new Array();
+for (var i = 0; i < PCAP.length; i++) {
+	var text = PCAP[i];
+	sarr.push({
+		"id" : i,
+		"text" : text
+	});
+}
+mini.get("provinceId").setData(sarr);
+function needProvinceChanged() {
+	var carr = new Array();
+	var index = mini.get("provinceId").getValue();
+	var sheng = mini.get("provinceId").getText();
+	mini.get("needProvince").setValue(sheng);
+	for (var i = 1; i < PCAC[index].length; i++) {
+		var text = PCAC[index][i];
+		carr.push({
+			"id" : text,
+			"text" : text
+		});
+	}
+	mini.get("needCity").setData(carr);
+}
+
+//动态表单
+function config(){
+	formConfig({classify:mini.get("cpcodeXp").value,index:4,show:"backstage"});
+}
+
+
+//动态加载产品/服务列名
+function setNeedGrid(cpcodeType){
+	mini.get("needForm").setValue(cpcodeType);
+    if (hmq.isNotEmpty(cpcodeType)) {
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniForm:form,
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+}
+
+</script>
+</html>

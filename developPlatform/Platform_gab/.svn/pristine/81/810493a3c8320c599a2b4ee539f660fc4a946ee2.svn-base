@@ -1,0 +1,30 @@
+package com.tengzhi.business.platform.manage.service;
+import java.io.IOException;
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.manage.vo.serviceVo;
+
+@SuppressWarnings("rawtypes")
+public interface ServiceManageService  extends BaseService{
+	
+	//查询所有数据，适合分页
+	BasePage<Map<String, Object>> getSrch(BaseDto baseDto) throws IOException;
+	
+	Map<String, Object> findByNote(String Id, String result);
+	
+	Result update(serviceVo serviceVo);
+	
+	//查询所有
+	Result	getSrchAllCollection();
+	
+	void deleteByServiceNote(String Id);
+	//新增
+	Result saveService(serviceVo serviceVo);
+
+	Map<String, Object> examination(String id);
+	
+}

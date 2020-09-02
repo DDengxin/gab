@@ -1,0 +1,93 @@
+<html layout:decorator="~{gab/layout/gabPlatformFrame}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <title>用户注册</title>
+    <script th:src="@{/static/script/im/IMjs/IMjsCommunication.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/service.css}"/>
+    <style type="text/css">
+        .layim-chat-list {
+            display: block !important;
+        }
+
+        .layim-chat-textarea {
+            width: 99%;
+            height: 90px;
+            outline: none;
+            overflow-y: auto;
+        }
+
+    </style>
+</th:block>
+<th:block layout:fragment="content">
+    <div class="service_content">
+        <div class="service_content_list">
+            <h2>在线客服</h2>
+            <div class="fr">
+                <img src="/static/gab/images/kf.png" alt="">
+                <p>售前客服</p>
+                <p>叮叮</p>
+                <p class="grade">
+                    综合评分：
+                    <b>98.84%</b>
+                </p>
+                <div class="introduce">
+                    <p>这里是客服介绍</p>
+                    <p>客服基本可分为人工客服和电子客服， 其中人工客服又可细分为文字客服、 视频客服和语音客服三类。 文字客服是指主要以打字聊天的形式进行的客户服务； 视频客服是指主要以语音视频的形式进行客户服务；
+                        语音客服是指主要以移动电话的形式进行的客服服务。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block layout:fragment="footer">
+    <script type="text/javascript">
+        $(function () {
+            'use strict';
+            layui.use('layim', function (layim) {
+                window.layim = layui.layim;
+                var initData = initUserInfo();
+                IMinit(TZ_SETTING.userId, {
+                    init: initData
+                    //开启客服模式
+                    , brief: true
+                }, function (layim) {
+                    //打开一个客服面板
+                    layim.chat({
+                        name: '在线客服一' //名称
+                        , type: 'kefu' //聊天类型
+                        , avatar: '//tp1.sinaimg.cn/5619439268/180/40030060651/1' //头像
+                        , id: 1001 //定义唯一的id方便你处理信息
+                    }).chat({
+                        name: '在线客服2' //名称
+                        , type: 'kefu' //聊天类型
+                        , avatar: '//tp1.sinaimg.cn/5619439268/180/40030060651/1' //头像
+                        , id: 222222 //定义唯一的id方便你处理信息
+                    });
+                    //layim.setChatMin(); //收缩聊天面板
+                });
+            });
+
+            /**
+             * 初始化用户信息
+             * @returns {{}}
+             */
+            function initUserInfo() {
+                var result = {};
+                $.ajaxSettings.async = false;
+                $.get('/Im/init', function (res) {
+                    result = res.data;
+                });
+                $.ajaxSettings.async = true;
+                return result;
+            }
+
+            /**
+             * 获取客服列表
+             */
+            function getCustomerServiceList() {
+
+            }
+
+        });
+    </script>
+</th:block>
+</html>

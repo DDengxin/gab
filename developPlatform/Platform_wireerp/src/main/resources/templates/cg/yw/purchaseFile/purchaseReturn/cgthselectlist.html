@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购退货选择页面</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="收货单号">
+            <input class="mini-textbox" name="srchNo" width="120px"/>
+        </label>
+        <label class="hmq-label" text="供货单位">
+            <input class="mini-buttonedit" id="srchSupplier" name="srchSupplier" readonly width="120px"/>
+        </label>
+        <label class="hmq-label" text="库房">
+            <input class="mini-combobox" id="srchLib" name="srchLib" readonly width="110px"/>
+        </label>
+        <input class="mini-hidden" id="cgStype" name="cgStype" width="120px"/>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+
+    </th:block>
+
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick" style="width:100%;height:70%;"
+         idField="id" selectOnLoad="true"
+         sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true"
+         url="/cg/yw/purchaseFile/purchaseReturn/getCgthSelectList" sortMode="client"
+    >
+        <div property="columns">
+            <div tz:datagrid="column" field="optionrow" width="45" align="center" headerAlign="center" renderer="onActionRenderer"></div>
+            <div tz:datagrid="column" field="id" width="130" align="center" allowSort="true" headerAlign="center" visible="false"></div>
+            <div tz:datagrid="column" field="inRq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="inNote" width="120" align="center">收货单号</div>
+            <div tz:datagrid="column" field="inContract" width="120" align="center">合同编号</div>
+            <div tz:datagrid="column" field="inContractDetailed" width="120" align="center">合同明细</div>
+            <div tz:datagrid="column" field="inKfcode" width="80" align="center">采购编码</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcodeName"   displayField="cpcodeNameName"width="110" align="left" headerAlign="center" allowSort="true">名称</div>
+            <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize"   displayField="cpcodeSizeName"   width="110" align="left" headerAlign="center" allowSort="true">规格</div>
+            <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" displayField="cpcodeSizeEnName"     width="90" align="center">品牌</div>
+            <div tz:datagrid="column" field="inCode" width="100" align="center" visible="false">产品编码</div>
+            <div tz:datagrid="column" name="inJs" field="inJs" width="80" align="right"  numberFormat="#,0.00" summaryType="sum" dataType="double">收货件数</div>
+            <div tz:datagrid="column" field="inSl" width="80" align="right" summaryType="sum" numberFormat="#,0.0000" dataType="double">已收数量</div>
+            <div tz:datagrid="column" field="thsl" width="80" align="right" summaryType="sum" numberFormat="#,0.0000" dataType="double">已退数量</div>
+            <div tz:datagrid="column" field="sl" width="80" align="right" summaryType="sum" numberFormat="#,0.0000" dataType="double">可退数量</div>
+            <div tz:datagrid="column" field="cpcodeBz" displayField="cpcodeBzName" width="60" align="center" headerAlign="center" allowSort="true">单位</div>
+            <div tz:datagrid="column" name="inZl" field="inZl" width="80" align="right" numberFormat="#,0.0000" dataType="double">收货重量</div>
+            <div tz:datagrid="column" field="inPrice" width="80" align="right" numberFormat="#,0.0000" visible="true"> 单价</div>
+            <div tz:datagrid="column" field="inJe" width="80" align="right" numberFormat="#,0.00" summaryType="sum">金额</div>
+            <div tz:datagrid="column" field="inPack" width="130" align="center" visible="true">包装号</div>
+            <div tz:datagrid="column" field="inBpack" width="130" align="center" visible="true">大包装号</div>
+            <div tz:datagrid="column" field="cpcode02" width="80" align="center">核算</div>
+            <div tz:datagrid="column" field="inKfcontract" width="80" align="center" visible="false">客户合同</div>
+            <div tz:datagrid="column" field="inckdate" width="90" align="center" visible="false">记帐日期</div>
+            <div tz:datagrid="column" field="inMonth" width="110" align="center" visible="false">记帐月结</div>
+            <div tz:datagrid="column" field="inType" displayField="inTypeName" width="110" align="center">入库大类</div>
+            <div tz:datagrid="column" field="inLuono" width="110" align="center" visible="false">原料炉号</div>
+            <div tz:datagrid="column" field="inVnote" width="250" align="left" visible="false">专料专号</div>
+        </div>
+    </div>
+    <div tz:datagrid="datagrid" id="return_grid" style="width:100%;height:30%;" sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true" showPager="false"></div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var return_grid = mini.get("return_grid");
+    var form = new mini.Form("form1");
+    grid.bindSearchForm(form);
+    //隐藏件数重量列
+    grid.hideColumn("injs");
+    grid.hideColumn("inzl");
+    cloneColumn();
+
+    /**
+     * 初始化
+     **/
+    function SetData(data) {
+        data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+        //动态列转换
+        hmq.business.dynamicProductParams(data.cgStype, {
+            miniDataGrid: grid,
+            success: function (map, res) {
+                cloneColumn();
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+
+        if (data.action == "search") {
+            mini.get("srchLib").setValue(data.inLib);
+            mini.get("srchSupplier").setValue(data.inSupplier);
+            mini.get("srchSupplier").setText(data.inSuppliername);
+            mini.get("cgStype").setValue(data.cgStype);
+            mini.get("srchLib").setUrl("/system/parameter/getParamsSelectListByParentId/仓库/{0}".format(data.cgStype));
+            search_option();
+        }
+
+    }
+
+    /**
+     * 本地筛选
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     * 克隆grid列
+     */
+    function cloneColumn() {
+        var columns = grid.getColumns();
+        return_grid.set({
+            columns: columns
+        });
+        return_grid.hideColumn("indexcolumn");
+    }
+
+    function isnotExit(record) {
+        var dataRows = return_grid.getData();
+        //需要判断是否已经加入
+        if (dataRows.length > 0) {
+            for (var i = 0; i < dataRows.length; i++) {
+                var dataRow = dataRows[i];
+                if (dataRow.id == record.id) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function onActionRenderer(e) {
+        var grid_id = e.sender.id;
+        var s = "";
+        if (grid_id == "srch_grid") {
+            s = ' <a class="mini-button"  style="width:30px;color:red;" href="javascript:addRow()">' + "+" + '</a>';
+        } else if (grid_id == "return_grid") {
+            s = ' <a class="mini-button" style="width:30px;color:red;" href="javascript:removeRow()">' + "-" + '</a>';
+        }
+        return s;
+    }
+
+    function addRow() {
+        var row = grid.getSelected();
+        var data = return_grid.getData();
+        row = mini.clone(row); //必须
+        grid.removeRow(grid.getSelected());
+        return_grid.addRow(row, 0);
+
+
+    }
+
+    function removeRow() {
+        var row = return_grid.getSelected();
+        return_grid.removeRow(row);
+        grid.addRow(row, 0);
+    }
+
+
+    function confirm() {
+        CloseWindow("ok");
+    }
+
+    function GetData() {
+        var row = grid.getSelected();
+        return row;
+    }
+
+    function GetMutiData() {
+        var rows = return_grid.getData();
+        return rows;
+    }
+
+    function onRowDblClick(e) {
+        addRow();
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

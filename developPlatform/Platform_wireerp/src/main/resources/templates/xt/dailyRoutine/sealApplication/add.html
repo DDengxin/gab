@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>公章申请【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="dataMan" name="dataMan" class="mini-hidden"/>
+        <input id="flag" name="flag" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr >
+                <td title>单号：</td>
+                <td content>
+                    <input id="note" name="note" class="mini-textbox" emptyText="单号自动生成" allowInput="false"/>
+                </td>
+
+                <td title>日期：</td>
+                <td content>
+                    <input id="rq" name="rq" class="mini-datepicker" format="yyyy-MM-dd" required value="new Date()" />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>使用公司：</td>
+                <td content>
+                    <input id="useCorp" name="useCorp" class="mini-comboBox"  url="/personnel/eHrWorker/selectCorp"
+                           onvaluechanged="onChangeCorp" required/>
+                </td>
+
+                <td title>使用部门：</td>
+                <td content>
+                    <input id="useDept" name="useDept" class="mini-treeselect" multiSelect="false" />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>公章公司：</td>
+                <td content>
+                    <input id="sealCorp" name="sealCorp" class="mini-comboBox"  url="/personnel/eHrWorker/selectCorp"
+                           onvaluechanged="onChangeSealCorp" required/>
+                </td>
+
+                <td title>送交部门：</td>
+                <td content>
+                    <input id="deliverDept" name="deliverDept" class="mini-treeselect" multiSelect="false" />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>是否外带：</td>
+                <td content>
+                    <select id="isOut" name="isOut" class="mini-comboBox" required onvaluechanged="onChangeOut">
+                        <option value="不外带">不外带</option>
+                        <option value="外带">外带</option>
+                    </select>
+                </td>
+
+                <td title>外带地点：</td>
+                <td content>
+                    <input id="outAddr" name="outAddr" class="mini-textbox" disabled />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>预计归还时间：</td>
+                <td content>
+                    <input id="estimatedTime" name="estimatedTime" class="mini-datepicker" format="yyyy-MM-dd HH:mm" timeFormat="HH:mm"
+                           required showTime="true" value="new Date()" />
+                </td>
+
+                <td title>实际归还时间：</td>
+                <td content>
+                    <input id="realTime" name="realTime" class="mini-datepicker" format="yyyy-MM-dd HH:mm" timeFormat="HH:mm"
+                           required showTime="true" value="new Date()" />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>公章类型：</td>
+                <td content>
+                    <select id="sealType" name="sealType" class="mini-comboBox" required >
+                        <option value="公章">公章</option>
+                        <option value="法人章">法人章</option>
+                        <option value="法务章">法务章</option>
+                    </select>
+                </td>
+                <td title>盖章页数：</td>
+                <td content>
+                    <input id="sealPage" name="sealPage" class="mini-textbox" required vtype="int" />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>用途类别：</td>
+                <td content>
+                    <select id="useCategory" name="useCategory" class="mini-comboBox" required >
+                        <option value="资金外出">资金外出</option>
+                        <option value="公司贷款">公司贷款</option>
+                        <option value="工程项目">工程项目</option>
+                        <option value="工务用章">工务用章</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>用途：</td>
+                <td content colspan="3">
+                    <input id="useDescription" name="useDescription" class="mini-textarea" height="100" />
+                </td>
+            </tr>
+
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function onChangeCorp(){
+        var corpId = form.getField("useCorp").getValue();
+        form.getField("useDept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(corpId));
+    }
+    function onChangeSealCorp(){
+        var corpId = form.getField("sealCorp").getValue();
+        form.getField("deliverDept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(corpId));
+    }
+    function onChangeOut(){
+        var isOut = mini.get("isOut").getValue();
+        if(isOut=="不外带"){
+            mini.get("outAddr").disable();
+            mini.get("outAddr").setValue("");
+        }else if(isOut=="外带"){
+            mini.get("outAddr").enable();
+        }
+    }
+
+    function SetData(options) {
+
+        var formData = options.data.formData;
+        var row = options.data.row;
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            data = mini.clone(options);
+            form.setChanged(false);
+            mini.get("outAddr").disable();
+        } else if ('edit' == options.action) {
+            $.get("getByNote/{0}".format(row.note), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    var data = mini.clone(res.data);
+                    mini.get("note").setReadOnly(true);
+                    mini.get("useDept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(data.useCorp));
+                    mini.get("deliverDept").setUrl("/system/dept/combobox/getDeptTreeList/{0}".format(data.sealCorp));
+                    mini.get("useDept").setValue(data.useDept);
+                    mini.get("deliverDept").setValue(data.deliverDept);
+                    var isOut = data.isOut;
+                    if(isOut=="不外带"){
+                        mini.get("outAddr").disable();
+                    }else{
+                        mini.get("outAddr").enable();
+                    }
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html",JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh',false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+            });
+        }
+    }
+
+</script>
+</html>

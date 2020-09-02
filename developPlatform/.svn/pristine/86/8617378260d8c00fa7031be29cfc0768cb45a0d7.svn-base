@@ -1,0 +1,58 @@
+package com.tengzhi.base.security.common.extension.jurisdiction;
+
+import com.tengzhi.base.security.common.enums.AuthorityRoleEnum;
+import com.tengzhi.base.tools.log.Log;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+
+@Component
+public class MyaccessDecisionManager implements AccessDecisionManager {
+
+	@Override
+	public void decide(Authentication authentication, Object a, Collection<ConfigAttribute> collection) {
+
+		// 当前请求需要的权限
+//        log.info("collection:{}", collection);
+		// 当前用户所具有的权限
+		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+//        log.info("principal:{} authorities:{}", authentication.getPrincipal().toString(), authorities);
+		for (ConfigAttribute configAttribute : collection) {
+			// 当前请求需要的权限
+			String needRole = configAttribute.getAttribute();
+			if (AuthorityRoleEnum.PLATFORM_USER.getRolePrefixName().equals(needRole)) {
+				if (authentication instanceof AnonymousAuthenticationToken) {
+					Log.info("匿名访问");
+				} else {
+					return;
+				}
+			}
+			// 当前用户所具有的权限
+			for (GrantedAuthority grantedAuthority : authorities) {
+				// 包含其中一个角色即可访问
+				if (grantedAuthority.getAuthority().equals(needRole)) {
+					return;
+				}
+			}
+		}
+		throw new AccessDeniedException("SimpleGrantedAuthority!!");
+	}
+
+	@Override
+	public boolean supports(ConfigAttribute configAttribute) {
+		return true;
+	}
+
+	@Override
+	public boolean supports(Class<?> aClass) {
+		return true;
+	}
+
+	
+}

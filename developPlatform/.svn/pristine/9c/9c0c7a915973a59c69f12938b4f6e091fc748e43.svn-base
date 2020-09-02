@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>权限管理</title>
+</th:block>
+</head>
+<body>
+	<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+			<label class="hmq-label" text="名称">
+				<input class="mini-textbox" name="name" />
+			</label>
+		</th:block>
+	</th:block>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<!--模板信息Grid-->
+		<div tz:datagrid="datagrid" id="srch_grid" idField="creationTime" url="/codeGeneration/template/getList" pageSize="50">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn" width="40">序号</div>
+				<div tz:datagrid="column" field="name" width="100">模板名称</div>
+				<div tz:datagrid="column" field="type" width="100">模板类型</div>
+				<div tz:datagrid="column" field="remark" width="260">描述</div>
+				<div tz:datagrid="column" field="creationTime" width="260">创建时间</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form("form1");
+	var grid = mini.get("srch_grid");
+	grid.bindSearchForm(form);
+	function search_option() {
+		grid.load();
+	}
+	 grid.on("DrawCell", function (e) {
+	        if (e.field == "type") {
+	        	if(e.value=="1"){
+	        		e.cellHtml ='文档模板';
+	        	}else if(e.value=="2"){
+ 						e.cellHtml ='dao模板';
+	        	}else if(e.value=="3"){
+	        		e.cellHtml ='model模板';
+	        	}else if(e.value=="4"){
+	        		e.cellHtml ='service模板';
+	        	}else if(e.value=="5"){
+	        		e.cellHtml ='serviceImpl模板';
+	        	}else if(e.value=="6"){
+	        		e.cellHtml ='controller模板';
+	        	}else if(e.value=="7"){
+	        		e.cellHtml ='list模板';
+	        	}else if(e.value=="8"){
+	        		e.cellHtml ='add模板';
+	        	}
+	        }
+	    });
+	 
+	function add_option(e) {
+		var row = grid.getSelected();
+		var open = miniopen({
+			targetWindow : window,
+			title : "新增模板",
+			url : '/codeGeneration/template/add.html',
+			action : 'add',
+			data : row
+		});
+		open.max();
+	}
+
+	function edit_option(e) {
+		var row = grid.getSelected();
+		if (row) {
+			var row = grid.getSelected();
+			var open = miniopen({
+				targetWindow : window,
+				title : "修改模板",
+				url : '/codeGeneration/template/add.html',
+				action : 'edit',
+				data : row
+			});
+			open.max();
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+	 function delete_option() {
+	        var row = grid.getSelected();
+	        if (row) {
+	            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+	                if (action == "ok") {
+	                    $['delete']("/codeGeneration/template/{0}".format(row.id), function (res) {
+	                        if (200 === res.code) {
+	                            grid.reload();
+	                        } else {
+	                            hmq.tipDanger(res.msg);
+	                        }
+	                    });
+	                }
+	            });
+	        } else {
+	            hmq.tipDanger("请选择一条记录");
+	        }
+	    }
+</script>
+</html>

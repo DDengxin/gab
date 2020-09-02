@@ -1,0 +1,122 @@
+package com.tengzhi.business.platform.form.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.form.dao.DynamicFormDao;
+import com.tengzhi.business.platform.form.dao.DynamicFormSqlDao;
+import com.tengzhi.business.platform.form.model.DynamicForm;
+import com.tengzhi.business.platform.form.service.DynamicFormService;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+
+@Service
+@Transactional
+public class DynamicFormServiceImpl implements DynamicFormService {
+
+	@Autowired
+	private DynamicFormDao dynamicFormDao;
+
+	@Autowired
+	private DynamicFormSqlDao dynamicFormSqlDao;
+
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+
+	@Override
+	public BasePage<Map<String, Object>> findAll(BaseDto baseDto) {
+		return dynamicFormSqlDao.findAll(baseDto);
+	}
+
+	@Override
+	public Result save(DynamicForm dynamicForm) throws Exception {
+		String note = sysGenNoteService.getNote("g_dynamic_form", "SET", "yyyyMM", 4);
+		SessionUser sessionUser = SessionUser.SessionUser();
+		dynamicForm.setId(note);
+		dynamicForm.setFounderId(sessionUser.getUserId());
+		dynamicForm.setFounder(sessionUser.getNickName());
+		dynamicForm.setOrganization(sessionUser.getCorpId());
+		dynamicForm.setIsDelete("true");
+		dynamicFormDao.save(dynamicForm);
+		return Result.resultOk();
+	}
+
+	@Override
+	public Map<String, Object> getById(String Id) {
+		return dynamicFormSqlDao.getById(Id);
+	}
+
+	@Override
+	public Result update(DynamicForm dynamicForm) throws Exception {
+		SessionUser sessionUser = SessionUser.SessionUser();
+		dynamicForm.setFounderId(sessionUser.getUserId());
+		dynamicForm.setFounder(sessionUser.getNickName());
+		dynamicForm.setOrganization(sessionUser.getCorpId());
+		dynamicForm.setIsDelete("true");
+		dynamicFormDao.update(dynamicForm);
+		return Result.resultOk();
+	}
+
+	@Override
+	public Result delete(String Id) {
+		return Result.resultOk(dynamicFormDao.delete(Id));
+	}
+
+	@Override
+	public List<SelectVo> getField() {
+		List<SelectVo> rset = new ArrayList<>();
+		List<String> fields = dynamicFormDao.getField();
+		fields.forEach(item -> {
+			rset.add(new SelectVo(item, item));
+		});
+		return rset;
+	}
+
+	@Override
+	public int getFieldByClassify(String classify) {
+		return dynamicFormDao.getFieldByClassify(classify);
+	}
+
+	@Override
+	public List<DynamicForm> findAll(String type) {
+		return dynamicFormDao.findAll(Specifications.where((c) -> {
+			c.eq(true, "classify", type);
+		}));
+	}
+
+	@Override
+	public List<Map<String, Object>> getDynamicFormByClassify(String classify) {
+		return dynamicFormSqlDao.getDynamicFormByClassify(classify);
+	}
+
+	@Override
+	public String getSql(String type) {
+		return dynamicFormSqlDao.getSql(type);
+	}
+
+	@Override
+	public String getShowSql(String type) {
+		return dynamicFormSqlDao.getShowSql(type);
+	}
+
+	@Override
+	public Result getShowSqlValue(String type, String id, String table) {
+		Map<String, Object> vmap = dynamicFormSqlDao.getShowSqlValue(type, id, table);
+		if (vmap == null)
+			return Result.error();
+		else
+			return Result.resultOk(vmap);
+	}
+
+}

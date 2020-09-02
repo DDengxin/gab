@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目流程</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="menuType" value="登记"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input  class="mini-textbox" name="lcNote" id="lcNote"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div id="srch_top_grid" style="width: 100%; height: 100%;"
+                     idField="htNo" onselectionchanged="onSelectionChanged"
+                     sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" showPageInfo="false" sortField="htNo" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+                    <div property="columns">
+                        <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+                        <div field="lcRq" width="100" align="center" headerAlign="center" allowSort="true">日期</div>
+                        <div field="lcNote" width="150" align="center"  headerAlign="center" allowSort="true">流程单号</div>
+                        <div field="lcTitle" width="80" align="left" headerAlign="center" allowSort="true">项目版本</div>
+                        <div field="lcXmId" displayField="lcXmIdName" width="140" align="left" headerAlign="center" allowSort="true">所属项目</div>
+                        <div field="man" displayField="manName" width="80" align="center" headerAlign="center" allowSort="true">操作人</div>
+                        <div field="createtime" width="135" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm" headerAlign="center" allowSort="true">操作时间</div>
+                        <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="lcId" showPager="false" multiSelect="true" showColumnsMenu="true" url="/project/projectStage/projectLine/getSrchBottomList"
+                     showSummaryRow="true" sortField="mxId" sortOrder="asc" sortMode="client" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+                    <div property="columns">
+                        <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+                        <div field="mxId" width="60" align="center" headerAlign="center" allowSort="true" visible="false">序号</div>
+                        <div field="lcXmStage" displayField="lcXmStageName" width="90" align="center" sortField="htSqnote" headerAlign="center" allowSort="true">项目阶段</div>
+                        <div field="lcXmNode" displayField="lcXmNodeName" width="90" align="center" headerAlign="center" allowSort="true">项目节点</div>
+                        <div field="lcMan" displayField="lcManName" align="left" width="80" headerAlign="center" allowSort="true">人员</div>
+                        <div field="remarks" align="left" width="240" headerAlign="center" allowSort="true">说明</div>
+                        <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_top_grid = mini.get("srch_top_grid");
+    var srch_bottom_grid = mini.get("srch_bottom_grid");
+    srch_top_grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        srch_top_grid.load();
+        srch_bottom_grid.setData([]);
+    }
+
+    /* 添加 */
+    function add_option(e) {
+        var row = srch_top_grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+    /**修改*/
+    function edit_option(e){
+        var row = srch_top_grid.getSelected();
+        if(row){
+            e.sender.miniopen({url: "add.html", action: 'edit', data: row});
+        }else{
+            hmq.tipDanger("请选择一条记录！");
+        }
+    }
+
+    /**删除*/
+    function delete_option() {
+        var row = srch_top_grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteByNote/{0}".format(row.lcNote), function (res) {
+                        if (200 === res.code) {
+                            srch_top_grid.reload();
+                            hmq.tipSuccess("删除完成");
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**双击查询条件*/
+    function onSelectionChanged(e){
+        var row = srch_top_grid.getSelected();
+        if(row){
+            srch_bottom_grid.load({
+                params: mini.encode({
+                    lcNote: row.lcNote
+                })
+            });
+        }
+    }
+
+
+</script>
+
+
+</body>
+</html>

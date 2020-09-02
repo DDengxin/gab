@@ -1,0 +1,243 @@
+package com.tengzhi.business.sc.capacity.specification.model;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Entity(name="m_sc_ggcl")
+public class MScGgcl {
+
+  @Id
+  private String clId;
+  private String clCj;
+  private String clCode,clGjgc,clDe;
+  private BigDecimal ggclSize;
+  private BigDecimal sizeMin;
+  private BigDecimal sizeMax;
+  private BigDecimal clBcl,clJtsj,clScsd,clEfficiency,clBsj;
+  private Long clRbs;
+  private BigDecimal clRcl;
+  private BigDecimal clYts;
+  private BigDecimal clYcl;
+  @JsonFormat(pattern = "yyyy-MM-dd")
+  private Date dataDate;
+  private String dataMan;
+  private String dataCorp;
+  private String clType,clSm1,clSm2,clSm3;
+  @Transient
+  private String _state;
+
+  public String get_state() {
+    return _state;
+  }
+
+  public void set_state(String _state) {
+    this._state = _state;
+  }
+
+  public String getClId() {
+    return clId;
+  }
+
+  public void setClId(String clId) {
+    this.clId = clId;
+  }
+
+  public String getClCj() {
+    return clCj;
+  }
+
+  public void setClCj(String clCj) {
+    this.clCj = clCj;
+  }
+
+  public String getClCode() {
+    return clCode;
+  }
+
+  public void setClCode(String clCode) {
+    this.clCode = clCode;
+  }
+
+  public BigDecimal getGgclSize() {
+    return ggclSize;
+  }
+
+  public void setGgclSize(BigDecimal ggclSize) {
+    this.ggclSize = ggclSize;
+  }
+
+  public BigDecimal getSizeMin() {
+    return sizeMin;
+  }
+
+  public void setSizeMin(BigDecimal sizeMin) {
+    this.sizeMin = sizeMin;
+  }
+
+  public BigDecimal getSizeMax() {
+    return sizeMax;
+  }
+
+  public void setSizeMax(BigDecimal sizeMax) {
+    this.sizeMax = sizeMax;
+  }
+
+  public BigDecimal getClBcl() {
+    return clBcl;
+  }
+
+  public void setClBcl(BigDecimal clBcl) {
+    this.clBcl = clBcl;
+  }
+
+  public Long getClRbs() {
+    return clRbs;
+  }
+
+  public void setClRbs(Long clRbs) {
+    this.clRbs = clRbs;
+  }
+
+  public BigDecimal getClRcl() {
+    return clRcl;
+  }
+
+  public void setClRcl(BigDecimal clRcl) {
+    this.clRcl = clRcl;
+  }
+
+  public BigDecimal getClYts() {
+    return clYts;
+  }
+
+  public void setClYts(BigDecimal clYts) {
+    this.clYts = clYts;
+  }
+
+  public BigDecimal getClYcl() {
+    return clYcl;
+  }
+
+  public void setClYcl(BigDecimal clYcl) {
+    this.clYcl = clYcl;
+  }
+
+  public Date getDataDate() {
+    return dataDate;
+  }
+
+  public void setDataDate(Date dataDate) {
+    this.dataDate = dataDate;
+  }
+
+  public String getDataMan() {
+    return dataMan;
+  }
+
+  public void setDataMan(String dataMan) {
+    this.dataMan = dataMan;
+  }
+
+  public String getDataCorp() {
+    return dataCorp;
+  }
+
+  public void setDataCorp(String dataCorp) {
+    this.dataCorp = dataCorp;
+  }
+
+  public String getClType() {
+    return clType;
+  }
+
+  public void setClType(String clType) {
+    this.clType = clType;
+  }
+  @Transient
+  private String codename;
+
+  public String getCodename() {
+    return codename;
+  }
+
+  public void setCodename(String codename) {
+    this.codename = codename;
+  }
+
+  public BigDecimal getClJtsj() {
+    return clJtsj;
+  }
+
+  public void setClJtsj(BigDecimal clJtsj) {
+    this.clJtsj = clJtsj;
+  }
+
+  public BigDecimal getClScsd() {
+    return clScsd;
+  }
+
+  public void setClScsd(BigDecimal clScsd) {
+    this.clScsd = clScsd;
+  }
+
+  public BigDecimal getClEfficiency() {
+    return clEfficiency;
+  }
+
+  public void setClEfficiency(BigDecimal clEfficiency) {
+    this.clEfficiency = clEfficiency;
+  }
+
+  public String getClSm1() {
+    return clSm1;
+  }
+
+  public void setClSm1(String clSm1) {
+    this.clSm1 = clSm1;
+  }
+
+  public String getClSm2() {
+    return clSm2;
+  }
+
+  public void setClSm2(String clSm2) {
+    this.clSm2 = clSm2;
+  }
+
+  public String getClSm3() {
+    return clSm3;
+  }
+
+  public void setClSm3(String clSm3) {
+    this.clSm3 = clSm3;
+  }
+
+  public String getClGjgc() {
+    return clGjgc;
+  }
+
+  public void setClGjgc(String clGjgc) {
+    this.clGjgc = clGjgc;
+  }
+
+  public String getClDe() {
+    return clDe;
+  }
+
+  public void setClDe(String clDe) {
+    this.clDe = clDe;
+  }
+
+  public BigDecimal getClBsj() {
+    return clBsj;
+  }
+
+  public void setClBsj(BigDecimal clBsj) {
+    this.clBsj = clBsj;
+  }
+}

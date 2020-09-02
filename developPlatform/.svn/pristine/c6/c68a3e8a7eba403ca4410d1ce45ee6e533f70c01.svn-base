@@ -1,0 +1,44 @@
+package com.tengzhi.business.dynamicrow.cache.impl;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.dynamicrow.cache.rowCache;
+import com.tengzhi.business.dynamicrow.model.dynamicrow;
+import com.tengzhi.business.dynamicrow.service.rowService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-08-01
+ * 缓存层
+ */
+@Component
+public class rowCacheimpl implements rowCache {
+
+    @Autowired
+    private rowService rowService;
+
+    @Override
+    public Result AllRowObj(String menu) {
+        System.out.println("没有进入缓存");
+        return rowService.AllRowObj(menu);
+    }
+
+    @Override
+    public Result SavaAndUpdate(dynamicrow dynamicrow) {
+        return rowService.SavaAndUpdate(dynamicrow);
+    }
+
+    @Override
+    public Result Delete(String menuId) {
+        return rowService.Delete(menuId);
+    }
+
+    @Override
+    public Result Delete(Map<String,Object> map) {
+        return rowService.Delete(map);
+    }
+
+}

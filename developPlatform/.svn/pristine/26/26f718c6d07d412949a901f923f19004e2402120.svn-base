@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>产品信息</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="cpcodeType" class="mini-hidden"/>
+        <input name="orgId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>产品编码</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodeId" id="cpcodeId" readOnly="readOnly" emptyText="自动生成"/>
+                </td>
+                <td title for="cpcodeFl">产品分类</td>
+                <td content>
+                    <input class="mini-combobox" required name="cpcodeFl" valueFromSelect="true" allowInput="true" popupMaxHeight="260"/>
+                </td>
+                <td title for="cpcodeXp">产品标重</td>
+                <td content>
+                    <input class="mini-combobox" name="cpcodeXp" allowInput="true" popupMaxHeight="200"/>
+                </td>
+            </tr>
+            <tr>
+                <td title for="cpcodeName">产品名称</td>
+                <td content>
+                    <input name="cpcodeName" required class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid"
+                           parentField="pid" value="无" onbeforenodeselect="disableParentSelection" popupWidth="240" popupHeight="260" popupMaxHeight="260" allowInput="true"/>
+                </td>
+                <td title for="cpcodeSize">产品规格</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodeSize"/>
+                </td>
+                <td title for="cpcodeSizeEn">产品长度</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodeSizeEn"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>计量单位</td>
+                <td content>
+                    <input class="mini-combobox" name="cpcodeBz" url="/system/parameter/getParamsSelectList/技术/计量单位" valueFromSelect="true" allowInput="true" popupMaxHeight="160"/>
+                </td>
+                <td title>大包单位</td>
+                <td content>
+                    <input id="cpcodeDunit" name="cpcodeDunit" class="mini-combobox" url="/system/parameter/getParamsSelectList/技术/大包单位" popupMaxHeight="160"/>
+                </td>
+                <td title>大包配比</td>
+                <td content>
+                    <input class="mini-textbox" name="cpcodePb"/>
+                </td>
+            </tr>
+            <tr>
+                <td title for="cpcode03">其他参数</td>
+                <td content>
+                    <input class="mini-textbox" id="cpcode03" name="cpcode03"/>
+                </td>
+                <td title>入库方式</td>
+                <td content>
+                    <select id="cpcode01" name="cpcode01" class="mini-combobox" required="true">
+                        <option value="批次">批次</option>
+                        <option value="单件">单件</option>
+                    </select>
+                </td>
+                <td title>核算方式</td>
+                <td content>
+                    <select id="cpcode02" name="cpcode02" class="mini-combobox" required="true">
+                        <option value="数量">数量</option>
+                        <option value="件数">件数</option>
+                        <option value="重量">重量</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>检验分类</td>
+                <td content colspan="3">
+                    <input class="mini-combobox" name="cpcodeCheck" id="cpcodeCheck"/>
+                </td>
+                <td title>状态</td>
+                <td content>
+                    <select id="cpcodeFlag" name="cpcodeFlag" class="mini-combobox" required="true" value="Y">
+                        <option value="Y">启用</option>
+                        <option value="N">禁用</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>是否预警</td>
+                <td content>
+                    <input class="mini-combobox" name="cpcodeStockWarn" value="false" url="/dict/boolean"/>
+                </td>
+                <td title>上限</td>
+                <td content>
+                    <input class="mini-spinner" name="cpcodeLower" value="null" minValue="0" allowNull="true" allowLimitValue="false" decimalPlaces="3" format="#0.000"/>
+                </td>
+                <td title>下限</td>
+                <td content>
+                    <input class="mini-spinner" name="cpcodeUpper" value="null" minValue="0" allowNull="true" allowLimitValue="false" decimalPlaces="3" format="#0.000"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>特殊要求</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="cpcodeSm"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>英文名称</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="cpcodeNameEn">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    //页面保存标识，CloseWindow会自行判断
+    var PAGE_SAVE_FLAG = false;
+
+
+
+    function SetData(options) {
+        var cpcodeType = options.data.cpcodeType;
+        var row = options.data.row;
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniForm: form,
+            success: function (map, res) {
+                if ('add' == options.action) {
+                    mini.getbyName("action").setValue(options.action);
+                    if (map.cpcodeIsAutomaticCoding) {
+                        //自动编码
+                        form.getField("cpcodeId").setEnabled(false);
+                    } else {
+                        //手动编码
+                        form.getField("cpcodeId").setReadOnly(false);
+                        form.getField("cpcodeId").setEmptyText('请输入');
+                    }
+                    form.getField("cpcodeType").setValue(cpcodeType);
+                } else if ('edit' == options.action) {
+                    $.get("/js/cpcode/{0}".format(row.cpcodeId), function (res) {
+                        form.getField("cpcodeId").setEnabled(false);
+                        if (200 === res.code) {
+                            form.getField("cpcodeType").setValue(cpcodeType);
+                            form.setData(res.data, true);
+                        }
+                    });
+                }
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var cpcodeStockWarn = form.getField("cpcodeStockWarn").getValue();
+            if (cpcodeStockWarn == "true") {
+                var cpcodeLower = form.getField("cpcodeLower").getValue();
+                var cpcodeUpper = form.getField("cpcodeUpper").getValue();
+                if (isNull(cpcodeLower) || isNull(cpcodeUpper)) {
+                    return hmq.tipDanger('上下限数量不能为空!', {targetWindow: window});
+                }
+                if (parseFloat(cpcodeLower) < 0 || parseFloat(cpcodeUpper) < 0) {
+                    return hmq.tipDanger('上下限数量不能小于0!', {targetWindow: window});
+                }
+                if (parseFloat(cpcodeUpper) <= parseFloat(cpcodeLower)) {
+                    return hmq.tipDanger('上限数量不能小于下限数量！', {targetWindow: window});
+                }
+            }
+            var method = 'add' == mini.getbyName('action').getValue() ? 'post' : 'put';
+            $[method]("/js/cpcode", JSON.stringify(form.getData()), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            if ('add' == mini.getbyName('action').getValue()) {
+                                //重置表单
+                                var cocodeType = form.getField('cpcodeType').getValue();
+                                form.reset();
+                                form.getField('cpcodeType').setValue(cocodeType);
+                                form.setChanged(false);
+                                //标记表单保存状态
+                                PAGE_SAVE_FLAG = true;
+                            } else {
+                                CloseWindow('refresh');
+                            }
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+</script>
+</html>

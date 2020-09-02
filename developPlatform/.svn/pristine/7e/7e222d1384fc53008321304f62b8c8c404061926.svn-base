@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>所属菜单选择器</title>
+    </th:block>
+</head>
+
+<body>
+    <form id="form1" method="post">
+        <div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderStyle="border:0;">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="white-space: nowrap;" align="left">
+                        <label class="hmq-label" text="系统">
+                            <input class="mini-combobox" name="rightModule" url="./combobox/rightModule" width="60"
+                                onvaluechanged="onRightModuleValueChanged" />
+                        </label>
+                        <label class="hmq-label" text="模块">
+                            <input class="mini-combobox" name="parentId0" />
+                        </label>
+                        <label class="hmq-label" text="菜单名称">
+                            <input class="mini-textbox" name="rightName" />
+                        </label>
+                    </td>
+                    <td style="white-space: nowrap;" align="right">
+                        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+                        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+                        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </form>
+    <!--撑满页面-->
+    <div class="mini-fit">
+        <div tz:datagrid="treegrid" id="srch_grid" treeColumn="rightName" idField="rightId" sortField="rightOrd"
+            parentField="parentId" url="/system/right/right.html" resultAsTree="true" iconField="rightIconCls"
+            expandOnLoad="1" showTreeLines="true" onrowdblclick="onRowDblClick" showPager="false"
+            showExpandButtons="true">
+
+            <div property="columns">
+                <div tz:datagrid="checkcolumn"></div>
+                <div tz:datagrid="column" field="rightName" name="rightName" width="100%">菜单名称</div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var form = new mini.Form("form1");
+        var grid = mini.get("srch_grid");
+        grid.bindSearchForm(form);
+
+        var page_options = {
+            multiSelect: false, //是否多选
+            rightModule: null,
+            //是否显示空节点
+            showNullNode: true,
+            allowModuleAndParentId0: true,
+
+        };
+
+        function onRightModuleValueChanged(e, cb) {
+            var rightModule = e.sender.value;
+            mini.getByName("parentId0").setUrl("./combobox/menu/{0}/ROOT".format(rightModule));
+            mini.getByName("parentId0").doValueChanged();
+            search_option();
+            cb();
+        }
+
+        /**
+         * 初始化页面
+         * @param options r
+         *  multiSelect:是否多选
+         * @constructor
+         */
+        function SetData(options) {
+            page_options = $.extend(page_options, options.data);
+            grid.setMultiSelect(page_options.multiSelect);
+            form.setData(page_options, true);
+            onRightModuleValueChanged({ sender: mini.getByName("rightModule") }, function () {
+                form.getField('parentId0').setValue(page_options.parentId0);
+                search_option();
+            });
+            if (null != page_options.rightModule && "" != page_options.rightModule && "edit" === options.action) {
+                form.getField("rightModule").setEnabled(false);
+            }
+            if (false == page_options.allowModuleAndParentId0) {
+                setFormEnabled(form, "rightModule,parentId0", false);
+            }
+            //默认查询
+            search_option();
+        }
+
+        grid.on('load', function (e) {
+            var tree = new mini.DataTree();
+            tree.setExpandOnLoad(grid.getExpandOnLoad());
+            tree.setSortOrder(grid.getSortField());
+            tree.setCheckSelectOnLoad(grid.getCheckSelectOnLoad());
+            tree.setMultiSelect(grid.setMultiSelect());
+            tree.setData(mini.listToTree(JSON.parse(e.text).data, grid.getNodesField(), grid.getIdField(), grid.getParentField()));
+            //过滤菜单类型
+            var parentId = mini.getByName("parentId0").getValue();
+            if (parentId) {
+                var parentNodes = tree.getAllChildNodes().filter(function (node) {
+                    return node.rightId === parentId;
+                });
+                tree.filter(function (node) {
+                    for (var i = 0, max = parentNodes.length; i < max; i += 1) {
+                        if ('MENU' === node.rightType &&
+                            (parentNodes[i].rightId === node.rightId || tree.isAncestor(parentNodes[i], node))
+                        ) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            } else {
+                tree.filter(function (node) {
+                    return 'MENU' === node.rightType;
+                });
+            }
+
+            grid.loadList(tree.getDataView());
+            //销毁控件，释放内存
+            tree.destroy();
+        });
+
+
+        grid.on('update', function (e) {
+            if (true === page_options.showNullNode) {
+                grid.addNode({ rightId: "ROOT", rightName: "无", rightIconCls: "fa fa-fw fa-meetup" }, "before", grid.getRow(0));
+            }
+        });
+
+        /**
+         * 本地筛选
+         **/
+        function search_option() {
+            grid.load();
+        }
+
+        function confirm(e) {
+            if (grid.getSelecteds().length <= 0) {
+                hmq.tipDanger('请选中一行数据!');
+            } else {
+                closeWindow('ok');
+            }
+
+            childData = GetData();
+
+            var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+            //给父页面传值
+            parent.GetValue(childData);
+            parent.$('#workflowCate').val(childData.rightName);
+            parent.layer.close(index);
+        }
+        function child(details) {
+            SetData({
+                action: 'view', data: {
+                    showNullNode: false,
+                    rightModule: details[0],
+                    parentId0: details[1],
+                    allowModuleAndParentId0: false
+                }
+            })
+        }
+
+
+        /**
+         * 获取数据
+         * @returns {*}
+         * @constructor
+         */
+        function GetData() {
+            if (page_options.multiSelect) {
+                return grid.getSelecteds();
+            } else {
+                return grid.getSelected();
+            }
+        }
+
+        /**
+         * 行双击事件
+         * @param e
+         */
+        function onRowDblClick(e) {
+            confirm("ok");
+        }
+
+        //关闭
+        function closeWindow(action) {
+            if (window.CloseOwnerWindow) {
+                return window.CloseOwnerWindow(action);
+            } else {
+                window.close();
+            }
+        }
+    </script>
+</body>
+
+</html>

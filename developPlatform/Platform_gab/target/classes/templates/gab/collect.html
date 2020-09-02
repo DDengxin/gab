@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+    <title>收藏页</title>
+  </th:block>
+  <style type="text/css">
+    .layui-form-item {
+      margin: 21px 0 0 !important;
+      clear: both;
+      *zoom: 1;
+    }
+
+    .layui-input-block {
+      margin-top: 15px !important;
+    }
+
+    .collect_content {
+      width: 400px;
+      height: 100%;
+      margin: auto;
+    }
+
+    .layui-form-label {
+      width: 95px !important;
+    }
+
+    .layui-input,
+    .layui-textarea {
+      display: block;
+      width: 76%;
+      padding-left: 10px;
+      margin-top: 15px;
+      border-radius: 5px;
+      resize: none;
+    }
+
+    input[disabled='true'] {
+      background: #ececec !important;
+    }
+
+    .layui-btn {
+      background-color: rgb(46, 141, 237) !important;
+    }
+
+    .layui-btn-primary {
+      border: none;
+      color: #fff;
+    }
+
+    .layui-btn-primary:hover {
+      color: #fff;
+    }
+
+    body .msg-tips {
+      background: red;
+      color: #fff;
+      width: 80px;
+      /* padding: 0 10px; */
+      text-align: center;
+      font-size: 17px !important;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="collect_content">
+    <form class="layui-form" action="" lay-filter="collect">
+      <div>
+        <label class="layui-form-label">收藏类型</label>
+        <input type="text" name="collectType" id="collectType" disabled='true' autocomplete="off" class="layui-input">
+      </div>
+      <div>
+        <label class="layui-form-label">收藏方式</label>
+        <input type="text" name="collectMode" required lay-verify="required" placeholder="请输入收藏方式" autocomplete="off"
+          class="layui-input">
+      </div>
+      <div>
+        <label class="layui-form-label">收藏备注</label>
+        <textarea name="remarks" placeholder="请输入内容" required lay-verify="required" class="layui-textarea"></textarea>
+      </div>
+
+      <div class="layui-form-item">
+        <div class="layui-input-block">
+          <div class="layui-btn" id="subimit">添加收藏</div>
+          <div type="reset" class="layui-btn layui-btn-primary">重置</div>
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+
+</body>
+<script type="text/javascript">
+  var layer;
+  var form;
+  var url = '';
+
+  function getUrl(data) {
+    url = data;
+  }
+
+  layui.use(['layer', 'form'], function () {
+    layer = layui.layer;
+    form = layui.form;
+
+    $(document).on('click', '#subimit', function () {
+      var data = form.val("collect");
+
+      //表单数据验证
+      if (data.collectMode == '') {
+        layer.msg('所有内容必填', { skin: 'msg-tips', time: 3000 });
+        return;
+      }
+
+      if (data.remarks == '') {
+        layer.msg('所有内容必填', { skin: 'msg-tips', time: 3000 });
+        return;
+      }
+
+      var index = layer.load();
+
+      data.collectUrl = url;
+      $.ajax({
+        url: "/platform/need/add",
+        type: 'post',
+        dataType: 'json',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        success: function (res) {
+          if (200 === res.code) {
+            var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+            var flag = 'true';
+            parent.GetFlag(flag);
+            parent.layer.closeAll('iframe');
+          }
+        },
+        error: function (data) {
+          alert(data.message || '操作失败');
+        },complete:function(){
+          layer.close(index);
+        }
+      })
+
+    });
+  })
+
+
+</script>
+
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,_)}">
+        <title>组织架构【查阅】</title>
+    </th:block>
+    <link rel="stylesheet" th:href="@{/static/css/jquery.orgchart.css}">
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/static/css/showOrganization.css}">
+    <script th:src="@{/static/script/jquery/jquery-1.9.0.min.js}"></script>
+    <script th:src="@{/static/javascript/jquery.mockjax.min.js}"></script>
+    <script th:src="@{/static/javascript/jquery.orgchart.js}"></script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .edge {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chart-container"></div>
+</body>
+<script type="text/javascript">
+    /**
+     * 加载数据
+     * @param callback 回调函数
+     */
+    function loadData(callback) {
+        $.ajax({
+            url: '/system/dept/getOrganizationTree?includeEmployees=false',
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.code == 200) {
+                    callback(res.data[0]);
+                } else {
+                    alert(res.msg);
+                }
+            }
+        });
+    }
+
+    /**
+     * 递归处理组织架构图的数据结构
+     */
+    var getStr = function (str) {
+        $.each(str, function (i, e) {
+            e.name = e.groupName;
+            e.title = e.groupAdminName == null ? '' : e.groupAdminName;
+            e.children = e.groups == undefined ? [] : e.groups;
+
+            if (e.children.length != 0) {
+                getStr(e.children);
+            }
+        })
+    }
+
+    /**
+     * 绘制组织架构
+     * @param data
+     */
+    function drawHandler(data) {
+        data.name = data.groupName;
+        data.title = '';
+        data.children = data.groups;
+
+        var str = data.children;
+        getStr(str);
+
+        $('#chart-container').orgchart({
+            'data': data,
+            'nodeTitle': 'name',
+            'nodeContent': 'title'
+        });
+
+        $('.content').each(function (index) {
+            if ($(this).text() == '') {
+                $(this).hide();
+                $('.title').eq(index).css({
+                    'height': '60px',
+                    'line-height': '58px',
+                    'border-radius': '4px',
+                    'border-bottom': '1px solid #666'
+                });
+            }
+        });
+    }
+    $(window).on('load', function (e) {
+        loadData(drawHandler);
+    });
+</script>
+
+</html>

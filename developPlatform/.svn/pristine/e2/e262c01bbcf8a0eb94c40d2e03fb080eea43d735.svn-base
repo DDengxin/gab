@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>工装档案</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<form id="form1">
+			<input id="action" name="action" class="mini-hidden" /> 
+				<table style="padding: 2px; border-bottom: 0; table-layout: fixed;">
+				<tr>
+					<td align="right" width="80px">入库单号：</td>
+					<td><input class="mini-textbox"  name="inNote"
+						width="120px" readonly id="inNote" emptyText="自动生成" /></td>
+					<td align="right" width="80px" >日 期：</td>
+					<td><input class="mini-datepicker"  id="inRq" 
+						name="inRq" width="110px" /></td>
+				</tr>
+			</table>
+		</form>
+		
+		<fieldset style="width: 1200px;">
+			<div class="fieldset-body">
+				<div tz:datagrid="datagrid" id="button-grid" idField="htId"
+					sortField="htId" sortOrder="asc"
+					style="width: 100%; height: 450px;"
+					 showEmptyText="true"
+					alwaysShowEmptyText="true" allowCellEdit="true"
+					allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true"
+					editNextRowCell="true" allowMoveColumn="true" showPager="false"
+					sortMode="client"
+					oncellvalidation="onCellValidation"
+					 allowCellValid="true"
+					showColumnsMenu="true" showSummaryRow="true"
+					ondrawsummarycell="onDrawSummaryCell">
+					<div property="columns">
+					<!-- 	<div tz:datagrid="checkcolumn" width="35"></div> -->
+						<div tz:datagrid="indexcolumn" width="35" >序号</div>
+						<div tz:datagrid="column" field="id" width="130" align="center" allowSort="true" headerAlign="center" visible="false">id</div>
+						<div tz:datagrid="column" field="inCode" align="center"
+							width="128">
+							编码
+						</div>
+						<div tz:datagrid="column" field="cpcodeName" align="left"
+							width="120">名称</div>
+						<div tz:datagrid="column" field="cpcodeSize" align="left"
+							width="120">规格</div>
+						<div tz:datagrid="column" field="cpcode01"  numberFormat="#,0.00"  align="center" width="60">单位</div>
+					<!-- 	<div tz:datagrid="column" field="inJs" width="80" align="right"
+							numberFormat="#,0" summaryType="sum">
+							件数 
+						</div> -->
+						<div tz:datagrid="column" field="inSl" width="80" align="right"
+							numberFormat="#,0.00" summaryType="sum">
+							数量 
+						</div>
+						<div tz:datagrid="column" field="gmCode" align="center" width="128" >
+							工模编号<input property="editor" class="mini-textbox" value="1"/>
+						</div>
+                        <div tz:datagrid="column" field="gmSc" align="center"
+							width="88">
+							使用时长<input property="editor" class="mini-textbox" />
+						</div>
+						<div tz:datagrid="column" field="gmCl" width="80" align="right"
+							numberFormat="#,0" summaryType="sum">
+							使用产量 <input property="editor" class="mini-textbox" />
+						</div>
+						<div tz:datagrid="column" field="gmSl" width="80" align="right"
+							numberFormat="#,0000" summaryType="sum"> 工模数量
+						</div>
+
+					<!-- 	<div tz:datagrid="column" field="inType" width="100"
+							align="center">
+							入库大类
+						</div> -->
+					
+						<div tz:datagrid="column" field="" width="100%"></div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="mini-toolbar hmq-toolbar">
+	<!-- 	<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+		<a class="mini-button" onclick="delRow" iconCls="icon-remove"
+			id="delBtn">删行</a> <a class="mini-button" onclick="delAll"
+			iconCls="icon-remove" id="delAllBtn">删单</a> -->
+			 <a class="mini-button"
+			onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a> <a
+			class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+	mini.get("inRq").setValue(new Date());
+
+    
+    
+     
+    
+	/**
+     	保存
+     */
+    function SaveData() {
+    	var row = button_grid.getSelected();
+  	     var inNote=row.inNote
+        if (form.validate() && form.isValid()) {
+        	button_grid.validate();
+			if (button_grid.isValid() == false) {
+				var error = button_grid.getCellErrors()[0];
+				button_grid.beginEditCell(error.record, error.column);
+				return;
+			}
+            var buttons = button_grid.getData();
+            if(buttons==""){
+           	 button_grid.getData();
+           }
+            //判断包转号是否重复
+            for(var i=0;i<buttons.length;i++){
+        		var row= buttons[i];
+        		if(checkExists(row)){
+		    		return hmq.tipDanger("第"+(i+1)+"行工模编号重复，不能保存！");
+		    	}
+        	} 
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'post';
+            $[method]("gzmj.html", JSON.stringify({
+            	eCkIn: form.getData(),
+            	eCkInMx: buttons,
+            	gzda:form.getData(),
+            	gzdaMx:buttons,
+            	inNote : inNote
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            }); 
+        }
+    }
+	
+
+	 /**
+	 回调函数
+	 */
+    function SetData(options) {
+    	var formData = options.data.formData;
+    	var row = options.data.row;
+       if ('add' == options.action) {
+            $.post("getSlSelectList/{0}".format(row.outNote), function (res) {
+                	button_grid.setData(res);
+                	//给工模数量默认为1
+                	for(var i = 0 , max = button_grid.getData().length; i < max ; i += 1){
+                		button_grid.updateRow(
+                				button_grid.getRowById(i),
+                				{
+                					gmSl:1
+                					}
+                				);
+                		//清除痕迹右上角的标记
+                		button_grid.accept();
+                		}
+            });
+	 }
+    	
+	 }
+    
+     //判断工模编号是否重复
+    function checkExists(row){
+    	var isflag=false;
+    	var buttons = button_grid.getData();
+    	for(var i=0;i<buttons.length;i++){
+    		var indexrow= buttons[i];
+    		var gmCode=indexrow.gmCode;
+    		if(!isNull(gmCode)){
+	    		if(indexrow.id!=row.id){
+		    		if(indexrow.gmCode==row.gmCode){
+			    		 isflag=true;
+			    		 break;
+			    	}
+		    	}
+    		}
+    	}
+    	return isflag;
+    }
+     
+     
+    
+	 
+        
+
+
+    /**
+	 验证数量、金额不小于0
+	 */
+	function onCellValidation(e) {
+    	
+		if (e.field == "inKfcode") {
+			if (isNull(e.value)) {
+				e.isValid = false;
+				e.errorText = "采购编码不能为空！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		
+		
+	}
+   
+
+
+	/**
+	 汇总方法
+	 */
+	function onDrawSummaryCell(e) {
+		if (e.field == "inContract") {
+			var s = "<span style='color:Brown;'>";
+			s += "合计:</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "gmSl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(3) + "</span>";
+		}
+		if (e.field == "gmCl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(3) + "</span>";
+		}
+		if (e.field == "inZl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(3) + "</span>";
+		}
+		if (e.field == "inJs") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(3) + "</span>";
+		}
+		if (e.field == "inSl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(3) + "</span>";
+		}
+	}
+	
+
+
+	
+	
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	
+	 
+
+	
+	
+	
+ 
+
+</script>
+</html>

@@ -1,0 +1,69 @@
+package com.tengzhi.business.dynamicrow.service.impl;
+
+
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.dynamicrow.dao.rowDao;
+import com.tengzhi.business.dynamicrow.model.dynamicrow;
+import com.tengzhi.business.dynamicrow.service.rowService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-08-01
+ */
+@Service
+@Transactional
+public class rowServiceimpl implements rowService {
+
+    @Autowired
+    private rowDao rowDao;
+
+    @Override
+    public Result AllRowObj(String menu) {
+        return Result.resultOk(rowDao.findAll(Specifications.where((c)->{c.eq("rowId",menu);})));
+    }
+
+    @Override
+    public Result SavaAndUpdate(dynamicrow dynamicrow) {
+        if(rowDao.findAll(Specifications.where((c)->{
+            c.eq("rowId",dynamicrow.getMenuId()+"@"+dynamicrow.getGridId());
+        })).size()>0){
+            rowDao.dynamicSave(dynamicrow,rowDao.findById(dynamicrow.getMenuId()+"@"+dynamicrow.getGridId()).orElse(null));
+        }else{
+            dynamicrow.setRowId(dynamicrow.getMenuId()+"@"+dynamicrow.getGridId());
+            SecurityUser securityUser= SessionUser.SessionUser();
+            dynamicrow.setCreatePerson(securityUser.getRealName());
+            dynamicrow.setCreatePersonId(securityUser.getUserId());
+            dynamicrow.setCreateDate(new Date());
+            rowDao.save(dynamicrow);
+        }
+        //缓存更新数据
+        return Result.resultOk(rowDao.findAll(Specifications.where((c)->{c.startingWith("rowId",dynamicrow.getMenuId()+"@");})));
+    }
+
+    @Override
+    public Result Delete(String menuId) {
+        rowDao.deleteByRowIdStartingWith(menuId+"@");
+        return Result.resultOk();
+    }
+
+    @Override
+    public Result Delete(Map<String,Object> map) {
+        List<String> RowIds= (List<String>) map.get("RowIds");
+        String MenuId=map.get("MenuId").toString();
+        rowDao.deleteByRowIdNotInAndRowIdStartingWith(RowIds,MenuId+"@");
+        return Result.resultOk();
+    }
+
+
+
+}

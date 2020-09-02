@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>委外入库</title>
+    </th:block>
+    <style type="text/css">
+        .mini-grid-headerCell-inner .mini-grid-checkbox {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('srch-form',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="codeType"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="供货单位">
+            <input name="fhCustomer" emptyText="请选择..."
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="fhNote"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input class="mini-combobox" name="fhFlag" width="80px" emptyText="全部"
+                   data="[{id:'登记',text:'登记'},{id:'确认',text:'确认'}]" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="收货类型">
+            <input class="mini-combobox" name="inType" value="YL" width="100px"
+                   data='[{"id":"YL","text":"原料"},{"id":"ZZ","text":"半成品"},{"id":"CP","text":"线材"}]' onvaluechanged="search_option"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div tz:datagrid="datagrid" id="srch-top-grid" idField="inNote" style="height:49%;"
+     sortField="inNote,inRq" sortOrder="desc"
+     allowCellSelect="true" showPageInfo="false" multiSelect="true"
+     url="/production/subcontract/wwrk/getSrchTopList" onselectionchanged="onSelectionChanged">
+    <div property="columns">
+        <div tz:datagrid="checkcolumn"></div>
+        <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+        <div field="inRq" width="100" align="center" sortField="inRq" displayField="inRq" headerAlign="center" allowSort="true">日期</div>
+        <div field="inNote" width="120" align="center" sortField="inNote" displayField="inNote" headerAlign="center" allowSort="true">收货单号</div>
+        <div field="inType" displayField="intypename" width="90" align="center" sortField="inType" headerAlign="center" allowSort="true">入库大类</div>
+        <div field="inAct" displayField="inactname" width="80" align="center" sortField="inAct" headerAlign="center" allowSort="true">口径</div>
+        <div field="inCustomer" displayField="incustomername" width="120" align="left" sortField="inCustomer" headerAlign="center" allowSort="true">供货单位</div>
+        <div field="inLib" displayField="inlibname" width="120" align="left" sortField="inLib" headerAlign="center" allowSort="true">库房</div>
+        <div name="inJs" field="inJs" width="80" align="right" headerAlign="center" dataType="double" numberFormat="#,0.00" allowSort="true" summaryType="sum" sortField="inJs" displayField="inJs">总件数</div>
+        <div name="inSl" field="inSl" width="80" align="right" headerAlign="center" allowSort="true" numberFormat="#0.0000" summaryType="sum" sortField="inSl" displayField="inSl">总数量</div>
+        <div name="inZl" field="inZl" width="80" align="right" headerAlign="center" allowSort="true" numberFormat="#0.0000" summaryType="sum" sortField="inZl" displayField="inZl">总重量</div>
+        <div field="inje" width="80" align="right" numberFormat="#,0.00" summaryType="sum" sortField="inje" displayField="inje" headerAlign="center" allowSort="true">总金额</div>
+        <div field="inBz" displayField="inbzname" width="80" align="center" sortField="inBz" headerAlign="center" allowSort="true">币种</div>
+        <div field="inTax" width="80" align="center" renderer="onActionRenderer" sortField="inTax" displayField="inTax" headerAlign="center" allowSort="true">税率</div>
+        <div field="inFlag" width="60" align="center" sortField="inFlag" displayField="inFlag" headerAlign="center" allowSort="true">状态</div>
+        <div field="dateCorp" width="60" align="center" visible="false" sortField="dateCorp" displayField="dateCorp" headerAlign="center" allowSort="true">公司代码</div>
+        <div field="dataMan" displayField="datamanname" width="80" align="center" sortField="dataMan" headerAlign="center" allowSort="true">操作人</div>
+        <div field="dataDate" width="135" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm" sortField="dataDate" displayField="dataDate" headerAlign="center" allowSort="true">操作时间</div>
+        <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+    </div>
+</div>
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch-bottom-left-grid"
+         idField="inContract" showPager="false" pageSize="999" multiSelect="true" showColumnsMenu="true"
+         ondrawsummarycell="onDrawSummaryCellHandler" showSummaryRow="true" sortField="inCode" sortOrder="asc"
+         url="/production/subcontract/wwrk/getSrchBottomList">
+        <div property="columns">
+            <div width="35" type="checkcolumn" headerAlign="center"></div>
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div field="inContract" width="130" align="center" sortField="inContract" displayField="inContract" headerAlign="center" allowSort="true">合同编号</div>
+            <div field="inKfcode" width="80" align="center" sortField="inKfcode" displayField="inKfcode" headerAlign="center" allowSort="true">采购编码</div>
+            <div field="inCode" width="100" align="center" visible="false" sortField="inCode" displayField="inCode" headerAlign="center" allowSort="true">编码</div>
+            <div name="cpcodeName" field="cpcodeName" align="left" width="120" sortField="cpcodeName" displayField="cpcodeName" headerAlign="center" allowSort="true">名称</div>
+            <div name="cpcodeSize" field="cpcodeSize" align="left" width="120" sortField="cpcodeSize" displayField="cpcodeSize" headerAlign="center" allowSort="true">规格</div>
+            <div name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center" sortField="cpcodeSizeEn" displayField="cpcodeSizeEn" headerAlign="center" allowSort="true">品牌</div>
+            <div name="cpcodeFl" field="cpcodeFl" width="120" align="left" sortField="cpcodeFl" displayField="cpcodeFl" headerAlign="center" allowSort="true">大类</div>
+            <div name="cpcodeXp" field="cpcodeXp" width="80" sortField="cpcodeXp" displayField="cpcodeXp" headerAlign="center" allowSort="true" align="left">产品标重</div>
+            <div name="inJs" field="inJs" width="80" align="right" summaryType="sum" dataType="double" sortField="inJs" displayField="inJs" headerAlign="center" allowSort="true" numberFormat="#,0.00">件数</div>
+            <div name="inSl" field="inSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double" sortField="inSl" displayField="inSl" headerAlign="center" allowSort="true">数量</div>
+            <div field="cpcodeBz" align="left" width="60" sortField="cpcodeBz" displayField="cpcodeBz" headerAlign="center" allowSort="true">单位</div>
+            <div name="inZl" field="inZl" width="80" align="right" numberFormat="#,0.0000" dataType="double" sortField="inZl" displayField="inZl" headerAlign="center" allowSort="true">重量</div>
+            <div field="inPrice" width="80" align="right" numberFormat="#,0.0000" sortField="inPrice" displayField="inPrice" headerAlign="center" allowSort="true">单价</div>
+            <div field="inje" width="80" align="right" numberFormat="#,0.00" summaryType="sum" sortField="inje" displayField="inje" headerAlign="center" allowSort="true">金额</div>
+            <div field="inHs" width="80" align="center" sortField="inHs" displayField="inHs" headerAlign="center" allowSort="true">核算</div>
+            <div field="inPack" width="130" align="center" sortField="inPack" displayField="inPack" headerAlign="center" allowSort="true">包装号</div>
+            <div field="inBpack" width="130" align="center" sortField="inBpack" displayField="inBpack" headerAlign="center" allowSort="true">大包装号</div>
+            <div field="inKfcontract" width="80" align="center" visible="false" sortField="inKfcontract" displayField="inKfcontract" headerAlign="center" allowSort="true">客户合同</div>
+            <div field="inPzflag" width="80" align="center" visible="false" sortField="inPzflag" displayField="inPzflag" headerAlign="center" allowSort="true">检验标识</div>
+            <div field="inCkdate" width="90" align="center" visible="false" sortField="inCkdate" displayField="inCkdate" headerAlign="center" allowSort="true">记帐日期</div>
+            <div field="inMonth" width="110" align="center" visible="false" sortField="inMonth" displayField="inMonth" headerAlign="center" allowSort="true">记帐月结</div>
+            <div field="inLuono" width="110" align="center" visible="false" sortField="inLuono" displayField="inLuono" headerAlign="center" allowSort="true">原料炉号</div>
+            <div field="inVnote" width="250" align="left" visible="false" sortField="inVnote" displayField="inVnote" headerAlign="center" allowSort="true">专料专号</div>
+            <div width="100%" headerAlign="center" allowSort="true" align="left"></div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("srch-form");
+    var srch_top_grid = mini.get("srch-top-grid");
+    var srch_bottom_left_grid = mini.get("srch-bottom-left-grid");
+
+    srch_top_grid.bindSearchForm(form);
+
+    // 页面初始化
+    var inType = form.getField("codeType").getValue();
+    if (hmq.isNotEmpty(inType)) {
+        //动态列名
+        $.get("/system/parameter/getParamValue2/产品大类/{0}".format(inType), function (res) {
+            if (200 === res.code) {
+                srch_bottom_left_grid.updateColumn("cpcodeSizeEn", {header: res.data});
+                if (codeType == "WL") {
+                    srch_bottom_left_grid.hideColumn(srch_bottom_left_grid.getColumn("cpcodeXp"));
+                    srch_bottom_left_grid.hideColumn(srch_bottom_left_grid.getColumn("outLuono"));
+                    srch_bottom_left_grid.hideColumn(srch_bottom_left_grid.getColumn("outPh"));
+
+                } else if (codeType == "YL") {
+                    srch_bottom_left_grid.showColumn(srch_bottom_left_grid.getColumn("outLuono"));
+                    srch_bottom_left_grid.hideColumn(srch_bottom_left_grid.getColumn("outPh"));
+                    srch_bottom_left_grid.hideColumn(srch_bottom_left_grid.getColumn("cpcodeXp"));
+                } else if (codeType == "CP") {
+                    srch_bottom_left_grid.hideColumn(srch_bottom_left_grid.getColumn("outLuono"));
+                    srch_bottom_left_grid.showColumn(srch_bottom_left_grid.getColumn("outPh"));
+                    srch_bottom_left_grid.showColumn(srch_bottom_left_grid.getColumn("cpcodeXp"));
+                }
+            }
+        });
+    }
+
+
+    /**
+     * 查询列表
+     */
+    function search_option(e) {
+        srch_top_grid.load();
+        srch_bottom_left_grid.setData([]);
+    }
+
+
+	/**
+	* 新增
+	*/
+	function add_option(e){
+		var formData = form.getData();
+        var row = srch_top_grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {formData: formData, row: row}});
+	}
+
+    /**
+     * 需求通知
+     **/
+    function demand_notice_option(e) {
+        var formData = form.getData();
+        var row = srch_top_grid.getSelected();
+        var action = null == row ? 'add' : 'edit';
+        e.sender.miniopen({url: "demandNoticeAdd.html", action: action, data: {formData: formData, row: row}});
+    }
+
+    /**
+     * 新增
+     **/
+    function manual_notice_option(e) {
+        var formData = form.getData();
+        var row = srch_top_grid.getSelected();
+        //var action = null == row ? 'add' : 'edit';
+        e.sender.miniopen({url: "manualNoticeAdd.html", action: 'add', data: {formData: formData, row: row}});
+    }
+
+    /**
+     * 修改
+     */
+    function edit_option(e) {
+        var row = srch_top_grid.getSelected();
+        if (row) {
+            var params = {
+                inNote: row.inNote,
+                flag: "登记"
+            }
+            $['put']("getDjFlag", JSON.stringify({"params": mini.encode(params)}),
+                function (res) {
+                    mini.unmask();
+                    if (200 === res.code) {
+                        e.sender.miniopen({url: "manualNoticeAdd.html", action: 'edit', data: {row: row, formData: form.getData()}, width: 998, height: 580});
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     */
+    function delete_option() {
+        var row = srch_top_grid.getSelected();
+        if (row) {
+            var params = {
+                inNote: row.inNote,
+                flag: "登记"
+            }
+            $['put']("getDjFlag", JSON.stringify({"params": mini.encode(params)}),
+                function (res) {
+                    mini.unmask();
+                    if (200 === res.code) {
+                        mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                            if (action == "ok") {
+                                $['delete']("delete/{0}".format(row.inNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_top_grid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * @Author: xutao
+     * @description: 打印弹出页面
+     */
+    function print_option(e) {
+        var row = srch_top_grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "print.html", action: 'print', data: row, width: 700, height: 570});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 行改变方法
+     * 联动数据加载
+     */
+    function onSelectionChanged(e) {
+        var srch_top_grid = e.sender;
+        var record = srch_top_grid.getSelected();
+        if (record) {
+            var params = mini.encode({
+                inNote: record.inNote
+            });
+            srch_bottom_left_grid.load({
+                params: params
+            });
+        }
+    }
+
+    /**
+     * grid渲染事件
+     */
+    srch_top_grid.on("drawcell", function (e) {
+        if ("fhRq" == e.field && null != e.value) {
+            e.cellHtml = mini.formatDate(new Date(e.value), 'yyyy-MM-dd');
+        }
+    });
+
+    /**
+     * 汇总行渲染事件
+     * @param e
+     */
+    function onDrawSummaryCellHandler(e) {
+        switch (e.sender.id) {
+            case "srch-bottom-left-grid":
+                if (e.column._index == 0) {
+                    e.cellHtml = "<span style='color:Brown;'> 合计:</span>";
+                } else if (!!~['fhSl', 'fhCeiling', 'fhLower'].indexOf(e.field)) {
+                    var s = "<span style='color:Brown;float:right;'>";
+                    s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+                    e.cellHtml = s;
+                }
+                break;
+            case "srch-bottom-right-grid":
+                if (e.column._index == 0) {
+                    e.cellHtml = "<span style='color:Brown;'> 合计:</span>";
+                } else if (!!~['outJs', 'outSl', 'sjfh'].indexOf(e.field)) {
+                    var s = "<span style='color:Brown;float:right;'>";
+                    s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+                    e.cellHtml = s;
+                }else if( !!~[ 'outSl', 'sjfh'].indexOf(e.field) ){
+                	 var s = "<span style='color:Brown;float:right;'>";
+                     s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+                     e.cellHtml = s;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+
+
+    /**
+     * 只允许选择单行
+     */
+    srch_top_grid.on('selectionchanged', function (e) {
+        e.sender.getData().forEach(function (row) {
+            if (e.selected != row) {
+                e.sender.deselect(row, false);
+            }
+        })
+    });
+
+    function confirm_option() {
+        var row = srch_top_grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.fhNote, '登记'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要确认", "提示信息", function (action) {
+                        if (action == "ok") {
+                            $['put']("confirm/{0}".format(row.fhNote), function (res) {
+                                if (200 === res.code) {
+                                    srch_top_grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = srch_top_grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.fhNote, '确认'), function (res) {
+                if (200 === res.code) {
+                    mini.confirm("注意:确定要取消吗 ？", "提示信息", function (action) {
+                        if (action == "ok") {
+                            $.put("cancel/{0}".format(row.fhNote), function (res) {
+                                if (200 === res.code) {
+                                    srch_top_grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "dataDate") {
+            return mini.formatDate(new Date(record.dataDate), "yyyy-MM-dd HH:mm");
+        }
+        if (e.field == "inTax") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+    }
+</script>
+
+</html>

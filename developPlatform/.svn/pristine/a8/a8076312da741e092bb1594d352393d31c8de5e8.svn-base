@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>出与入新增保存</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<form id="form1">
+			<input name="action" class="mini-hidden"/>
+			<input  name="mjAct" class="mini-hidden"/>
+			<table style="padding: 2px; border-bottom: 0px; table-layout: fixed;">
+				<tr>
+					<td align="right" width="80px">单号：</td>
+					<td>
+						<input class="mini-textbox" readonly name="mjNote" id="mjNote" width="100px" emptyText="自动生成" />
+					</td>
+					<td align="right" width="80px">日 期：</td>
+					<td>
+						<input class="mini-datepicker" required id="mjRq" name="mjRq" width="110px" />
+					</td>
+					<td align="right" width="80px">部门：</td>
+					<td>
+						<input required id="lyDept" name="lyDept"
+						class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+						onbeforenodeselect="disableParentSelection" width="110" popupWidth="240"
+						popupHeight="180"  onvaluechanged="onDeptValueChanged"/>
+					</td>
+					<td align="right" width="80px">使用人员：</td>
+			        <td>
+			        	<input class="mini-combobox" required id="lyMan" name="lyMan" width="100"/>
+					</td>
+				</tr>
+			</table>
+		</form>
+		<fieldset style="width: 1198px;">
+			<div class="fieldset-body">
+				<div tz:datagrid="datagrid" id="button-grid" style="width: 100%; height: 450px;"url="sendAndReceiveToolingHomeYo"
+					allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true"
+					editNextRowCell="true" allowMoveColumn="true" showPager="false"
+					oncellvalidation="onCellValidation"
+					allowCellValid="true"  showSummaryRow="true"
+					ondrawsummarycell="onDrawSummaryCell">
+					<div property="columns">
+						<div tz:datagrid="checkcolumn" width="35"></div>
+						<div tz:datagrid="column" field="mjCode" align="center"width="128">
+							工模编码 <input property="editor" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false" />
+						</div>
+						<div tz:datagrid="column" field="mjCpcode"  visible="false" >产品编码关联隐藏</div>
+						<div tz:datagrid="column" field="cpcodeName" align="left" width="120">产品名称</div>
+						<div tz:datagrid="column" field="mjKsize"  align="left"width="120">模具规格</div>
+					 	<div tz:datagrid="column" field="cpcodeFl" width="100" align="center">产品分类</div>
+						<div tz:datagrid="column" renderer="onABSRenderer" field="mjSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+						<div tz:datagrid="column" name="mjXksize" field="mjXksize" align="center" width="80">
+							现规格<input property="editor" class="mini-textbox"/></div>
+						<div tz:datagrid="column" name="mjFlag" field="mjFlag" width="80" align="center" visible="false">状态</div>
+							<div tz:datagrid="column" field="mjRemarks" name="mjRemarks" align="center" visible="false" >
+							模具状态<input property="editor" url="selectMoldStatus" class="mini-combobox"/>
+						</div>
+						<div tz:datagrid="column" width="100%"></div>
+						<div tz:datagrid="column" field="oldmjCode" name="模具编码旧唯一字段" visible="false" >
+							(编码选来的) 这表建的有问题无法确认修改的唯一值(模具编码需要改动)
+							后台根据模具编码与单号与口径判断唯一只能建一个隐藏字段咯|做个标记以后注意一下|
+							这会导致后台需要多查询一个oldmjCode字段|没必要|确认多个字段组合唯一|可以采用数据库约束|
+							可以给开发减少很多麻烦
+						</div>
+						<div tz:datagrid="column" field="mjKid" visible="false">
+							 所有退回使用领用的唯一UUID确保核销数据 一出一进 核销产生一双UUID 确保数据已退回
+						</div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+		<a class="mini-button" onclick="copyRow" iconCls="icon-new" id="copyBtn">复制行</a>
+		<a class="mini-button" onclick="delRow" iconCls="icon-remove"id="delBtn">删行</a>
+		<!--<a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>-->
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    button_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:addRow()">增加一条</a>');
+	mini.get("mjRq").setValue(new Date());
+    mini.get("lyDept").load("/system/dept/combobox/getDeptTreeList");
+
+	function onABSRenderer(e) {
+		if ('mjSl' == e.field) {
+			if(!isNull(e.value))
+				return Math.abs(e.value).toFixed(3);
+		}
+	}
+
+	function copyRow(){
+		var rows = button_grid.getSelecteds();
+		if (rows.length > 0) {
+			for ( var i = 0; i < rows.length; i++) {
+				var r = rows[i];
+				var newRow = {
+					mjCode : r.mjCode,
+					mjCpcode : r.mjCpcode,
+					cpcodeName : r.cpcodeName,
+					mjKsize :r.mjKsize,
+					cpcodeFl : r.cpcodeFl,
+					cpcodeSize : r.cpcodeSize,
+					oldmjCode:r.mjCode,
+					mjKid:r.mjKid,
+					mjSl : 1,
+				};
+				button_grid.addRow(newRow);
+			}
+		} else {
+			hmq.tipDanger("请先选择一条记录！");
+		}
+	}
+
+    function addRow(){
+    	 var index =button_grid.getData().length;
+    	 var lyDept=mini.get("lyDept").getValue();
+    	 var lyMan=$("[name=lyMan]").val();
+		if(isNull(lyDept)){
+			 hmq.tipDanger("请先选择部门！");
+			return false;
+		}
+		if(isNull(lyMan)){
+			 hmq.tipDanger("请先选择使用人员！");
+			return false;
+		}
+		var newRow = {
+			name : "",
+		};
+    	button_grid.addRow(newRow, index+1);
+    }
+
+    function onDeptValueChanged(){
+    	var deptId=mini.get("lyDept").getValue();
+    	mini.get("lyMan").setUrl("/personnel/eHrWorker/getDeptWorker/{0}".format(deptId));
+    }
+
+    function delRow(){
+    	 var rows = button_grid.getSelecteds();
+         if(rows.length>0){
+        	 button_grid.removeRows(rows,true);
+         }else{
+        	 hmq.tipDanger('请选择需要删除的行！');
+         }
+    }
+
+	function delAll() {
+		var note = mini.get("mjNote").getValue();
+		var rows = button_grid.getData();
+		if (note.length > 0) {
+			mini.confirm("确定删除整单吗？", "提示信息", function(returndata) {
+				if (returndata == "ok") {
+					if (rows.length > 0) {
+						button_grid.removeRows(rows, true);
+					}
+			      $['delete']("toolingDelete/{0}".format(note), function (res) {
+			    	  if (200 === res.code) {
+		                    hmq.tipSuccess(res.msg || '删除成功', {
+		                        exec: function () {
+		                            CloseWindow('refresh');
+		                        }
+		                    });
+		                } else {
+		                    hmq.tipDanger(res.msg || '删除失败');
+		                }
+		            });
+				}
+			});
+		} else {
+			if (rows.length > 0) {
+				button_grid.removeRows(rows, true);
+			}
+		}
+	}
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+        	button_grid.validate();
+			if (button_grid.isValid() == false) {
+				var error = button_grid.getCellErrors()[0];
+				button_grid.beginEditCell(error.record, error.column);
+				return;
+			}
+            var buttons = button_grid.getChanges();
+			var RestFul='add';
+			if('ok' == $('[name=action]').val()){
+				RestFul="confirm";
+				buttons=button_grid.getData();
+			}
+			var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+			$[method](RestFul,JSON.stringify({
+				HeadData: form.getData(true),
+				bodyData: buttons,
+				nameData: {
+					lyDeptName:mini.get("lyDept").getText(),
+					lyManName:mini.get("lyMan").getText()
+				}
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            }); 
+        }
+    }
+
+    function SetData(options) {
+		$('[name=action]').val(options.action);
+		$('[name=mjAct]').val(options.data.formData.mjAct);
+		button_grid.hideColumn("mjXksize");
+		if(options.data.formData.mjAct=="MJ04")button_grid.showColumn("mjXksize");
+		if($('[name=mjAct]').val()=="MJ02")button_grid.showColumn("mjRemarks");
+		var row = options.data.row;
+        if ('add' == options.action) {
+            button_grid.clearData();
+			button_grid.setAllowSortColumn(false);
+        } else if ('edit' == options.action) {
+			mini.get("mjNote").setValue(row.mjNote);
+			mini.get("lyDept").setValue(row.lyDept);
+			mini.get("lyDept").setText(row.lyDeptName);
+			mini.get("lyMan").setValue(row.lyMan);
+			mini.get("lyMan").setText(row.lyManName);
+			setIdDisable("mjRq,lyDept,lyMan");
+			button_grid.load({
+				params :  mini.encode({
+					mjNote:row.mjNote,
+					mjAct:$('[name=mjAct]').val()
+				})
+			});
+        } else if('ok' == options.action){
+			button_grid.showColumn("mjFlag");
+			button_grid.setAllowCellEdit(false);
+			mini.get("mjNote").setValue(row.mjNote);
+			mini.get("lyDept").setValue(row.lyDept);
+			mini.get("lyDept").setText(row.lyDeptName);
+			mini.get("lyMan").setValue(row.lyMan);
+			mini.get("lyMan").setText(row.lyManName);
+			setIdDisable("mjRq,lyDept,lyMan");
+			button_grid.load({
+				params :  mini.encode({
+					mjNote:row.mjNote,
+					mjAct:$('[name=mjAct]').val()
+				})
+			});
+			$("#addBtn").hide();
+			$("#copyBtn").hide();
+			$("#delBtn").hide();
+		}
+    }
+
+
+	function onCellValidation(e) {
+		if (e.field == "mjXksize") {
+			if (isNull(e.value)) {
+				e.isValid = false;
+				e.errorText = "现规格不能为空！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		if (e.field == "mjRemarks") {
+			if (isNull(e.value)) {
+				e.isValid = false;
+				e.errorText = "模具状态不能为空！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+	}
+
+	function onDrawSummaryCell(e) {
+		if (e.field == "mjSl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + Math.abs(e.value).toFixed(4) + "</span>";
+		}
+	}
+
+	function onButtonEdit(e) {
+		var btnEdit = this;
+		var mjAct=$("[name=mjAct]").val();
+		return miniopen({
+			targetWindow: window.top,
+			url: "/tooling/grantandrecover/wlbmselectlist.html",
+			title : "工量模具选择列表",
+			width : 1300,
+			height : 620,
+			onload : function() {
+				var iframe = this.getIFrameEl();
+				var data = {
+					mjAct : mjAct
+				};
+				iframe.contentWindow.SetData(data);
+			},
+			ondestroy : function(action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var rows = iframe.contentWindow.GetMutiData();
+					var dataRows = appendRow(rows);
+					if (dataRows.length > 0) {
+						btnEdit.setValue(dataRows[0].mjCode);
+						btnEdit.setText(dataRows[0].mjCode);
+						var row = button_grid.getSelected();
+
+						if(!row.hasOwnProperty('cpcodeName')&&!row.hasOwnProperty('mjKsize')&&!row.hasOwnProperty('cpcodeFl')){
+							button_grid.updateRow(row, {
+								mjCode : dataRows[0].mjCode,
+								mjCpcode : dataRows[0].mjCpcode,
+								cpcodeName: dataRows[0].cpcodeName,
+								mjKsize : dataRows[0].mjKsize,
+								cpcodeFl: dataRows[0].cpcodeFl,
+								mjKid: dataRows[0].mjKid,
+								mjSl:1
+							});
+						}else{
+							button_grid.updateRow(row,{
+								mjCode: dataRows[0].mjCode,
+								mjCpcode : dataRows[0].mjCpcode,
+								cpcodeName: dataRows[0].cpcodeName,
+								mjKsize : dataRows[0].mjKsize,
+								cpcodeFl: dataRows[0].cpcodeFl,
+								oldmjCode:row.mjCode,//数据库建表错误 存个旧的id主键 修改
+								mjKid: dataRows[0].mjKid,
+								mjSl:1
+							});
+						}
+
+						if (dataRows.length > 1) {
+							for ( var i = 1; i < dataRows.length; i++) {
+								var r = dataRows[i];
+								var newRow = {
+									mjCode:   r.mjCode,
+									mjCpcode : r.mjCpcode,
+									cpcodeName: r.cpcodeName,
+									mjKsize :   r.mjKsize,
+									cpcodeFl:   r.cpcodeFl,
+									mjKid: r.mjKid,
+									mjSl:1
+								};
+								button_grid.addRow(newRow, 0);
+							}
+						}
+						button_grid.commitEdit();
+					}
+				}
+			}
+		});
+
+	}
+
+	function appendRow(rows) {
+		var retRows=[];
+		$.post("enquiryRegistration",{mjAct:$("[name=mjAct]").val()},function(res){
+			for (var i = 0; i < rows.length; i++) {
+				if (!isEixsts(rows[i],res.data)) {
+					retRows.push(rows[i]);
+				} else {
+					hmq.tipDanger("数据已添加|或者已经存在登记");
+				}
+			}
+		},null,{async:false});
+		return retRows;
+	}
+
+	function isEixsts(data,ajaxData) {
+		var ajax=ajaxData.filter(item=>data.mjCode==item.mjCode);
+		if(ajax.length!=0){
+			return true;
+		}
+		var row = button_grid.findRow(function (row) {
+			if (row.mjCode == data.mjCode)
+				return true;
+		});
+		if (row != null) {
+			return true;
+		}
+		return false;
+	}
+
+</script>
+</html>

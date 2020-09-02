@@ -1,0 +1,19 @@
+package com.tengzhi.business.platform.paysdk.buyproduct.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.enroll.model.G_personal;
+import com.tengzhi.business.platform.paysdk.buyproduct.model.GProductNotes;
+
+/**
+ * @author 鱼游浅水
+ * @create 2020-07-17
+ */
+public interface BuyService {
+
+    Result BuyProductNoteSava(GProductNotes gProductNotes);
+
+    BasePage<GProductNotes> BuyProductFindAll(BaseDto baseDto);
+
+}

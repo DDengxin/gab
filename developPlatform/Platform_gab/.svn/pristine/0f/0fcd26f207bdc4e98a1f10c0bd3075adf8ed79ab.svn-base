@@ -1,0 +1,14 @@
+package com.tengzhi.business.platform.specialist.product.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.js.product.model.Jscpcode;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Map;
+
+public interface MyJscpcodeDao extends BasedaoRepository<Jscpcode,String> {
+	@Query(value=" SELECT * from sys_param  where param_mod='技术' and param_type='计量单位' and param_id!='JLDW' ",nativeQuery = true)
+	List<Map<Object, String>> parameType();
+
+}

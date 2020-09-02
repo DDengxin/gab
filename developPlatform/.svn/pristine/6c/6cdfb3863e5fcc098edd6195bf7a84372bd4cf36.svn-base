@@ -1,0 +1,67 @@
+package com.tengzhi.business.sc.da.cardAbnormal.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.sc.da.cardAbnormal.dao.EHrAttendanceAbnormalDao;
+import com.tengzhi.business.sc.da.cardAbnormal.model.EHrAttendanceAbnormal;
+import com.tengzhi.business.sc.da.cardAbnormal.service.EHrAttendanceAbnormalService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Auther: 黄彪
+ * @Date: 2020/8/5 0005 11:33
+ * @Description:
+ */
+
+@Service
+public class EHrAttendanceAbnormalServiceImpl implements EHrAttendanceAbnormalService {
+
+    @Autowired
+    private EHrAttendanceAbnormalDao eHrAttendanceAbnormalDao;
+
+    @Override
+    public BasePage<EHrAttendanceAbnormal> findAll(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String sqlWhere=" 1=1 ";
+        if(StringUtils.isNotEmpty(map.get("workerId"))) {//工号条件
+            sqlWhere += " and a.work_id like '%"+map.get("workerId")+"%' ";
+        }
+        if(StringUtils.isNotEmpty(map.get("workerName"))) {//性名条件
+            sqlWhere += " and a.work_name like '%"+map.get("workerName")+"%' ";
+        }
+        if(StringUtils.isNotEmpty(map.get("srchRq1"))) {//日期条件1
+            sqlWhere += " and to_char(a.rq,'yyyy-mm-dd') >='"+map.get("srchRq1")+"'";
+        }
+        if(StringUtils.isNotEmpty(map.get("srchRq2"))) {//日期条件2
+            sqlWhere += " and to_char(a.rq,'yyyy-mm-dd') <='"+map.get("srchRq2")+"'";
+        }
+        if(StringUtils.isNotEmpty(map.get("srchWorkerDept"))) {//部门条件
+            sqlWhere += " and a.work_dept = '"+map.get("srchWorkerDept")+"'";
+        }
+
+        String sql ="select a.work_id,a.rq,a.note,a.work_name,f_getname('GETDWNAME',a.work_dept,'',a.data_corp) work_dept,a" +
+                ".kq_sj,a.kq_yy"
+                + ",a.kq_type,a.kq_sm from e_hr_attendance_abnormal a where"+sqlWhere+"and a.work_dept in (select dept_id from" +
+                " sys_dept where parent_id " +
+                "in (select dept_id from sys_dept where dept_name = '生产部'))";
+
+        return eHrAttendanceAbnormalDao.QueryPageLists(baseDto, sql);
+    }
+
+    @Override
+    public List<EHrAttendanceAbnormal> findByKqType() {
+        List<String> byKqType = eHrAttendanceAbnormalDao.findByKqType();
+        List<EHrAttendanceAbnormal> list = new ArrayList<>();
+        byKqType.forEach((k)->{
+            EHrAttendanceAbnormal eHrAttendanceAbnormal = new EHrAttendanceAbnormal();
+            eHrAttendanceAbnormal.setKqType(k);
+        });
+        return list;
+    }
+}

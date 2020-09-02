@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>流程管理</title>
+</th:block>
+<link rel="stylesheet" th:href="@{/static/workflow/css/diagram-js.css}" />
+<link rel="stylesheet" th:href="@{/static/workflow/vendor/bpmn-font/css/bpmn-embedded.css}" />
+<link rel="stylesheet" th:href="@{/static/workflow/css/app.css}" />
+<link rel="stylesheet" th:href="@{/static/workflow/dialog.css}" />
+</head>
+<body>
+	<div class="content with-diagram" id="js-drop-zone">
+		<div class="message intro">
+			<div class="note">
+				<a id="js-create-diagram" href></a>
+			</div>
+		</div>
+		<div class="message error">
+			<div class="note">
+				<p>抱歉,无法显示BPMN 2.0图</p>
+				<div class="details">
+					<span>错误原因：</span>
+					<pre></pre>
+				</div>
+			</div>
+		</div>
+		<div class="canvas" id="js-canvas"></div>
+		<div class="properties-panel-parent" id="js-properties-panel"></div>
+	</div>
+	<ul class="buttons">
+		<li>下载</li>
+		<li>
+			<a id="js-download-diagram" href title="download BPMN diagram"> BPMN 文件下载 </a>
+		</li>
+		<li>
+			<a id="js-download-svg" href title="download as SVG image"> SVG image 文件下载 </a>
+		</li>
+		<li>
+			<a id="js-save-Bpmn" href title="发布流程"> 部署流程 </a>
+		</li>
+	</ul>
+	<script th:src="@{/static/workflow/dialog.js}"></script>
+	<script th:src="@{/static/workflow/app.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+	    var xml= [[ ${xml} ]];
+	    if(xml!= null && xml!=""){
+		    createNewDiagram(xml);
+	    }else{
+	    	createNewDiagram(null);
+	    }
+		$(document).on("click", "#showUserInfo", function() {
+			alert("段落被点击了。");
+		});
+		$("#js-save-Bpmn").bind("click", function() {
+			$('body').dailog({
+				type : 'defalut'
+			}, saveflow(e))
+		});
+	</script>
+</body>
+</html>

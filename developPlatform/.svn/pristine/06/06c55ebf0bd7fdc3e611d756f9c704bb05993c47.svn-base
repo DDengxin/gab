@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>角色管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="roleId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr colspan="3">
+                <td title>编码:</td>
+                <td content>
+                    <input class="mini-textbox" id="roleId" name="roleId" required/>
+                </td>
+                <td title>名称:</td>
+                <td content>
+                    <input class="mini-textbox" required name="roleName"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>排序:</td>
+                <td content>
+                    <input class="mini-spinner" maxValue="1000" name="roleOrd"/>
+                </td>
+                <td title>启动状态:</td>
+                <td content>
+                    <input class="mini-combobox" required value="false" name="isForbidden" url="/dict/boolean"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>图表一:</td>
+                <td content>
+                    <input class="mini-combobox" id="dataChart" name="dataChart" url="/system/datachart/datachartlist"/>
+                </td>
+                <td title>图表二:</td>
+                <td content>
+                    <input class="mini-combobox" id="dataChartTwo" name="dataChartTwo" url="/system/datachart/datachartlist"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>描述:</td>
+                <td content colspan="3">
+                    <input class="mini-textbox" name="description"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            mini.get("roleId").setEnabled(false);
+            $.get("role.html/{0}".format(options.data.roleId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            });
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+</script>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<!-- required modeler styles -->
+<!-- modeler distro -->
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>角色管理</title>
+</th:block>
+<link rel="stylesheet" th:href="@{/static/workflow/actjs/diagram-js.css}" />
+<link rel="stylesheet" th:href="@{/static/workflow/actjs/bpmn.css}" />
+<script th:src="@{/static/workflow/actjs/bpmn-modeler.js}"></script>
+<!-- <script type="text/javascript" th:src="@{/static/workflow/actjs/jquery.js}"></script> -->
+</head>
+<body>
+	<input name="action" class="mini-hidden" />
+	<input name="instanceId" class="mini-hidden" />
+	<div id="tabs1" class="mini-tabs" activeIndex="0" style="width: 100%; height: 100%;" plain="false" onactivechanged="tabsclik">
+		<div title="审批">
+			<div class="mini-fit hmq-iframe-box">
+				<iframe id="act_iframe" scrolling="auto" src=""></iframe>
+			</div>
+		</div>
+		<div title="历史办理记录">
+			<div class="canvas">
+				<div id="canvas"></div>
+			</div>
+			<!--撑满页面-->
+			<div class="mini-fit">
+				<div tz:datagrid="datagrid" id="srch_grid" url="/workflow/backlog/gethistoryTask">
+					<div property="columns">
+						<div tz:datagrid="indexcolumn" width='80'>序号</div>
+						<div tz:datagrid="column" field="actName_" width='200'>状态</div>
+						<div tz:datagrid="column" field="assignee_" width='200'>办理人</div>
+						<div tz:datagrid="column" field="startTime_" width='200'>开始时间</div>
+						<div tz:datagrid="column" field="endTime_" width='200'>结束时间</div>
+						<div tz:datagrid="column" field="opinion" width='100%'>审批意见</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" th:inline="javascript">
+		mini.parse();
+		var grid=mini.get("srch_grid");
+		//面板切换事件
+		function tabsclik(e,t){
+			if(e.index=="1"){
+			     grid.load({"params": $('[name=instanceId]').val()});
+ 			     actjs();
+			}
+		}	
+		
+		function SetData(options) {
+		        if ('add' == options.action) {
+		            $('[name=action]').val(options.action);
+		            $('#act_iframe').attr('src',options.data.handleUrl);
+		            $('[name=instanceId]').val(options.data.processInstanceId);
+		            options.action="sh";
+		            var iframe = $('#act_iframe')[0];
+                    //兼容IE
+                    if (iframe.attachEvent){
+                        iframe.attachEvent("onload", function(){
+                       		$('#act_iframe').contentWindow.SetData(options);
+                        });
+                    } else {
+                        iframe.onload = function(){
+                       		iframe.contentWindow.SetData(options);
+                        };
+                    }
+		        }
+		}
+		//==================流程图==================================
+		//初始化
+		var viewer = new BpmnJS({
+			container : $('#canvas'),
+			height : 300
+		 });
+		
+		function  actjs(){
+			var xml= [[ ${xml} ]];
+    	    if(xml!= null && xml!=""){
+    	    	openFromUrl(xml);
+    	    }else{
+				hmq.tipDanger("流程图加载失败,请稍后重试！");
+    	    }
+		}
+		
+		function openFromUrl(xml) {
+				var instanceId = $('[name=instanceId]').val();
+				viewer.importXML(xml, function(err) {
+					if (err) {
+						log('error: ' + err.message);
+					} else {
+						viewer.get('canvas').zoom('fit-viewport');
+					}
+					var overlays = viewer.get('overlays'), canvas = viewer.get('canvas'), elementRegistry = viewer.get('elementRegistry'), modeling = viewer.get('modeling');
+					$.ajax({
+						url : '/workflow/getApplyStatus',
+						data : {
+							'instanceId' : instanceId
+						},
+						success : function(res) {
+							const highPoint = res.highPoint;
+							const highLine = res.highLine;
+							const waitingToDo = res.waitingToDo;
+							const iDo = res.iDo;
+							//走过的线设置高亮
+							highLine.forEach(function(e) {
+								if (e != null) {
+									const highLineEle = elementRegistry.get(e);
+									modeling.setColor(highLineEle, {
+										stroke : 'green',
+									});
+								}
+							});
+							//完成的节点设置高亮
+							highPoint.forEach(function(e) {
+								const highPointEle = elementRegistry.get(e);
+								modeling.setColor(highPointEle, {
+									stroke : 'green',
+									fill : 'rgba(0, 80, 0, 0.4)'
+								});
+							});
+							//当前 待办节点
+							waitingToDo.forEach(function(e) {
+								const waitingEle = elementRegistry.get(e);
+								modeling.setColor(waitingEle, {
+									stroke : 'green',
+									fill : 'rgba(255,255,0, 0.8)',
+								});
+							});
+							//我的 办理节点
+							iDo.forEach(function(e) {
+								if (e != null) {
+									const highLineEle = elementRegistry.get(e);
+									modeling.setColor(highLineEle, {
+										stroke : '#FF0000',
+										fill : 'rgba(224 ,102 ,255 ,0.8)',
+									});
+								}
+							})
+						}
+					})
+				});
+			}
+		//==================流程图結束==================================
+
+	</script>
+</body>
+</html>

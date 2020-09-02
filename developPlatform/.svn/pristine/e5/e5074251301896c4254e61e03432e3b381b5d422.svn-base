@@ -1,0 +1,664 @@
+package com.tengzhi.business.ck.yw.ckck.model;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@Entity
+@Table(name = "e_ck_out")
+@IdClass(value = ECkOut.ECkOut_PK.class)
+public class ECkOut {
+	@Id
+	private String outNote;
+	@Id
+	private String outPack;
+	private String outCustomer,outAct,outCode,outBpack,outContract,outKfcontract,outKfcode,outLib,outCheckflag,outMonth,outType,outLuono,outVnote,outBz,outHs;
+	private String dataMan,dataCorp,outFlag,brand,outCklib,outLyr,outPh,outKw,outRemarks,outAllotLib,outAllotNote,outAllotKw,outOriginalPack,outMan;
+	private BigDecimal outSl,outZl,outPrice,outTax,outRate,outJs;
+	
+	@Id
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date outRq;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm",timezone="GMT+8")
+	private Date dataDate,outDate;
+	
+	@Transient
+	private String _state,id;
+
+	public String getOutNote() {
+		return outNote;
+	}
+
+	public void setOutNote(String outNote) {
+		this.outNote = outNote;
+	}
+
+	public String getOutPack() {
+		return outPack;
+	}
+
+	public void setOutPack(String outPack) {
+		this.outPack = outPack;
+	}
+
+	public String getOutCustomer() {
+		return outCustomer;
+	}
+
+	public void setOutCustomer(String outCustomer) {
+		this.outCustomer = outCustomer;
+	}
+
+	public String getOutAct() {
+		return outAct;
+	}
+
+	public void setOutAct(String outAct) {
+		this.outAct = outAct;
+	}
+
+	public String getOutCode() {
+		return outCode;
+	}
+
+	public void setOutCode(String outCode) {
+		this.outCode = outCode;
+	}
+
+	public String getOutBpack() {
+		return outBpack;
+	}
+
+	public void setOutBpack(String outBpack) {
+		this.outBpack = outBpack;
+	}
+
+	public String getOutContract() {
+		return outContract;
+	}
+
+	public void setOutContract(String outContract) {
+		this.outContract = outContract;
+	}
+
+	public String getOutKfcontract() {
+		return outKfcontract;
+	}
+
+	public void setOutKfcontract(String outKfcontract) {
+		this.outKfcontract = outKfcontract;
+	}
+
+	public String getOutKfcode() {
+		return outKfcode;
+	}
+
+	public void setOutKfcode(String outKfcode) {
+		this.outKfcode = outKfcode;
+	}
+
+	public String getOutLib() {
+		return outLib;
+	}
+
+	public void setOutLib(String outLib) {
+		this.outLib = outLib;
+	}
+
+	public String getOutCheckflag() {
+		return outCheckflag;
+	}
+
+	public void setOutCheckflag(String outCheckflag) {
+		this.outCheckflag = outCheckflag;
+	}
+
+	public String getOutMonth() {
+		return outMonth;
+	}
+
+	public void setOutMonth(String outMonth) {
+		this.outMonth = outMonth;
+	}
+
+	public String getOutType() {
+		return outType;
+	}
+
+	public void setOutType(String outType) {
+		this.outType = outType;
+	}
+
+	public String getOutLuono() {
+		return outLuono;
+	}
+
+	public void setOutLuono(String outLuono) {
+		this.outLuono = outLuono;
+	}
+
+	public String getOutVnote() {
+		return outVnote;
+	}
+
+	public void setOutVnote(String outVnote) {
+		this.outVnote = outVnote;
+	}
+
+	public String getOutBz() {
+		return outBz;
+	}
+
+	public void setOutBz(String outBz) {
+		this.outBz = outBz;
+	}
+
+	public String getOutHs() {
+		return outHs;
+	}
+
+	public void setOutHs(String outHs) {
+		this.outHs = outHs;
+	}
+
+	public String getOutFlag() {
+		return outFlag;
+	}
+
+	public void setOutFlag(String outFlag) {
+		this.outFlag = outFlag;
+	}
+
+	public String getOutCklib() {
+		return outCklib;
+	}
+
+	public void setOutCklib(String outCklib) {
+		this.outCklib = outCklib;
+	}
+
+	public String getOutLyr() {
+		return outLyr;
+	}
+
+	public void setOutLyr(String outLyr) {
+		this.outLyr = outLyr;
+	}
+
+	public Date getOutRq() {
+		return outRq;
+	}
+
+	public void setOutRq(Date outRq) {
+		this.outRq = outRq;
+	}
+
+	public String getDataMan() {
+		return dataMan;
+	}
+
+	public void setDataMan(String dataMan) {
+		this.dataMan = dataMan;
+	}
+
+	public String getDataCorp() {
+		return dataCorp;
+	}
+
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+
+
+	public BigDecimal getOutSl() {
+		return outSl;
+	}
+
+	public void setOutSl(BigDecimal outSl) {
+		this.outSl = outSl;
+	}
+
+	public BigDecimal getOutZl() {
+		return outZl;
+	}
+
+	public void setOutZl(BigDecimal outZl) {
+		this.outZl = outZl;
+	}
+
+	public BigDecimal getOutPrice() {
+		return outPrice;
+	}
+
+	public void setOutPrice(BigDecimal outPrice) {
+		this.outPrice = outPrice;
+	}
+
+	public BigDecimal getOutTax() {
+		return outTax;
+	}
+
+	public void setOutTax(BigDecimal outTax) {
+		this.outTax = outTax;
+	}
+
+	public BigDecimal getOutRate() {
+		return outRate;
+	}
+
+	public void setOutRate(BigDecimal outRate) {
+		this.outRate = outRate;
+	}
+
+	public BigDecimal getOutJs() {
+		return outJs;
+	}
+
+	public void setOutJs(BigDecimal outJs) {
+		this.outJs = outJs;
+	}
+
+	public Date getDataDate() {
+		return dataDate;
+	}
+
+	public void setDataDate(Date dataDate) {
+		this.dataDate = dataDate;
+	}
+
+	public String getOutsl() {
+		return outsl;
+	}
+
+	public void setOutsl(String outsl) {
+		this.outsl = outsl;
+	}
+
+	public BigDecimal getOutje() {
+		return outje;
+	}
+
+	public void setOutje(BigDecimal outje) {
+		this.outje = outje;
+	}
+
+	public String get_state() {
+		return _state;
+	}
+
+	public void set_state(String _state) {
+		this._state = _state;
+	}
+
+public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+	
+
+
+	public String getOutPh() {
+		return outPh;
+	}
+
+	public void setOutPh(String outPh) {
+		this.outPh = outPh;
+	}
+
+	public String getOutKw() {
+		return outKw;
+	}
+
+	public void setOutKw(String outKw) {
+		this.outKw = outKw;
+	}
+
+	public String getOutRemarks() {
+		return outRemarks;
+	}
+
+	public void setOutRemarks(String outRemarks) {
+		this.outRemarks = outRemarks;
+	}
+
+
+public String getOutAllotLib() {
+		return outAllotLib;
+	}
+
+	public void setOutAllotLib(String outAllotLib) {
+		this.outAllotLib = outAllotLib;
+	}
+
+	public String getOutAllotNote() {
+		return outAllotNote;
+	}
+
+	public void setOutAllotNote(String outAllotNote) {
+		this.outAllotNote = outAllotNote;
+	}
+
+	public String getOutAllotKw() {
+		return outAllotKw;
+	}
+
+	public void setOutAllotKw(String outAllotKw) {
+		this.outAllotKw = outAllotKw;
+	}
+
+
+public static class ECkOut_PK implements Serializable {
+    	
+    	private String outNote;
+    	private String outPack;
+
+		public String getOutNote() {
+			return outNote;
+		}
+
+		public void setOutNote(String outNote) {
+			this.outNote = outNote;
+		}
+
+		public String getOutPack() {
+			return outPack;
+		}
+
+		public void setOutPack(String outPack) {
+			this.outPack = outPack;
+		}
+
+
+		public ECkOut_PK(String outNote,String outPack) {
+			setOutNote(outNote);
+			setOutPack(outPack);
+			
+		}
+		
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((outNote == null) ? 0 : outNote.hashCode());
+			result = prime * result + ((outPack == null) ? 0 : outPack.hashCode());
+			
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+                return true;
+            }
+			if (obj == null) {
+                return false;
+            }
+			if (getClass() != obj.getClass()) {
+                return false;
+            }
+			ECkOut_PK other = (ECkOut_PK) obj;
+			if (outNote == null) {
+				if (other.outNote != null) {
+                    return false;
+                }
+			} else if (!outNote.equals(other.outNote)) {
+                return false;
+            }
+			if (outPack == null) {
+                return other.outPack == null;
+			} else {
+                return outPack.equals(other.outPack);
+            }
+        }
+    	
+		public ECkOut_PK() {
+			
+		}
+    	
+    }
+
+
+
+public String getId() {
+	return id;
+}
+
+
+
+public void setId(String id) {
+	this.id = id;
+}
+
+@Transient
+private String cpcodeId,cpcodeName,cpcodeSize,cpcodeFl,cpcodeBz,cpcodeXp,cpcodeCheck,cpcode01,cpcode02,cpcode03,cpcodeSizeEn;
+@Transient
+private BigDecimal cpcodePb;
+@Transient
+private String cgStype;
+@Transient
+private String outactname,oubbzname,outcustomername,outlibname,datamanname,outbzname,kwname;
+
+@Transient
+private String outsl,outtypename,htCustomerAssociatedRemarks;
+@Transient
+private BigDecimal outje;
+
+public String getCpcodeId() {
+	return cpcodeId;
+}
+
+public void setCpcodeId(String cpcodeId) {
+	this.cpcodeId = cpcodeId;
+}
+
+public String getCpcodeName() {
+	return cpcodeName;
+}
+
+public void setCpcodeName(String cpcodeName) {
+	this.cpcodeName = cpcodeName;
+}
+
+public String getCpcodeSize() {
+	return cpcodeSize;
+}
+
+public void setCpcodeSize(String cpcodeSize) {
+	this.cpcodeSize = cpcodeSize;
+}
+
+public String getCpcodeFl() {
+	return cpcodeFl;
+}
+
+public void setCpcodeFl(String cpcodeFl) {
+	this.cpcodeFl = cpcodeFl;
+}
+
+public String getCpcodeBz() {
+	return cpcodeBz;
+}
+
+public void setCpcodeBz(String cpcodeBz) {
+	this.cpcodeBz = cpcodeBz;
+}
+
+public String getCpcodeXp() {
+	return cpcodeXp;
+}
+
+public void setCpcodeXp(String cpcodeXp) {
+	this.cpcodeXp = cpcodeXp;
+}
+
+public String getCpcodeCheck() {
+	return cpcodeCheck;
+}
+
+public void setCpcodeCheck(String cpcodeCheck) {
+	this.cpcodeCheck = cpcodeCheck;
+}
+
+public String getCpcode01() {
+	return cpcode01;
+}
+
+public void setCpcode01(String cpcode01) {
+	this.cpcode01 = cpcode01;
+}
+
+public String getCpcode02() {
+	return cpcode02;
+}
+
+public void setCpcode02(String cpcode02) {
+	this.cpcode02 = cpcode02;
+}
+
+public String getCpcode03() {
+	return cpcode03;
+}
+
+public void setCpcode03(String cpcode03) {
+	this.cpcode03 = cpcode03;
+}
+
+public String getCpcodeSizeEn() {
+	return cpcodeSizeEn;
+}
+
+public void setCpcodeSizeEn(String cpcodeSizeEn) {
+	this.cpcodeSizeEn = cpcodeSizeEn;
+}
+
+public BigDecimal getCpcodePb() {
+	return cpcodePb;
+}
+
+public void setCpcodePb(BigDecimal cpcodePb) {
+	this.cpcodePb = cpcodePb;
+}
+
+public String getCgStype() {
+	return cgStype;
+}
+
+public void setCgStype(String cgStype) {
+	this.cgStype = cgStype;
+}
+
+public String getOutactname() {
+	return outactname;
+}
+
+public void setOutactname(String outactname) {
+	this.outactname = outactname;
+}
+
+public String getOubbzname() {
+	return oubbzname;
+}
+
+public void setOubbzname(String oubbzname) {
+	this.oubbzname = oubbzname;
+}
+
+public String getOutcustomername() {
+	return outcustomername;
+}
+
+public void setOutcustomername(String outcustomername) {
+	this.outcustomername = outcustomername;
+}
+
+public String getOutlibname() {
+	return outlibname;
+}
+
+public void setOutlibname(String outlibname) {
+	this.outlibname = outlibname;
+}
+
+public String getDatamanname() {
+	return datamanname;
+}
+
+public void setDatamanname(String datamanname) {
+	this.datamanname = datamanname;
+}
+
+public String getOuttypename() {
+	return outtypename;
+}
+
+public void setOuttypename(String outtypename) {
+	this.outtypename = outtypename;
+}
+
+public String getOutbzname() {
+	return outbzname;
+}
+
+public void setOutbzname(String outbzname) {
+	this.outbzname = outbzname;
+}
+
+public String getHtCustomerAssociatedRemarks() {
+	return htCustomerAssociatedRemarks;
+}
+
+public void setHtCustomerAssociatedRemarks(String htCustomerAssociatedRemarks) {
+	this.htCustomerAssociatedRemarks = htCustomerAssociatedRemarks;
+}
+
+public String getOutOriginalPack() {
+	return outOriginalPack;
+}
+
+public void setOutOriginalPack(String outOriginalPack) {
+	this.outOriginalPack = outOriginalPack;
+}
+
+public String getOutMan() {
+	return outMan;
+}
+
+public void setOutMan(String outMan) {
+	this.outMan = outMan;
+}
+
+public Date getOutDate() {
+	return outDate;
+}
+
+public void setOutDate(Date outDate) {
+	this.outDate = outDate;
+}
+
+public String getKwname() {
+	return kwname;
+}
+
+public void setKwname(String kwname) {
+	this.kwname = kwname;
+}
+
+
+
+	
+}

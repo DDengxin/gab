@@ -1,0 +1,152 @@
+$(function () {
+    $('.fl ul li').mouseenter(function () {
+        $(this).addClass('liin');
+        $(this).siblings().removeClass('liin');
+        // 综合上箭头点击事件
+        $(this).find('#syn-up').click(function () {
+            params.rank = "ASC";
+            params.rankType = "data_rq,product_sales";
+            getProductsList(8, pageIndex);
+        });
+        // 综合下箭头点击事件
+        $(this).find('#syn-down').click(function () {
+            params.rank = "DESC";
+            params.rankType = "data_rq,product_sales";
+            getProductsList(8, pageIndex);
+        });
+        // 销售量上箭头点击事件
+        $(this).find('#sale-up').click(function () {
+            params.rank = "ASC";
+            params.rankType = "product_sales";
+            getProductsList(8, pageIndex);
+        });
+        // 销售量下箭头点击事件
+        $(this).find('#sale-down').click(function () {
+            params.rank = "DESC";
+            params.rankType = "product_sales";
+            getProductsList(8, pageIndex);
+        });
+        // 价格上箭头点击事件
+        $(this).find('#price-up').click(function () {
+            params.rank = "ASC";
+            params.rankType = "cpcode_price";
+            getProductsList(8, pageIndex);
+        });
+        // 价格下箭头点击事件
+        $(this).find('#price-down').click(function () {
+            params.rank = "DESC";
+            params.rankType = "cpcode_price";
+            getProductsList(8, pageIndex);
+        })
+    });
+
+    // 搜索的点击事件
+    $('#search').click(function () {
+        search();
+    });
+
+    $('#searchContent').keypress(function (evt) {
+        var e = evt || window.event;
+        if (e.keyCode == 13) {
+            search();
+        }
+    });
+
+    function search() {
+        first = true;
+        params.search = $('#searchContent').val();
+        getProductsList(8, pageIndex);
+    }
+
+
+    //获取应用行业
+    var res = getSysParams("", "技术", "	夹具大类", "CP");
+    var data = { "list": res };
+    var getTpl = productTypes.innerHTML, view = document.getElementById("allTypeUl");
+    laytpl(getTpl).render(data, function (html) {
+        view.innerHTML = html;
+    });
+
+    $('.conditions li').click(function () {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+    })
+});
+
+function productTypeChange(type) {
+    first = true;
+    params.type = type;
+    getProductsList(8, pageIndex);
+}
+
+function productClassifyChange(classify) {
+    first = true;
+    params.classify = classify;
+    getProductsList(8, pageIndex);
+}
+
+//获取产品数据
+function getProductsList(pageSize, pageIndex) {
+    layui.use(['layer', 'form'], function () {
+        var layer = layui.layer;
+        var index1 = layer.load();
+        $.ajax({
+            url: "/gab/getProductPaging",
+            type: 'POST',
+            async: true,
+            data: {
+                params: JSON.stringify(params),
+                pageSize: pageSize,
+                pageIndex: pageIndex
+            },
+            success: function (res) {
+                total = res.total;
+                var data = { "list": res.data, "product": res.product }
+                var getTpl = productMarket.innerHTML, view = document.getElementById("productUl");
+                laytpl(getTpl).render(data, function (html) {
+                    view.innerHTML = html;
+                });
+                if (first) {
+                    pageView()
+                }
+            },complete:function(){
+                layer.close(index1);
+            }
+        });
+    });
+}
+
+//产品分页
+function pageView() {
+    layui.use(['laypage', 'element'], function () {
+        var element = layui.element;
+        var laypage = layui.laypage;
+        first = false;
+        laypage.render({
+            elem: 'page'
+            , count: total
+            , limit: 8
+            , layout: ['prev', 'page', 'next', 'skip']
+            , jump: function (obj, fir) {
+                if (!fir) {
+                    pageIndex = obj.curr;
+                    getProductsList(8, obj.curr);
+                }
+            }
+        })
+    });
+}
+
+//初始化数据
+var params = {
+    type: "",
+    flag: "",
+    search: "",
+    rank: "",
+    rankType: "",
+    classify: ""
+};
+var total = 0;
+var pageIndex = 1;
+var first = true;
+getProductsList(8, 1);

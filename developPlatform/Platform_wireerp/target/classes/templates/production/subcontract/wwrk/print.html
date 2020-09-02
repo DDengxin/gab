@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>委外入库</title>
+</th:block>
+<script type="text/javascript" src="/static/javascript/LodopFuncs.js"></script>
+<head>
+<meta charset="UTF-8">
+<style type="text/css">
+.foot {
+	position: absolute;
+	bottom: 0;
+	width:100%;
+	z-index: 9999;
+}
+.head {
+	position: absolute;
+	left:0;
+	top: 0;
+	width:100%;
+	z-index: 9999;
+}
+</style>
+</head>
+<body>
+	<iframe align="center" style="margin-top: 30px" width="100%" height="80%" src="" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="true"></iframe>
+	<div class="mini-toolbar hmq-toolbar foot">
+		<a class="mini-button" onclick="print" iconCls="icon-print" id="printBtn">打印</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script>
+	mini.parse();
+	var LODOP;
+
+	function SetData(option) {
+		if(!!option.data.inNote){
+			$('iframe').attr('src', "table.html?"+encodeURI("inNote="+option.data.inNote));
+		}
+	}
+	
+	function print() {
+		var htmlVal = window.frames[0].window.document.getElementsByTagName("html")[0].outerHTML;
+		LODOP=getLodop(); 
+		LODOP.NewPage();
+		LODOP.PRINT_INIT("委外入库");
+		LODOP.SET_PRINT_PAGESIZE(1,"210mm","297mm","");
+		LODOP.ADD_PRINT_HTML("2%","5%","90%","100%",htmlVal);
+		LODOP.SET_PRINT_STYLEA(0,"TableHeightScope",1);
+		LODOP.GET_PRINTER_COUNT();
+		LODOP.PREVIEW();
+		/* LODOP.PRINTA(); */
+	}
+</script>
+</html>

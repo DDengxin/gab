@@ -1,0 +1,169 @@
+.main {
+    overflow: hidden;
+    padding-bottom: 30px;
+}
+
+.main-title {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.main-title:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.sp-tab {
+    overflow: hidden;
+    /* margin-top: 38px; */
+    /* min-height: 387px; */
+}
+
+.js-tab {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.js-tab thead tr {
+    height: 40px;
+    line-height: 40px;
+    background: rgb(233, 233, 233);
+}
+
+.com-sel {
+    display: inline-block;
+    /* cursor: pointer; */
+    /* margin-left: 14px; */
+    vertical-align: middle;
+    text-align: center;
+}
+
+.com-opt {
+    /* height: 34px; */
+    line-height: 40px;
+    outline-style: none;
+    color: #333;
+    font-size: 14px;
+    border: none;
+    outline: none;
+    /*鍘绘帀榛樿鐨勪笅鎷変笁瑙�*/
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    /*娣诲姞涓嬫媺涓夎鍥炬爣*/
+    background: url("../../images/jiantou.png") no-repeat right center rgb(233, 233, 233);
+    background-size: 20%;
+    padding-right: 20px;
+    cursor: pointer;
+    text-align: center;
+}
+
+/*娓呴櫎ie鐨勯粯璁ら�夋嫨妗嗘牱寮忔竻闄わ紝闅愯棌涓嬫媺绠ご*/
+
+select::-ms-expand {
+    display: none;
+}
+
+thead tr td {
+    text-align: center;
+}
+
+tr td {
+    /* width: 10%;*/
+    text-align: center;
+}
+
+.l {
+    text-align: left !important;
+    padding-left: 10px;
+}
+
+tbody tr {
+    background: rgb(248, 248, 248);
+}
+
+tbody tr:first-child {
+    background: #fff;
+}
+
+tbody tr td {
+    color: #666;
+    font-size: 14px;
+    padding: 10px 0;
+}
+
+tbody tr:first-child {
+    height: 53px;
+    line-height: 53px;
+    border-bottom: 1px solid rgb(222, 222, 222);
+}
+
+tbody tr:first-child td b {
+    margin: 0 40px;
+    color: #409fff;
+}
+
+.fontColor {
+    color: #e80000;
+}
+
+.hover{
+    cursor: pointer;
+}
+
+.hover:hover{
+    color: #666;
+}
+
+td a:first-child {
+    border: none;
+}
+
+td a {
+    border-left: 1px solid #666;
+    padding: 0 5px;
+    cursor: pointer;
+}
+td a:hover {
+    color: #e80000;
+}
+
+.name{
+    display: inline-block;
+    width: 285px;
+    margin: 0 25px;
+    vertical-align: middle;
+}
+
+td img{
+    width: 80px;
+    height: 80px;
+    border: 1px solid #dcdcdc;
+    display: inline-block;
+}
+
+.no{
+    display: none;
+    width: 100%;
+    height: 306px;
+    line-height: 306px;
+    text-align: center;
+    font-size: 18px;
+    background: rgb(250, 248, 249);
+    letter-spacing: 2px;
+    color: #e80000;
+}

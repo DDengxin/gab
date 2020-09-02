@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>工程处理【拆分】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+   <form id="form1">
+   		  <input id="bgcClPrice" name="bgcClPrice" class="mini-hidden"/>
+         <input id="wlType" name="wlType" class="mini-hidden"/>
+          <input id="gcCl" name="gcCl" class="mini-hidden"/>
+         <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+        	 <tr>
+        	  	<td title>上工程号：</td>
+                <td content>
+                    <input class="mini-textbox" readonly  id="sgc" name="sgc" emptyText="自动生成" />
+                    <input class="mini-hidden" readonly  id="bgc" name="bgc" />
+                </td>
+                <td title>生产日期：</td>
+                <td content>
+                    <input class="mini-datepicker" required name="rq" id="rq" format="yyyy-MM-dd" />
+                </td>
+            </tr>
+            <tr>
+                <td title>生产批次：</td>
+                <td content>
+                       <input class="mini-textbox"   readonly id="scMo" name="scMo" />
+                </td>
+                <td title>生产品号：</td>
+                <td content>
+                      <input class="mini-textbox" readonly id="code" name="code" />
+                </td>
+            </tr>
+            <tr>
+                <td title>生产工艺：</td>
+                <td content>
+                      <input class="mini-combobox"  readonly id="gy" name="gy"  url="/js/cpgy/scgy/getGyAllSelectList" />
+                </td>
+                <td title>生产工序：</td>
+                <td content>
+                       <input class="mini-combobox"  readonly id="gx" name="gx" url="/js/cpgy/scgx/getGxAllSelectList" />
+                </td>
+            </tr>
+             <tr>
+                <td title>产品品名：</td>
+                <td>
+                    <input class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid"   readonly id="tname" name="tname" url="/system/parameter/getParamsTreeList/技术/ZZMC"  />
+                </td>
+                <td title>当前规格：</td>
+                <td>
+                   <input class="mini-textbox" readonly id="tsize" name="tsize" />
+                </td>
+            </tr>
+             <tr>
+                 <td title>原料牌号：</td>
+                <td>
+                    <input class="mini-combobox" id="tph" name="tph" />
+                </td>
+                 <td title>原料批次：</td>
+                <td>
+                     <input class="mini-combobox" id="tts" name="tts" />
+                </td>
+            </tr>
+             <tr>
+               
+                <td title>下料数量：</td>
+                <td>
+                    <input class="mini-textbox"  id="tsl" name="tsl" />
+                </td>
+               	<td title>生产车间：</td>
+                <td>
+                    <input class="mini-combobox"  id="tcj" name="tcj"  />
+                </td>
+              <tr>
+               <tr>
+                 	<td title>生产车台：</td>
+                <td>
+                    <input class="mini-combobox"  id="tct" name="tct"   />
+                </td>
+             	 <td title>特殊号：</td>
+                <td>
+                  <input class="mini-textbox"  readonly id="bgcVnote" name="bgcVnote"  />
+                </td>
+               
+            </tr>
+             <tr>
+              
+                 <td title>生产人员:</td>
+                <td content>
+                  	 <input class="mini-hidden" readonly id="tdept" name="tdept"   />
+                  	  <input class="mini-hidden" readonly id="tbc" name="tbc"  />
+                     <input id="doMan" name="doMan" required class="mini-lookup" style="width:100%;"  
+                     	textField="workName" valueField="workId" popupWidth="auto" popup="#gridPanel" grid="#datagrid1" multiSelect="false" />
+						<div id="gridPanel" class="mini-panel" title="header" iconCls="icon-add" style="width:450px;height:250px;" 
+						        showToolbar="true" showCloseButton="true" showHeader="false" bodyStyle="padding:0" borderStyle="border:0" 
+						    >
+						        <div property="toolbar" style="padding:5px;padding-left:8px;text-align:center;">   
+						            <div style="float:left;padding-bottom:2px;">
+						                <span>姓名：</span>                
+						                <input id="srchName" class="mini-textbox" style="width:160px;" onenter="onSearchClick"/>
+						                <a class="mini-button" onclick="onSearchClick">查询</a>
+						                <a class="mini-button" onclick="onClearClick">清除</a>
+						            </div>
+						            <div style="float:right;padding-bottom:2px;">
+						                <a class="mini-button" onclick="onCloseClick">关闭</a>
+						            </div>
+						            <div style="clear:both;"></div>
+						        </div>
+						        <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" 
+						            borderStyle="border:0" showPageSize="false" showPageIndex="false"  onSelectionChanged="onSelectionChanged"  >
+						            <div property="columns">
+						                <div type="checkcolumn" ></div>
+										<div field="workId"   align="center" width="100" sortField="workId" displayField="workId" headerAlign="center" allowSort="true">工号</div>
+										<div field="workName" align="left"   width="100" visible="true" sortField="workName" displayField="workName" headerAlign="center" allowSort="true">姓名</div>
+						               	<div field="workDept" displayField="deptname"  align="left" width="100" sortField="workDept" headerAlign="center" allowSort="true">部门</div>
+										<div field="workBb"   displayField="bbname" align="left" width="100" sortField="workBb" headerAlign="center" allowSort="true">班别</div>
+						               
+						            </div>
+						        </div>  
+						    </div>			        
+                </td>
+           	<td title>上料时间:</td>
+                <td content>
+                     <input class="mini-datepicker" readonly name="bgcTl" id="bgcTl" format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showClearButton="false" showTime="true" showOkButton="true" showTodayButton="true"
+                     />
+                </td>
+            </tr>
+             <tr>
+                <td title>完成时间:</td>
+                <td content>
+                     <input class="mini-datepicker"  name="bgcWc" id="bgcWc" format="yyyy-MM-dd HH:mm" timeFormate="HH:mm"  showClearButton="false" showTime="true" showOkButton="true" showTodayButton="true"
+                     onvaluechanged="onvaluechanged()" ondrawdate="onDrawDate" />
+                </td>
+                <td title>生产时长:</td>
+                <td content>
+                     <input class="mini-textbox"   id="bgcSc" name="bgcSc" />
+                </td>
+            </tr>
+            
+        </table>
+    </form>
+   <div class="mini-fit">
+            <div tz:datagrid="datagrid" id="top_grid" idField="sgc" sortField="sgc" sortOrder="asc" style="width:100%;height:300px;"
+              allowCellEdit="true" allowCellSelect="true" multiSelect="true"   editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+             showPager="false"   allowCellValid="true" 
+             showSummaryRow="true"  >
+                <div property="columns">
+                 <div tz:datagrid="checkcolumn" width="35" ></div>
+                 	<div tz:datagrid="column" field="rq" width="90" align="center"  renderer="onActionRenderer" dateFormat="yyyy-MM-dd">日期</div>
+					<div tz:datagrid="column" field="sgc" width="80" align="center">上工程号</div>
+					<div tz:datagrid="column" field="scMo" width="90" align="center">任务单</div>
+					<div tz:datagrid="column" field="code" width="100" align="left">品号</div>
+					<div tz:datagrid="column" field="tname"  displayField="zzpname" align="left" width="120">品号</div>
+	               	<div tz:datagrid="column" field="tsize" align="left" width="120">规格</div>
+					<div tz:datagrid="column" field="tph" width="90" align="center">牌号</div>
+					<div tz:datagrid="column" field="tsl" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" dataType="double" >数量
+						<input property="editor" class="mini-textbox" vtype="float;required;" />
+					</div>
+					<div tz:datagrid="column" field="tts" width="80" align="center">原料批次</div>
+					<div tz:datagrid="column" field="vnote" width="80" align="center">特殊号</div>
+					<div tz:datagrid="column" field="gy" displayField="gyname"  width="80" align="center">工艺</div>
+					<div tz:datagrid="column" field="gx" displayField="gxname"  width="80" align="center">工序</div>
+					<div tz:datagrid="column" field="tcj" displayField="cjname"  width="80" align="center">车间</div> 
+					<div tz:datagrid="column" field="tct" displayField="ctname"  width="80" align="center">车台</div> 
+					<div tz:datagrid="column" field="wlType" width="80" align="center">大类</div>
+					<div tz:datagrid="column" field="bgcTl" width="130" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">开始时间</div>
+					<div tz:datagrid="column" field="bgcWc" width="130" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">完成时间</div>
+					<div tz:datagrid="column" field="bgcSc" width="80" align="right" dataType="double">时长</div>
+					<div tz:datagrid="column" field="gcCl"   width="80" align="center" visible="false">处理标识</div>
+					<div tz:datagrid="column" field="tdept"  width="80" align="center">生产部门</div>
+					<div tz:datagrid="column" field="tbc"   width="80" align="center">生产班次</div>
+					<div tz:datagrid="column" field="doman" displayField="manname"  width="80" align="center">生产人</div>
+                    <div tz:datagrid="column" field="" width="100%" ></div>
+                </div>
+            </div>
+        </div>
+ </div>
+<div class="mini-toolbar hmq-toolbar">
+ 	<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+  	<a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+  	<a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var topgrid = mini.get('top_grid');
+    var surl = "/sc/task/gccl";
+   
+    var grid = mini.get("datagrid1");
+  	var srchName = mini.get("srchName");
+  	grid.setUrl("/sc/da/rydg/getSrchList");
+    function onSearchClick(e) {
+    	var params={
+    			srchName: mini.get("srchName").getValue(),
+    			srchGx  : mini.get("gx").getValue(),
+    			srchCt  : mini.get("tct").getValue()
+    	};
+        grid.load({
+        	"params": mini.encode(params)
+        });
+    }
+    function onCloseClick(e) {
+        var lookup = mini.get("doMan");
+        lookup.hidePopup();
+    }
+    
+    function onClearClick(e) {
+        var lookup = mini.get("doMan");
+        lookup.deselectAll();
+        mini.get("tdept").setValue("");
+		mini.get("tbc").setValue("");
+    }
+    
+    function onSelectionChanged(e) {
+		var grid = e.sender;
+		var record = grid.getSelected();
+		if (record) {
+			mini.get("doMan").setValue(record.workId);
+			mini.get("tdept").setValue(record.workDept);
+			mini.get("tbc").setValue(record.workBb);
+		}
+	}
+    
+    
+    /**
+	 新增行
+	 */
+    function addRow(){
+    	var index = topgrid.getData().length;
+		var newRow = {
+			name : "",
+			rq :   mini.get("rq").getValue(),
+			sgc :  mini.get("sgc").getValue(),
+			scMo :  mini.get("scMo").getValue(),
+			code :  mini.get("code").getValue(),
+			tname :  mini.get("tname").getValue(),
+			zzpname :  mini.get("tname").getText(),
+			tsize :  mini.get("tsize").getValue(),
+			tph :  mini.get("tph").getValue(),
+			tsl :  mini.get("tsl").getValue(),
+			tts :  mini.get("tts").getValue(),
+			bgcVnote :  mini.get("bgcVnote").getValue(),
+			gy :  mini.get("gy").getValue(),
+			gyname :  mini.get("gy").getText(),
+			gx :  mini.get("gx").getValue(),
+			gxname :  mini.get("gx").getText(),
+			tcj :  mini.get("tcj").getValue(),
+			cjname :  mini.get("tcj").getText(),
+			tct :  mini.get("tct").getValue(),
+			ctname :  mini.get("tct").getText(),
+			wlType :  mini.get("wlType").getValue(),
+			gcCl :  mini.get("gcCl").getValue(),
+			tdept :  mini.get("tdept").getValue(),
+			tbc :  mini.get("tbc").getValue(),
+			doMan :mini.get("doMan").getValue(),
+			manname :mini.get("doMan").getText(),
+			bgcTl : mini.get("bgcTl").getValue(),
+			bgcWc : mini.get("bgcWc").getValue(),
+			bgcSc : mini.get("bgcSc").getValue()
+			
+		};
+		topgrid.addRow(newRow, index+1);
+    }
+    
+    /**
+	 删除行
+	 */
+    function delRow(){
+    	 var rows = topgrid.getSelecteds();
+         if(rows.length>0){
+        	 topgrid.removeRows(rows,true);
+         }else{
+        	 hmq.tipDanger('请选择需要删除的行！');
+         }
+    }
+    /**
+	 删除整单
+	 */
+	function delAll() {
+		var rows = topgrid.getData();
+		if (rows.length > 0) {
+			topgrid.removeRows(rows, true);
+		}
+	}
+    
+	/**
+     	保存
+     */
+    function SaveData() {
+            var entrydata = topgrid.getData(true);
+         	var sl=mini.get("tsl").getValue();
+         	var sumsl=0;
+           	for(var i=0;i<entrydata.length;i++){
+           		var row=entrydata[i];
+           		sumsl=parseFloat(sumsl)+parseFloat(row.tsl);
+           	}
+           	if(parseFloat(sumsl)!=parseFloat(sl)){
+           	 	return hmq.tipDanger('拆分数之和必须等于总数量！');
+           	}
+            $['post'](surl+"/split", JSON.stringify({
+            	mScGclistList : entrydata
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+       
+    }
+	
+    
+	 /**
+	 回调函数
+	 */
+    function SetData(options) {
+    	var row = options.data;
+    	  mini.get("sgc").setValue(row.bgc);
+    	  mini.get("rq").setValue(mini.formatDate(new Date(), "yyyy-MM-dd"));
+    	  mini.get("scMo").setValue(row.scitem);
+    	  mini.get("code").setValue(row.wlcode);
+    	  mini.get("gy").setValue(row.gy);
+    	  mini.get("gx").setValue(row.gx);
+    	  mini.get("tname").setValue(row.wl_name); 
+    	  mini.get("tsize").setValue(row.wl_size); 
+    	  mini.get("tph").setValue(row.wlph); 
+    	  mini.get("tts").setValue(row.ylpch); 
+    	  mini.get("tsl").setValue(row.sl); 
+    	  mini.get("tcj").setValue(row.tcj); 
+    	  mini.get("tcj").setValue(row.tcj); 
+    	  mini.get("tcj").setText(row.cjname); 
+    	  mini.get("tct").setValue(row.tct); 
+    	  mini.get("tct").setText(row.ctname); 
+    	  mini.get("bgcVnote").setValue(row.vnote); 
+    	  mini.get("doMan").setValue(row.czman); 
+    	  mini.get("doMan").setText(row.manname); 
+    	  mini.get("bgcTl").setValue(mini.formatDate(new Date(), "yyyy-MM-dd HH:mm"));
+    	  mini.get("wlType").setValue(row.wl_type);
+    	  mini.get("gcCl").setValue(row.gc_cl);
+    	  mini.get("tdept").setValue(row.tdept);
+    	  mini.get("tbc").setValue(row.tbc);
+    	  mini.get("bgcClPrice").setValue(row.clprice);
+    }                   
+
+  
+
+	/**
+	 汇总方法
+	 */
+	function onDrawSummaryCell(e) {
+		if (e.field == "htCode") {
+			var s = "<span style='color:Brown;'>";
+			s += "合计:</span>";
+			e.cellHtml = s;
+		}
+		if (e.field == "htSl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(3) + "</span>";
+		}
+	
+	}
+	
+	 //计算时长
+    var leave_time = 0;//时长
+    //值改变事件
+    function onvaluechanged() {
+        var start_time = mini.get("bgcTl").getValue();
+        var end_time = mini.get("bgcWc").getValue();
+        //时长计算
+        leave_time = (end_time - start_time) / 3600000;
+        if (leave_time > Math.round(leave_time)) {
+            leave_time += 0.5;
+        }
+        mini.get("bgcSc").setValue(leave_time.toFixed(1) > 0 ? leave_time.toFixed(1) : '');
+
+    }
+
+    function onDrawDate(e) {
+        var date = e.date;
+        if (e.sender.name == "bgcWc" && date.getTime() < new Date(mini.get("bgcTl").getValue()).getTime()) {
+            e.allowSelect = false;
+        };
+      
+
+
+    }
+    
+    /**
+    渲染方法
+    */
+   function onActionRenderer(e) {
+       var record = e.record;
+       if (e.field == "rq"&& record.rq!=null) {
+           return mini.formatDate(new Date(record.rq), "yyyy-MM-dd");
+       }
+       
+       if (e.field == "bgcTl"&& record.bgcTl!=null) {
+           return mini.formatDate(new Date(record.bgcTl), "yyyy-MM-dd HH:mm");
+       }
+       
+       if (e.field == "bgcWc"&& record.bgcWc!=null) {
+           return mini.formatDate(new Date(record.bgcWc), "yyyy-MM-dd HH:mm");
+       }
+      
+   }
+  
+    
+
+   Date.prototype.format = function(fmt) {
+     var o = {
+       "M+" : this.getMonth()+1,                 //月份
+       "d+" : this.getDate(),                    //日
+       "h+" : this.getHours(),                   //小时
+       "m+" : this.getMinutes(),                 //分
+       "s+" : this.getSeconds(),                 //秒
+       "q+" : Math.floor((this.getMonth()+3)/3), //季度
+       "S"  : this.getMilliseconds()             //毫秒
+     };
+     if(/(y+)/.test(fmt)) {
+       fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+     }
+     for(var k in o) {
+       if(new RegExp("("+ k +")").test(fmt)){
+         fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+       }
+     }
+     return fmt;
+   }
+   /*
+    * 重写时间的toJSON方法，因为在调用JSON.stringify的时候，时间转换就调用的toJSON，这样会导致少8个小时，所以重写它的toJSON方法
+    */
+   Date.prototype.toJSON = function () {
+     return this.format("yyyy-MM-dd hh:mm:ss"); // util.formatDate是自定义的个时间格式化函数
+   }
+    
+</script>
+</html>

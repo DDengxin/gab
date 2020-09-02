@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>流程管理</title>
+</th:block>
+</head>
+<body>
+	<form id="form" name="form" method="post">
+		<table style="width: 100%;">
+			<tr>
+				<td style="white-space: nowrap;">
+					<label class="hmq-label" text="流程名称">
+						<input class="mini-textbox" name="params" id="params" />
+					</label>
+				</td>
+			</tr>
+		</table>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="createTime" url="/workflow/getWorkflowList" selectOnLoad="true">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn"></div>
+				<div tz:datagrid="column" field="id" width="350" align="center">流程ID</div>
+				<div tz:datagrid="column" field="name" width="200" align="center">流程名称</div>
+				<div tz:datagrid="column" field="key" width="120" align="center">流程KEY</div>
+				<div tz:datagrid="column" field="version" width="80" align="center">版本</div>
+				<div tz:datagrid="column" field="deploymentId" width="350" align="center">部署ID</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form");
+		var grid = mini.get("srch_grid");
+		function search_option() {
+			var params = mini.get("params").getValue();
+			grid.load({
+				"params" : params
+			});
+		}
+
+		//新增流程
+		function release_process(e) {
+			var miniopen1 = miniopen({
+				targetWindow : window,
+				title : "新增流程",
+				url : '/workflow/toReleaseProcess',
+				action : 'new'
+			});
+			miniopen1.max();
+		}
+
+		//删除流程
+		function delete_option(e) {
+			var deploymentId = grid.getSelected().deploymentId;
+			if (deploymentId == null || deploymentId == "") {
+				hmq.tipDanger("部署ID不能为空");
+				return;
+			}
+			$.ajax({
+				url : "/workflow/deleteProcess",
+				type : 'post',
+				data : {
+					id : deploymentId,
+					stime : (new Date()).getTime()
+				},
+				cache : false,
+				success : function(data) {
+					if (data.code == "200") {
+						search_option();
+						hmq.tipSuccess("删除成功！");
+					} else {
+						hmq.tipDanger("删除失败！");
+					}
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					hmq.tipDanger("删除失败！");
+				}
+			});
+		}
+		//下载xml
+		function download_option(e) {
+			var deploymentId = grid.getSelected().deploymentId;
+			if (deploymentId == null || deploymentId == "") {
+				hmq.tipDanger("部署ID不能为空");
+				return;
+			}
+			window.location.href = '/workflow/downloadProcess?id=' + deploymentId;
+		}
+
+		//修改流程
+		function edit_option(e) {
+			var deploymentId = grid.getSelected().deploymentId;
+			if (deploymentId == null || deploymentId == "") {
+				hmq.tipDanger("部署ID不能为空");
+				return;
+			}
+			var key = grid.getSelected().key;
+			if (key == null || key == "") {
+				hmq.tipDanger("流程KEY不能为空");
+				return;
+			}
+			var miniopen1 = miniopen({
+				title : "修改流程",
+				targetWindow : window,
+				url : '/workflow/toReleaseProcess?id=' + deploymentId + '&key=' + key,
+				action : 'edit'
+			});
+			miniopen1.max();
+		}
+	</script>
+</body>
+</html>

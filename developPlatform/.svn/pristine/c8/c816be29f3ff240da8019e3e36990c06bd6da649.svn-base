@@ -1,0 +1,14 @@
+package com.tengzhi.base.jpa.page;
+
+import com.tengzhi.base.jpa.result.Result;
+import org.springframework.data.domain.Page;
+
+public interface BasePage<T> extends Page<T> {
+    /**
+     * 直接返回Result对象
+     *
+     * @return
+     */
+    Result getResult();
+    long getPageTotal();
+}

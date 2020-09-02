@@ -1,0 +1,26 @@
+package com.tengzhi.business.system.dept.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.system.dept.model.SysDept;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface SysDeptDao extends BasedaoRepository<SysDept,String> {
+
+     SysDept findByDeptId(String deptId);
+
+     //SysDept findByDeptNameAndDeleteLogo(String deptName,Boolean bool);
+
+
+     SysDept findByDeptIdAndDeleteLogo(String deptId,Boolean bool);
+
+     @Modifying
+     @Query("update SysDept set deleteLogo=true where tierId like :tierId")
+     void deleteByTierId(@Param("tierId") String tierId);
+
+     int countByTierIdLikeAndDeleteLogo(String orgId,Boolean bool);
+     
+     int countByTierIdLikeAndState(String orgId,Boolean bool);
+
+}

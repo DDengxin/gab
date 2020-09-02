@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>权限管理</title>
+</th:block>
+</head>
+<body>
+	<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+			<label class="hmq-label" text="名称">
+				<input class="mini-textbox" name="tabname" />
+			</label>
+		</th:block>
+	</th:block>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<!--菜单信息Grid-->
+		<div tz:datagrid="datagrid" id="srch_grid" multiSelect="true" idField="roleId" url="/codegeneration/findAllTable" pageSize="50">
+			<div property="columns">
+				<div type="checkcolumn"></div>
+				<div tz:datagrid="indexcolumn" width="40">序号</div>
+				<div tz:datagrid="column" field="tabname" width="160">名称</div>
+				<div tz:datagrid="column" field="comment" width="260">描述</div>
+				<div tz:datagrid="column" field="colname" width="100">主键</div>
+				<div tz:datagrid="column" field="pkName" width="170">主键约束名</div>
+				<div tz:datagrid="column" field="typename" width="100">主键类型</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form("form1");
+	var grid = mini.get("srch_grid");
+	grid.bindSearchForm(form);
+	function search_option() {
+		grid.load();
+	}
+	function print_option(e) {
+		var row = grid.getSelecteds();
+		if (row) {
+			var tabnames = [];
+			for (var i = 0, l = row.length; i < l; i++) {
+				tabnames.push(row[i].tabname);
+			}
+			var tabname = tabnames.join(',');
+			e.sender.miniopen({
+				title : "文档生成",
+				url : 'prit.html',
+				action : 'prit',
+				data : {
+					tabname : tabname,
+					type : "1"
+				},
+				height : 140
+			});
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+
+	function codegeneration() {
+		var row = grid.getSelecteds();
+		if (row) {
+			if (row.length > 1) {
+				hmq.tipDanger("请选择一条记录,暂不支持多表生成");
+				return;
+			}
+			var minio = miniopen({
+				targetWindow : window,
+				title : "代码生成",
+				url : '/codeGeneration/table/codegeneration.html',
+				action : 'new'
+			});
+			minio.max();
+
+		} else {
+			hmq.tipDanger("请选择一条记录");
+		}
+	}
+</script>
+</html>

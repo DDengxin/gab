@@ -1,0 +1,20 @@
+#【【【腾龙集团(内网)】】】生产环境Tomcat端口配置
+server:
+  port: 80
+
+spring:
+  profiles:
+    include: prod-base #引入其他配置文件
+  datasource:
+    url: jdbc:postgresql://10.10.200.109:5432/tljtdb?currentSchema=tljt #部署数据库连接
+    password: tlabc@2020 #密码
+    username: tljt #账号
+
+kkfileview:
+  ip: 10.10.200.109
+  port: 8012
+
+collocate:
+  business:
+    userName: 9999 #超级用户
+    defaultCorp: SS #登录页面展示的默认账套

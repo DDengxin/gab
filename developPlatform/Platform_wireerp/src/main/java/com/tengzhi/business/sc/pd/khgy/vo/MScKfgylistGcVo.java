@@ -1,0 +1,81 @@
+package com.tengzhi.business.sc.pd.khgy.vo;
+
+
+import com.tengzhi.business.sc.pd.khgy.model.MScKfgylist;
+import com.tengzhi.business.sc.pd.khgy.model.MScKfgylistGc;
+import com.tengzhi.business.sc.task.sctack.model.MScScrw;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.StreamSupport;
+
+public class MScKfgylistGcVo implements Serializable {
+	MScKfgylist mScKfgylist;
+	List<MScKfgylistGc> mScKfgylistGc,
+    addedList = new ArrayList<>(),
+    modifyedList = new ArrayList<>(),
+    deletedList = new ArrayList<>();
+
+
+	public MScKfgylist getmScKfgylist() {
+		return mScKfgylist;
+	}
+
+	public void setmScKfgylist(MScKfgylist mScKfgylist) {
+		this.mScKfgylist = mScKfgylist;
+	}
+
+	public List<MScKfgylistGc> getmScKfgylistGc() {
+		return mScKfgylistGc;
+	}
+
+	public void setmScKfgylistGc(List<MScKfgylistGc> mScKfgylistGc) {
+		this.mScKfgylistGc = mScKfgylistGc;
+	}
+
+	public List<MScKfgylistGc> getAddedList() {
+		return addedList;
+	}
+
+	public void setAddedList(List<MScKfgylistGc> addedList) {
+		this.addedList = addedList;
+	}
+
+	public List<MScKfgylistGc> getModifyedList() {
+		return modifyedList;
+	}
+
+	public void setModifyedList(List<MScKfgylistGc> modifyedList) {
+		this.modifyedList = modifyedList;
+	}
+
+	public List<MScKfgylistGc> getDeletedList() {
+		return deletedList;
+	}
+
+	public void setDeletedList(List<MScKfgylistGc> deletedList) {
+		this.deletedList = deletedList;
+	}
+
+	public static MScKfgylistGcVo initProcessContractVo(MScKfgylistGcVo mScKfgylistGcVo){
+        //创建流低级方法(基于迭代器)
+        StreamSupport.stream(mScKfgylistGcVo.getmScKfgylistGc().spliterator(),false).forEach(item -> {
+            switch (item.get_state()) {
+                case "added":
+					item.setItemMo(mScKfgylistGcVo.getmScKfgylist().getItemMo());
+					mScKfgylistGcVo.getAddedList().add(item);
+                    break;
+                case "modified":
+					item.setItemMo(mScKfgylistGcVo.getmScKfgylist().getItemMo());
+					mScKfgylistGcVo.getModifyedList().add(item);
+                    break;
+                case "removed":
+					item.setItemMo(mScKfgylistGcVo.getmScKfgylist().getItemMo());
+					mScKfgylistGcVo.getDeletedList().add(item);
+                    break;
+            }
+        });
+        return mScKfgylistGcVo;
+    }
+}

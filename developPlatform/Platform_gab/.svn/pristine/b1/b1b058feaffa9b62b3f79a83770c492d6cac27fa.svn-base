@@ -1,0 +1,80 @@
+package com.tengzhi.business.platform.quotation.service.impl;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.quotation.dao.QuotationCostItemsDao;
+import com.tengzhi.business.platform.quotation.dao.QuotationDao;
+import com.tengzhi.business.platform.quotation.service.QuotationService;
+import com.tengzhi.business.platform.quotation.vo.QuotationVo;
+
+
+@Service
+@Transactional
+public class QuotationServiceImpl implements QuotationService {
+    @Autowired
+    QuotationDao quotationDao;
+
+    @Autowired
+    QuotationCostItemsDao quotationCostItemsDao;
+
+    @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto baseDto) throws Exception {
+        Map<String, String> map = baseDto.getParamsMap();
+        String where = " where 1=1 ";
+        if (StringUtils.isNotBlank(map.get("quotationId"))) {
+            where += " and quotation_id like '%" + map.get("quotationId") + "%'";
+        }
+        String sql= "select * from g_quotation"+where;
+        return quotationDao.QueryMapPageList(baseDto,sql,true);
+    }
+
+    @Override
+    public Map<String,Object> findById(String id) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("quotation",quotationDao.findQuotation(id));
+        map.put("quotationCost",quotationCostItemsDao.findByCostItems(id));
+        return map;
+    }
+
+
+//    @Override
+//    public Result save(Vo vo) {
+//        String uuid = UUIDUtil.uuid();
+//        vo.getQuotation().setQuotationId(uuid);
+//        if (vo.getQuotationCostItems().size()>0){
+//            vo.getQuotationCostItems().get(0).setDirectCostItems(uuid);
+//            quotationCostItemsDao.save(vo.getQuotationCostItems().get(0));
+//        }
+//        quotationDao.save(vo.getQuotation());
+//        return  Result.resultOkMsg("添加成功");
+//    }
+
+//    @Override
+//    public void update(Vo vo) {
+//        if (vo.getQuotationCostItems().size()>0){
+//            vo.getQuotationCostItems().get(0).setDirectCostItems(vo.getQuotation().getQuotationId());
+//            quotationCostItemsDao.update(vo.getQuotationCostItems().get(0));
+//        }
+//        quotationDao.update(vo.getQuotation());
+//    }
+
+    @Override
+    public void deleteById(String Id) {
+        quotationDao.deleteById(Id);
+    }
+
+	@Override
+	public Result saveOffer(QuotationVo quotationVo) {
+		
+		return null;
+	}
+}

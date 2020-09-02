@@ -1,0 +1,80 @@
+package com.tengzhi.business.finance.voucher.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.annotations.Log;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.finance.voucher.model.EFVoucherAuxiliaryitems;
+import com.tengzhi.business.finance.voucher.model.Summary;
+import com.tengzhi.business.finance.voucher.service.SummaryService;
+
+
+@RestController
+@RequestMapping("/finance/voucher/summary")
+public class SummaryController {
+	@Autowired
+	private SummaryService summaryService;
+
+	@GetMapping("*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+	   /**
+     * 查询数据列表
+     * @return
+     * @throws Exception 
+     */
+    @PostMapping(value = "/getSrchList")
+    public Result getSrchTopList(BaseDto baseDto) throws Exception {
+       return summaryService.findAll(baseDto).getResult();
+    }
+    
+    
+    
+	/**
+	 * 新增
+	 *
+	 * @return
+	 */
+	@PostMapping("/addSummary")
+	@Log("新增业务表单")
+	public Result add(@RequestBody Summary sunmmary) throws Exception {
+		Summary su=summaryService.save(sunmmary);
+		return Result.resultOk(su.getFid());
+	}
+	/**
+	 * 新增
+	 *
+	 * @return
+	 */
+	@PostMapping("/addSummaryTest")
+	@Log("新增业务表单")
+	public Result addSummary() throws Exception {
+		Summary sunmmary=new Summary();
+		sunmmary.setFdesc("test");
+		Summary su=summaryService.save(sunmmary);
+		return Result.resultOk(su.getFid());
+	}
+
+	/**
+	 * 通过ID获取对象
+	 *
+	 * @param id
+	 * @return
+	 */
+	@GetMapping(value = "/findsummaryByid/{id}")
+	public Result getById(@PathVariable Long id) {
+		return Result.resultOk(summaryService.findById(id));
+	}
+	
+	
+	
+}

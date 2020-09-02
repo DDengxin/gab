@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>生产定岗【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>日 期：</td>
+                <td content>
+                    <input class="mini-datepicker" required name="workRq" id="workRq" width="120px"/>
+                </td>
+                <td align="right" width="80px">部门：</td>
+                <td>
+                    <input id="workDept" name="workDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" required
+                           emptyText="请选择" onbeforenodeselect="disableParentSelection" width="180" popupWidth="240" popupHeight="180" onvaluechanged="onDeptValueChanged"/>
+                </td>
+                <!--占位-->
+                <td colspan="6"></td>
+                <!--END 占位-->
+            </tr>
+
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grid" style="width:100%;height:100%;" allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+             showPager="false" sortMode="client" oncellcommitedit="OnCellCommitEdit"
+             oncellbeginedit="OnCellBeginEdit">
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="workId" align="left" width="100">工号</div>
+                <div tz:datagrid="column" field="workName" width="100">姓名</div>
+                <div tz:datagrid="column" field="workCj" displayField="cjname" align="left" width="100">车间
+                    <input property="editor" required class="mini-combobox" textField="text" valueFiled="id" url="/system/parameter/getParamsSelectListByParentId/技术/SCCJ"/>
+                </div>
+                <div tz:datagrid="column" field="workGx" displayField="gxname" align="left" width="300">工序
+                    <input property="editor" required class="mini-combobox" textField="text" valueFiled="id" multiSelect="true" url="/js/cpgy/scgx/getGxAllSelectList"/>
+                </div>
+                <div tz:datagrid="column" field="workBb" displayField="bbname" align="left" width="100">班别
+                    <input property="editor" required class="mini-combobox" textField="text" valueFiled="id" url="/system/parameter/getParamsSelectListByParentId/生产/SCBC"/>
+                </div>
+                <div tz:datagrid="column" field="workCt" displayField="ctname" align="left" width="300">车台
+                    <input property="editor" required class="mini-combobox" textField="text" valueFiled="id" multiSelect="true"/>
+                </div>
+                <div tz:datagrid="column" field="workGz" displayField="gzname" align="left" width="100" visible="false">工资方式
+                    <input property="editor" required class="mini-combobox" textField="text" valueFiled="id" url="/system/parameter/getParamsSelectListByParentId/生产/GZFS"/>
+                </div>
+                <div tz:datagrid="column" field="workSm" width="250" align="left">说明
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    var surl = "/sc/da/rydg";
+
+
+
+    mini.get("workDept").load("/system/dept/combobox/comboboxDeptTreeListByProduction");
+
+    function onDeptValueChanged() {
+        var deptId = mini.get("workDept").getValue();
+        button_grid.setUrl(encodeURI(surl + "/getDeptGridListToSysUser/{0}".format(deptId)));
+        button_grid.load();
+    }
+
+    function OnCellCommitEdit(e) {
+        var grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = e.value;
+        if (field == "workGx") {
+            button_grid.updateRow(record, {workCt: "", ctname: ""});
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var grid = e.sender;
+        var record = e.record;
+        var field = e.field, value = e.value;
+        var editor = e.editor;
+        if (field == "workCt") {
+            var cj = record.workCj;
+            if (cj) {
+                editor.setUrl("/mSbJt/sb/getJtList/{0}".format(cj));
+            } else {
+                e.cancel = true;
+            }
+
+        }
+    }
+
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+            if (button_grid.getData() == "") {
+                delAll();
+            }
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        //var workRq = mini.get("workRq").getValue();
+        var workRq = mini.formatDate(new Date(mini.get("workRq").getValue()), "yyyy-MM-dd");
+        var workDept = mini.get("workDept").getValue();
+        var action = $('[name=action]').val();
+        var rows = button_grid.getData();
+        if (action == "add") {
+            if (rows.length > 0) {
+                button_grid.removeRows(rows, true);
+            }
+        } else {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        button_grid.removeRows(rows, true);
+                    }
+                    var id = workRq + ',' + workDept;
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(id), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            button_grid.validate();
+            if (button_grid.isValid() == false) {
+                var error = button_grid.getCellErrors()[0];
+                button_grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            //var buttons = button_grid.getData(true);
+            var buttons = button_grid.getChanges();
+            if (buttons == "") {
+                return hmq.tipDanger('请选择需要保存的数据！');
+
+            }
+            var deletedList = button_grid.getChanges('removed', false);
+            $(buttons).each(function (index) {
+                buttons[index].rightOrd = index;
+                buttons[index]._state = buttons[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                mRyYgdg: form.getData(true),
+                mRyYgdgList: buttons,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        var action = options.action;
+        var row = options.data;
+        if ('add' == options.action) {
+            mini.get("workRq").setValue(new Date());
+            button_grid.clearData();
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            mini.get("workRq").setValue(row.workRq);
+            mini.get("workDept").setValue(row.workDept);
+            var params = {
+                workRq: row.workRq,
+                workDept: row.workDept
+            }
+            button_grid.setUrl(encodeURI(surl + "/getSrchList"));
+            button_grid.load({
+                params: mini.encode(params)
+            });
+            setIdDisable("workRq,workDept");
+        }
+    }
+
+
+</script>
+</html>

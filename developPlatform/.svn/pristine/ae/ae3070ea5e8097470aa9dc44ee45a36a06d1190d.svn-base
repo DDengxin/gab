@@ -1,0 +1,46 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingPlan.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.dao.TrainingPlanDao;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.model.EHrTrainingPlan;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.service.TrainingPlanService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Map;
+
+@Service
+@Transactional
+public class TrainingPlanServiceImpl implements TrainingPlanService {
+
+    @Autowired
+    private TrainingPlanDao trainingPlanDao;
+
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto baseDto) {
+        return null;
+    }
+
+    @Override
+    public Result saveData(EHrTrainingPlan eHrTrainingPlan) {
+        return null;
+    }
+
+    @Override
+    public EHrTrainingPlan getDataByNote(String jhNote) {
+        return null;
+    }
+
+    @Override
+    public Result updateData(EHrTrainingPlan eHrTrainingPlan) {
+        return null;
+    }
+
+    @Override
+    public Result deleteByNote(String jhNote) {
+        return null;
+    }
+}

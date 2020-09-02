@@ -1,0 +1,97 @@
+package com.tengzhi.business.platform.enroll.service.impl;
+
+
+import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.RandomUtil;
+import com.tengzhi.business.platform.enroll.service.RegisterService;
+import com.tengzhi.business.system.setting.service.Impl.SysSetServiceImpl;
+import com.tengzhi.business.system.sms.constant.SmsType;
+import com.tengzhi.business.system.sms.dao.SysSmsDao;
+import com.tengzhi.business.system.sms.model.SysSmsLog;
+import com.tengzhi.business.system.sms.service.SmsService;
+import com.tengzhi.business.system.sms.service.SysSmsService;
+import com.tengzhi.business.system.user.model.SysUser;
+import com.tengzhi.business.system.user.service.SysUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Date;
+
+@Service
+@Transactional
+public class RegisterServiceImpl implements RegisterService {
+	@Autowired
+	SysUserService sysUserService;
+	@Autowired
+	SmsService smsService1;
+	
+	
+	@Autowired
+    SysSmsService sysSmsService;
+	@Autowired
+	SysSetServiceImpl sysSetServiceImpl;
+    @Autowired
+    private SysSmsDao sysSmsDao;
+
+	@Override
+	public Boolean sendRegisterSms(SysUser user, String corpId) throws Exception {
+		SysSmsLog  sysSmsLog = new SysSmsLog();
+		
+		    String randomNumbers=RandomUtil.randomNumbers(6);
+		//短信保存到数据库表
+		 sysSmsLog.setOperationByUser(user.getUserId());
+         sysSmsLog.setOperationTime(new Date());
+         sysSmsLog.setUuid(UUID.randomUUID().toString(true));
+         sysSmsLog.setSendTime(new Date());
+         sysSmsLog.setUserId(user.getUserId());
+         sysSmsLog.setPhone(user.getMobile());
+         sysSmsLog.setContent(randomNumbers);
+         sysSmsLog.setSuccess(true);
+         sysSmsLog.setOperationTime(new Date());
+         sysSmsDao.save(sysSmsLog);
+		///String  sysinfo = smsService.send(user.getMobile(),randomNumbers);
+		
+         // 发送短信
+         SysSmsLog sSmsLog = sysSmsService.send(SysSmsLog.GenSms(user, SmsType.GABREGISTER, RandomUtil.randomNumbers(6)));
+         if (sSmsLog.getSuccess()) {
+             return true;
+         } else {
+             throw new Exception("短信发送失败");
+         }
+		
+	
+	}
+
+
+	@Override
+	public String sendNoticeSms(SysUser user, String text) throws Exception {
+		SysSmsLog  sysSmsLog = new SysSmsLog();
+		
+		  //  String randomNumbers=RandomUtil.randomNumbers(6);
+		//短信保存到数据库表
+		 sysSmsLog.setOperationByUser(user.getUserId());
+         sysSmsLog.setOperationTime(new Date());
+         sysSmsLog.setUuid(UUID.randomUUID().toString(true));
+         sysSmsLog.setSendTime(new Date());
+         sysSmsLog.setUserId(user.getUserId());
+         sysSmsLog.setPhone(user.getMobile());
+         sysSmsLog.setContent(text);
+         sysSmsLog.setSuccess(true);
+         sysSmsLog.setOperationTime(new Date());
+         sysSmsDao.save(sysSmsLog);
+         
+         SysSmsLog sSmsLog = sysSmsService.send(SysSmsLog.GenSms(user, SmsType.GABREGISTER, RandomUtil.randomNumbers(6)));
+         if (sSmsLog.getSuccess()) {
+             
+         } else {
+             throw new Exception("短信发送失败");
+         }
+		
+         
+		//String  sysinfo = smsService.send(user.getMobile(),text);
+		System.err.println("AAAAA"+text);
+		return text;
+		
+	}
+}

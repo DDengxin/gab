@@ -1,0 +1,120 @@
+package com.tengzhi.business.sale.saleProduct.saleDelivery.service;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.mesGz.gzck.vo.ECKOutVo;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut;
+import com.tengzhi.business.mesGz.gzck.vo.EckOut.ECkOut_PK;
+import com.tengzhi.business.resouces.vo.SelectVo;
+
+public interface SaleDeliveryService extends BaseService<EckOut, ECkOut_PK> {
+
+	/**
+	 * 销售发货列表
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<EckOut> findAll(BaseDto baseDto) throws IOException;
+	
+	/**
+	 * 获取库存列表
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	 Map<String, Object> getKcList(BaseDto baseDto) throws IOException;
+	
+	/**
+	 * 根据单号获取发货信息
+	 * @param outNote
+	 * @return
+	 */
+	EckOut findByNote(String outNote);
+	
+	/**
+	 * 获取出库列表
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	BasePage<Map<String, Object>> getOutList(BaseDto baseDto) throws IOException;
+	/**
+	 * 保存出库
+	 * @param eCkOutVo
+	 * @return
+	 * @throws Exception
+	 */
+	Result save(ECKOutVo eCkOutVo) throws Exception;
+	
+	/**
+	 * 修改出库
+	 * @param eCkOutVo
+	 */
+	Result update(ECKOutVo eCkOutVo);
+	/**
+	 * 删除
+	 * @param outNote
+	 */
+	Result deleteByNote(String outNote);
+	/**
+	 * 获取发货订单下拉框
+	 * @param customer
+	 * @param  outType
+	 * @return
+	 */
+	List<Map> getItemSelectList(String customer,String outType);
+	/**
+	 * 获取信息
+	 * @param contract
+	 * @return
+	 */
+	List<Map> getCodeSelectList( String contract);
+	
+	/**
+	 * 确认
+	 * @param outNote
+	 * @return
+	 */
+	Result confirm(String outNote);
+	
+	/**
+	 * 取消
+	 * @param outNote
+	 * @return
+	 */
+	Result cancel(String outNote);
+	/**
+	 * 获取状态
+	 * @param outNote
+	 * @param  flag
+	 * @return
+	 */
+	Result getFlag(String outNote,String flag);
+
+	/**
+	 * 获取订单材质列表
+	 * @param baseDto
+	 * @return
+	 * @throws IOException
+	 */
+	 Map<String, Object> getItemDetailList(BaseDto baseDto) throws IOException;
+	
+	/**
+	 * 根据大包装号获取信息 
+	 * @param bpack
+	 * @return
+	 */
+	List<EckOut> getDetailByBpack(String bpack,String contract);
+	
+	
+	ModelAndView table(ModelAndView mv, String outNotes);
+}

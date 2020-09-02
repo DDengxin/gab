@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产减损</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="类别编码">
+            <input class="mini-textbox" name="fnumber"/>
+        </label>
+        <label class="hmq-label" text="类别名称">
+            <input class="mini-textbox" name="fname"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" style="width: 100%; height: 100%;"
+         idField="ksid" url="/finance/capitalManager/capitalDepletion/list.html"
+         sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" showPageInfo="false" sortField="ksid" allowSort="true"
+         align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div  tz:datagrid="column"  allowSort = "true"  renderer = "onActionRenderer"  allowResize = "true"  align = "center" width = "100"  field = "rq"  >日期</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "110"  field = "note"  >单号</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "zccode" displayField="zccodeName" >资产编码</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "cgcode"  >物料编码</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "100"  field = "sname"  >设备名称</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "ksize"  >规格型号</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "nynx"  >耐用年限</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "yyyf"  >已用月份</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "zmcz"  >账面残值</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "zctype"  >正常类别</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "fpjz"  >废品价值</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "clfy"  >处理费用</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "150"  field = "cfdd"  >存放地点</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "sjss"  >实际损失额</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "100"  field = "dyhk"  >抵押行库</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "cph"  >厂牌号码</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "sl"  >数量</div>
+            <div  tz:datagrid="column"  allowSort = "true"  renderer = "onActionRenderer"  allowResize = "true"  align = "center" width = "100"  field = "gzrq"  >购置日期</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "qdjz"  >取得价值</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "sqr"  >申请人</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "ytzj"  >已提折旧</div>
+            <div  visible = "false" headerAlign = "center"   allowSort = "true"    allowResize = "true"  align = "right" width = "80"  field = "sb_name"  >所属设备</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "150"  field = "yt"  >用途</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "150"  field = "bfyy"  >减损原因</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "left" width = "150"  field = "cwyj"  >财务意见</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "flag"  >状态</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "man" displayField="manName" >操作人</div>
+            <div  tz:datagrid="column"  allowSort = "true"  renderer = "onActionRenderer"  allowResize = "true"  align = "center" width = "100"  field = "oprq"  >操作时间</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "qrman"  visible="false">确认人</div>
+            <div  visible = "false" headerAlign = "center"   allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "ksid"  >ksid</div>
+            <div  tz:datagrid="column"  allowSort = "true"  renderer = "onActionRenderer"  allowResize = "true"  align = "center" width = "100" visible="false" field = "qrrq"  >确认时间</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "100%"    ></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_grid = mini.get("srch_grid");
+    srch_grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        srch_grid.load();
+    }
+
+    /**
+     * 新增
+     **/
+    function add_option(e){
+        var row = srch_grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row,width:800});
+    }
+
+    /**查阅*/
+    function view_option(e){
+        var row = srch_grid.getSelected();
+        if(row){
+            e.sender.miniopen({url: "add.html", action: 'view', data: row});
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 修改
+     **/
+    function edit_option(e){
+        var row = srch_grid.getSelected();
+        if(row){
+            e.sender.miniopen({url: "add.html", action: 'edit', data: row});
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**删除*/
+    function delete_option() {
+        var row = srch_grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteById/{0}".format(row.ksid), function (res) {
+                        if (200 === res.code) {
+                            srch_grid.reload();
+                            hmq.tipSuccess("删除完成");
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+package com.tengzhi.business.platform.order.service;
+
+import java.io.IOException;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.shopping.model.G_EXsContract;
+import com.tengzhi.business.platform.shopping.model.G_EXsContractDetailed;
+
+public interface OrderService extends BaseService<G_EXsContract, String> {
+
+	BasePage<G_EXsContract> findAll(BaseDto baseDto) throws IOException;
+
+	BasePage<G_EXsContractDetailed> getSrchBottomList(BaseDto baseDto) throws IOException;
+
+	G_EXsContract findByNote(String htNO);
+	
+}

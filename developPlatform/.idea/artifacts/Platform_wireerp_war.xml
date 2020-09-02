@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Platform_wireerp:war">
+    <output-path>$PROJECT_DIR$/Platform_wireerp/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>Platform_wireerp</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="Platform_wireerp-1.0.war">
+      <element id="artifact" artifact-name="Platform_wireerp:war exploded" />
+    </root>
+  </artifact>
+</component>

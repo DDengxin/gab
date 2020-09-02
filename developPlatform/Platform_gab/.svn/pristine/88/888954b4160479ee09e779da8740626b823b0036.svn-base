@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic,upload'})}">
+		<title>需求市场</title>
+	</th:block>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/requirement.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/annex.css}"/>
+    <script type="text/javascript" th:src="@{/static/gab/js/plugs/PCASClass.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/requirement.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/formConfig.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/annex.js}"></script>
+</head>
+<body>
+<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+<div class="require_container">
+     <input type="hidden" id="needForm" name="needForm" value="CP">
+    <div class="require_content">
+        <h2>发布需求</h2>
+        <div class="main_content">
+            <ul id="tablist">
+                <li class="tabin">产品需求</li>
+                <li >服务需求</li>
+            </ul>
+            <div class="content-box">
+                <!-- 产品需求 -->
+                <div class="content contentin">
+                    <form id="productNeedForm">
+                        <ul>
+                            <li>
+                                <div>
+										<span  name="cpcodeName_Name">
+											夹具名称
+											<i>*</i>
+										</span>
+                                    <input type="text" id="cpcodeName" name="cpcodeName" required>
+                                </div>
+                                <div>
+										<span  name="cpcodeSize_Name">
+											夹具工位
+											<i>*</i>
+										</span>
+                                    <input type="text" id="cpcodeSize" name="cpcodeSize" required>
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+										<span id="jjdl" name="cpcodeSizeEn_Name">
+											夹具动力
+											<i>*</i>
+										</span>
+                                    <input type="text" id="cpcodeSizeEn" name="cpcodeSizeEn" required>
+                                </div>
+                                <div>
+										<span id="jjfl" name="cpcodeFl_Name">
+											夹具分类
+											<i>*</i>
+										</span>
+                                    <input type="text" id="cpcodeFl" name="cpcodeFl" required>
+                                </div>
+
+                            </li>
+                            <li>
+
+                                <div>
+										<span id="yyhy" name="cpcodeXp_Name">
+											应用行业
+											<i>*</i>
+										</span>
+                                    <div class="com-sel">
+                                        <select class="com-opt" id="cpcodeXp" name="cpcodeXp" required>
+
+                                        </select>
+                                    </div>
+                            </li>
+                            <span id="ConfigForm">
+									
+								</span>
+                            <li class="li_center">
+									<span id="type" name="introduceName">
+										需求介绍
+										<i>*</i>
+									</span>
+                                <textarea id="introduce"  name="introduce" cols="100" rows="8" required></textarea>
+                            </li>
+                            <li class="li_center" >
+									<span name="applyName">
+										应用需求
+										<i>*</i>
+									</span>
+                                <textarea id="apply" name="apply" cols="100" rows="8" required></textarea>
+                            </li>
+                            <li>
+                                <div>
+										<span>
+											任务周期(天)
+											<i>*</i>
+										</span>
+                                    <input type="text" id="dutyCycle" name="dutyCycle" oninput="value=value.replace(/[^\d]/g,'')" required>
+                                </div>
+                                <div>
+										<span>
+											截止时间
+											<i>*</i>
+										</span>
+                                    <input type="text" id="endTime" name="endTime" required>
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+										<span>
+											需求省份
+											<i>*</i>
+										</span>
+                                    <div class="com-sel" id="needProvince" name="needProvince">
+                                        <select class="com-opt" id="P1" name="P1" required></select>
+                                    </div>
+                                </div>
+                                <div>
+										<span>
+											需求城市
+											<i>*</i>
+										</span>
+                                    <div class="com-sel" id="needCity" name="needCity">
+                                        <select class="com-opt" id="C1" name="C1" required></select>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- <li>
+                                <div>
+                                    <span>
+                                        附件
+                                        <i>*</i>
+                                    </span>
+                                    <b class="addRow layui-icon layui-icon-addition"></b>
+                                </div>
+                                <div class="addContent">
+                                    <div class="addContent-table" id="addRow">
+                                        <div class="addHead">
+                                            <span>附件名称</span><span>附件内容</span><span>操作</span>
+                                        </div>
+                                        <div class="addBody">
+                                            <div class="annexName"><input type="text" name="annex" id="annex" required></div>
+                                            <div class="annexFile">
+                                                <span id="annexDiv" style="width: 100%;padding: 0 17px;"></span>
+                                                <input type="text" id="annexPlan" name="annexPlan" />
+                                            </div>
+                                            <div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>-->
+                            <li class="li_center">
+									<span>
+										需求方案
+										<i>*</i>
+									</span>
+                                <span id="makingPlanDiv" style="width: 50%; margin-left: 25px;"></span>
+                                <input type="hidden" id="needPlan" name="needPlan"/>
+                            </li>
+                            <li class="li_center">
+									<span>
+										需求图片
+									</span>
+                                <span id="imgDiv" style="width: 50%; margin-left: 25px;"></span>
+                                <input type="hidden" id="needImg" name="needImg"/>
+                            </li>
+                            <li class="li_center">
+                                <span>需求附件</span>
+                                <span id="fileDiv" style="width: 50%; margin-left: 25px;"></span>
+                                <input type="hidden" id="needFile" name="needFile"/>
+                            </li>
+                            <li>
+                                <u>上传附件，便于服务商精准报价。可上传图片或文档。建议文件大小55KB-2MB。</u>
+                            </li>
+                        </ul>
+                        <div class="btn">
+                            <div class="btn_content">
+                                <input type="submit" id="supplySubmit" value="提交需求">
+                            </div>
+                        </div>
+                    </form>
+                    <iframe id="rfFrame" name="rfFrame" src="about:blank" style="display:none;"></iframe>
+                </div>
+
+                <!-- 服务需求 -->
+                <!--					<div class="content">-->
+                <!--						<form id="serviceForm">-->
+                <!--							<ul>-->
+                <!--								<li>-->
+                <!--									<div>-->
+                <!--										<span>-->
+                <!--											服务阶段-->
+                <!--											<i>*</i>-->
+                <!--										</span>-->
+                <!--										<div class="com-sel">-->
+                <!--											<select class="com-opt" id="serviceStage" name="serviceStage">-->
+                <!--												<option value="">售前</option>-->
+                <!--												<option value="">售中</option>-->
+                <!--												<option value="">售后</option>-->
+                <!--											</select>-->
+                <!--										</div>-->
+                <!--									</div>-->
+                <!--									<div>-->
+                <!--										<span>-->
+                <!--											服务类型-->
+                <!--											<i>*</i>-->
+                <!--										</span>-->
+                <!--										<div class="com-sel">-->
+                <!--											<select class="com-opt" id="serviceType" name="serviceType">-->
+                <!--												<option value="">专家服务</option>-->
+                <!--												<option value="">项目服务</option>-->
+                <!--												<option value="">上门服务</option>-->
+                <!--												<option value="">技术交流</option>-->
+                <!--												<option value="">专家指导</option>-->
+                <!--											</select>-->
+                <!--										</div>-->
+                <!--									</div>-->
+                <!--								</li>-->
+                <!--								<li>-->
+                <!--									<div>-->
+                <!--										<span>-->
+                <!--											服务主题-->
+                <!--											<i>*</i>-->
+                <!--										</span>-->
+                <!--										<input type="text" id="serviceTitle" name="serviceTitle" required>-->
+                <!--									</div>-->
+                <!--									<div>-->
+                <!--										<span>-->
+                <!--											服务产品-->
+                <!--											<i>*</i>-->
+                <!--										</span>-->
+                <!--										<input type="text" id="serviceProduct" name="serviceProduct" required>-->
+                <!--									</div>-->
+                <!--								</li>-->
+                <!--								<li>-->
+                <!--									<div>-->
+                <!--										<span>-->
+                <!--											服务成果-->
+                <!--											<i>*</i>-->
+                <!--										</span>-->
+                <!--										<div class="com-sel">-->
+                <!--											<select class="com-opt" id="serviceResult" name="serviceResult" required></select>-->
+                <!--										</div>-->
+                <!--									</div>-->
+                <!--								</li>-->
+                <!--								<span id="ServicefigForm">-->
+                <!--									-->
+                <!--								</span>-->
+                <!--								&lt;!&ndash;<li>-->
+                <!--									<div>-->
+                <!--										<span>-->
+                <!--											附件-->
+                <!--											<i>*</i>-->
+                <!--										</span>-->
+                <!--										<b class="addRowProduct layui-icon layui-icon-addition"></b>-->
+                <!--									</div>-->
+                <!--									<div class="addContent">-->
+                <!--										<div class="addContent-table" id="addRowProduct">-->
+                <!--											<div class="addHead">-->
+                <!--												<span>附件名称</span><span>附件内容</span><span>操作</span>-->
+                <!--											</div>-->
+                <!--											<div class="addBody">-->
+                <!--												<div class="annexName"><input type="text" name="annexProduct" id="annexProduct" required></div>-->
+                <!--												<div class="annexFile">-->
+                <!--													<span id="annexProductDiv" style="width: 100%;padding: 0 17px;"></span>-->
+                <!--													<input type="text" id="annexProductPlan" name="annexProductPlan" />-->
+                <!--												</div>-->
+                <!--												<div></div>-->
+                <!--											</div>-->
+                <!--										</div>-->
+                <!--									</div>-->
+                <!--								</li>&ndash;&gt;-->
+                <!--								<li class="li_center">-->
+                <!--									<span>-->
+                <!--										产品图纸-->
+                <!--										<i>*</i>-->
+                <!--									</span>-->
+                <!--									<span id="productDrawing" style="width: 50%; margin-left: 25px;"></span>-->
+                <!--									<input type="text" id="productDrawingFile" name="productDrawingFile" />-->
+                <!--								</li>-->
+                <!--								<li class="li_center">-->
+                <!--									<span>-->
+                <!--										产品图片-->
+                <!--										<i>*</i>-->
+                <!--									</span>-->
+                <!--									<span id="productImgDiv" style="width: 50%; margin-left: 25px;"></span>-->
+                <!--									<input type="text" id="productImg" name="productImg" />-->
+                <!--								</li>-->
+                <!--								<li class="li_center">-->
+                <!--									<span>产品附件</span>-->
+                <!--									<span id="productDiv" style="width: 50%; margin-left: 25px;"></span>-->
+                <!--									<input type="text" id="productFile" name="productFile" />-->
+                <!--								</li>-->
+                <!--								<li>-->
+                <!--									<u>上传附件，便于服务商精准报价。可上传图片或文档。建议文件大小55KB-2MB。</u>-->
+                <!--								</li>-->
+                <!--							</ul>-->
+                <!--							<div class="btn">-->
+                <!--								<div class="btn_content">-->
+                <!--									<input type="submit" value="提交需求">-->
+                <!--								</div>-->
+                <!--							</div>-->
+                <!--						</form>-->
+                <!--						<iframe id="sfFrame" name="sfFrame" src="about:blank" style="display:none;"></iframe>-->
+                <!--					</div>-->
+            </div>
+
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+</th:block>
+</body>
+<script type="text/javascript">
+    needImg();
+    needFile();
+    makingPlanFile();
+
+    /* $("#needImg").hide();
+    $("#needFile").hide();
+    $("#makingPlan").hide(); */
+
+    function needImg() {
+        var fileId = getFileId();
+        $("#needImg").val(fileId);
+        $("#imgDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 1,
+        });
+    }
+
+    function needFile() {
+        var fileId = getFileId();
+        $("#needFile").val(fileId);
+        $("#fileDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 1,
+        });
+    }
+
+    function makingPlanFile() {
+        var fileId = getFileId();
+        $("#needPlan").val(fileId);
+        $("#makingPlanDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 1,
+        });
+    }
+
+    // 服务需求的上传文件控件
+    productDrawingFile();
+    productImg();
+    productFile();
+
+    /* $("#productDrawingFile").hide();
+    $("#productImg").hide();
+    $("#productFile").hide(); */
+
+    function productDrawingFile() {
+        var fileId = getFileId();
+        $("#productDrawingFile").val(fileId);
+        $("#productDrawing").filesUpload({
+            pickerid: fileId,
+            filecount: 1,
+        });
+    }
+
+    function productImg() {
+        var fileId = getFileId();
+        $("#productImg").val(fileId);
+        $("#productImgDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 1,
+        });
+    }
+
+    function productFile() {
+        var fileId = getFileId();
+        $("#productFile").val(fileId);
+        $("#productDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 1,
+        });
+    }
+
+    /* annexPlan();
+    annexProductPlan();
+    $('#annexPlan').hide();
+    $('#annexProductPlan').hide();
+
+    function annexPlan() {
+        var fileId = getFileId();
+        $("#annexPlan").val(fileId);
+        $("#annexDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 50,
+        });
+    }
+    function annexProductPlan() {
+        var fileId = getFileId();
+        $("#annexProductPlan").val(fileId);
+        $("#annexProductDiv").filesUpload({
+            pickerid: fileId,
+            filecount: 50,
+        });
+    } */
+
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#endTime',
+            trigger: 'click',
+            min: minDate()
+        });
+    });
+
+    // 设置最小可选的日期
+    function minDate() {
+        var now = new Date();
+        return now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + (now.getDate() + 1);
+    }
+
+    $("#productNeedForm").submit(function () {
+        save("product");
+        return false;
+    });
+
+    $("#productNeedForm").click(function () {
+        $("#supplyForm").attr("target", "rfFrame");
+    });
+
+    $("#serviceForm").submit(function () {
+        save("service");
+        return false;
+    });
+
+    $("#serviceForm").click(function () {
+        $("#serviceForm").attr("target", "sfFrame");
+    });
+
+</script>
+
+</html>

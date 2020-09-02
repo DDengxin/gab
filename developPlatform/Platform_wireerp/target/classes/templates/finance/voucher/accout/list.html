@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>凭证科目</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<div class="mini-tabs" style="width:100%;height:100%;" activeIndex="0" onactivechanged="onActivechanged" buttons="#tabsButtons" buttonsAlign="left">
+			<div title="资产">
+				<div style="width:100%;height:100%;">
+					<div id="add_grid0" class="mini-datagrid" style="width:100%;height:100%;" idField="id" showPager="false" allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true"
+						editNextRowCell="true" multiSelect="false" sortMode="client" sizeList="[50,100,200]" pageSize="200" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" showColumnsMenu="true"
+						showSummaryRow="false">
+						<div property="columns">
+							<div type="indexcolumn" headerAlign="center" width="50">序号</div>
+							<div field="id" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="left" allowSort="true">编码</div>
+							<div field="fname" width="120" headerAlign="center" align="left" allowSort="true">名称</div>
+							<div field="ffullname" width="300" headerAlign="center" align="left" allowSort="true">全称</div>
+							<div field="fgroupidname" width="120" headerAlign="center" align="center" allowSort="true">类别</div>
+							<div field="fdc" width="80" disPlayfield="fdc_n"   headerAlign="center" align="center" allowSort="true">余额方向</div>
+							<div field="fzks" width="120" headerAlign="center" align="center" allowSort="true">辅助核算</div>
+							<div field="fcur" width="120" headerAlign="center" align="center" allowSort="true">外币</div>
+							<div field="funit" width="80" headerAlign="center" align="center" allowSort="true">数量</div>
+							<div field="fisbank" width="70" disPlayfield="fisbank_n"  headerAlign="center" align="center" allowSort="true">银行科目</div>
+							<div field="fiscash" width="70" disPlayfield="fiscash_n"  headerAlign="center" align="center" allowSort="true">现金科目</div>
+							<div field="fisdelete" disPlayfield="fisdelete_n"  width="80" headerAlign="center" align="center" allowSort="true">状态</div>
+							<div field="" width="100%" align="center" headerAlign="center" allowSort="true"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div title="负债">
+				<div style="width:100%;height:100%;">
+					<div id="add_grid1" class="mini-datagrid" style="width:100%;height:100%;" idField="id" showPager="false" allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true"
+						editNextRowCell="true" multiSelect="false" sortMode="client" sizeList="[50,100,200]" pageSize="200" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" showColumnsMenu="true"
+						showSummaryRow="false">
+						<div property="columns">
+							<div type="indexcolumn" headerAlign="center" width="50">序号</div>
+							<div field="id" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="left" allowSort="true">编码</div>
+							<div field="fname" width="120" headerAlign="center" align="left" allowSort="true">名称</div>
+							<div field="ffullname" width="300" headerAlign="center" align="left" allowSort="true">全称</div>
+							<div field="fgroupidname" width="120" headerAlign="center" align="center" allowSort="true">类别</div>
+							<div field="fdc" width="80" disPlayfield="fdc_n"   headerAlign="center" align="center" allowSort="true">余额方向</div>
+							<div field="fzks" width="120" headerAlign="center" align="center" allowSort="true">辅助核算</div>
+							<div field="fcur" width="120" headerAlign="center" align="center" allowSort="true">外币</div>
+							<div field="funit" width="80" headerAlign="center" align="center" allowSort="true">数量</div>
+							<div field="fisbank" width="70" disPlayfield="fisbank_n"  headerAlign="center" align="center" allowSort="true">银行科目</div>
+							<div field="fiscash" width="70" disPlayfield="fiscash_n"  headerAlign="center" align="center" allowSort="true">现金科目</div>
+							<div field="fisdelete" disPlayfield="fisdelete_n"  width="80" headerAlign="center" align="center" allowSort="true">状态</div>
+							<div field="" width="100%" align="center" headerAlign="center" allowSort="true"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div title="权益">
+				<div style="width:100%;height:100%;">
+					<div id="add_grid2" class="mini-datagrid" style="width:100%;height:100%;" idField="id" showPager="false" allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true"
+						editNextRowCell="true" multiSelect="false" sortMode="client" sizeList="[50,100,200]" pageSize="200" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" showColumnsMenu="true"
+						showSummaryRow="false">
+						<div property="columns">
+							<div type="indexcolumn" headerAlign="center" width="50">序号</div>
+							<div field="id" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="left" allowSort="true">编码</div>
+							<div field="fname" width="120" headerAlign="center" align="left" allowSort="true">名称</div>
+							<div field="ffullname" width="300" headerAlign="center" align="left" allowSort="true">全称</div>
+							<div field="fgroupidname" width="120" headerAlign="center" align="center" allowSort="true">类别</div>
+							<div field="fdc" width="80" disPlayfield="fdc_n"   headerAlign="center" align="center" allowSort="true">余额方向</div>
+							<div field="fzks" width="120" headerAlign="center" align="center" allowSort="true">辅助核算</div>
+							<div field="fcur" width="120" headerAlign="center" align="center" allowSort="true">外币</div>
+							<div field="funit" width="80" headerAlign="center" align="center" allowSort="true">数量</div>
+							<div field="fisbank" width="70" disPlayfield="fisbank_n"  headerAlign="center" align="center" allowSort="true">银行科目</div>
+							<div field="fiscash" width="70" disPlayfield="fiscash_n"  headerAlign="center" align="center" allowSort="true">现金科目</div>
+							<div field="fisdelete" disPlayfield="fisdelete_n"  width="80" headerAlign="center" align="center" allowSort="true">状态</div>
+							<div field="" width="100%" align="center" headerAlign="center" allowSort="true"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div title="成本">
+				<div style="width:100%;height:100%;">
+					<div id="add_grid3" class="mini-datagrid" style="width:100%;height:100%;" idField="id" showPager="false" allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true"
+						editNextRowCell="true" multiSelect="false" sortMode="client" sizeList="[50,100,200]" pageSize="200" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" showColumnsMenu="true"
+						showSummaryRow="false">
+						<div property="columns">
+							<div type="indexcolumn" headerAlign="center" width="50">序号</div>
+							<div field="id" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="left" allowSort="true">编码</div>
+							<div field="fname" width="120" headerAlign="center" align="left" allowSort="true">名称</div>
+							<div field="ffullname" width="300" headerAlign="center" align="left" allowSort="true">全称</div>
+							<div field="fgroupidname" width="120" headerAlign="center" align="center" allowSort="true">类别</div>
+							<div field="fdc" width="80" disPlayfield="fdc_n"   headerAlign="center" align="center" allowSort="true">余额方向</div>
+							<div field="fzks" width="120" headerAlign="center" align="center" allowSort="true">辅助核算</div>
+							<div field="fcur" width="120" headerAlign="center" align="center" allowSort="true">外币</div>
+							<div field="funit" width="80" headerAlign="center" align="center" allowSort="true">数量</div>
+							<div field="fisbank" width="70" disPlayfield="fisbank_n"  headerAlign="center" align="center" allowSort="true">银行科目</div>
+							<div field="fiscash" width="70" disPlayfield="fiscash_n"  headerAlign="center" align="center" allowSort="true">现金科目</div>
+							<div field="fisdelete"  disPlayfield="fisdelete_n"  width="80" headerAlign="center" align="center" allowSort="true">状态</div>
+							<div field="" width="100%" align="center" headerAlign="center" allowSort="true"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div title="损益">
+				<div style="width:100%;height:100%;">
+					<div id="add_grid4" class="mini-datagrid" style="width:100%;height:100%;" idField="id" showPager="false" allowCellEdit="true" allowCellSelect="true" editNextOnEnterKey="true"
+						editNextRowCell="true" multiSelect="false" sortMode="client" sizeList="[50,100,200]" pageSize="200" oncellvalidation="onCellValidation" OnCellCommitEdit="OnCellCommitEdit" showColumnsMenu="true"
+						showSummaryRow="false">
+						<div property="columns">
+							<div type="indexcolumn" headerAlign="center" width="50">序号</div>
+							<div field="id" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="flevel" align="center" headerAlign="center" allowSort="true" visible="false"></div>
+							<div field="fnumber" width="80" headerAlign="center" align="left" allowSort="true">编码</div>
+							<div field="fname" width="120" headerAlign="center" align="left" allowSort="true">名称</div>
+							<div field="ffullname" width="300" headerAlign="center" align="left" allowSort="true">全称</div>
+							<div field="fgroupidname" width="120" headerAlign="center" align="center" allowSort="true">类别</div>
+							<div field="fdc" width="80" disPlayfield="fdc_n"   headerAlign="center" align="center" allowSort="true">余额方向</div>
+							<div field="fzks" width="120" headerAlign="center" align="center" allowSort="true">辅助核算</div>
+							<div field="fcur" width="120" headerAlign="center" align="center" allowSort="true">外币</div>
+							<div field="funit" width="80" headerAlign="center" align="center" allowSort="true">数量</div>
+							<div field="fisbank" width="70" disPlayfield="fisbank_n"   headerAlign="center" align="center" allowSort="true">银行科目</div>
+							<div field="fiscash" width="70" disPlayfield="fiscash_n"  headerAlign="center" align="center" allowSort="true">现金科目</div>
+							<div field="fisdelete" disPlayfield="fisdelete_n"  width="80" headerAlign="center" align="center" allowSort="true">状态</div>
+							<div field="" width="100%" align="center" headerAlign="center" allowSort="true"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar">
+		<form id="add_form" method="post">
+			<input id="id" name="id" class="mini-hidden" readonly="readonly" />
+			<input id="action" name="action" class="mini-hidden" readonly="readonly" />
+		</form>
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;"></td>
+				<td style="white-space:nowrap;" align="right" id="btnbar" />
+			</tr>
+		</table>
+	</div>
+	<div id="tabsButtons">
+		<label><h3>种类</h3></label>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("add_form");
+		var surl = "/finance/voucher/accout";
+
+		var grid = null;
+		var tabname = null;
+		var isminichange = false;//用来控制关闭后是否刷新主界面
+
+		function onGenderRenderer(e) {
+			var record = e.record;
+			if (e.field == "fisdelete") {
+				if (record.fisdelete == '1') {
+					return '启用';
+				} else {
+					return '禁用';
+				}
+			}
+			if (e.field == "fdc") {
+				if (record.fdc == '1') {
+					return '借';
+				} else {
+					return '贷';
+				}
+			}
+
+			if (e.field == "fisbank") {
+				if (record.fisbank == '1') {
+					return '是';
+				} else {
+					return '';
+				}
+			}
+			if (e.field == "fiscash") {
+				if (record.fiscash == '1') {
+					return '是';
+				} else {
+					return '';
+				}
+			}
+
+		}
+
+		function onActivechanged(e) {
+			grid = mini.get("add_grid" + e.index);
+			tabname = e.tab.title;
+			srch_option();
+		}
+		//新增
+	    function add_option() {
+	      
+	       miniopen({url: "acadd.html", action: 'add', width: '470px', height: '430'});
+	    }
+	    function addcalss_option(e) {
+	        var row = grid.getSelected();
+	        e.sender.miniopen({url: "acadd.html", action: 'addsub', data: row, width: '470px', height: '430'});
+	    }
+
+
+
+		/**
+		修改方法
+		 */
+		function modify_option() {
+			var row = grid.getSelected();
+			if (row) {
+				var vurl = surl + "-add.html";
+				miniopen(vurl, "【科目】修改", row.faccountid, "edit", 470, 430);
+			} else {
+				minitips("系统提示", "请选择一条记录", "danger");
+			}
+		}
+
+		/**
+		查询方法
+		 */
+		function srch_option() {
+			grid.setUrl(surl + "/list");
+			var params = {
+				tabname : tabname
+			};
+			grid.load({
+				params : mini.encode(params)
+			});
+		}
+
+		/**
+		删除方法
+		 */
+		function del_option() {
+			var row = grid.getSelected();
+			if (row) {
+				mini.confirm("确定删除记录？", "提示信息", function(action) {
+					if (action == "ok") {
+						form.loading("操作中，请稍后......");
+						$.ajax({
+							url : surl + "/remove.do",
+							data : {
+								params : row.faccountid
+							},
+							type : "post",
+							cache : false,
+							dataType : "json",
+							success : function(data) {
+								form.unmask();
+								if (data.status) {
+									srch_option();
+								} else {
+									minitips("系统提示", data.message, "danger");
+								}
+							},
+							error : function() {
+								minitips("系统提示", "网络操作请求失败", "danger");
+							}
+						});
+					}
+				});
+			} else {
+				minitips("系统提示", "请选择一条记录", "danger");
+			}
+		}
+
+		function export_option() {
+			   var columns = grid.getBottomColumns();
+			   columns = columns.clone();
+			   for (var i = columns.length - 1; i >= 0; i--) {
+			       var column = columns[i];
+			       if (!column.field||column.visible==false) {
+			           columns.removeAt(i);
+			       } else {
+			           var c = {
+			               header: column.header,
+			               field: column.field,
+			               headerAlign: column.headerAlign,
+			               width: column.width,
+			               vtype: column.vtype,
+			               align: column.align,
+			               displayField: column.displayField,
+			               dateFormat: column.dateFormat,
+			               dataType: column.dataType
+			           };
+			           columns[i] = c;
+			       }
+			   }
+			   var data = form.getData(true);
+			   DownLoad(surl+"/download.do", {
+			       type: "excel",
+			       columns: columns,
+			       params: mini.encode(data)
+			   });
+			}
+		function OnCellCommitEdit(e) {
+
+			var editor = e.editor;
+
+			editor.validate();
+			if (editor.isValid() == false) {
+				minitips("系统提示", editor.getErrorText(), "danger");
+				e.cancel = true;
+			}
+			var grid = e.sender;
+			var record = e.record;
+			var field = e.field, value = e.value;
+
+		}
+
+		//查阅时的字段不能被修改
+		function readOnly() {
+			var fields = form.getFields();
+			for (var i = 0, l = fields.length; i < l; i++) {
+				var c = fields[i];
+				c.setReadOnly(true);
+			}
+		}
+		//控制是否刷新主界面
+		function isRefrush(isminichange) {
+			if (isminichange) {
+				if (window.CloseOwnerWindow)
+					return window.CloseOwnerWindow("refrush");
+				else
+					window.close();
+			} else {
+				if (window.CloseOwnerWindow)
+					return window.CloseOwnerWindow("close");
+				else
+					window.close();
+			}
+		}
+		//修改关闭窗口时提示数据保存
+		function CloseWindow(action) {
+			if (action == "close" && form.isChanged()) {
+				mini.confirm("数据被修改了，是否先保存？", "提示信息", function(returndata) {
+					if (returndata != "ok") {
+						isRefrush(isminichange);
+					}
+				});
+				return false;
+			}
+			isRefrush(isminichange);
+			if (window.CloseOwnerWindow)
+				return window.CloseOwnerWindow(action);
+			else
+				window.close();
+		}
+		function onCancel(e) {
+			CloseWindow("close");
+		}
+	</script>
+</body>
+</html>

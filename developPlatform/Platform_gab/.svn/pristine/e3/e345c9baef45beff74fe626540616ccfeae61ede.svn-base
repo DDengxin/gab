@@ -1,0 +1,9 @@
+.layui-form-select{
+    width: 25%;
+}
+.layui-form-select input{
+    width: 100% !important;
+} 
+.layui-form-select .layui-select-title{
+    width: 100%;
+}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title></title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input name="id" class="mini-hidden"/>
+        <input name="action" class="mini-hidden">
+        <input name="past" class="mini-hidden">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>提醒日期:</td>
+                <td content>
+                    <input id="todoDate" name="todoDate" class="mini-datepicker" required format="yyyy-MM-dd HH:mm" timeFormat="HH:mm:00" showTime="true" showOkButton="true" showClearButton="false"/>
+                </td>
+                <td title>标签</td>
+                <td content>
+                    <input class="mini-combobox" name="label" url="/dict/label" allowInput="true"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>提醒内容:</td>
+                <td content colspan="3">
+                    <input class="mini-textarea" style="height:180px;" required name="content"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="OKData" iconCls="icon-save" id="okBtn">确认</a>
+    <a class="mini-button" onclick="DelData" iconCls="icon-save" id="delBtn">删除</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        //默认当天
+        mini.get("todoDate").setValue(new Date());
+        $("[name=action]").val(options.action);
+        if ('add' == options.action) {
+            mini.get("delBtn").setVisible(false);
+            mini.get("okBtn").setVisible(false);
+        } else if ('edit' == options.action) {
+            $.get("todoID.html/{0}".format(options.Id), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    if (!!res.data.status) {
+                        mini.get("okBtn").setVisible(false);
+                        mini.get("saveBtn").setVisible(false);
+                        form.setEnabled(false);
+                    }
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            var formData = form.getData(true);
+            //补全格式，方便保存
+            formData.todoDate += ":00";
+            $[method]("add.html", JSON.stringify(formData), function (res) {
+                if (200 === res.code) {
+                    CloseWindow();
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function DelData() {
+        $["delete"]("Todo.html/{0}".format($("[name=id]").val()), function (res) {
+            if (200 === res.code) {
+                CloseWindow('refresh');
+            } else {
+                hmq.tipDanger(res.msg);
+            }
+        });
+    }
+
+    function OKData() {
+        $["put"]("TodoOK.html/{0}".format($("[name=id]").val()), function (res) {
+            if (200 === res.code) {
+                CloseWindow('refresh');
+            } else {
+                hmq.tipDanger(res.msg);
+            }
+        });
+    }
+
+
+</script>
+</html>

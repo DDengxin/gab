@@ -1,0 +1,110 @@
+package com.tengzhi.business.finance.capitalManager.capitalType.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.UUID;
+
+@Entity
+@Table(name = "e_f_voucher_reportitem")
+public class EFVoucherCapitaltype {
+
+  @Id
+  private String cid = UUID.randomUUID().toString();
+  private String cCode;
+  private String cName;
+  private String cZjff;
+  private String cYjsynx;
+  private String cZq;
+  private String cYjjczl;
+  private String cGdzckm;
+  private String cLjzjkm;
+  private String cRemarks;
+
+  public String getCid() {
+    return cid;
+  }
+
+  public void setCid(String cid) {
+    this.cid = cid;
+  }
+  public String getCCode() {
+    return cCode;
+  }
+
+  public void setCCode(String cCode) {
+    this.cCode = cCode;
+  }
+
+
+  public String getCName() {
+    return cName;
+  }
+
+  public void setCName(String cName) {
+    this.cName = cName;
+  }
+
+
+  public String getCZjff() {
+    return cZjff;
+  }
+
+  public void setCZjff(String cZjff) {
+    this.cZjff = cZjff;
+  }
+
+
+  public String getCYjsynx() {
+    return cYjsynx;
+  }
+
+  public void setCYjsynx(String cYjsynx) {
+    this.cYjsynx = cYjsynx;
+  }
+
+
+  public String getCZq() {
+    return cZq;
+  }
+
+  public void setCZq(String cZq) {
+    this.cZq = cZq;
+  }
+
+
+  public String getCYjjczl() {
+    return cYjjczl;
+  }
+
+  public void setCYjjczl(String cYjjczl) {
+    this.cYjjczl = cYjjczl;
+  }
+
+
+  public String getCGdzckm() {
+    return cGdzckm;
+  }
+
+  public void setCGdzckm(String cGdzckm) {
+    this.cGdzckm = cGdzckm;
+  }
+
+
+  public String getCLjzjkm() {
+    return cLjzjkm;
+  }
+
+  public void setCLjzjkm(String cLjzjkm) {
+    this.cLjzjkm = cLjzjkm;
+  }
+
+
+  public String getCRemarks() {
+    return cRemarks;
+  }
+
+  public void setCRemarks(String cRemarks) {
+    this.cRemarks = cRemarks;
+  }
+}

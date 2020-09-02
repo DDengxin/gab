@@ -1,0 +1,95 @@
+package com.tengzhi.business.system.library.service.impl;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.system.library.dao.LibraryDao;
+import com.tengzhi.business.system.library.model.Library;
+import com.tengzhi.business.system.library.service.LibraryService;
+
+@Service
+@Transactional
+public class LibraryServiceImpl implements LibraryService {
+	@Autowired
+	private LibraryDao libraryDao;
+
+	/**
+	 * 获取列表信息
+	 */
+	public Result findAll(BaseDto dto) {
+		Map<String,String> map = dto.getParamsMap();
+		String arType = map.get("arType");
+		String arLocation = map.get("arLocation");
+		String arSecrecy = map.get("arSecrecy");
+		String arNote = map.get("arNote");
+		String arTitle = map.get("arTitle");
+		String where = SqlJoint.where(c -> {
+			c.eq("ar_type", arType);
+			c.eq("ar_location", arLocation);
+			c.eq("ar_secrecy", arSecrecy);
+			c.eq("ar_note", arNote);
+			c.eq("ar_title", arTitle);
+		}, true);
+		String sql = "select *,f_getname('GETARTYPENAME', ar_type, '', '') \"arTypeName\",f_getname('GETARTYPENAME', ar_location, '', '') \"arLocationName\",f_getname('GETARTYPENAME', ar_secrecy, '', '') \"arSecrecyName\" from e_xt_archive" + where;
+		if("".equals(where) || null == where) {
+			sql = sql + " where ar_newest = true" ;
+		}else {
+			sql = sql + " and ar_newest = true";
+		}
+		return libraryDao.QueryMapPageList(dto, sql, true).getResult();
+	}
+	/**
+	 * 获取修改记录
+	 */
+	public Result findByArUuid(String arUuid) {
+		return Result.resultOk(libraryDao.findByArUuid(arUuid));
+	}
+	/**
+	 * 取得单号列表
+	 */
+	public Result findArNoteBy(String arNote) {
+		String where = SqlJoint.where(c -> c.eq("ar_note", arNote), true);
+		return  Result.resultOk(libraryDao.QueryListMap("SELECT ar_note || '-' || ar_version ar_note FROM \"e_xt_archive\"" + where));
+	}
+	
+	/**
+	 * 新增
+	 */
+	public Result save(Library library) throws Exception{
+		libraryDao.save(library);
+		return Result.resultOk(library.getArUuid());
+	}
+	
+	/**
+	 * 根据arUuid修改最新版本bool值
+	 */
+	public void updateNewEst(boolean arNewest,String arUuid) {
+		libraryDao.updateNewEst(arNewest, arUuid);
+	}
+	/**
+	 * 修改
+	 */
+	public void update(Library library) {
+		library.setArModifyUserId(SessionUser.SessionUser().getUserId());
+		library.setArModifyTime(new Timestamp(new Date().getTime()));
+		library.setArNewest(true);
+		libraryDao.save(library);
+	}
+	
+	/**
+	 * 删除
+	 */
+	public void delete(String arNote) {
+		libraryDao.deleteById(arNote);
+	}
+}

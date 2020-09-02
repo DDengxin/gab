@@ -1,0 +1,12 @@
+spring:
+  devtools:
+    restart:
+      enabled: true  #设置开启热部署
+      additional-paths: src/main/java #重启目录
+  servlet:
+    multipart:
+      max-request-size: 215MB
+      max-file-size: 200MB
+      file-size-threshold: 2KB
+      enabled: true
+      

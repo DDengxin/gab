@@ -1,0 +1,8 @@
+package com.tengzhi.business.finance.voucher.service;
+
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.finance.voucher.dao.OtherExpenpesDao;
+
+public interface OtherExpenpesService extends BaseService{
+
+}

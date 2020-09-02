@@ -1,0 +1,232 @@
+package com.tengzhi.business.mSbJt.service.impl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.base.security.common.model.SessionUser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.business.mSbJt.dao.MSbJtDao;
+import com.tengzhi.business.mSbJt.dao.MSbJtbjDao;
+import com.tengzhi.business.mSbJt.model.MSbJt;
+import com.tengzhi.business.mSbJt.model.MSbJtbj;
+import com.tengzhi.business.mSbJt.model.MSbJtbj.MSbJtbj_PK;
+import com.tengzhi.business.mSbJt.service.MSbJtService;
+import com.tengzhi.business.mSbJt.vo.MSbJtVo;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+
+
+@Service
+@Transactional
+public class MSbJtServiceImpl  implements MSbJtService {
+	@Autowired
+	private MSbJtDao mSbJtDao;
+
+	@Autowired
+	private MSbJtbjDao mSbJtbjDao;
+
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+
+	//简单查询
+	@Override
+	public BasePage<Map<String, Object>> getSrchTopList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String where = "where 1=1 ";
+		if(StringUtils.isNotBlank(map.get("machineId"))) {
+			where += " and machine_id like '%"+map.get("machineId")+"%'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineNo"))) {
+			where += " and machine_no like '%"+map.get("machineNo")+"%'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineName"))) {
+			where += " and machine_name like '%"+map.get("machineName")+"%'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineDtype"))) {
+			where += " and machine_dtype = '"+map.get("machineDtype")+"'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineZtype"))) {
+			where += " and machine_ztype = '"+map.get("machineZtype")+"'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineWorkshop"))) {
+			where += " and machine_workshop = '"+map.get("machineWorkshop")+"'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineProcess"))) {
+			where += " and machine_process like '%"+map.get("machineProcess")+"%'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineAddress"))) {
+			where += " and machine_address like '%"+map.get("machineAddress")+"%'";
+		}
+		if(StringUtils.isNotBlank(map.get("machineFlag"))) {
+			where += " and machine_flag = '"+map.get("machineFlag")+"'";
+		}
+		String sql = "select machine_id \"machineId\",machine_no \"machineNo\",machine_name \"machineName\",machine_dtype \"machineDtype\",f_get_param_name('设备类型',machine_dtype,'"+   SessionUser.getCurrentCorpId()   +"','设备',false) \"dtypeName\",machine_ztype \"machineZtype\",f_getname('GETPARAMNAME', machine_ztype, 'SCSB', '') \"ztypeName\",machine_xtype \"machineXtype\",machine_workshop \"machineWorkshop\",f_get_param_name('生产车间',machine_workshop,'"+   SessionUser.getCurrentCorpId()   +"','技术',false) \"cjName\",machine_process \"machineProcess\",f_getname('GETGXNAMES', machine_process, '', '') \"gxName\",machine_address \"machineAddress\",machine_help \"machineHelp\",machine_warning \"machineWarning\",machine_sm \"machineSm\",machine_flag \"machineFlag\",data_man \"dataMan\",data_date \"dataDate\",data_corp \"dataCorp\" from m_sb_jt "+where;
+		return mSbJtDao.QueryPageList(sql,"select count(*) from ("+sql+") t",baseDto);
+	}
+	@Override
+	public BasePage<MSbJtbj> getSrchBottomList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		return mSbJtbjDao.QueryPageList(baseDto, Specifications.where((c) -> {
+			c.eq("machineId",map.get("machineId"));
+		}));
+	}
+
+	@Override
+	public MSbJt save(MSbJtVo mSbJtVo)throws Exception {
+		SessionUser securityUser=SessionUser.SessionUser();
+		String machineId=sysGenNoteService.getNote(MSbJt.class, "JT","yyyy-mm-dd",3);
+		mSbJtVo.getmSbJt().setMachineId(machineId);
+		mSbJtVo.getmSbJt().setDataMan(securityUser.getUsername());
+		mSbJtVo.getmSbJt().setDataDate(new Date());
+		mSbJtVo.getmSbJt().setDataCorp(securityUser.getCorpId());
+		if (!mSbJtVo.getAddedList().isEmpty()){
+			mSbJtVo.getAddedList().forEach( item -> {
+				item.setMachineId(mSbJtVo.getmSbJt().getMachineId());
+                item.setDataMan(securityUser.getUsername());
+                item.setDataCorp(securityUser.getCorpId());
+                item.setDataDate(new Date());
+				mSbJtbjDao.save(item);
+			});
+		}
+		if (!mSbJtVo.getDeletedList().isEmpty()) {
+			mSbJtbjDao.deleteAll(mSbJtVo.getDeletedList());
+		}
+		if(!mSbJtVo.getModifyedList().isEmpty()){
+			mSbJtVo.getModifyedList().forEach( item ->{
+				//mSbJtbjDao.dynamicSave(item,mSbJtbjDao.findById(new MSbJtbj_PK(,item.getMachineId())).orElse(null));
+			});
+		}
+		MSbJt   mSbJt=mSbJtDao.save(mSbJtVo.getmSbJt());
+		return  mSbJt;
+	}
+
+	@Override
+	public void update(MSbJtVo mSbJtVo)throws Exception {
+		SessionUser securityUser=SessionUser.SessionUser();
+		mSbJtVo.getmSbJt().setDataMan(securityUser.getUsername());
+		mSbJtVo.getmSbJt().setDataDate(new Date());
+		mSbJtVo.getmSbJt().setDataCorp(securityUser.getCorpId());
+		if (!mSbJtVo.getAddedList().isEmpty()){
+			mSbJtVo.getAddedList().forEach( item -> {
+                item.setDataMan(securityUser.getUsername());
+                item.setDataCorp(securityUser.getCorpId());
+                item.setDataDate(new Date());
+				mSbJtbjDao.save(item);
+			});
+		}
+		
+		if (!mSbJtVo.getDeletedList().isEmpty()) {
+			mSbJtbjDao.deleteAll(mSbJtVo.getDeletedList());
+		}
+		if(!mSbJtVo.getModifyedList().isEmpty()){
+			mSbJtVo.getModifyedList().forEach( item ->{
+				mSbJtbjDao.dynamicSave(item,mSbJtbjDao.findById(new MSbJtbj_PK(item.getMachineId(),item.getMachineBid())).orElse(null));
+			});
+		}
+		mSbJtDao.dynamicSave(mSbJtVo.getmSbJt(),mSbJtDao.findById(mSbJtVo.getmSbJt().getMachineId()).orElse(null));
+	}
+
+	@Override
+	public MSbJt findById2(String machineId) {
+		return mSbJtDao.findById(machineId).orElse(null);
+
+	}
+
+	@Override
+	public MSbJtbj findById(String machineId,Integer machineBid) {
+		MSbJtbj_PK pk = new MSbJtbj_PK(machineId,machineBid);
+		return mSbJtbjDao.findById(pk).orElse(null);
+
+	}
+
+	@Override
+	public void deleteById(String machineId){
+		mSbJtDao.deleteByMachineId(machineId);
+		mSbJtbjDao.deleteByMachineId(machineId);
+	}
+
+
+
+	public List<Map> getLib(String libType) {
+		String[] val = {libType};
+      	String sql="select machine_id id,machine_name as text  from m_sb_jt  where machine_ztype=?  order by  machine_id ";
+        return mSbJtDao.QueryListMap(sql,val);
+	}
+	//下拉框
+	@Override
+    public List<SelectVo> getMachineDtype(String trueText, String falseText) {
+		return comboParam("设备","SCSB");
+	}
+	@Override
+    public List<SelectVo> getMachineZtype(String trueText, String falseText) {
+		return comboParam("设备","SBLX");
+	}
+	@Override
+    public List<SelectVo> getMachineXtype(String trueText, String falseText) {
+		return comboParam("人事","QJLX");
+	}
+	@Override
+    public List<SelectVo> getMachineProcess(String trueText, String falseText) {
+		return comboParam("人事","QJLX");
+	}
+	@Override
+    public List<SelectVo> comboParam(String mod, String pareatId){
+		List<SelectVo> voList=new ArrayList<SelectVo>();
+		String[] val = {mod,pareatId};
+      	String sql="select param_id,param_name from sys_param  where param_status='true' and param_mod=?  and parent_id=? order by  param_ord ";
+      	List<Map> mapList=mSbJtDao.QueryListMap(sql,val);
+      	mapList.forEach(Map -> {
+      		voList.add(new SelectVo(Map.get("param_id"),String.valueOf( Map.get("param_name"))));
+      	});
+      	return voList;
+	}
+	@Override
+	public List<SelectVo> getJtList(String gxCj) {
+		 List<SelectVo> list = new ArrayList<SelectVo>();
+        String sqlString="select * from m_sb_jt where machine_workshop in ('"+gxCj.replace(",", "','")+"')";
+        List<MSbJt> mSbJt = mSbJtDao.QueryListModel(MSbJt.class,sqlString);
+         mSbJt.forEach(item -> {
+            list.add(new SelectVo(item.getMachineId(), item.getMachineNo()+"|"+item.getMachineName()));
+        });
+        return list;
+	}
+	
+	@Override
+	public List<SelectVo> getGxJtList(String gxId) {
+		 List<SelectVo> list = new ArrayList<SelectVo>();
+        String sqlString="select * from m_sb_jt where machine_process like  '%"+gxId+"%' ";
+        List<MSbJt> mSbJt = mSbJtDao.QueryListModel(MSbJt.class,sqlString);
+         mSbJt.forEach(item -> {
+            list.add(new SelectVo(item.getMachineId(), item.getMachineNo()+"|"+item.getMachineName()));
+        });
+        return list;
+	}
+	
+
+	@Override
+	public List<SelectVo> getJtAllList() {
+		 List<SelectVo> list = new ArrayList<SelectVo>();
+        String sqlString="select * from m_sb_jt where machine_flag='启用'  ";
+        List<MSbJt> mSbJt = mSbJtDao.QueryListModel(MSbJt.class,sqlString);
+         mSbJt.forEach(item -> {
+            list.add(new SelectVo(item.getMachineId(), item.getMachineNo()+"|"+item.getMachineName()));
+        });
+        return list;
+	}
+	
+
+	
+}

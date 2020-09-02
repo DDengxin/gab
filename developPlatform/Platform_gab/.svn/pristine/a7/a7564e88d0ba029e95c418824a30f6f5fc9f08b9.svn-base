@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>商会活动详情</title>
+
+
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/share.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/academic.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/knowledge.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+	<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/academic.js}"></script>
+</head>
+<script id="Template1" type="text/html">
+<div class="content contentin">
+<div class="aca-fl">
+    <p class="showContent">{{d.academic.classify}}</p>
+    <div class="title">
+        <h2>{{d.academic.title}}</h2>
+        <p>发布时间：{{d.academic.releaseDate}}</p>
+    </div>
+    <div class="aca-fl_details">
+    	{{d.academic.content}}
+    </div>
+    <div class="pay">
+        <p>本文档为付费文档，单击下载全部文档</p>
+        <button><i class="layui-icon layui-icon-download-circle"></i>付费下载</button>
+    </div>
+</div>
+
+<div class="aca-fr">
+    <div class="author">
+        <div>
+            <img src="{{d.founder.imageSrc}}" alt="" default-img="/static/gab/images/wt.png">
+            <div class="intro">
+                <p class="name">{{d.founder.expertName}}</p>
+                <p><b>从业年限：</b>{{d.founder.jobAge}}</p>
+                <p><b>资质等级：</b>{{d.founder.level}}</p>
+                <p><b>从事行业：</b>{{d.founder.mainJob}}</p>
+            </div>
+        </div>
+        <p>专长优势：</p>
+        <p>{{d.founder.strengths}}</p>
+    </div>
+    <dl>
+        <dt>相关文档推荐</dt>
+        {{#  layui.each(d.recommend, function(index, item){ }}
+        	<dd><a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a></dd>
+		{{#  }); }}
+        {{#  if(d.recommend.length === 0){ }}
+        	无数据
+      	{{#  } }} 
+    </dl>
+    <dl>
+        <dt>咨询专家</dt>
+        <dd class="notice">有问题需要获取此专家的专业意见？</dd>
+        <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+        <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+        <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+        <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+        <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+        <dd><a href="#">标准夹治具按图纸订制，加急！</a></dd>
+    </dl>
+</div>
+</div>
+</script>
+<script id="Template2" type="text/html">
+<div class="content contentin">
+<div class="fl">
+	<p class="showContent">{{d.academic.classify}}</p>
+	<div class="title">
+		<h2>{{d.academic.title}}</h2>
+		<p>发布时间：{{d.academic.releaseDate}}</p>
+	</div>
+	<div class="fl_details">
+		{{d.academic.content}}	
+	</div>
+	<div class="pay">
+		<p>本文档为付费文档，单击下载全部文档</p>
+		<button><i class="layui-icon layui-icon-download-circle"></i>付费下载</button>
+	</div>
+</div>
+
+<div class="fr">
+	<dl>
+		<dt>商会活动</dt>
+		{{#  layui.each(d.knowledgeList, function(index, item){ }}
+		<dd>
+			<a href="/gab/academic.html?reqId={{item.activitiesId}}&classify={{item.classify}}">{{item.title}}</a>
+		</dd>
+		{{#  }); }}
+		{{#  if(d.knowledgeList.length === 0){ }}
+    		无数据
+  		{{#  } }}
+	</dl>
+	<dl>
+		<dt>经验分享</dt>
+		{{#  layui.each(d.experienceSharing, function(index, item){ }}
+		<div></div>
+		<dd>
+			<a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a>
+		</dd>
+		{{#  }); }}
+		{{#  if(d.experienceSharing.length === 0){ }}
+			无数据
+		{{#  } }}
+	</dl>
+	<dl>
+		<dt>行业动态</dt>
+		{{#  layui.each(d.industryDynamics, function(index, item){ }}
+		<dd>
+			<a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a>
+		</dd>
+		{{#  }); }}
+		{{#  if(d.industryDynamics.length === 0){ }}
+			无数据
+		{{#  } }}
+	</dl>
+</div>
+</div>
+</script>
+<script id="Template3" type="text/html">
+<div class="content contentin">
+<div class="fl">
+
+	<p class="showContent">商会活动</p>
+	<div class="title">
+		<h2>{{d.academic.title}}</h2>
+		<p>发布时间：{{d.academic.eventDateStart}}</p>
+	</div>
+	<div class="fl_details">
+		{{d.academic.content}}	
+	</div>
+	{{#  if(d.academic.classify === '在线报名'){ }}
+	<input id="actId" value="{{d.academic.activitiesId}}" type="hidden"/>
+
+		<a id="signUp" href="#" class="layui-btn layui-btn-primary" >在线报名</a>
+	{{#  } }}
+</div>
+
+<div class="fr">
+	<dl>
+		<dt>商会活动</dt>
+		{{#  layui.each(d.knowledgeList, function(index, item){ }}
+		<dd>
+			<a href="/gab/academic.html?reqId={{item.activitiesId}}&classify={{item.classify}}">{{item.title}}</a>
+		</dd>
+		{{#  }); }}
+		{{#  if(d.knowledgeList.length === 0){ }}
+    		无数据
+  		{{#  } }}
+	</dl>
+	<dl>
+		<dt>经验分享</dt>
+		{{#  layui.each(d.experienceSharing, function(index, item){ }}
+		<dd>
+			<a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a>
+		</dd>
+		{{#  }); }}
+		{{#  if(d.experienceSharing.length === 0){ }}
+			无数据
+		{{#  } }}
+	</dl>
+	<dl>
+		<dt>行业动态</dt>
+		{{#  layui.each(d.industryDynamics, function(index, item){ }}
+		<dd>
+			<a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a>
+		</dd>
+		{{#  }); }}
+		{{#  if(d.industryDynamics.length === 0){ }}
+			无数据
+		{{#  } }}
+	</dl>
+</div>
+</div>
+</script>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+	<div class="aca_content">
+		<div class="aca_content_list">
+
+			<div class="tabContainer">
+				<ul id="tablist">
+					<p class="changeTitle"></p>
+					<li class="tabin"><a href="/gab/share.html?present=academic">学术论文</a></li>
+					<li><a href="/gab/share.html?present=know">工艺知识</a></li>
+					<li><a href="/gab/share.html?present=share">经验分享</a></li>
+					<li><a href="/gab/share.html?present=news">行业动态</a></li>
+					<li><a href="/gab/share.html?present=activity">商会活动</a></li>
+					<li><a href="/gab/share.html?present=teachCase">技术案例</a></li>
+				</ul>
+			</div>
+
+			<div class="content-box" id="templateDiv"></div>
+			<div class="annex">
+				<div id="fileName"></div>
+			</div>
+		</div>
+
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+
+</html>

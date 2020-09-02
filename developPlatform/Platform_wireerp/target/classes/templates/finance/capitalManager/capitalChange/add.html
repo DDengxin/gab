@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产异动【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="ksid" name="ksid" class="mini-hidden"/>
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号</td>
+                <td content >
+                    <input class="mini-textbox" name="note" readonly = "readonly" emptyText="自动生成"/>
+                </td>
+                <td title>日期</td>
+                <td content >
+                    <input class="mini-datepicker" name="rq" allowInput="false" value="new Date()"/>
+                </td>
+                <td title>资产编码</td>
+                <td content >
+                    <input class = "mini-buttonedit" name="fcardid" allowInput="false" onbuttonclick = "onButtonEdit" showClose="true" oncloseclick="onCloseClickClearValue" required="true"/>
+                </td>
+                <td title>资产类别</td>
+                <td content >
+                    <input class="mini-combobox" name="ftypeid" required="true"  url="/finance/capitalManager/capitalType/getCapitalSelectList.html"
+                           valueField="fid" textField="fullname"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>使用部门</td>
+                <td content>
+                    <input id="useDept" name="useDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" required
+                           onbeforenodeselect="disableParentSelection"  popupWidth="240" popupHeight="180" url="/system/dept/combobox/getDeptTreeList"
+                           showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>责任人</td>
+                <td content >
+                    <input class="mini-buttonedit" onbuttonclick="onPersonClick" name="useMan" id="useMan" allowInput="false"
+                           required="true"  showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>管理部门</td>
+                <td content >
+                    <input id="managerDept" name="managerDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" required
+                           onbeforenodeselect="disableParentSelection"  popupWidth="240" popupHeight="180" url="/system/dept/combobox/getDeptTreeList"
+                           showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>放置区域</td>
+                <td content >
+                    <input class="mini-textbox" name="putArea"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>新使用部门</td>
+                <td content >
+                    <input id="newUseDept" name="newUseDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" required
+                           onbeforenodeselect="disableParentSelection"  popupWidth="240" popupHeight="180" url="/system/dept/combobox/getDeptTreeList"
+                           showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>新责任人</td>
+                <td content >
+                    <input class="mini-buttonedit" onbuttonclick="onPersonClick" name="newUseMan" id="newUseMan" allowInput="false"
+                           required="true"  showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>新放置区域</td>
+                <td content >
+                    <input class="mini-textbox" name="newPutArea"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div id="button-grid"
+         sortOrder="asc"
+         style="width:100%;height:250px;" url="/finance/capitalManager/capitalRegister/list.html"
+         showEmptyText="true" alwaysShowEmptyText="true"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+         editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+         showPager="false" allowSortColumn="flase" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPageInfo="false" allowSort="true" align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="50" headerAlign="center" type="indexcolumn">序号</div>
+            <div field="fnumber" align="left" width="90"headerAlign="center" allowSort="true">资产编码</div>
+            <div field="fname" align="left" width="190"headerAlign="center" allowSort="true">资产名称</div>
+            <div field="ftypeid" displayField="ftypeidName" align="left" width="160"headerAlign="center" allowSort="true">资产类别</div>
+            <div field="fdeptid" displayField="fdeptidName" align="left" width="150"headerAlign="center" allowSort="true">使用部门</div>
+            <div field="" width="100%"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action || 'view' == options.action) {
+            $.get("getById/{0}".format(options.data.ksid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("fcardid").setText(res.data.fnullname);
+                    form.getField("useMan").setText(res.data.useManName);
+                    form.getField("newUseMan").setText(res.data.newUseManName);
+                    form.getField("note").setEnabled(false);
+                    button_grid.load({
+                        params:mini.encode({
+                            parentId : res.data.fcardid,
+                        })
+                    });
+                    if('view' == options.action){
+                        form.setEnabled(false);
+                        $("#saveBtn").hide();
+                    }
+                }
+            });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+
+
+
+    function onButtonEdit(e) {
+        var btnEdit = this;
+        mini.open({
+            targetWindow: window.parent,
+            url: "/finance/capitalManager/capitalDepletion/capitalSelectList.html",
+            title: "资产档案选择列表",
+            width: 650,
+            height: 380,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data); //必须
+                    if (data) {
+                        btnEdit.setValue(data.fcardid);
+                        btnEdit.setText(data.fnumber +""+ data.fname);
+                        form.getField("ftypeid").setValue(data.ftypeid);
+                        button_grid.load({
+                            params:mini.encode({
+                                parentId : data.fcardid,
+                            })
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    /*  负责人选择 */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/xmda/xmman.html",
+            title: "【负责人】选择页面",
+            data: {
+                workdept:'',
+                action:'capitalChange',
+            },
+            width: 800,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                    mini.get("xmDept").setValue(data.workerDept);
+                }
+            }
+        });
+    }
+
+
+
+
+</script>
+</html>

@@ -1,0 +1,380 @@
+package com.tengzhi.business.cg.tj.orderStatistics.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.excel.ExcelUtil;
+import com.tengzhi.business.base.export.dao.ExportExcelDao;
+import com.tengzhi.business.base.publicinterfac.ProductType;
+import com.tengzhi.business.cg.da.materialArchives_无处引用等待删除.dao.MaterialArchivesDao;
+import com.tengzhi.business.cg.tj.orderStatistics.service.DdtjService;
+import com.tengzhi.business.js.product.model.Jscpcode;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.sale.saleProduct.saleContract.dao.EXsContractDao;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class DdtjServiceImpl implements DdtjService {
+
+    @Autowired
+    private MaterialArchivesDao materialArchivesDao;
+
+    @Autowired
+    private EXsContractDao eXsContractDao;
+	@Autowired
+	private ExportExcelDao exportExcelDao;
+	
+	
+	public String getSrchTopListSql(BaseDto baseDto) {
+	     Map<String, String> map = baseDto.getParamsMap();
+	        SessionUser securityUser = SessionUser.SessionUser();
+	        String sqlWhere = " a.data_corp='" + securityUser.getCorpId() + "' ";
+	        if (ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+	            sqlWhere += " and ht_date >='" + map.get("srchRq1") + "'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+	            sqlWhere += " and ht_date <='" + map.get("srchRq2") + "'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+	            sqlWhere += " and ht_no like '%" + map.get("srchNo") + "%'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("htSupplier"))) {
+	            sqlWhere += " and ht_supplier = '" + map.get("htSupplier") + "'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("htCode"))) {
+	            sqlWhere += " and ht_code like '%" + map.get("htCode") + "%'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("htType"))) {
+	            sqlWhere += " and ht_type like '%" + map.get("htType") + "%'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("cpcodeSize"))) {
+	            sqlWhere += " and cpcode_size like '%" + map.get("cpcodeSize") + "%'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+	            sqlWhere += " and cpcode_fl = '" + map.get("cpcodeFl") + "'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+	            sqlWhere += " and cpcode_name = '" + map.get("cpcodeName") + "'";
+	        }
+	        if (ObjectUtil.isNotEmpty(map.get("htStype"))) {
+	            sqlWhere += " and cg_stype = '" + map.get("htStype") + "'";
+	        }
+	        baseDto.setSortField("ht_date");
+	        baseDto.setSortOrder("DESC");  
+	        String sql = "  select f_getparamname('GETCPCODESIZE',cpcode_size,'','技术',cg_stype,'') cpcode_size_name, f_getparamname('GETCPCODESIZEEN',cpcode_size_en,'','技术',cg_stype,'') cpcode_size_en_name,	 "
+	        		+ "    a.*,f_get_param_name('采购合同',ht_type,'cn') ht_type_name,f_getname('GETDWEXP',ht_supplier,'',a.data_corp) ht_supplier_name,f_get_param_name('交易币种',ht_bz) ht_bz_name "
+	                + ",f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cg_stype,'')  cpcode_name_name,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cg_stype,'') cpcode_fl_name,COALESCE(b.in_js,0) in_js,COALESCE(b.in_sl,0) in_sl,COALESCE(b.in_zl,0) in_zl "
+	                + " from v_cg_ht a left join v_shsl b on (a.ht_no=b.in_contract and a.ht_code=b.in_code and a.data_corp=b.data_corp) where " + sqlWhere;
+	  
+	        return sql;//GETBYCPCODEFL
+	}
+
+    @Override
+    public BasePage<Map<String, Object>> getSrchTopList(BaseDto baseDto) throws IOException {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql = this.getSrchTopListSql(baseDto);
+         String countsql = "select count(*) from (" + sql + ")t";
+       // return eXsContractDao.QueryPageList(sql, countsql, baseDto);
+        //QueryMapPageList
+        return eXsContractDao.QueryMapPageList(baseDto,sql,true);
+
+    }
+    
+    public String getSrchXstjListSql(BaseDto baseDto) {
+    	 Map<String, String> map = baseDto.getParamsMap();
+         SessionUser securityUser = SessionUser.SessionUser();
+         //通过枚举获取产品类型(默认为物料)
+         ProductType productType = ProductType.valueOfParamId(map.get("stype"), ProductType.WL);
+
+        String sqlWhere = " where cw_type = '" + map.get("stype") + "' and data_corp='" + securityUser.getCorpId() + "' and cw_stype='CG' ";
+       
+         
+      //   String sqlWhere = " where  1=1 and data_corp='" + securityUser.getCorpId() + "' and cw_stype='CG' ";
+
+         if (ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+             sqlWhere += " and cw_rq >='" + map.get("srchRq1") + "'";
+         }
+         if (ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+             sqlWhere += " and cw_rq <='" + map.get("srchRq2") + "'";
+         }
+         if (ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+             sqlWhere += " and cw_note like '%" + map.get("srchNo") + "%'";
+         }
+         if (ObjectUtil.isNotEmpty(map.get("srchCustromer"))) {
+             sqlWhere += " and cw_dw = '" + map.get("srchCustromer") + "'";
+         }
+ 		/*String srchName = map.get("srchName").replace(",", "','");
+ 		if(!"无".equals(srchName)) {
+ 			if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+ 				sqlWhere+=" and cw_code in ('"+srchName+"')";
+ 			}
+ 		}*/
+         if (ObjectUtil.isNotEmpty(map.get("srchName"))) {
+             sqlWhere += " and cpcode_name = '" + map.get("srchName") + "'";
+         }
+         if (ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+             sqlWhere += " and cw_code like '%" + map.get("srchCode") + "%'";
+         }
+         if (ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+             sqlWhere += " and cpcode_size like '%" + map.get("srchSize") + "%'";
+         }
+         String srchFl = map.get("cpcodeFl").replace(",", "','");
+         if (ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+             sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+         }
+         if (ObjectUtil.isNotEmpty(map.get("htStype"))) {
+             sqlWhere += " and cw_type = '" + map.get("htStype") + "'";
+         }
+         //业务员权限过滤
+         //sqlWhere+=" and cw_dw = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(map.get("srchYwy"));
+ 		/*
+ 		if(ObjectUtil.isNotEmpty(map.get("srchYwy"))) {
+ 			String businessPersonnelIdsSqlFragment = SessionUser.SessionUser().getBusinessPersonnelIdsSqlFragment(map.get("srchYwy"));
+ 			if(null != businessPersonnelIdsSqlFragment) {
+ 				sqlWhere += " and cw_dw in (select customer_id from (select customer_id,f_getname('GETCUSTOMERBUYER',cw_dw,'',data_corp) ywy from sys_customer) t where ywy in (" + businessPersonnelIdsSqlFragment + ") )";
+ 			}
+ 		}*/
+         if (ObjectUtil.isNotEmpty(map.get("srchLib"))) {
+             sqlWhere += " and cw_lib = '" + map.get("srchLib") + "'";
+         }
+         if (ObjectUtil.isNotEmpty(map.get("srchFpFlag"))) {
+             if ("已开票".equals(map.get("srchFpFlag"))) {
+                 sqlWhere += " and cw_fph <> 'N'";
+             } else {
+                 sqlWhere += " and cw_fph = 'N'";
+             }
+
+         }
+         baseDto.setSortField("cw_rq");
+         baseDto.setSortOrder("DESC");
+         String  sql = " select f_getparamname('GETCPCODESIZE',cpcode_size,'','技术',cw_stype,'') cpcode_size_name,f_getparamname('GETCPCODESIZEEN',cpcode_size_en,'','技术',cw_stype,'') cpcode_size_en_name,"
+         		+ " *,COALESCE(cw_wje,0) \"cwWje\",COALESCE(cw_se,0) \"cwSe\",f_getparamname('GETBYCPCODEFL', cpcode_fl, '技术', cw_stype,'') \"flName\",f_get_param_name('仓库收发',cw_act) actname,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cw_type,'')  cpcodename,f_get_param_name('交易币种',cw_bz) bzname,f_getname('GETDWEXP',cw_dw,'',data_corp) dwexp,f_getname('GETCUSTOMERBUYER',cw_dw,'',data_corp) ywy,f_getname('GETCUSTOMERBUYERID',cw_dw,'',data_corp) \"ywyId\",f_get_param_name('库房档案',cw_lib) libname  from v_cw_ysyf " + sqlWhere;
+		return sql;
+	}
+
+    @Override
+    public BasePage<Map<String, Object>> getSrchXstjList(BaseDto baseDto) throws IOException {
+       String sql = this.getSrchXstjListSql(baseDto);
+        String countsql = "select count(*) from (" + sql + ")t";//getSrchXstjList QueryMapPageList
+        return eXsContractDao.QueryMapPageList(baseDto, sql, true);//QueryPageList(sql, countsql, baseDto)
+
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getStatistics(BaseDto baseDto){
+        Map<String, String> map = baseDto.getParamsMap();
+        SessionUser sessionUser = SessionUser.SessionUser();
+        String where = SqlJoint.whereSuffixWhere((c) -> {
+            c.eq("data_corp", sessionUser.getCorpId(), true);
+            c.ge("sq_rq", map.get("srchRq1"));
+            c.le("sq_rq", map.get("srchRq2"));
+
+
+            c.contains("sq_note", map.get("srchNo"));
+            c.eq("sq_dept", map.get("srchDept"));
+            c.contains("code", map.get("code"));
+            c.contains("cpcode_size", map.get("cpcodeSize"));
+            c.eq("cpcode_fl", map.get("cpcodeFl"));
+            c.eq("cg_stype", map.get("htStype"));
+            c.eq("cpcode_name", map.get("cpcodeName"));
+        });
+        //设置默认排序
+		baseDto.setSortField("sq_rq");
+		baseDto.setSortOrder("DESC");
+        String sql = " SELECT a.*,"
+                +"f_get_param_name('申请类型',sq_type) sq_type_name,f_getname('GETDEPTNAME',sq_dept,'',data_corp) sq_dept_name, "
+				+" f_getname('GETUSERNAME',sq_man,'',data_corp) sq_man_name,"
+                +"f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cg_stype,'')  cpcode_name_name,"
+				+"f_getparamname('GETBYCPCODEFL', cpcode_fl, '', '技术', cg_stype, '') cpcode_fl_name,"
+                +"f_getparamname('GETPARENTID',cpcode_bz,'','技术','','')  cpcode_bz_name,"
+                +"f_getparamname('GETCPCODESIZE',cpcode_size,'','技术','','')  cpcode_size_name,"
+                +"f_getparamname('GETCPCODESIZEEN',cpcode_size_en,'','技术','','')  cpcode_size_en_name"
+                + " from v_cg_sq a " + where;
+        return eXsContractDao.QueryMapPageList(baseDto, sql, true);
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> getCgList(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        SessionUser sessionUser = SessionUser.SessionUser();
+        //通过枚举获取产品类型(默认为物料)
+        ProductType productType = ProductType.valueOfParamId(map.get("stype"), ProductType.WL);
+        String sqlWhere = " where cw_type = '" + map.get("stype") + "' and data_corp='" + sessionUser.getCorpId() + "' and cw_stype='CG' ";
+        if (ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            sqlWhere += " and cw_rq >='" + map.get("srchRq1") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            sqlWhere += " and cw_rq <='" + map.get("srchRq2") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchNo"))) {
+            sqlWhere += " and cw_note like '%" + map.get("srchNo") + "%'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchCustromer"))) {
+            sqlWhere += " and cw_dw = '" + map.get("srchCustromer") + "'";
+        }
+		/*String srchName = map.get("srchName").replace(",", "','");
+		if(!"无".equals(srchName)) {
+			if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+				sqlWhere+=" and cw_code in ('"+srchName+"')";
+			}
+		}*/
+        if (ObjectUtil.isNotEmpty(map.get("srchName"))) {
+            sqlWhere += " and cpcode_name = '" + map.get("srchName") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+            sqlWhere += " and cw_code like '%" + map.get("srchCode") + "%'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+            sqlWhere += " and cpcode_size like '%" + map.get("srchSize") + "%'";
+        }
+        String srchFl = map.get("cpcodeFl").replace(",", "','");
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+            sqlWhere += " and cpcode_fl in ('" + srchFl + "')";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("htStype"))) {
+            sqlWhere += " and cw_type = '" + map.get("htStype") + "'";
+        }
+        //业务员权限过滤
+        //sqlWhere+=" and cw_dw = " + SysCustomerService.getBusinessIdsWhereCustomerSqlFragment(map.get("srchYwy"));
+		/*if(ObjectUtil.isNotEmpty(map.get("srchYwy"))) {
+			String businessPersonnelIdsSqlFragment = SessionUser.SessionUser().getBusinessPersonnelIdsSqlFragment(map.get("srchYwy"));
+			if(null != businessPersonnelIdsSqlFragment) {
+				sqlWhere += " and cw_dw in (select customer_id from (select customer_id,f_getname('GETCUSTOMERBUYER',cw_dw,'',data_corp) ywy from sys_customer) t where ywy in (" + businessPersonnelIdsSqlFragment + ") )";
+			}
+		}*/
+        if (ObjectUtil.isNotEmpty(map.get("srchLib"))) {
+            sqlWhere += " and cw_lib = '" + map.get("srchLib") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("srchFpFlag"))) {
+            if ("已开票".equals(map.get("srchFpFlag"))) {
+                sqlWhere += " and cw_fph <> 'N'";
+            } else {
+                sqlWhere += " and cw_fph = 'N'";
+            }
+        }
+        String sql = "select to_char(cw_rq,'yyyy-MM-dd') \"cwRq\",cw_note \"cwNote\",cw_dw \"cwDw\",f_getname('GETDWEXP', cw_dw, '', '" + sessionUser.getCorpId() + "') \"deptName\",cw_lib \"cwLib\",f_get_param_name('库房档案', cw_lib, '仓库', false) \"libName\",cw_code \"cwCode\",cpcode_name \"cpcodeName\",cpcode_size \"cpcodeSize\",cpcode_size_en \"cpcodeSizeEn\",cpcode_fl \"cpcodeFl\",f_get_param_name('GETBYCPCODEFL', cpcode_fl, '技术', false) \"flName\",COALESCE(cw_sl,0) cw_sl,COALESCE(cw_sje,0) cw_sje,cw_bz \"cwBz\",f_get_param_name('交易币种', cw_bz, '财务', false) \"bzName\",cw_act \"cwAct\",f_get_param_name('仓库收发',cw_act) \"actName\",cw_flag \"cwFlag\",cw_type \"cwType\",cw_stype \"cwStype\" from v_cw_ysyf " + sqlWhere;
+        if ("单号".equals(map.get("reqType"))) {
+            baseDto.setSortField("\"cwRq\"");
+            baseDto.setSortOrder("DESC");
+            sql = "select \"cwRq\",\"cwNote\",\"cwDw\",\"deptName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\",\"cwAct\",\"actName\",\"cwType\",\"cwStype\",\"cwFlag\" from (" + sql + ") t group by \"cwRq\",\"cwNote\",\"cwDw\",\"cwBz\",\"cwAct\",\"cwType\",\"cwStype\",\"cwFlag\",\"actName\",\"bzName\",\"deptName\"";
+        } else if ("产品".equals(map.get("reqType"))) {
+            baseDto.setSortField("cpcodeFl");
+            baseDto.setSortOrder("ASC");
+            sql = "select \"cpcodeFl\",\"flName\",\"cwCode\",\"cpcodeName\",\"cpcodeSize\",\"cpcodeSizeEn\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from (" + sql + ") t group by \"cpcodeFl\",\"flName\",\"cwCode\",\"cpcodeName\",\"cpcodeSize\",\"cpcodeSizeEn\",\"cwBz\",\"bzName\" order by \"cpcodeFl\",\"cpcodeName\",\"cpcodeSize\",\"cpcodeSizeEn\"";
+        } else if ("供应商".equals(map.get("reqType"))) {
+            baseDto.setSortField("je");
+            baseDto.setSortOrder("DESC");
+            sql = "select \"cwDw\",\"deptName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from (" + sql + ") t group by \"cwDw\",\"cwBz\",\"deptName\",\"bzName\"";
+        } else if ("采购人员".equals(map.get("reqType"))) {
+            baseDto.setSortField("je");
+            baseDto.setSortOrder("DESC");
+            sql = "select \"cwDw\",\"deptName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from (" + sql + ") t group by \"cwDw\",\"cwBz\",\"deptName\",\"bzName\"";
+        } else if ("分类".equals(map.get("reqType"))) {
+            baseDto.setSortField("je");
+            baseDto.setSortOrder("DESC");
+            sql = "select \"cpcodeFl\",\"flName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from (" + sql + ") t group by \"cpcodeFl\",\"cwBz\",\"flName\",\"bzName\"";
+        } else if ("币种".equals(map.get("reqType"))) {
+            baseDto.setSortField("je");
+            baseDto.setSortOrder("DESC");
+            sql = "select \"cwBz\",\"bzName\",sum(cw_sl) sl,sum(cw_sje) je from (" + sql + ") t group by \"cwBz\",\"bzName\"";
+        } else if ("库房".equals(map.get("reqType"))) {
+            baseDto.setSortField("je");
+            baseDto.setSortOrder("DESC");
+            sql = "select \"cwLib\",\"libName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from (" + sql + ") t group by \"cwLib\",\"libName\",\"cwBz\",\"bzName\"";
+        } else if ("业务方式".equals(map.get("reqType"))) {
+            baseDto.setSortField("je");
+            baseDto.setSortOrder("DESC");
+            sql = "select \"cwAct\",\"actName\",sum(cw_sl) sl,sum(cw_sje) je,\"cwBz\",\"bzName\" from (" + sql + ") t group by \"cwAct\",\"cwBz\",\"actName\",\"bzName\"";
+        }
+        String countsql = "select count(*) from (" + sql + ")t";  //queryToMap   QueryPageList
+        return eXsContractDao.QueryPageList(sql, countsql, baseDto);
+    }
+
+    @Override
+    public List<SelectVo> getCpcode(String cpcodeType, String fl) {
+        List<SelectVo> list = new ArrayList<SelectVo>();
+        List<Jscpcode> Jscpcode = new ArrayList<Jscpcode>();
+        if (StringUtils.isNotBlank(fl) && !"无分类".equals(fl)) {
+            Jscpcode = materialArchivesDao.QueryListModel(Jscpcode.class, "select  * from e_js_cpcode where cpcode_flag = 'Y' and cpcode_type = :1 and cpcode_fl = :2", cpcodeType, fl);
+        } else {
+            Jscpcode = materialArchivesDao.QueryListModel(Jscpcode.class, "select  * from e_js_cpcode where cpcode_flag = 'Y' and cpcode_type = :1", cpcodeType);
+        }
+        Jscpcode.forEach(item -> {
+            list.add(new SelectVo(item.getCpcodeId(), item.getCpcodeName() + "(" + item.getCpcodeSize() + ")"));
+        });
+        return list;
+    }
+    
+    
+    
+	@Override
+	public void getSrchTopListExportExcel(HttpServletResponse response, HttpServletRequest request) {
+		ExcelUtil util = ExcelUtil.getInstance();
+		BaseDto dto = BaseDto.ValueOfRequest(request); 
+		dto.setPageIndex(0);
+		Map<String, String> map = dto.getParamsMap();
+	
+		
+		
+		String  title = "统计";
+		if(StringUtils.isNotEmpty(map.get("htStype"))) {
+			if(map.get("htStype").equals("CP")  &&   "CG".equals(map.get("paramMod"))) {				
+				title ="线材订购统计";
+			}else if(map.get("htStype").equals("YL")) {
+				title ="原料订购统计";
+			}else if("WL".equals(map.get("htStype"))) {
+				title ="物料订购统计";
+			}
+			
+		}
+               String  sql = this.getSrchTopListSql(dto);
+		
+		util.ExcelToWeb(request, title, response, eXsContractDao.QueryToMap(sql));		
+	}
+
+	@Override
+	public void getSrchXstjListExpertExcel(HttpServletResponse response, HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		ExcelUtil util = ExcelUtil.getInstance();
+		BaseDto dto = BaseDto.ValueOfRequest(request); 
+		dto.setPageIndex(0);
+		Map<String, String> map = dto.getParamsMap();
+		String  title = "统计";
+		if(StringUtils.isNotEmpty(map.get("stype"))) {
+			if(map.get("stype").equals("WL")) {				
+				title ="物料采购默认统计";
+			}else if(map.get("stype").equals("YL")) {
+				title ="原料采购默认统计";
+			}else if("CP".equals(map.get("stype"))) {
+				title ="线材采购默认统计";
+			}
+			
+		}
+		
+		String sql =this.getSrchXstjListSql(dto);
+		util.ExcelToWeb(request, title, response, eXsContractDao.QueryToMap(sql));
+	}
+    
+    
+    
+	
+	
+	
+    
+    
+    
+}

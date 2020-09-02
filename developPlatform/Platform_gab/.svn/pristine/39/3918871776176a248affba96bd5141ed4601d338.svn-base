@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+        <title>模板维护【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="activitiesId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>活动主题:</td>
+                <td content colspan="3">
+                    <input name="title" class="mini-textbox" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>参与方式:</td>
+                <td content colspan="1">
+                    <select name="classify" class="mini-combobox">
+                        <option value="在线直播">在线直播</option>
+                        <option value="线下组织">线下组织</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>活动开始时间:</td>
+                <td content>
+                    <input class="mini-datepicker" name="eventDateStart" ateFormat="yyyy-MM-dd"/>
+                </td>
+                <td title>活动结束时间:</td>
+                <td content>
+                    <input class="mini-datepicker" name="eventDateEnd" ateFormat="yyyy-MM-dd"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>封面图片:</td>
+                <td content colspan="3">
+                    <div id="imgUploader"></div>
+                    <input id="image" name="image" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>内容简介:</td>
+                <td content colspan="3">
+                    <input name="briefIntroduction" class="mini-textbox"/>
+                </td>
+            </tr>
+            <tr>
+                <td content colspan="4">
+                    <!--style给定宽度可以影响编辑器的最终宽度-->
+                    <script type="text/plain" id="myEditor" style="width: 100%; height: 400px;">
+                    </script>
+                    <input id="content" name="content" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>附件:</td>
+                <td content colspan="3">
+                    <div id="uploader"></div>
+                    <input id="annex" name="annex" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }">
+</th:block>
+</body>
+<script type="text/javascript">
+
+    var ue = UE.getEditor('myEditor', {
+        // 		toolbars : [ [ 'fullscreen', 'undo', 'redo' ] ],
+        maximumWords: 99999999999,
+        wordCount: false,
+        elementPathEnabled: false,
+        autoFloatEnabled: false
+    });
+    UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
+    UE.Editor.prototype.getActionUrl = function (action) {
+        if (action == 'uploadimage' || action == 'uploadfile' || action == 'uploadvideo') {
+            return '/ueditor/upload';
+        } else {
+            return this._bkGetActionUrl.call(this, action);
+        }
+    };
+
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        if ('sh' == options.action) {
+            $.get("/platform/specialist/chamberactivities/uniqueQuery/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    ue.execCommand('insertHtml', mini.get("content").getValue())
+                    ue.setDisabled('fullscreen');
+                    form.setEnabled(false);
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("annex").getValue(),
+                        filecount: 50,
+                        view: "view",
+                        viewdownload: true
+                    });
+                    $("#imgUploader").filesUpload({
+                        pickerid: mini.get("image").getValue(),
+                        filecount: 50,
+                        view: "view",
+                        viewdownload: true
+                    });
+                }
+            });
+        }
+    }
+
+
+</script>
+</html>

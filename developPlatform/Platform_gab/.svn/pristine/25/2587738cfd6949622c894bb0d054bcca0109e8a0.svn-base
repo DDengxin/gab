@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<!-- <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}"> -->
+
+	<link rel="stylesheet"
+		  th:href="@{/static/fonts/workflowfont/iconfont.css}">
+	<link rel="stylesheet" th:href="@{/static/css/g6.css}">
+	<link rel="stylesheet" th:href="@{/static/script/M_select/M_select.css}">
+	<script th:src="@{/static/javascript/g6.min.js}"></script>
+	<script th:src="@{/static/script/jquery/jquery-1.12.4.min.js}"></script>
+	<script th:src="@{/static/script/M_select/M_select.js}"></script>
+	<script th:src="@{/static/script/layer/layer.js}"></script>
+	<script th:src="@{/static/javascript/g6-plugins.min.js}"></script>
+	<script th:src="@{/static/javascript/html2canvas.min.js}"></script>
+
+
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+
+	<title>客户管理修改</title>
+</th:block>
+<style>
+
+	.webuploadItemButtons{padding-right:43px;}
+	.webuploadItemButtons+.webuploadItemButtons{padding-right:0 !important;display:inline-block !important;width:auto !important;float:right;margin-top:-22px}
+</style>
+</head>
+
+<body>
+	<div >
+		<fieldset >
+			<legend><span>基础信息</span></legend>
+      <input name="action" class="mini-hidden"/>
+		<form id="userform" class="supply-center">
+			<table class="hmq-modify-table"
+				style="padding-bottom: 0px !important;">
+				<tr>
+					<td title>姓名:</td>
+					<td content><input class="mini-textbox" name="userId" vtype ="required" 
+						readonly="readonly"></td>
+					<td title>昵称:</td>
+					<td content><input class="mini-textbox" name="userName" vtype ="required">
+					</td>
+					<td title>手机号:</td>
+					<td content><input class="mini-textbox" name="userMtel"
+						vtype="numberAndLetter" onvalidation="onTelValidation" ></td>
+
+				</tr>
+				<tr>
+					<td title>邮箱：</td>
+					<td content><input class="mini-textbox" name="userEmail"  />
+					</td>
+					<td title class="hide">密码：</td>
+					<td content class="hide"><input class="mini-textbox" name="userPwd"  vtype ="required" />
+					</td>
+
+				</tr>
+
+			</table>
+		</form>
+		</fieldset>
+		<!-- 需求方 -->
+
+
+			<form id="application-user">
+				<fieldset >
+					<legend><span>认证资料</span></legend>
+			<table class="hmq-modify-table" >
+				<tr>
+					<td title>企业名称:</td>
+					<td content><input class="mini-textbox" name="supplyName"   vtype ="required"/>
+
+					<td>经营有效期</td>
+					<td>
+						<input class="mini-datepicker" name="effectiveDate" dateFormat="yyyy-MM-dd"   />
+					</td>
+					<td title>长期:</td>
+					<td content><input class="mini-checkbox" name="isLongTerm" /></td>
+					<td title>营业执照:</td>
+					<td content colspan="1">
+						<Article class="pserson" name="uploaderSupplierImg"></Article> <input
+							name="headImg" class="mini-hidden" />
+					</td>
+				</tr>
+
+
+					 <tr>
+
+						 </td>
+						 <td title>省份:</td>
+						 <td content>
+							 <input vtype ="required" class="mini-combobox" name="province" url="/gab/combobox/getProvince" comboid="id" combotext="text"  emptyText="请选择" />
+						 </td>
+						 <td title>城市:</td>
+						 <td content>
+							 <input vtype ="required" class="mini-combobox" name="city" url=""  comboid="id" combotext="text"  emptyText="请选择"  />
+						 </td>
+						 <td title>区域:</td>
+						 <td content>
+							 <input vtype ="required" class="mini-combobox" name="area" url="" comboid="id" combotext="text"  emptyText="请选择" corporateCertification />
+						 </td>
+					 </tr>
+					 <tr>
+						 <td title>地址:</td>
+						 <td content colspan="3"><input class="mini-textbox" name="address" />
+						 </td>
+
+						 <td title>证件号码:</td>
+						 <td content colspan="3"><input class="mini-textbox" name="idCard"  vtype ="required"/></td>
+					 </tr>
+
+				 </table>
+				</fieldset>
+				<fieldset >
+					<legend><span>资料完善</span></legend>
+					<table class="hmq-modify-table" >
+
+				<tr>
+					<td title>客户等级:</td>
+					<td content><input class="mini-textbox" name="supplyLevel"  vtype ="required"/></td>
+					<td title>上年度营业额:</td>
+					<td content><input class="mini-textbox" name="lastyearMoney" />
+					</td>
+
+					<td title>数量范围:</td>
+					<td content><input class="mini-textbox" name="numberScope" /></td>
+					<td title>交期范围:</td>
+					<td content><input class="mini-textbox"
+						name="deliveryDateScope" /></td>
+				</tr>
+				<tr>
+					<td title>精度要求:</td>
+					<td content><input class="mini-textbox"
+						name="accuracyRequire" /></td>
+					<td title>空间要求:</td>
+					<td content><input class="mini-textbox" name="spaceRequire" /></td>
+					<td title>重量要求:</td>
+					<td content><input class="mini-textbox" name="weightRequire" /></td>
+					<td title>自动化要求:</td>
+					<td content><input class="mini-textbox" name="autoRequire" /></td>
+				</tr>
+				<tr>
+					<td title>范围选择:</td>
+					<td content><input class="mini-textbox" name="targetScope" /></td>
+					<td title>客户等级:</td>
+					<td content><input class="mini-textbox" name="supplyLevel" /></td>
+					<td title>客户金额:</td>
+					<td content><input class="mini-textbox" name="supplyJe" /></td>
+					<td title>特别说明:</td>
+					<td content><input class="mini-textbox" name="explain" /></td>
+					
+				</tr>
+
+				<tr>
+
+					<td title>第三方监理:<input class="mini-checkbox" name="isProxy" /></td>
+					<td content></td>
+					<td title>公开竞标:<input class="mini-checkbox" name="isPublic" /></td>
+					<td content></td>
+				</tr>
+
+				<tr>
+					<td>客户介绍</td>
+					<td content colspan="7">
+						<!--style给定宽度可以影响编辑器的最终宽度-->
+						<script type="text/plain" id="myEditor" style="width: 100%; height: 50px;">
+						</script>
+						<input id="content" name="content" class="mini-hidden"/>
+					</td>
+				</tr>
+			</table>
+				</fieldset>
+
+				<fieldset >
+					<legend><span>联系信息</span></legend>
+					<table class="hmq-modify-table" >
+						<tr>
+							<td title>手机号:</td>
+							<td content><input class="mini-textbox" name="telphone" /></td>
+							<td title>联系人:</td>
+							<td content><input class="mini-textbox" name="concatPerson" /></td>
+							<td title>公司网站:</td>
+							<td content><input class="mini-textbox" name="website" /></td>
+
+						</tr>
+						<tr>
+							<td title>联系人邮箱:</td>
+							<td content><input class="mini-textbox" name="email" /></td>
+							<td title>单位电话:</td>
+							<td content><input class="mini-textbox" name="workTelephone" /></td>
+							<td title>传真:</td>
+							<td content><input class="mini-textbox" name="workTelephone" /></td>
+						</tr>
+					</table>
+				</fieldset>
+
+
+
+
+
+
+		</form>
+	</div>
+	<div  class="approveFrom">
+		<form id="approveFrom" class="supply-center">
+			<table class="hmq-modify-table"  >
+				<tr>
+					<td title>公司:</td>
+					<td content>
+						<input id="dataCorp" class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+							   emptyText="请选择..." allowInput="false" name="erpCorp" required/>
+					</td>
+					<td title>人员:</td>
+					<td content><input class="mini-combobox" name="erpUserid"  required onclick="openMan()">
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+	<div class=" hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save"
+			id="saveBtn">保存</a>
+		  <a class="mini-button" id="colseBtn" onclick="CloseWindow" iconCls="icon-cancel">关闭</a> 
+	</div>
+	<th:block th:replace="~{model/Approval :: Approval() }">
+	</th:block>
+</body>
+<script type="text/javascript">
+
+	var ue = UE.getEditor('myEditor', {
+		maximumWords: 99999999999,
+		wordCount: false,
+		elementPathEnabled: false,
+		autoFloatEnabled: false
+	});
+	UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
+	UE.Editor.prototype.getActionUrl = function (action) {
+		if (action == 'uploadimage' || action == 'uploadfile' || action == 'uploadvideo') {
+			return '/ueditor/upload';
+		} else {
+			return this._bkGetActionUrl.call(this, action);
+		}
+	};
+	mini.parse()
+	var approveFrom = new mini.Form('approveFrom');
+	$('div.approveFrom').hide();
+	function ApprovalAgreeHandler() {
+		//表单验证非空
+		if( !validForm([approveFrom])){
+			return ;
+		}
+		_ApprovalActionHandler_('/platform/personal/agree',JSON.stringify(approveFrom.getData()));///system/workflow/process/agree
+	}
+	var form = new mini.Form('application-user');	
+	var user_form = new mini.Form('userform');
+
+
+	   form.getField("province").on("valuechanged", function (e) {
+		   form.getField("city").setUrl("/gab/combobox/getCity/{0}".format(e.value));
+	});
+
+
+	form.getField("city").on("valuechanged", function (e) {
+		var   province =  form.getField("province").getValue();
+		form.getField("area").setUrl("/gab/combobox/getArea/{0}/{1}".format(province,e.value));
+	});
+
+	//修改上传图片回显
+	function  initUpload(containter,fileId,view){
+		 $("."+containter+":first").resetUploader({
+             pickerid: fileId,
+             filecount: 1,
+             view : !!view?view:"edit",
+         });
+	}	
+	//查询数据
+	function findAlone(options) {
+		var userId = options.data.personNote|| '';
+		var action = $('[name=action]').val();
+		var flag = false;
+		var view  = null;
+		if (action == "sh") {
+			userId = options.data.businessId
+			flag =true;
+			view = "view";
+
+		}
+	     $.get("/platform/personal/personById/{0}".format(userId), function (res) {
+             if (200 === res.code) {
+            		if(!!res.data == false || (!!res.data.personal == false ) ){
+    					hmq.tipDanger( '该账号非需求用户！');
+    					return;
+    				}			
+    				user_form.setData(res.data.gUserInfo);
+    				initUpload(  "pserson" ,res.data.personal.headImg,"view");
+    				form.setData(res.data.personal);
+				 $(".pserson" ).resetUploader({
+					 pickerid :   form.getField('headImg').getValue(),
+					 filecount : 1,
+					 view :!!view ? view : "edit",
+				 });
+    				//富文本编辑器
+				 setContent(flag);
+             }
+         });
+	}
+
+	//设置富文本编辑器的内容
+	function setContent(flag) {
+		ue.execCommand('insertHtml', form.getField("content").getValue());
+		if(flag){
+			ue.setDisabled();
+		}
+
+
+	}
+	
+	  function SetData(options) {
+          $('[name=action]').val(options.action);
+		  if (true !== options.isApproval) {
+			  if ('add' == options.action) {
+				  user_form.getField('userId').readOnly = false;
+				  var fileId2 = getFileId();
+				  //用户头像图片
+				  form.getField('headImg').setValue(fileId2);
+				  $(".pserson").filesUpload({
+					  pickerid: fileId2,
+					  filecount: 1,
+				  });
+			  } else if ('edit' == options.action) {
+
+				  $(".hide").hide();
+				  findAlone(options);
+
+
+			  }else  if( 'complete' == options.action){
+				  // 客户身份修改数据
+				  user_form.getField('userId').readOnly = false;
+				  var fileId2 = getFileId();
+				  //用户头像图片
+				  form.getField('headImg').setValue(fileId2);
+				  $(".pserson").filesUpload({
+					  pickerid: fileId2,
+					  filecount: 1,
+				  });
+				  findAlone(options);
+				  $(".hide").hide();
+
+			  }
+		  }else{
+			  //审批
+			  $('div.approveFrom').show();
+			  findAlone(options);
+			  $(".hide").hide();
+			  setFormReadOnly(user_form);
+			  setFormReadOnly(form);
+			  //隐藏按钮区域
+			  $('.hmq-toolbar').hide();
+
+		  }
+
+
+
+
+	    }
+	  
+	  
+	   function isTelNumber(v) {
+		   var myreg =  /^[1][3,4,5,7,8][0-9]{9}$/;
+           var re = new RegExp(myreg);
+           if (re.test(v)) return true;
+           return false;
+       }
+	   //手机号码验证
+	  function onTelValidation(e){
+		    if (e.isValid) {
+                if (isTelNumber(e.value) == false) {
+                    e.errorText = "必须输入正确的手机号码";
+                    hmq.tipDanger( e.errorText);
+                    e.isValid = false;
+                }
+            }
+	  }
+	   //身份证号码验证
+	   function onIDCardsValidation(e) {
+            if (e.isValid) {
+                var pattern = /(^\d{15}$)|(^\d{17}(\d|X)$)/;
+                if (e.value.length < 15 || e.value.length > 18 || pattern.test(e.value) == false) {
+                    e.errorText = "必须输入15~18位身份证号";
+                    hmq.tipDanger( e.errorText);
+                    e.isValid = false;
+                }
+            }
+        }
+
+	/**
+	 * 保存数据
+	 * @constructor
+	 */
+	function SaveData() {
+		mini.get("content").setValue(ue.getContent());
+		if (user_form.validate() && user_form.isValid()&&  form.validate() &&  form.isValid()   ) {
+	         var data = {};
+			data.gUserInfo = user_form.getData();
+			data.personal = form.getData();
+			var type = $('[name=action]').val();
+			var url = {'add' : '/platform/personal/add'}[type] || '/platform/personal/personedit';
+			var method = {
+				'add' : 'post'
+			}[type] || 'put';
+			if(  $('[name=action]').val()  == "complete"){
+				data.selectType = "complete";
+			}
+			
+			$[method](url, JSON.stringify(data), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							if (!!type == false) {
+								findAlone();
+							}else{
+								   CloseWindow('refresh');
+							}
+							
+
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+
+
+
+
+	function onOrgClickHander(e) {
+		var btnEdit = e.sender;
+		return miniopen({
+			targetWindow: window.top,
+			url: "/system/org/hierarchyOrgTree.html",
+			title: "【公司】选择",
+			width: 500,
+			height: 620,
+			data: {
+				state: true
+			},
+			ondestroy: function (action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var data = iframe.contentWindow.GetData();
+					btnEdit.setValue(data.orgId);
+					btnEdit.setText(data.corpExp);
+				}
+			}
+		});
+	}
+
+	function openMan() {
+		layer.open({
+			id : 'role',
+			type : 2,
+			title : '选择人员',
+			area : [ '900px', '550px' ],
+			fixed : false, //不固定
+			maxmin : true,
+			content : '/system/user/selectUser.html',
+			cancel: function (e) {
+
+			}
+		});}
+
+	function  GetPeoMessageData(e) {
+		approveFrom.getField("erpUserid").setValue(e.userId);
+		approveFrom.getField("erpUserid").setText(e.nickName);
+	}
+
+
+
+	//表单验证
+	function validForm(data){
+		var   flag = true;
+		$.each(data, function(index, temp) {
+			if (temp instanceof mini.Form) {
+				if( (!temp.validate())  || (!temp.isValid()) ){
+					flag =  false ;
+				}
+			}
+		});
+		return flag;
+	}
+
+
+
+
+
+
+
+
+
+
+</script>
+</html>

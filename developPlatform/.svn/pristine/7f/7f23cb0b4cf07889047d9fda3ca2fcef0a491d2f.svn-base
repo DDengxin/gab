@@ -1,0 +1,170 @@
+package com.tengzhi.business.system.right.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.system.right.constant.RightModuleEnum;
+import com.tengzhi.business.system.right.dao.SysRightBasicDao;
+import com.tengzhi.business.system.right.dao.SysRightDao;
+import com.tengzhi.business.system.right.model.SysRight;
+import com.tengzhi.business.system.right.service.SysRightService;
+import com.tengzhi.business.system.right.vo.SysRightVo;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class SysRightServiceImpl implements SysRightService {
+    @Autowired
+    private SysRightDao sysRightDao;
+
+    @Autowired
+    private SysRightBasicDao sysRightBasicDao;
+
+    @Override
+    public List<SysRight> findAll() {
+        return sysRightDao.findAll();
+    }
+
+    @Override
+    public List<SysRight> getMenuRightModule(String rightModule) {
+        return sysRightDao.findByRightModuleAndIsForbiddenOrderByRightOrdAsc(rightModule, false);
+    }
+
+    @Override
+    public List<Map<String, String>> getMenuRightModule_sc(String keyword) {
+        List<Map<String, String>> R = new ArrayList<>();
+        sysRightDao.QueryListMap("select CONCAT(right_module,'-',(select right_name from sys_right where right_id=a.parent_id),'-',right_name) title,a.* from sys_right a where right_id in (select right_id from sys_role_r_right rig left join sys_user_r_role rol on rig.role_id=rol.role_id where user_id='"+SessionUser.SessionUser().getUserId()+"') and  parent_id not in(select right_id from sys_right where  parent_id='ROOT') and parent_id <> 'ROOT' and right_type='MENU' and right_name like :1", "%" + keyword + "%")
+                .forEach(item -> {
+                    R.add(item);
+                });
+        return R;
+    }
+
+    @Override
+    public List<SysRight> getMenuRightModule(RightModuleEnum rightModuleEnum) {
+        return getMenuRightModule(rightModuleEnum.name());
+    }
+
+    @Override
+    public BasePage<SysRight> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysRightDao.QueryNOPageList(baseDto, Specifications.where((c) -> {
+            c.eq(map, new String[]{"rightType", "parentId", "rightModule", "rightResouce"});
+            c.contains("rightName", map.get("rightName"));
+            c.eqbool("isForbidden", map.get("isForbidden"));
+        }));
+    }
+
+    @Override
+    public SysRight findByRightId(String rightId) {
+        return sysRightDao.findByRightId(rightId);
+    }
+
+    @Override
+    public SysRight save(SysRightVo sysRightVo) throws Exception {
+        if(StringUtils.isBlank(sysRightVo.getMenu().getRightId())){
+            throw new Exception("菜单编码不得为空");
+        }
+        if (judgeUnique(sysRightVo.getMenu())) {
+            sysRightVo.getMenu().setRightType("MENU");
+            if (null != sysRightVo.getAddedList() && !sysRightVo.getAddedList().isEmpty()) {
+                sysRightVo.getAddedList().forEach(item -> {
+                    item.setParentId(sysRightVo.getMenu().getRightId());
+                    item.setRightModule(sysRightVo.getMenu().getRightModule());
+                    sysRightDao.save(item);
+                });
+            }
+            if (!sysRightVo.getDeletedList().isEmpty()) {
+                sysRightDao.deleteAll(sysRightVo.getDeletedList());
+            }
+            if (!sysRightVo.getModifyedList().isEmpty()) {
+                sysRightVo.getModifyedList().forEach(item -> {
+                    item.setRightModule(sysRightVo.getMenu().getRightModule());
+                    sysRightDao.dynamicSave(item, sysRightDao.findByRightId(item.getRightId()));
+                });
+            }
+            return sysRightDao.save(sysRightVo.getMenu());
+        } else {
+            throw new Exception("菜单名称已存在");
+        }
+    }
+
+    @Override
+    public void update(SysRightVo sysRightVo) {
+        if (!sysRightVo.getAddedList().isEmpty()) {
+            sysRightVo.getAddedList().forEach(item -> {
+                item.setParentId(sysRightVo.getMenu().getRightId());
+                item.setRightModule(sysRightVo.getMenu().getRightModule());
+                sysRightDao.save(item);
+            });
+        }
+        if (!sysRightVo.getDeletedList().isEmpty()) {
+            sysRightDao.deleteAll(sysRightVo.getDeletedList());
+        }
+        if (!sysRightVo.getModifyedList().isEmpty()) {
+            sysRightVo.getModifyedList().forEach(item -> {
+                item.setRightModule(sysRightVo.getMenu().getRightModule());
+                sysRightDao.dynamicSave(item, sysRightDao.findByRightId(item.getRightId()));
+            });
+        }
+        sysRightDao.dynamicSave(sysRightVo.getMenu(), sysRightDao.findByRightId(sysRightVo.getMenu().getRightId()));
+    }
+
+    @Override
+    public void deleteById(Map<String, Object> map) {
+        String oId = ObjectUtil.isEmpty(map.get("rightId")) ? "-1" : map.get("rightId").toString();
+        sysRightDao.deleteByRightId(oId);
+        Recursive((List<Map<String, Object>>) map.get("list"));
+    }
+
+    @Override
+    public SysRight buttonsava(SysRight sysRight) {
+        return sysRightDao.dynamicSave(sysRight, sysRightDao.findByRightId(sysRight.getRightId()));
+    }
+
+
+    @Override
+    public boolean judgeUnique(SysRight sysRight) {
+        return sysRightDao.findAll(Specifications.where((c) -> {
+            c.eq("parentId", sysRight.getParentId());
+            c.eq("rightName", sysRight.getRightName());
+        })).size() <= 0;
+    }
+
+    @Override
+    public List<SysRight> findByParentIdAndRightType(String rightId, String typeButton) {
+        return sysRightDao.findByParentIdAndRightType(rightId, typeButton);
+    }
+
+    @Override
+    public List<SysRight> findByParentIdAndRightType(String userid, String rightId, String typeButton) {
+        return sysRightBasicDao.findParentIdAndRightType(userid, rightId, typeButton);
+    }
+
+    //递归删除
+    private void Recursive(List<Map<String, Object>> list) {
+        if (list != null) {
+            list.forEach(item -> {
+                sysRightDao.deleteByRightId(ObjectUtil.isEmpty(item.get("rightId")) ? "-1" : item.get("rightId").toString());
+                Recursive((List<Map<String, Object>>) item.get("children"));
+            });
+        }
+    }
+
+    @Override
+    public List<SysRight> getMenuRightModule(String userid, String rightModule) {
+        return sysRightBasicDao.findByUserid(userid, rightModule);
+    }
+
+
+}

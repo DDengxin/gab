@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,_)}">
+	<title>流程编辑</title>
+</th:block>
+<link rel="stylesheet"
+	th:href="@{/static/fonts/workflowfont/iconfont.css}">
+<link rel="stylesheet" th:href="@{/static/css/g6.css}">
+<link rel="stylesheet" th:href="@{/static/script/M_select/M_select.css}">
+<script th:src="@{/static/javascript/g6.min.js}"></script>
+<script th:src="@{/static/script/jquery/jquery-1.12.4.min.js}"></script>
+<script th:src="@{/static/script/M_select/M_select.js}"></script>
+<script th:src="@{/static/script/layer/layer.js}"></script>
+<script th:src="@{/static/javascript/g6-plugins.min.js}"></script>
+<script th:src="@{/static/javascript/html2canvas.min.js}"></script>
+</head>
+
+<body>
+	<div class="changeOper">
+		<button id="changeDrag" class="iconfont icon-yidong" title="拖拽模式"
+			onclick="changeModel('drag')"></button>
+		<button id="changeEdit" class="iconfont icon-bianji" title="编辑模式"
+			onclick="changeModel('edit')"></button>
+		<!-- <button id="changeGrid" class="iconfont icon-wangge" title="网格对齐"></button> -->
+	</div>
+	<div id="toolBar">
+		<!--开始-->
+		<button id="addCircleStart" class="iconfont icon-kaishijiedian"></button>
+		<!--结束-->
+		<button id="addCircleEnd" class="iconfont icon-jieshujiedian"></button>
+		<!--圆-->
+		<!-- <button id="addCircle" class="iconfont icon-yuan"></button>； -->
+		<!--矩形-->
+		<button id="addRect" class="iconfont icon-juxing"></button>
+		<!--菱形框-->
+		<!-- <button id="addLxing" class="iconfont icon-tubiao"></button> -->
+		<!--直线-->
+		<!-- <button id="addLine" class="iconfont icon-zhixian"></button> -->
+		<!-- 箭头直线 -->
+		<button id="addArrowLine" class="iconfont icon-ai37"></button>
+		<!--箭头折线-->
+		<!-- <button id="addPolyLineFlow" class="iconfont icon-jiantouzhexian"></button> -->
+	</div>
+	<div id="mountNode"></div>
+	<div class="tools">
+		<i>删除</i> <i class="delete iconfont icon-shanchu"></i>
+	</div>
+
+	<div class="workflow_name" id="workflow_name">
+		<!-- 流程详情 -->
+		<dl class="workflowDesc">
+			<dt>流程详情</dt>
+			<dd>
+				<p>所属系统：</p>
+				<div class="select_border">
+					<div class="container">
+						<select name="" class="select" id="workflowSys"
+							onchange="workflowSysChange()">
+							<option value="0">--请选择--</option>
+						</select>
+					</div>
+				</div>
+			</dd>
+			<dd>
+				<p>系统模块：</p>
+				<div class="select_border">
+					<div class="container">
+						<select name="" class="select" id="workflowModel"
+							onchange="workflowModelchange()">
+						</select>
+					</div>
+				</div>
+			</dd>
+			<dd>
+				<p>流程分类：</p>
+				<!-- onchange="workflowCatechange()" -->
+				<input type="text" id="workflowCate">
+			</dd>
+			<!-- <dd>
+            <p>流程ID：</p>
+            <input type="text" id="workflowID" readonly>
+        </dd> -->
+			<dd>
+				<p>流程名称：</p>
+				<input type="text" id="workflowName" onchange="workflowNamechange()">
+			</dd>
+			<dd>
+				<p>业务表单：</p>
+				<div class="container">
+					<select name="" class="select" id="bussinessTable"
+						onchange="bussinessTablechange()">
+					</select>
+				</div>
+			</dd>
+			<dd id='last'>
+				<p>流程描述：</p>
+				<textarea name="" id="workflowDesc" onchange="workflowDescchange()"></textarea>
+			</dd>
+		</dl>
+
+		<!-- 节点编辑 -->
+		<dl class="nodesUpdate">
+			<dl>
+				<dt>流程详情：</dt>
+				<dd>
+					<p>流程名称：</p>
+					<input type="text" id="workflowName1"
+						onchange="workflowNamechange()" readonly>
+				</dd>
+			</dl>
+			<dl class="nodesDetails">
+				<dt>流程节点</dt>
+				<dd>
+					<p>节点ID：</p>
+					<input type="text" id="nodeID" readonly>
+				</dd>
+				<dd>
+					<p>节点名称：</p>
+					<input type="text" id="nodeName" onchange="nodeNamechange()">
+				</dd>
+				<dd class="peoKind">
+					<p>
+						办理人类型：
+						<!-- 下拉框 -->
+					</p>
+					<div class="select_border">
+						<div class="container">
+							<select name="" class="select" id="peoCate"
+								onchange="peoCateChange()">
+								<option value="0">SQL表达式</option>
+								<option value="1">指定人员</option>
+								<!-- <option value="2">指定角色</option> -->
+								<option value="3">JAVA类</option>
+								<option value="4">自定义</option>
+							</select>
+						</div>
+					</div>
+				</dd>
+				<dd class="role">
+					<p class="randomContent">
+						审批角色：
+						<!-- 弹出框 办理人员弹出固定人员的选择框-->
+					</p>
+					<input type="text" id="peoName" onchange="peoNamechange()">
+				</dd>
+				<dd class="nodeMethods">
+					<p>
+						审批方式：
+						<!-- 下拉框 -->
+					</p>
+					<div class="select_border">
+						<div class="container">
+							<select name="" class="select" id="nodeDel"
+								onchange="nodeDelChange()">
+								<option value="1">单人办理</option>
+								<option value="2">多人办理</option>
+							</select>
+						</div>
+					</div>
+				</dd>
+				<dd class="skip">
+					<p>重复审批跳过：</p>
+					<div class="remember-password-content">
+						<input type="checkbox" id="remember" onclick="nodeSkip()">
+						<span></span> <label class="remember-me-label" for="remember"></label>
+					</div>
+				</dd>
+			</dl>
+		</dl>
+
+		<!-- 边编辑 -->
+		<dl class="edgesUpdate">
+			<dl>
+				<dt>流程详情：</dt>
+				<dd>
+					<p>流程名称：</p>
+					<input type="text" id="workflowName2"
+						onchange="workflowNamechange()" readonly>
+				</dd>
+			</dl>
+			<dt>流程线条</dt>
+			<dd>
+				<p>线条名称:</p>
+				<input type="text" id="edgeName" onchange="edgeNameChange()">
+			</dd>
+			<dd class="edgeLine">
+				<p>
+					条件表达式名称：
+					<!-- 下拉框 -->
+				</p>
+				<div>
+					<div class="select_border">
+						<div class="container">
+							<select name="" class="select" id="edgeKind"
+								onchange="edgeKindchange()">
+								<option value="0">--请选择--</option>
+								<option value="1">SQL表达式</option>
+								<option value="2">EL表达式</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</dd>
+			<dd>
+				<p>
+					流程条件:
+					<!-- 弹出框 -->
+				</p>
+				<input type="text" id="edgeContent" onchange="edgeContentChange()">
+			</dd>
+			<!-- <dd>
+            <p>条件说明：</p>
+            <textarea name="" id="edgeDesc" onchange="edgechange()"></textarea>
+        </dd> -->
+		</dl>
+
+
+		<div class="toolbox">
+			<button id="consoleJSON">保存</button>
+			<!-- <button id="downloadImage">保存图片</button> -->
+		</div>
+	</div>
+
+	<script>
+		var time = new Date().getTime();
+
+		function getQueryVariable(variable) {
+			var query = window.location.search.substring(1);
+			var vars = query.split("&");
+			for (var i = 0; i < vars.length; i++) {
+				var pair = vars[i].split("=");
+				if (pair[0] == variable) {
+					return pair[1];
+				}
+			}
+			return (false);
+		}
+
+		// 加载流程描述数据
+		var workDescData = [];
+
+		// 加载节点数据
+		var nodesData = [];
+
+		// 加载边数据
+		var edgesData = [];
+
+		// 获取json数据
+		var workflowData;
+
+		/*
+		 * 新增mid = false
+		 * 修改mid为流程ID
+		 */
+		var mid = getQueryVariable("id");
+
+		if (mid == false) {
+			var str = {};
+			str.processClassify = '';
+			str.processClassifyId = '';
+			str.processDescribe = '';
+			str.processModule = '';
+			str.processName = '';
+			str.processSystemType = '';
+			str.workflowTableId = '';
+			workDescData.push(str);
+		} else {
+			$.ajax({
+				url : '/system/workflow/process/getProcessInstance?processId='
+						+ mid + '&time=' + time,
+				type : 'GET',
+				dataType : 'json',
+				async : false,
+				success : function(res) {
+					workflowData = JSON.parse(res.data);
+					for ( var i in workflowData) {
+						if (i === 'nodes') {
+							nodesData = workflowData[i];
+						}
+						if (i === 'edges') {
+							edgesData = workflowData[i];
+						}
+						if (i === 'describe') {
+							workDescData = workflowData[i];
+						}
+					}
+					;
+				}
+			})
+		}
+
+		// 流程图描述数据
+		var workflowName = document.getElementById('workflowName')
+		var workflowName1 = document.getElementById('workflowName1')
+		var workflowName2 = document.getElementById('workflowName2')
+		var workflowDesc = document.getElementById('workflowDesc')
+		var workflowModel = document.getElementById('workflowModel')
+		var workflowID = document.getElementById('workflowID')
+		var workflowSys = document.getElementById('workflowSys')
+		var bussinessTable = document.getElementById('bussinessTable')
+		var workflowCate = document.getElementById('workflowCate');
+
+		// 所属系统的下拉框的值workflowSys
+		$.ajax({
+			url : '/system/right/combobox/rightModule',
+			type : 'GET',
+			dataType : 'json',
+			async : false,
+			success : function(res) {
+				for (var i = 0; i < res.length; i++) {
+					$('#workflowSys').append(
+							'<option value=' + res[i].id + '>' + res[i].text
+									+ '</option>')
+				}
+			}
+		})
+
+		//业务表单下拉框
+		$.ajax({
+			url : '/system/workflow/linkTable/list?pageIndex=0&pageSize=400',
+			type : 'POST',
+			dataType : 'json',
+			async : false,
+			success : function(res) {
+				for (var i = 0; i < res.data.length; i++) {
+					$('#bussinessTable').append(
+							'<option value=' + res.data[i].workflowTableId + '>'
+									+ res.data[i].workflowTableDescribe
+									+ '</option>')
+				}
+			}
+		})
+
+		if (mid == false) {
+			workflowName.value = '';
+			workflowName1.value = '';
+			workflowName2.value = '';
+			workflowDesc.value = '';
+			workflowModel.value = '';
+			workflowSys.value = 0;
+			workflowCate.value = '';
+		} else {
+			workflowName.value = workDescData[0].processName;
+			workflowName1.value = workDescData[0].processName;
+			workflowName2.value = workDescData[0].processName;
+			workflowDesc.value = workDescData[0].processDescribe;
+			workflowModel.value = workDescData[0].processModule;
+			workflowSys.value = workDescData[0].processSystemType;
+			workflowCate.value = workDescData[0].processClassify;
+			bussinessTable.value = workDescData[0].workflowTableId;
+			// workflowID.value = workDescData[0].id;
+		}
+
+		var modelUrl;
+		if (workflowSys.value == '0') {
+			$("#workflowSys  option[value='0'] ").attr("selected", true);
+			$('#workflowModel').attr('disabled', 'disabled');
+			$('#workflowCate').attr('disabled', 'disabled');
+		} else {
+			$("#workflowSys  option[value='0'] ").attr("selected", false);
+			workflowSys.value = workDescData[0].processSystemType;
+			$('#workflowModel').removeAttr('disabled');
+			$('#workflowCate').removeAttr('disabled');
+			modelUrl = '/system/right/combobox/menu/' + workflowSys.value
+					+ '/ROOT';
+		}
+
+		function workflowSysChange() {
+			var index = workflowSys.selectedIndex;// selectedIndex代表的是你所选中项的index
+			var optionsValue = workflowSys.options[index].value;
+			modelUrl = '/system/right/combobox/menu/' + optionsValue + '/ROOT';
+
+			if (optionsValue != '0') {
+				workflowSys.value = optionsValue;
+				$('#workflowModel').removeAttr('disabled');
+				$('#workflowCate').removeAttr('disabled');
+				workDescData[0].processSystemType = optionsValue;
+				$("#workflowModel").empty();
+				modelChangeUrl();
+				workDescData[0].processModule = workflowModel.options[0].text;
+
+			} else {
+				$("#workflowSys  option[value='0'] ").attr("selected", true);
+				$('#workflowModel').attr('disabled', 'disabled');
+				$('#workflowCate').attr('disabled', 'disabled');
+			}
+		}
+
+		//系统模块
+		if (workflowSys.value != 0) {
+			modelChangeUrl();
+		}
+
+		function modelChangeUrl() {
+			$.ajax({
+				url : modelUrl,
+				type : 'GET',
+				dataType : 'json',
+				async : false,
+				success : function(res) {
+					for (var i = 0; i < res.length; i++) {
+						$('#workflowModel').append(
+								'<option value=' + res[i].id + '>'
+										+ res[i].text + '</option>')
+					}
+				}
+			})
+		}
+
+		function workflowModelchange() {
+			var modelIndex = workflowModel.selectedIndex;// selectedIndex代表的是你所选中项的index
+			var modelValue = workflowModel.options[modelIndex].text;
+			workDescData[0].processModule = modelValue;
+		}
+
+		//弹出框 流程分类 workflowCate
+		$('#workflowCate').click(function() {
+			layer.open({
+				id : 'workflowCateTc',
+				type : 2,
+				title : '选择流程分类',
+				area : [ '900px', '550px' ],
+				fixed : false, //不固定
+				maxmin : true,
+				content : '/system/right/hierarchyMenuTree.html',
+				success : function(layero, index) {
+					// 获取子页面的iframe
+					var body2 = window['layui-layer-iframe' + index];
+					var data = [];
+					var sysData = $('#workflowSys').val();
+					var modelData = $('#workflowModel').val();
+					data.push(sysData)
+					data.push(modelData)
+					body2.child(data);
+				}
+			});
+		})
+
+		function getSysValue() {
+			var rowData2 = $('#workflowSys').val();
+			return rowData2;
+		}
+
+		function GetValue(data) {
+			workDescData[0].processClassify = data.rightName;
+			workDescData[0].processClassifyId = data.rightId;
+		}
+
+		workDescData[0].workflowTableId = bussinessTable.value;
+
+		//业务表单
+		function bussinessTablechange() {
+			var bussinessTableIndex = bussinessTable.selectedIndex;// selectedIndex代表的是你所选中项的index
+			var bussinessTableValue = bussinessTable.options[bussinessTableIndex].value;
+			workDescData[0].workflowTableId = bussinessTableValue;
+		}
+
+		// 流程名称
+		function workflowNamechange() {
+			if (workflowName.value === '') {
+				layer.tips('名称不能为空', '#workflowName', {
+					tips : [ 4, 'rgb(21,160,245)' ],
+					time : 4000
+				});
+				workflowName.value = workDescData[0].processName;
+				workflowName1.value = workDescData[0].processName;
+				workflowName2.value = workDescData[0].processName;
+			} else {
+				workDescData[0].processName = workflowName.value;
+				workflowName1.value = workflowName.value;
+				workflowName2.value = workflowName.value;
+			}
+		}
+
+		//流程描述
+		function workflowDescchange() {
+			if (workflowDesc.value === '') {
+				layer.tips('描述不能为空', '#workflowDesc', {
+					tips : [ 4, 'rgb(21,160,245)' ],
+					time : 4000
+				});
+				workflowDesc.value = workDescData[0].processDescribe;
+			} else {
+				workDescData[0].processDescribe = workflowDesc.value;
+			}
+		}
+
+		// 节点数据
+		var nodes = [];
+		var nodeName = document.getElementById('nodeName');
+		var nodeDel = document.getElementById('nodeDel');//办理方式
+		var nodeKind = document.getElementById('nodeKind');//办理人类型
+		var peoName = document.getElementById('peoName');//办理人名称
+
+		nodesData
+				.map(function(el) {
+					nodes
+							.push({
+								id : el.associatedId,
+								label : el.linkName,
+								shape : el.processType == '1'
+										|| el.processType == '3' ? 'circle'
+										: 'rect',
+								size : '',
+								transactorType : el.transactorType,
+								transactor : el.transactor,
+								transactorWay : el.transactorWay,
+								processType : el.processType,
+								whetherToSkip : el.whetherToSkip == undefined
+										|| el.whetherToSkip == null
+										|| el.whetherToSkip == '' ? 'true'
+										: el.whetherToSkip
+							})
+				})
+
+		// 边数据
+		var edges = [];
+		var edgeName = document.getElementById('edgeName');
+
+		edgesData.map(function(el) {
+			edges.push({
+				id : el.associatedId,
+				associatedId : el.associatedId,
+				source : el.linkStratId,
+				target : el.linkEndId,
+				conditions : el.conditions,
+				conditionsContent : el.conditionsContent,
+				label : el.label == 'null' ? '' : el.label
+			})
+		})
+
+		var twidth = document.getElementById('toolBar').offsetWidth;
+		var wwidth = document.getElementById('workflow_name').offsetWidth;
+
+		var plugin = new G6.Plugins['layout.dagre']({
+			rankdir : 'LR'
+		});
+
+		var net = new G6.Net({
+			id : 'mountNode', // dom id
+			width : window.innerWidth - twidth - wwidth,
+			height : window.innerHeight, // 画布高
+			fitView : 'autoZoom',
+			fitViewPadding : 200,
+			grid : {
+				forceAlign : true, // 是否支持网格对齐
+				cell : 22, // 网格大小
+				line : {
+					stroke : 'rgb(241, 241, 241)',
+					lineWidth : 0.5
+				}
+			},
+			plugins : [ plugin ]
+		});
+
+		net.tooltip({
+			title : '相关信息', // @type {String} 标题
+			split : ':', // @type {String} 分割符号
+			dx : 10, // @type {Number} 水平偏移
+			dy : 10
+		// @type {Number} 竖直偏移
+		});
+		net.node().tooltip([ 'id', 'label' ]);
+		net.edge().tooltip([ 'id' ]);
+		net.edge().shape('arrow');
+		net.edge().shape('arrow').style({
+			lineWidth : 1
+		}).color('#666');
+		net.node().shape('circle').style({
+			lineWidth : 1,
+			fill : '#fff'
+		}).color('#666');
+		net.source(nodes, edges);
+		net.render();
+		net.changeData(nodes, edges);
+
+		// 修改时设置流程图有且只能拥有一个开始和结束节点
+		var onlyNodes = net.getNodes();
+
+		onlyNodes.map(function(el) {
+			if (el._attrs.model.processType === "1"
+					|| el._attrs.model.processType === '3') {
+				$("#addCircleStart").attr('disabled', true);
+				$("#addCircleEnd").attr('disabled', true);
+				$("#addCircleStart").css({
+					color : 'rgb(223, 219, 219)',
+					cursor : 'not-allowed'
+				});
+				$("#addCircleEnd").css({
+					color : 'rgb(223, 219, 219)',
+					cursor : 'not-allowed'
+				});
+			}
+		})
+
+		// 左侧工具栏
+		var i = 1;
+		var b = 1;
+		var c;
+		var d;
+
+		// 切换模式按钮
+		function changeModel(mode) {
+			net.changeMode(mode)
+		};
+
+		$('#addCircleStart').on('click', function() {//添加开始节点
+			net.beginAdd('node', {
+				id : 'id' + i++,
+				shape : 'circle',
+				label : '登记',
+				size : '',
+				processType : '1',
+				transactor : '',
+				transactorId : '',
+				transactorType : '',
+				transactorWay : '',
+				color : '',
+				x : '',
+				y : ''
+			});
+			var start = {
+				associatedId : 'id' + b++,
+				shape : 'circle',
+				label : '登记',
+				processType : '1',
+				transactor : '',
+				transactorId : '',
+				transactorType : '',
+				transactorWay : '',
+				color : '',
+				x : '',
+				y : '',
+				size : ''
+			};
+			start.linkName = start.label;
+			delete start.label;
+			nodesData.push(start);
+			net.refresh();
+		})
+
+		$('#addCircleEnd').on('click', function() {//添加结束节点
+			net.beginAdd('node', {
+				id : 'id' + i++,
+				shape : 'circle',
+				label : '核准',
+				size : '',
+				processType : '3',
+				transactor : '',
+				transactorId : '',
+				transactorType : '',
+				transactorWay : '',
+				color : '',
+				x : '',
+				y : ''
+			});
+			var end = {
+				associatedId : 'id' + b++,
+				shape : 'circle',
+				label : '核准',
+				processType : '3',
+				transactor : '',
+				transactorId : '',
+				transactorType : '',
+				transactorWay : '',
+				color : '',
+				x : '',
+				y : '',
+				size : ''
+			};
+			end.linkName = end.label;
+			delete end.label;
+			nodesData.push(end);
+			net.refresh();
+		})
+
+		if (mid) {
+			var maxId;
+			var updateId = [];
+			var updateItems = net.getNodes();
+			var updateEdges = net.getEdges();
+
+			for (var i = 0; i < updateItems.length; i++) {
+				var num = parseInt(updateItems[i]._attrs.model.id.replace(
+						/id/gi, ''));
+				updateId.push(num);
+			}
+
+			for (var i = 0; i < updateEdges.length; i++) {
+				var num = parseInt(updateEdges[i]._attrs.model.id.replace(
+						/id/gi, ''));
+				updateId.push(num);
+			}
+
+			var max = updateId[0];
+			for (var i = 0; i < updateId.length - 1; i++) {
+				max = max < updateId[i + 1] ? updateId[i + 1] : max
+			}
+
+			c = max;
+			d = max;
+
+			$('#addRect').on('click', function() {//添加矩形
+				net.beginAdd('node', {
+					id : 'id' + ++c,
+					shape : 'rect',
+					label : '[未定义]',
+					processType : '2',
+					transactor : '',
+					transactorId : '',
+					transactorType : '',
+					transactorWay : '',
+					color : '',
+					x : '',
+					y : '',
+					size : '',
+					whetherToSkip : 'true'
+				});
+				var jx = {
+					associatedId : 'id' + ++d,
+					shape : 'rect',
+					label : '[未定义]',
+					processType : '2',
+					transactor : '',
+					transactorId : '',
+					transactorType : '',
+					transactorWay : '',
+					color : '',
+					x : '',
+					y : '',
+					size : '',
+					whetherToSkip : 'true'
+				};
+				jx.linkName = jx.label;
+				delete jx.label;
+				nodesData.push(jx);
+				net.refresh();
+			});
+
+			$('#addArrowLine').on('click', function() {//添加箭头直线
+				net.beginAdd('edge', {
+					id : 'id' + ++c,
+					shape : 'arrow',
+					label : '',
+					conditions : '',
+					conditionsContent : '',
+					controlPoints : '',
+					linkEndId : '',
+					linkStratId : '',
+					linkStratName : '',
+					linkEndName : ''
+				});
+				var arrowLine = {
+					associatedId : 'id' + ++d,
+					shape : 'arrow',
+					label : '',
+					conditions : '',
+					conditionsContent : '',
+					controlPoints : '',
+					linkEndId : '',
+					linkStratId : '',
+					linkStratName : '',
+					linkEndName : ''
+				};
+				edgesData.push(arrowLine);
+				net.refresh();
+			});
+		} else {
+			$('#addRect').on('click', function() {//添加矩形
+				net.beginAdd('node', {
+					id : 'id' + i++,
+					shape : 'rect',
+					label : '[未定义]',
+					processType : '2',
+					transactor : '',
+					transactorId : '',
+					transactorType : '',
+					transactorWay : '',
+					color : '',
+					x : '',
+					y : '',
+					size : '',
+					whetherToSkip : 'true'
+				});
+				var jx = {
+					associatedId : 'id' + b++,
+					shape : 'rect',
+					label : '[未定义]',
+					processType : '2',
+					transactor : '',
+					transactorId : '',
+					transactorType : '',
+					transactorWay : '',
+					color : '',
+					x : '',
+					y : '',
+					size : '',
+					whetherToSkip : 'true'
+				};
+				jx.linkName = jx.label;
+				delete jx.label;
+				nodesData.push(jx);
+				net.refresh();
+			});
+
+			$('#addArrowLine').on('click', function() {//添加箭头直线
+				net.beginAdd('edge', {
+					id : 'id' + i++,
+					shape : 'arrow',
+					label : '',
+					conditions : '',
+					conditionsContent : '',
+					controlPoints : '',
+					linkEndId : '',
+					linkStratId : '',
+					linkStratName : '',
+					linkEndName : ''
+				});
+				var arrowLine = {
+					associatedId : 'id' + b++,
+					shape : 'arrow',
+					label : '',
+					conditions : '',
+					conditionsContent : '',
+					controlPoints : '',
+					linkEndId : '',
+					linkStratId : '',
+					linkStratName : '',
+					linkEndName : ''
+				};
+				edgesData.push(arrowLine);
+				net.refresh();
+			});
+		}
+
+		// 修改node/edge文字
+		var Util = G6.Util;
+		var input = Util.createDOM(
+				'<input class="g6-label-input" id="itemLabelChange"/>', {
+					position : 'absolute',
+					zIndex : 10,
+					display : 'none'
+				});
+
+		function hasClass(type, className) {
+			if (type) {
+				var clasees = type.get('class');
+				if (clasees && clasees.indexOf(className) !== -1) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		function showInputLabel(node) {
+			if (!node) {
+				return;
+			}
+			var group = node.get('group');
+			var label = group.findBy(function(child) {
+				if (hasClass(child, 'label')) {
+					return true;
+				}
+				return false;
+			});
+			var rootGroup = net.get('rootGroup');
+			var bbox = Util.getBBox(label, rootGroup);
+			var borderWidth = 1;
+			var text = label.attr('text');
+			clearAllActived();
+
+			input.value = text;
+			input.show();
+			input.css({
+				top : bbox.minY - borderWidth + 'px',
+				left : bbox.minX - borderWidth + 61 + 'px',
+				width : bbox.width + 'px',
+				height : bbox.height + 'px',
+				padding : '0px',
+				margin : '0px',
+				border : borderWidth + 'px solid #999'
+			});
+			input.focus();
+			input.node = node;
+		}
+
+		function updateLabel() {
+			if (input.visibility) {
+				var node = input.node;
+				clearAllActived();
+				if (input.value !== node.get('model').name) {
+					if (input.value) {
+						net.update(node, {
+							label : input.value
+						});
+					}
+				}
+				input.hide();
+			}
+		}
+
+		function clearAllActived() {
+			net.clearAllActived();
+			net.refresh(false);
+		}
+
+		input.hide = function() {
+			input.css({
+				display : 'none'
+			});
+			input.visibility = false;
+		};
+		input.show = function() {
+			input.css({
+				display : 'block'
+			});
+			input.visibility = true;
+		};
+
+		input.on('keydown', function(ev) {
+			if (ev.keyCode === 13) {
+				updateLabel();
+			}
+		});
+
+		input.on('blur', function() {
+			updateLabel();
+		});
+
+		//点线操作
+		var graphContainer = net.get('graphContainer');//获取图表内部容器
+		// graphContainer.appendChild(input);//追加input输入框
+		graphContainer.oncontextmenu = function(e) {//阻止默认右键菜单
+			return false;
+		}
+		net.on('contextmenu', function(ev) {// 鼠标右键点击事件
+			var keyNode = net.find(ev.item._attrs.id);
+			var item = net.find('id' + i);
+
+			$('.tools').css({
+				'display' : 'block',
+				'position' : 'absolute',
+				'zIndex' : '99',
+				'left' : ev.frontEvObj.domX + 20,
+				'top' : ev.frontEvObj.domY - 10
+			});
+			// 删除
+			$('.tools').click(function() {
+				if (keyNode) {
+					edgesData.map(function(el, ind) {
+						if (ev.item._attrs.id === el.associatedId) {
+							edgesData.splice(ind, 1);
+						}
+					})
+					nodesData.map(function(e, index) {
+						if (ev.item._attrs.id === e.associatedId) {
+							nodesData.splice(index, 1);
+						}
+					})
+					net.remove(keyNode);
+				}
+				// else {
+				//     net.remove(item);
+				// }
+				$('.tools').css('display', 'none');
+			})
+			net.refresh();
+		});
+
+		$('.tools').on('mouseleave', function(ev) {
+			$('.tools').css('display', 'none');
+		})
+
+		var items = {};
+		var edgeKind = document.getElementById('edgeKind');
+		var edgeContent = document.getElementById('edgeContent');
+		var peoCate = document.getElementById('peoCate');
+
+		net.on('itemclick', function(ev) {//子项点击事件
+			items = ev.item._attrs;
+
+			if (items.type === 'node') {
+				if (items.model.processType === '1') {
+					$('.nodesDetails').css('display', 'none');
+				} else {
+					$('.nodesDetails').css('display', 'block');
+				}
+
+				if (items.model.processType === '3') {
+					$('.peoKind').css('display', 'none');
+					$('.role').css('display', 'none');
+					$('.nodeMethods').css('display', 'none');
+					$('.skip').css('display', 'none');
+				} else {
+					$('.peoKind').css('display', 'block');
+					$('.role').css('display', 'block');
+					$('.nodeMethods').css('display', 'block');
+					$('.skip').css('display', 'block');
+				}
+
+				$('.nodesUpdate').css('display', 'block');
+				$('.workflowDesc').css('display', 'none');
+				$('.edgesUpdate').css('display', 'none');
+				$('#nodeName').val(items.model.label);
+				$('#nodeID').val(items.model.id);
+
+				if (items.model.transactorType === '') {
+					peoCate.value = '0';
+					$('#peoName').val(items.model.transactor);
+					$('#peoName').removeAttr('placeholder');
+				} else if (items.model.transactorType === '4') {
+					$('#peoName').attr('placeholder', '默认为当前办理人员');
+					peoCate.value = items.model.transactorType;
+				} else {
+					peoCate.value = items.model.transactorType;
+					$('#peoName').val(items.model.transactor);
+					$('#peoName').removeAttr('placeholder');
+				}
+				peoCateChange();
+				nodeDelChange();
+
+				if (items.model.whetherToSkip == 'true') {
+					$('#remember').prop('checked', true);
+				} else {
+					$('#remember').prop('checked', false);
+				}
+			}
+			;
+
+			if (items.type === 'edge') {
+				$('.edgesUpdate').css('display', 'block');
+				$('.nodesUpdate').css('display', 'none');
+				$('.workflowDesc').css('display', 'none');
+				$('#edgeContent').val(items.model.conditionsContent);
+				$('#edgeName').val(items.model.label);
+				edgeKind.value = items.model.conditions;
+				if (items.model.conditions == ''
+						|| items.model.conditions == null) {
+					edgeKind.value = '0';
+				}
+				edgeContentJ();
+			}
+			;
+
+			//添加线条的controlPoints
+			if (mid == false) {
+				edgesData.map(function(el) {
+					if (items.id === el.associatedId) {
+						el.controlPoints = JSON.stringify(items.controlPoints)
+								.replace(/"/g, '\\"');
+					}
+				})
+			}
+		});
+
+		// 办理人类型
+		peoCateDefault();
+
+		function peoCateChange() {
+			if (peoCate.value === '0') {
+				$('.randomContent').html('表达式');
+				$('#peoName').val(items.model.transactor);
+			}
+			if (peoCate.value === '1') {
+				$('.randomContent').html('选择人员');
+				$('#peoName').val(items.model.transactor);
+			}
+			if (peoCate.value === '2') {
+				$('.randomContent').html('选择角色');
+				$('#peoName').val(items.model.transactor);
+			}
+			if (peoCate.value === '3') {
+				$('.randomContent').html('JAVA类');
+				$('#peoName').val(items.model.transactor);
+			}
+			if (peoCate.value === '4') {
+				$('.randomContent').html('EL表达式');
+				$('#peoName').attr('placeholder', '默认为当前办理人员');
+				$('#peoName').val(items.model.transactor);
+			}
+			peoCateDefault();
+			nodesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					items.model.transactorType = peoCate.value;
+					el.transactorType = peoCate.value;
+				}
+			})
+		}
+
+		function peoCateDefault() {
+			$('#peoName').click(
+					function() {
+						if (peoCate.value === '0' || peoCate.value === '3'
+								|| peoCate.value === '4') {
+							layer.open({
+								id : 'inputExpress',
+								type : 2,
+								title : '输入SQL表达式或者JAVA类或者自定义',
+								area : [ '700px', '450px' ],
+								fixed : false, //不固定
+								maxmin : false,
+								content : './iframeExp.html',
+								success : function(layero, index) {
+									// 获取子页面的iframe
+									var body = layer.getChildFrame('body',
+											index);
+									var rowData = $('#peoName').val();
+									body.find('#workflowContent').val(rowData)
+								}
+							});
+						} else {
+							//审批角色
+							layer.open({
+								id : 'role',
+								type : 2,
+								title : '选择人员',
+								area : [ '900px', '550px' ],
+								fixed : false, //不固定
+								maxmin : true,
+								content : '/system/user/selectUser.html'
+							});
+						}
+					})
+		}
+
+		var nameContent;
+
+		function GetPeoNameData(nameData) {
+			nameContent = nameData;
+			nodesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					peoName.value = nameContent;
+					items.model.transactor = nameContent;
+					el.transactor = nameContent;
+				}
+			})
+		}
+
+		function GetPeoMessageData(peoMessage) {
+			nodesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					peoName.value = peoMessage.nickName;
+					items.model.transactor = peoName.value;
+					el.transactor = peoName.value;
+					el.transactorId = peoMessage.jobNumber;
+				}
+			})
+		}
+
+		//人员为多选
+		/* function GetPeoMessageData(peoMessage) {
+		    if (peoMessage.length > 1) {
+		        value += e.nickName + ",";
+		        parent.$('#peoName').val(value.replace(/,$/, ''));
+		    }
+
+		    nodesData.map(function (el) {
+		        if (items.id === el.associatedId) {
+		            peoName.value = peoMessage.nickName;
+		            items.model.transactor = peoName.value;
+		            el.transactor = peoName.value;
+		            el.transactorId = peoMessage.jobNumber;
+		        }
+		    })
+		} */
+
+		function peoNamechange() {
+			if (peoCate.value === '0' || peoCate.value === '3'
+					|| peoCate.value === '4') {
+				GetPeoNameData(nameData);
+			} else {
+				GetPeoMessageData(peoMessage);
+			}
+		}
+
+		// 审批方式
+		function nodeDelChange() {
+			nodesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					var index = nodeDel.selectedIndex;// selectedIndex代表的是你所选中项的index
+					var optionsValue = nodeDel.options[index].value;
+					el.transactorWay = optionsValue;
+					items.model.transactorWay = optionsValue;
+				}
+			})
+		}
+
+		function nodeSkip() {
+			nodesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					el.whetherToSkip = JSON.stringify($("#remember").is(
+							':checked'));
+					items.model.whetherToSkip = JSON.stringify($("#remember")
+							.is(':checked'));
+
+					if ($("#remember").is(':checked')) {
+						$('#remember').prop('checked', true);
+					} else {
+						$('#remember').prop('checked', false);
+					}
+				}
+			})
+		}
+
+		// 线条名称
+		function edgeNameChange() {
+			edgesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					el.label = edgeName.value;
+					items.model.label = edgeName.value;
+				}
+			})
+		}
+
+		// 条件表达式
+		function edgeContentJ() {
+			var edgeKindValue = edgeKind.value;
+			if (edgeKindValue == '0') {
+				$('#edgeContent').attr('disabled', 'disabled');
+				$('#edgeContent').css('cursor', 'not-allow');
+			} else {
+				$('#edgeContent').removeAttr('disabled', 'disabled')
+			}
+		}
+
+		edgeContentJ();
+
+		function edgeKindchange() {
+			edgeContentJ();
+			edgesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					var index = edgeKind.selectedIndex;// selectedIndex代表的是你所选中项的index
+					var optionsValue = edgeKind.options[index].value;
+					if (optionsValue === '0') {
+						el.conditions = '';
+						optionsValue = '';
+						$('#edgeContent').val('');
+					}
+					el.conditions = optionsValue;
+					items.model.conditions = optionsValue;
+				}
+			})
+		}
+
+		// 流程条件
+		var valueContent;
+
+		function GetData(data) {
+			valueContent = data;
+			edgesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					edgeContent.value = valueContent;
+					items.model.conditionsContent = valueContent;
+					el.conditionsContent = valueContent;
+				}
+			})
+		}
+
+		function edgeContentChange() {
+			edgesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					items.model.conditionsContent = edgeContent.value;
+					el.conditionsContent = edgeContent.value;
+				}
+			})
+		}
+
+		//条件表达式内容
+		$('#edgeContent').click(function() {
+			layer.open({
+				type : 2,
+				title : '输入流程条件',
+				area : [ '700px', '450px' ],
+				fixed : false, //不固定
+				maxmin : false,
+				content : './iframeCondition.html',
+				success : function(layero, index) {
+					// 获取子页面的iframe
+					var body1 = layer.getChildFrame('body', index);
+					var rowData1 = edgeContent.value;
+					body1.find('#workflowContent').val(rowData1)
+				}
+			});
+		})
+
+		net.on('click', function() { //画布点击事件
+			$('.edgesUpdate').css('display', 'none');
+			$('.nodesUpdate').css('display', 'none');
+			$('.workflowDesc').css('display', 'block');
+			netSizeAutoChangeHandler();
+		});
+		function netSizeAutoChangeHandler() {
+			//动态计算文本域高度
+			var countHeight = 0;
+			$('dl.workflowDesc > dt,dl.workflowDesc > dd:not(#last)').each(
+					function(index, dom) {
+						if ('none' !== dom.style.display) {
+							countHeight += dom.scrollHeight;
+						}
+					});
+			//90:按钮预留高度
+			//40：文本域上方文字高度
+			$('dd#last > textarea')
+					.css(
+							'height',
+							(document.body.clientHeight - 90 - countHeight - 40)
+									+ 'px');
+		}
+		//手动触发点击画布事件
+		netSizeAutoChangeHandler();
+
+		//节点名称change事件
+		function nodeNamechange() {
+			nodesData.map(function(el) {
+				if (items.id === el.associatedId) {
+					if (nodeName.value === '') {
+						layer.tips('节点名称不能为空', '#nodeName', {
+							tips : [ 4, 'rgb(21,160,245)' ],
+							time : 4000
+						});
+						nodeName.value === '' ? nodeName.value = '[未定义]'
+								: nodeName.value = el.linkName;
+					} else {
+						items.model.label = $('#nodeName').val();
+						el.linkName = $('#nodeName').val();
+					}
+				}
+			})
+		}
+
+		net.on('itemmouseenter', function(ev) {//子项鼠标悬浮
+			var item = ev.item;
+			net.update(item, {
+				color : 'red',
+			});
+			net.refresh();
+		});
+		net.on('itemmouseleave', function(ev) {//子项鼠标离开事件
+			var item = ev.item;
+			net.update(item, {
+				color : null
+			});
+			net.refresh();
+		});
+		net.on('itemmousedown', function(ev) {//子项鼠标按下
+			var item = ev.item;
+			net.update(item, {
+				color : '#9ef'
+			});
+		});
+		net.on('itemmouseup', function(ev) {//子项鼠标弹起
+			var item = ev.item;
+			net.update(item, {
+				color : 'null'
+			});
+		});
+
+		net.on('dragmove', function() {//拖拽隐藏
+			input.hide();
+		});
+
+		$('#consoleJSON')
+				.on(
+						'click',
+						function() {//保存按钮
+							var flowItems = net.getNodes();
+							var flowEdges = net.getEdges();
+							var sourceNodesData;
+							var sourceEdgesData;
+
+							var onlyNodesArr = [];
+							var edgeCon = [];
+							var resultDescflag = true;
+							var resulYlflag = true;
+							var resultNodeflag = true;
+							var resultExflag = true;
+							var resultFzflag = true;
+							var nothing = true;
+							var resultOLflag = true;
+
+							if (flowItems.length == 0) {
+								layer.msg('该流程图不合格！！！');
+								nothing = false;
+								return;
+							}
+
+							/**
+							 * flowEdges:画布上所有的线条
+							 * 删除起始节点和结束节点都为同一节点的线条
+							 */
+							for (var i = 0; i < flowEdges.length; i++) {
+								if (flowEdges[i]._attrs.source._attrs.id == flowEdges[i]._attrs.target._attrs.id) {
+									flowEdges.splice(i, 1);
+								}
+							}
+
+							var flowEdgesArr = [];
+							//得到由同一个节点分叉出的所有线条
+							for (var i = 0; i < flowEdges.length - 1; i++) {
+								for (var j = i + 1; j < flowEdges.length; j++) {
+									if (flowEdges[i]._attrs.model.source === flowEdges[j]._attrs.model.source) {
+										flowEdgesArr
+												.push(flowEdges[i]._attrs.model.id);
+										flowEdgesArr
+												.push(flowEdges[j]._attrs.model.id);
+									}
+								}
+							}
+
+							// 数组去重
+							function arrayWeighting(array) {
+								var result = [];
+								for (var i = 0; i < array.length; i++) {
+									if (result.indexOf(array[i]) == -1) {
+										result.push(array[i]);
+									}
+								}
+								return result;
+							}
+
+							flowEdgesArr = arrayWeighting(flowEdgesArr);
+
+							flowItems
+									.map(function(el) {
+										if (el._attrs.edges.length === 0) {
+											layer.msg('节点有游离，该流程图不合格！！！');
+											resulYlflag = false;
+											return;
+										}
+
+										if (el._attrs.model.processType === '2') {
+											if (el._attrs.edges.length < 2) {
+												layer.msg('节点有游离，该流程图不合格！！！');
+												resulYlflag = false;
+												return;
+											} else {
+												var resultSflag = [];
+												var resultTflag = [];
+												for (var i = 0; i < el._attrs.edges.length; i++) {
+													if (el._attrs.edges[i]._attrs.model.source == el._attrs.id) {
+														resultSflag
+																.push(el._attrs.edges[i])
+													}
+													if (el._attrs.edges[i]._attrs.model.target == el._attrs.id) {
+														resultTflag
+																.push(el._attrs.edges[i])
+													}
+												}
+												if (resultSflag.length == 0
+														|| resultTflag.length == 0) {
+													layer
+															.msg('节点有游离，该流程图不合格！！！');
+													resulYlflag = false;
+													return;
+												}
+											}
+										}
+
+										if (el._attrs.model.processType === '1'
+												|| el._attrs.model.processType === '3') {
+											onlyNodesArr.push(el);
+											if (onlyNodesArr.length > 2) {
+												layer.msg('开始节点和结束节点都只能有一个！！！');
+												resultNodeflag = false;
+												return;
+											}
+										}
+
+										if (el._attrs.model.processType != '1'
+												&& el._attrs.model.processType != '3'
+												&& el._attrs.model.transactorType != '4') {
+											if (el._attrs.model.transactor == '') {
+												layer.msg('节点中的表达式或者人员必填！！！')
+												resultExflag = false;
+												return;
+											}
+										}
+									})
+
+							var saveData = net.save();
+							sourceNodesData = saveData.source.nodes;
+							sourceEdgesData = saveData.source.edges;
+
+							/**
+							 * sourceEdgesData:所有的线条的集合
+							 * 删除起始节点和结束节点都为同一节点的线条
+							 */
+							for (var i = 0; i < sourceEdgesData.length; i++) {
+								if (sourceEdgesData[i].source == sourceEdgesData[i].target) {
+									sourceEdgesData.splice(i, 1);
+								}
+							}
+
+							nodesData.map(function(e) {
+								sourceNodesData.map(function(el) {
+									if (e.associatedId === el.id) {
+										e.x = el.x;
+										e.y = el.y;
+										e.whetherToSkip = el.whetherToSkip;
+									}
+								})
+							});
+
+							if (mid == false) {
+								edgesData.map(function(e) {
+									sourceEdgesData.map(function(el) {
+										if (e.associatedId === el.id) {
+											e.linkStratId = el.source;
+											e.linkEndId = el.target;
+										}
+									})
+								});
+								sourceNodesData.map(function(el) {
+									edgesData.map(function(e) {
+										if (el.id == e.linkStratId) {
+											e.linkStratName = el.label
+										}
+										if (el.id == e.linkEndId) {
+											e.linkEndName = el.label
+										}
+									})
+								})
+							} else {
+								edgesData.map(function(e) {
+									sourceEdgesData.map(function(el) {
+										if (e.associatedId === el.id) {
+											e.linkStratId = el.source;
+											e.linkEndId = el.target;
+											e.controlPoints = JSON.stringify(
+													el.controlPoints).replace(
+													/"/g, '\\"');
+										}
+									})
+								});
+								sourceNodesData.map(function(el) {
+									edgesData.map(function(e) {
+										if (el.id == e.linkStratId) {
+											e.linkStratName = el.label
+										}
+										if (el.id == e.linkEndId) {
+											e.linkEndName = el.label
+										}
+									})
+								})
+							}
+
+							var jsonData = {};
+
+							// 流程详情必填resultDescflag
+							if (workDescData[0].processClassify == ''
+									|| workDescData[0].processClassifyId == ''
+									|| workDescData[0].processDescribe == ''
+									|| workDescData[0].processModule == ''
+									|| workDescData[0].processName == ''
+									|| workDescData[0].processSystemType == '') {
+								layer.msg('流程详情相关所有内容必填');
+								resultDescflag = false;
+								return;
+							}
+							jsonData.describe = workDescData;
+
+							var resultNodes = [];
+							var resultEdges = [];
+							var copyEdges = [];
+							var edgesDataOld = [];
+
+							//提出两个数组中相同的值
+							for (var i = 0; i < nodesData.length; i++) {
+								var obj1 = nodesData[i];
+								var num1 = obj1.associatedId;
+								for (var j = 0; j < sourceNodesData.length; j++) {
+									var aj1 = sourceNodesData[j];
+									var n1 = aj1.id;
+									if (n1 == num1) {
+										resultNodes.push(obj1);
+									}
+								}
+							}
+
+							for (var i = 0; i < edgesData.length; i++) {
+								var obj2 = edgesData[i];
+								var num2 = obj2.associatedId;
+								for (var j = 0; j < sourceEdgesData.length; j++) {
+									var aj2 = sourceEdgesData[j];
+									var n2 = aj2.id;
+									if (n2 == num2) {
+										resultEdges.push(obj2);
+									}
+								}
+							}
+
+							
+							for (var k = 0; k < resultEdges.length; k++) {
+								for (var i = k + 1; i < resultEdges.length; i++) {
+									if (resultEdges[k].linkEndId == resultEdges[i].linkEndId
+											|| resultEdges[k].linkStratId == resultEdges[i].linkStratId) {
+										layer.msg("两节点之间只能有一条连线，"
+												+"在节点ID为"
+												+ resultEdges[k].linkStratId
+												+ "和"
+												+ resultEdges[i].linkEndId
+												+ "这两个节点之间有多条连线",{time: 5000 });
+										resultOLflag = false;
+										console.log("在节点ID为"
+												+ resultEdges[k].linkStratId
+												+ "和"
+												+ resultEdges[i].linkEndId
+												+ "这两个节点之间有多条连线");
+										return;
+									}
+								}
+							}
+
+							for (var k = 0; k < resultEdges.length; k++) {
+								for (var i = 0; i < flowEdgesArr.length; i++) {
+									if (resultEdges[k].associatedId == flowEdgesArr[i]) {
+										if (resultEdges[k].conditions === ''
+												|| resultEdges[k].conditionsContent === '') {
+											layer
+													.msg('有多分支的节点的所有分支的条件表达式和条件内容必填');
+											resultFzflag = false;
+											return;
+										}
+									}
+								}
+							}
+
+							copyEdges = resultEdges;
+
+							for (var i = 0; i < copyEdges.length; i++) {
+								for (var j = 0; j < flowEdgesArr.length; j++) {
+									if (copyEdges[i].associatedId == flowEdgesArr[j]) {
+										edgesDataOld.push(copyEdges[i]);
+										copyEdges.splice(i, 1)
+									}
+								}
+							}
+
+							// 删除单分支线条的流程条件和条件表达式名称
+							copyEdges.map(function(el) {
+								resultEdges.map(function(e) {
+									if (el.associatedId == e.associatedId) {
+										e.conditionsContent = '';
+										e.conditions = '';
+									}
+								})
+							})
+
+							jsonData.nodes = resultNodes;
+							jsonData.edges = resultEdges.concat(edgesDataOld);
+
+							if (nothing && resultDescflag && resulYlflag
+									&& resultNodeflag && resultExflag
+									&& resultFzflag && resultOLflag) {
+								$
+										.ajax({
+											url : '/system/workflow/process/saveProcess'
+													+ '?time=' + time,
+											type : 'POST',
+											dataType : 'json',
+											data : JSON.stringify(jsonData),
+											contentType : 'application/json',
+											success : function(res) {
+												if (res.code == 200) {
+													layer.msg('操作成功！！！');
+													// setTimeout(function () {
+													//     return window.CloseOwnerWindow('refresh');
+													// }, 3500);
+												}
+											}
+										})
+							}
+						});
+	</script>
+
+</body>
+
+</html>

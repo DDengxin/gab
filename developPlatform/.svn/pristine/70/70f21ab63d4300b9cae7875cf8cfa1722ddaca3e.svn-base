@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>出与入新增保存</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<form id="form1">
+			<input name="action" class="mini-hidden"/>
+			<input  name="Act" class="mini-hidden"/>
+			<table style="padding: 2px; border-bottom: 0px; table-layout: fixed;">
+				<tr>
+					<td align="right" width="80px">单号：</td>
+					<td>
+						<input class="mini-textbox" readonly name="outNote" id="outNote" width="100px" emptyText="自动生成" />
+					</td>
+					<td align="right" width="80px">日 期：</td>
+					<td>
+						<input class="mini-datepicker" required id="outRq" name="outRq" width="110px"/>
+					</td>
+					<td align="right" width="80px">部门：</td>
+					<td>
+						<input required id="outCustomer" name="outCustomer"
+						class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+						onbeforenodeselect="disableParentSelection" width="110" popupWidth="240"
+						popupHeight="180"  onvaluechanged="onDeptValueChanged"/>
+					</td>
+					<td align="right" width="80px">使用人员：</td>
+			        <td>
+			        	<input class="mini-combobox" required id="outLyr" name="outLyr" width="100"/>
+					</td>
+					<td align="right" width="80px" >领出库房：</td>
+					<td >
+						<input class="mini-combobox" name="outLib" required id="outLib"  width="100px"   url="/mesGz/gzck/getLib/WL/库房档案" />
+					</td >
+				</tr>
+			</table>
+		</form>
+		<fieldset style="width: 1198px;">
+			<div class="fieldset-body">
+				<div tz:datagrid="datagrid" id="button-grid" style="width: 100%; height: 450px;"url="sendAndReceiveToolingHomeYo"
+					allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true"
+					editNextRowCell="true" allowMoveColumn="true" showPager="false"
+					oncellvalidation="onCellValidation" oncellbeginedit="OnCellBeginEdit"
+					allowCellValid="true"  showSummaryRow="true"
+					ondrawsummarycell="onDrawSummaryCell">
+					<div property="columns">
+						<div width="35" type="checkcolumn" headerAlign="center"></div>
+						<div field="outCode" align="center"width="128" sortField="outCode" displayField="outCode" headerAlign="center" allowSort="true">
+							编码 <input id="outCode" property="editor" class="mini-buttonedit" onbuttonclick="onButtonEdit" allowInput="false" />
+						</div>
+						<div field="cpcodeName"   width="120" headerAlign="center">名称</div>
+						<div field="cpcodeSize"   width="120" headerAlign="center">规格</div>
+						<div field="cpcodeXp" width="100" headerAlign="center">品牌</div>
+						<div field="sl"  width="120" headerAlign="center"  numberFormat="#,0.000">库存</div>
+						<div field="outType"   width="120" headerAlign="center">类型</div>
+						<div field="outSl" width="80" headerAlign="center" numberFormat="#,0.0000" summaryType="sum">数量</div>
+						<div field="cpcodeBz" width="60" headerAlign="center" visible="false">单位</div>
+						<div field="outHs" width="80" headerAlign="center" visible="false">核算</div>
+						<div field="outPack" width="120" headerAlign="center">包装号</div>
+						<div field="outFlag" name="outFlag" width="60" align="center" visible="false">状态</div>
+						<div field="outRemarks" name="outRemarks" width="120" headerAlign="center">
+							模具编码<input property="editor" class="mini-textbox" />
+						</div>
+						<div field="outOriginalPack" name="outOriginalPack" width="120" headerAlign="center" visible="false">
+							原包装号<input property="editor" class="mini-textbox" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+		<a class="mini-button" onclick="copyRow" iconCls="icon-new" id="copyBtn">复制行</a>
+		<a class="mini-button" onclick="delRow" iconCls="icon-remove"id="delBtn">删行</a>
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		<a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+	</div>
+
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+    button_grid.setEmptyText('数据为空，<a class="text-link" href="javascript:addRow()">增加一条</a>');
+	mini.get("outRq").setValue(new Date());
+    mini.get("outCustomer").load("/system/dept/combobox/getDeptTreeList");
+
+	function onABSRenderer(e) {
+		if ('outSl' == e.field) {
+			if(!isNull(e.value))
+				return Math.abs(e.value).toFixed(3);
+		}
+	}
+
+	function copyRow(){
+		var rows = button_grid.getSelecteds();
+		if (rows.length > 0) {
+			for ( var i = 0; i < rows.length; i++) {
+				var r = rows[i];
+				var newRow = {
+					outCode : r.outCode,
+					cpcodeName : r.cpcodeName,
+					cpcodeSize : r.cpcodeSize,
+					cpcodeXp :r.cpcodeXp,
+					sl : r.sl,
+					outType : r.outType,
+					outSl:r.outSl,
+					cpcodeBz:r.cpcodeBz,
+					outHs : r.outHs,
+					outPack : r.outPack
+				};
+				button_grid.addRow(newRow);
+			}
+		} else {
+			hmq.tipDanger("请先选择一条记录！");
+		}
+	}
+
+    function addRow(){
+    	 var index =button_grid.getData().length;
+    	 var outCustomer=mini.get("outCustomer").getValue();
+    	 var outLyr=$("[name=outLyr]").val();
+		if(isNull(outCustomer)){
+			 hmq.tipDanger("请先选择部门！");
+			return false;
+		}
+		if(isNull(outLyr)){
+			 hmq.tipDanger("请先选择使用人员！");
+			return false;
+		}
+		var newRow = {
+			name : "",
+		};
+    	button_grid.addRow(newRow, index+1);
+    }
+
+    function onDeptValueChanged(){
+    	var deptId=mini.get("outCustomer").getValue();
+    	mini.get("outLyr").setUrl("/personnel/eHrWorker/getDeptWorker/{0}".format(deptId));
+    }
+
+    function delRow(){
+    	 var rows = button_grid.getSelecteds();
+         if(rows.length>0){
+        	 button_grid.removeRows(rows,true);
+         }else{
+        	 hmq.tipDanger('请选择需要删除的行！');
+         }
+    }
+
+	function delAll() {
+		var note = mini.get("outNote").getValue();
+		var rows = button_grid.getData();
+		if (note.length > 0) {
+			mini.confirm("确定删除整单吗？", "提示信息", function(returndata) {
+				if (returndata == "ok") {
+					if (rows.length > 0) {
+						button_grid.removeRows(rows, true);
+					}
+			      $['delete']("toolingDelete/{0}".format(note), function (res) {
+			    	  if (200 === res.code) {
+		                    hmq.tipSuccess(res.msg || '删除成功', {
+		                        exec: function () {
+		                            CloseWindow('refresh');
+		                        }
+		                    });
+		                } else {
+		                    hmq.tipDanger(res.msg || '删除失败');
+		                }
+		            });
+				}
+			});
+		} else {
+			if (rows.length > 0) {
+				button_grid.removeRows(rows, true);
+			}
+		}
+	}
+
+	function OnCellBeginEdit(e) {
+		var record = e.record, field = e.field;
+		if($('[name=Act]').val()=="LY02"){
+			if (field == "outRemarks") {
+				e.cancel = true;
+			}
+		}
+	}
+
+
+
+    function SaveData() {
+		var rowsss = button_grid.getData();
+		var obj = {};
+		for(var i=0,l=rowsss.length; i< l; i++){
+			var item = rowsss[i];
+			obj[item.outPack] = (obj[item.outPack] +1 ) || 1;
+		}
+		if(obj){
+			/*$.post("enquiryRegistrationOk",JSON.stringify(obj),function(res){
+				if(res.code==0){
+					if($('[name=Act]').val()=="GM31"){
+						return hmq.tipDanger("领用数量不能大于库存数量!");
+					}else{
+						return hmq.tipDanger("退回数量不能大于领用数量!");
+					}
+				}else{*/
+					if (form.validate() && form.isValid()) {
+							button_grid.validate();
+							if (button_grid.isValid() == false) {
+								var error = button_grid.getCellErrors()[0];
+								button_grid.beginEditCell(error.record, error.column);
+								return;
+							}
+							var buttons = button_grid.getData();
+							var RestFul='add';
+							if('ok' == $('[name=action]').val()){
+								RestFul="confirm";
+								buttons=button_grid.getData();
+							}
+							var method = 'add' == $('[name=action]').val()?'post':'put';
+							$[method](RestFul,JSON.stringify({
+								HeadData: form.getData(true),
+								bodyData: buttons,
+								nameData: {
+									outCustomerName:mini.get("outCustomer").getText(),
+									outLyrName:mini.get("outLyr").getText()
+								}
+							}), function (res) {
+								if (200 === res.code) {
+									hmq.tipSuccess(res.msg || '保存成功', {
+										exec: function () {
+											CloseWindow('refresh');
+										}
+									});
+								} else {
+									hmq.tipDanger(res.msg || '保存失败');
+								}
+							}, null, {
+								contentType: 'application/json'
+							});
+					}
+				/*}
+			},null,{async:false,contentType:'application/json'});*/
+		}
+
+    }
+
+    function SetData(options) {
+		$('[name=action]').val(options.action);
+		$('[name=Act]').val(options.data.formData.Act);
+		if($('[name=Act]').val()=="LY02"){
+			button_grid.showColumn("outOriginalPack");
+		}
+		var row = options.data.row;
+        if ('add' == options.action) {
+            button_grid.clearData();
+			button_grid.setAllowSortColumn(false);
+        } else if ('edit' == options.action) {
+			mini.get("outNote").setValue(row.outNote);
+			mini.get("outCustomer").setValue(row.outCustomer);
+			mini.get("outCustomer").setText(row.outCustomerName);
+			mini.get("outLyr").setValue(row.outLyr);
+			mini.get("outLyr").setText(row.outLyrName);
+			mini.get("outLib").setValue(row.outLib);
+			mini.get("outLib").setText(row.outLibName);
+			mini.get("outLib").setEnabled(false);
+			setIdDisable("outRq,outCustomer,outLyr");
+			button_grid.load({
+				params :  mini.encode({
+					outNote:row.outNote,
+					Act:$('[name=Act]').val()
+				})
+			});
+        } else if('ok' == options.action){
+			button_grid.showColumn("outFlag");
+			button_grid.setAllowCellEdit(false);
+			mini.get("outNote").setValue(row.outNote);
+			mini.get("outCustomer").setValue(row.outCustomer);
+			mini.get("outCustomer").setText(row.outCustomerName);
+			mini.get("outLyr").setValue(row.outLyr);
+			mini.get("outLyr").setText(row.outLyrName);
+			mini.get("outLib").setValue(row.outLib);
+			mini.get("outLib").setText(row.outLibName);
+			mini.get("outLib").setEnabled(false);
+			setIdDisable("outRq,outCustomer,outLyr");
+			button_grid.load({
+				params :  mini.encode({
+					outNote:row.outNote,
+					Act:$('[name=Act]').val()
+				})
+			});
+			$("#addBtn").hide();
+			$("#copyBtn").hide();
+			$("#delBtn").hide();
+		}
+    }
+
+	function onCellValidation(e) {
+		if (e.field == "outOriginalPack") {
+			if (isNull(e.value)) {
+				e.isValid = false;
+				e.errorText = "原包装号不能为空！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+		if (e.field == "outRemarks") {
+			if (isNull(e.value)) {
+				e.isValid = false;
+				e.errorText = "模具编码不能为空！";
+				button_grid.beginEditCell(e.record, e.field);
+				return hmq.tipDanger(e.errorText);
+			}
+		}
+	}
+
+	function onDrawSummaryCell(e) {
+		if (e.field == "outSl") {
+			e.cellHtml = "<span style='color:Brown;float:right;'>" + Math.abs(e.value).toFixed(4) + "</span>";
+		}
+	}
+
+	function onButtonEdit(e) {
+		var btnEdit = this;
+		var Act=$("[name=Act]").val();
+		var lib=$("[name=outLib]").val();
+		return miniopen({
+			targetWindow: window.top,
+			url: "/tooling/toolingstore/wlbmselectlist.html",
+			title : "工量模具选择列表",
+			width : 1300,
+			height : 620,
+			onload : function() {
+				var iframe = this.getIFrameEl();
+				var data = {
+					Act:Act,
+					lib:lib
+				};
+				iframe.contentWindow.SetData(data);
+			},
+			ondestroy : function(action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var rows = iframe.contentWindow.GetMutiData();
+					var dataRows = appendRow(rows);
+					if (dataRows.length > 0) {
+						btnEdit.setValue(dataRows[0].cpcodeId);
+						btnEdit.setText(dataRows[0].cpcodeId);
+						var row = button_grid.getSelected();
+						button_grid.updateRow(row, {
+							outCode : dataRows[0].cpcodeId,
+							cpcodeName : dataRows[0].cpcodeName,
+							cpcodeSize: dataRows[0].cpcodeSize,
+							cpcodeXp : dataRows[0].cpcodeXp,
+							sl: dataRows[0].sl,
+							outType: dataRows[0].cpcodeType,
+							outSl:"1",
+							cpcodeBz:dataRows[0].cpcodeBz,
+							outHs:dataRows[0].cpcode02,
+							outPack:dataRows[0].outPack,
+							outRemarks:dataRows[0].outRemarks
+						});
+						if (dataRows.length > 1) {
+							for ( var i = 1; i < dataRows.length; i++) {
+								var r = dataRows[i];
+								var newRow = {
+									outCode : r.cpcodeId,
+									cpcodeName : r.cpcodeName,
+									cpcodeSize: r.cpcodeSize,
+									cpcodeXp : r.cpcodeXp,
+									sl: r.sl,
+									outType: r.cpcodeType,
+									outSl:"1",
+									cpcodeBz:r.cpcodeBz,
+									outHs:r.cpcode02,
+									outPack:r.outPack,
+									outRemarks:r.outRemarks
+								};
+								button_grid.addRow(newRow,0);
+							}
+						}
+						button_grid.commitEdit();
+					}
+				}
+			}
+		});
+
+	}
+
+
+	function appendRow(rows) {
+		var retRows=[];
+		$.post("enquiryRegistration",{Act:$("[name=Act]").val()},function(res){
+			for (var i = 0; i < rows.length; i++) {
+				if (!isEixsts(rows[i],res.data)) {
+					retRows.push(rows[i]);
+				} else {
+					hmq.tipDanger("数据中已存在登记数据已过滤掉!");
+				}
+			}
+		},null,{async:false});
+		return retRows;
+	}
+
+	function isEixsts(data,ajaxData) {
+		var ajax=ajaxData.filter(item=>data.outRemarks==item.outRemarks);
+		if(ajax.length!=0){
+			return true;
+		}
+		return false;
+	}
+
+
+</script>
+</html>

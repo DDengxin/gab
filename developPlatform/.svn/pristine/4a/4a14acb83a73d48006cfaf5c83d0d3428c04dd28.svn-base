@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>应付对账</title>
+    </th:block>
+    <style type="text/css">
+    .row{
+    	display: flex;
+    	flex-direction: row;
+    	width: 100%;
+    	align-items: center;
+    }
+    .m_left{
+    	margin-left: 2px
+    }
+    .top_border{
+    	border: solid 0.5px #DDDDDD;
+    	background-color: #F8F8F8;
+    	border-right:none;
+    	line-height: 40px;
+    	height:40px;
+    	text-align: center;
+    }
+     .bottom_border{
+    	background-color: #F8F8F8;
+    	border-left:solid 0.5px #DDDDDD;
+    	line-height: 55px;
+    	height:55px;
+    	text-align: center;
+    }
+    </style>
+</head>
+<body>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+        		<input class="mini-hidden" name="orient" id="orient" />
+				<input class="mini-hidden" name="cwStype" id="cwStype" width="100"/>	
+				<input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>	
+            <label class="hmq-label" text="业务日期">
+				<input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+				</label>
+			<label class="hmq-label" text="至">
+				<input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+			</label>
+            <label class="hmq-label" text="单位">
+				<input  id="srchDw" name="srchDw" emptyText="全部" allowInput="true" class="mini-buttonedit" onbuttonclick="onSupplierClick"  />
+			</label>
+            <label class="hmq-label" text="币种">
+                <input  class="mini-comboBox" url="/cg/yw/purchaseFile/purchaseContract/getHtBz"  showNullItem="true" nullItemText="全部" name="srchBz"  width="100"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+
+<form id="form_center">
+	<div class="row">
+   		<div class="top_border" style="width: 5%;">单位</div>
+		<div class="top_border" style="width: 20%;">
+			<input readonly="readonly" class="mini-textbox" id="gys" name="gys" width="100%"/>
+		</div>
+    	<div class="top_border" style="width: 10%;">币种</div>
+    	<div class="top_border" style="width: 20%;">
+    		<input readonly="readonly" class="mini-textbox"id="bz" name="bz" width="100%"/>
+    	</div>
+    	<div class="top_border" style="width: 10%;">日期</div>
+    	<div class="top_border" style="width: 35%;">
+    		<input readonly="readonly" class="mini-textbox" id="rq" name="rq"width="100%" style=" border-right:solid 0.5px #DDDDDD;"/>
+    	</div>
+    </div>
+    <div class="row">
+   		<div class="bottom_border" style="width: 5%;">说明</div>
+    	<div class="bottom_border" style="width: 95%;"><input readonly="readonly" class="mini-textarea" width="100%" style=" border-right:solid 0.5px #DDDDDD;"/></div>
+    </div>
+</form>
+
+<div class="mini-fit" style="height: 100%;clear: both;margin-bottom: 0px;padding-bottom: 0px;">
+	<div tz:datagrid="datagrid" id="srch_top_grid"   pager="#pager1" pageSize="100" showPager="true" sortMode="client" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell" >
+			<div property="columns">
+					<div tz:datagrid="indexcolumn" width="40" >序号</div>
+					<div tz:datagrid="column" field="cw_rq" width="100" align="center" dateFormat="yyyy-MM-dd" renderer="onActionRenderer" >日期</div>
+					<!-- <div tz:datagrid="column" field="cw_act" width="100" align="center" >业务类型</div> -->
+					<div tz:datagrid="column" field="cw_note" width="200" align="center">业务单号</div>
+            		<div tz:datagrid="column" field="bqfs" width="150" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00" >本期入库</div>
+            		<div tz:datagrid="column" field="bqsfk" width="150" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00" >本期付款</div>
+					<div tz:datagrid="column" field="qmje" width="150" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00">期末余额</div>
+            		<div tz:datagrid="column" field="bqkp" width="150" align="right" summaryType="sum" dataType="double" numberFormat="#,0.00" >本期开票</div>
+            		<div tz:datagrid="column" field="remarks" width="500" align="center">摘要</div>
+					<div tz:datagrid="column" width="100%"></div>
+			</div>
+	</div>
+</div>
+</body>
+<script>
+mini.parse();
+var form = new mini.Form("form_home");
+var form2 = new mini.Form("form_center");
+var srch_topgrid = mini.get("srch_top_grid");
+
+srch_topgrid.bindSearchForm(form);
+form2.setLabelModel(true);
+
+
+	var cwStype = hmq.getQueryString("paramType");
+	var paramMod = hmq.getQueryString("paramMod");
+	form.getField("orient").setValue(hmq.getQueryString("orient"));
+	if (hmq.isNotEmpty(cwStype)) {
+	     form.getField("cwStype").setValue(cwStype);
+	     form.getField("paramMod").setValue(paramMod);
+	     setIdReadOnly("cwStype,paramMod");
+	     //动态列名
+	     
+	 }
+	function search_option() {
+		var srchDw = mini.get("srchDw").getText();
+		if(srchDw==""){
+			hmq.tipDanger("请选择单位");
+		}else{
+			mini.get("gys").setValue(srchDw);
+			mini.get("bz").setValue("RMB");
+			srch_topgrid.load();
+		}
+		
+    }
+	function onSupplierClick(e) {
+    	var cwStype = mini.get("cwStype").getValue();
+    	var customerType ="C";
+    	if(cwStype=="CG"){
+    		customerType ="S";
+    	}else{
+    		customerType ="C";
+    	}
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+           	url : "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【单位】选择页面",
+            width: 750,
+            data: customerType,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+	
+	function onDrawSummaryCell(e) {
+		
+		var result = e.result;
+		//var sumdata = mini.decode(result.sumdata);
+		
+        if (e.field == "cw_rq") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "bqfs") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "bqkp") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "bqsfk") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "qmje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+	function onActionRenderer(e) {
+		var record = e.record;
+		if (e.field == "cw_rq") {
+			return mini.formatDate(new Date(record.cw_rq), "yyyy-MM-dd");
+		}
+		return s;
+	}
+</script>
+</html>

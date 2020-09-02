@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+     <title>其他支出</title>
+    </th:block>
+</head>
+<body>
+	<form id="form1" method="post">
+		<div class="mini-toolbar" style="padding:2px;border-bottom:0;">
+			<input id="mend" name="mend" class="mini-hidden" readonly="readonly" />
+			<input id="usermend" name="usermend" class="mini-hidden" readonly="readonly" />
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<label>日期: </label>
+						<input id="srch_rq1" name="srch_rq1" class="mini-datepicker" style="width:110px;" showClearButton="false" />
+						<label>至: </label>
+						<input id="srch_rq2" name="srch_rq2" class="mini-datepicker" style="width:110px;" showClearButton="false" />
+						<label>单号: </label>
+						<input id="srch_note" name="srch_note" class="mini-textbox" style="width: 100px;" emptyText="请输入单号" />
+						<label>供应商: </label>
+						<input id="srch_supply" name="srch_supply" class="mini-buttonedit" style="width: 120px;" onbuttonclick="onButtonEdit" textName="srch_supply" emptyText="" oncloseclick="clickClear"  allowInput="false" showclose="true"  />
+						<!-- <label>门店:</label>
+						<input id="srch_mend" class="mini-combobox" style="width: 120px;" popupHeight="90" textField="combtext" valueField="combid" url="../../ymt/gs/mend/getmendbyid.do"
+							emptyText="全部" showNullItem="true" nullItemText="全部" /> -->
+						<label>支出项目:</label>
+						<input id="srch_zcxm" name="srch_zcxm" class="mini-textbox" style="width: 100px;" emptyText="请输入.." />
+						<label>结算账户:</label>
+						<input id="srch_acount" name="srch_acount" class="mini-combobox" style="width:140px;" textField="combtext" valueField="combid"
+							url="../../engine/ba/cm/select/getComboList.do?select_id=jszh_select" emptyText="请选择.." showNullItem="true" nullItemText="全部" />
+						<label>金额</label>
+						<input id="srch_zcje" name="srch_zcje" class="mini-textbox" style="width: 100px;" emptyText="请输入.." />						
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+		<div class="mini-fit">
+		<div id="srch_grid" class="mini-datagrid" style="width:100%;height:100%;" url="/cw/ymt/qtzc/gridlist.do" pager="#pager1" showPager="false" pageSize="100" multiSelect="true" showSummaryRow="true"
+			ondrawsummarycell="onDrawSummaryCell">
+			<div property="columns">
+				<div type="indexcolumn">序号</div>
+				<div field="rq" width="90" align="center" allowSort="true" dateFormat="yyyy-MM-dd" renderer="onActionRenderer" headerAlign="center">日期</div>
+				<div field="note" width="100" align="left" allowSort="true" headerAlign="center">单号</div>
+				<div field="supplyname" width="280" align="center" allowSort="true" headerAlign="center">供应商</div>
+				<!-- <div field="mend_name" width="120" align="center" headerAlign="center" allowSort="true">门店</div> -->
+				<div field="zcm" width="100" align="center" allowSort="true" headerAlign="center">支出项目</div>
+				<div field="acountname" width="100" align="center" allowSort="true" headerAlign="center">结算账户</div>
+				<div field="stype" width="80" align="center" allowSort="true" headerAlign="center">支出方式</div>
+				<div field="zcje" width="80" align="right" allowSort="true" numberFormat="#,0.00" summaryType="sum" headerAlign="center">支出金额</div>
+				<div field="remarks" width="210" align="left" allowSort="true" headerAlign="center">支出备注</div>
+				<div width="30%"></div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar" style="padding:0px;border-bottom:1;">
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;" sizeList="[50,100,200]"></div>
+				</td>
+				<td style="white-space:nowrap;" align="right" id="btnbar" />
+			</tr>
+		</table>
+	</div>
+		<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+		var form = new mini.Form("form1");
+		/* mini.get("srch_mend").select(1); */
+
+		function srch_option() {
+			var parms = {
+				srch_rq1 : mini.get("srch_rq1").getValue(),
+				srch_rq2 : mini.get("srch_rq2").getValue(),
+				srch_note : mini.get("srch_note").getValue(),
+				srch_supply : mini.get("srch_supply").getValue(),
+				/* srch_mend : mini.get("srch_mend").getValue(), */
+				srch_zcxm : mini.get("srch_zcxm").getValue(),
+				srch_zcje : mini.get("srch_zcje").getValue(),
+				srch_acount : mini.get("srch_acount").getValue()
+			};
+			grid.load({
+				parms : mini.encode(parms)
+			});
+		}
+
+		function onButtonEdit(e) {
+			var btnEdit = this;
+			mini.open({
+				targetWindow : window.parent,
+				url : "../../engine/ba/ba_engine_show.jsp?menu_stype=selectlist&menu_id=A080502",
+				title : "供应商选择列表",
+				width : 800,
+				height : 500,
+				onload : function() {
+					var iframe = this.getIFrameEl();
+					var data = {
+						co_stype : "gys"
+					};
+					iframe.contentWindow.SetData(data);
+				},
+				ondestroy : function(action) {
+					if (action == "ok") {
+						var iframe = this.getIFrameEl();
+						var data = iframe.contentWindow.GetData();
+						data = mini.clone(data); // 必须
+
+						if (data) {
+							btnEdit.setValue(data.fnumber);
+							btnEdit.setText(data.fname);
+						}
+					}
+				}
+			});
+		}
+		//绘制行 
+		function onActionRenderer(e) {
+			var record = e.record;
+			if (e.field == "rq") {
+				return mini.formatDate(new Date(e.record.rq), "yyyy-MM-dd");
+			}
+		}
+		function onDrawSummaryCell(e) {
+			var result = e.result;
+			var sumdata = mini.decode(result.sumdata);
+
+			//服务端汇总计算
+			if (e.field == "zcje") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.sumzcje).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+
+			if (e.field == "note") {
+				e.cellHtml = "<span style='color:Brown;float:right;'>" + "合计:" + "</span>";
+			}
+		}
+		function add_option() {
+			var vurl = rootpath + "/cw/ymt/qtzcadd.html";
+			var vtitle = "其它支出新增";
+			miniopen(vurl, vtitle, 0, "new", 520, 350);
+		}
+
+		function modify_option() {
+			var row = grid.getSelected();
+			if (row) {
+					var vurl = rootpath + "/cw/ymt/qtzcadd.html";
+					var vtitle = "其它支出修改";
+					miniopen(vurl, vtitle, row.ksid, "edit", 520, 350);
+			} else {
+				mini.alert("请选中一条记录");
+			}
+		}
+		function del_option() {
+			var row = grid.getSelected();
+			if (row) {
+					mini.confirm("确定进行删除操作？", "提示信息", function(action) {
+						if (action == "ok") {
+							grid.loading("操作中，请稍后......");
+							del.disabled = true;
+							var parm = {
+								ksid : row.ksid,
+								note : row.note,
+								acountname : row.acountname,
+								zcje : row.zcje
+							};
+							grid.loading("操作中，请稍后......");
+							$.ajax({
+								url : "/cw/ymt/qtzc/delete.do",// 跳转到 action
+								data : {
+									parms : mini.encode(parm),
+									stime : (new Date()).getTime()
+								},
+								type : "post",
+								cache : false,
+								dataType : "json",
+								success : function(data) {
+									del.disabled = false;
+									if (data.status) {
+										srch_option(false);
+									} else {
+										mini.alert(data.message);
+									}
+								},
+								error : function() {
+									mini.alert("网络操作请求失败!");
+								}
+							});
+						}
+					});
+			} else {
+				mini.alert("请选中一条记录");
+			}
+		}
+</script>
+
+</body>
+</html>

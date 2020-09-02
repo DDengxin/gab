@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>金额收发存</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <table>
+            <tr>
+                <td>
+                    <input class="mini-hidden" name="orient" id="orient"/>
+                    <input class="mini-hidden" name="cpcodeType" id="cpcodeType" width="100"/>
+                    <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+                    <label class="hmq-label" text="日期">
+                        <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="至">
+                        <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+                    </label>
+                    <label class="hmq-label" text="库房">
+                        <div id="lib" name="lib" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:150px;" emptyText="全部">
+                            <div property="columns">
+                                <div header="全部" field="text"></div>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="hmq-label" text="编码">
+                        <input class="mini-textbox" name="cpcodeId" width="110"/>
+                    </label>
+                    <label class="hmq-label" for="cpcodeName" text="名称">
+                        <input id="cpcodeName" name="cpcodeName" class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid" parentField="pid" value="无" onbeforenodeselect="disableParentSelection"
+                               popupWidth="240" popupHeight="180" emptyText="全部" showNullItem="true" nullItemText="全部" allowInput="true"/>
+                    </label>
+                    <label class="hmq-label" for="cpcodeSize" text="规格">
+                        <input class="mini-textbox" id="cpcodeSize" name="cpcodeSize" width="110"/>
+                    </label>
+                    <label class="hmq-label" for="cpcodeFl" text="分类">
+                        <div id="cpcodeFl" name="cpcodeFl" textField="text" valueField="id" class="mini-combobox" multiSelect="true" showClose="true" oncloseclick="onCloseClickClearValue" style="width:180px;" popupMaxHeight="400"
+                             emptyText="全部">
+                            <div property="columns">
+                                <div header="全部" field="text"></div>
+                            </div>
+                        </div>
+                    </label>
+                </td>
+            </tr>
+        </table>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_top_grid" idField="htNo" sortField="lib" sortOrder="desc" allowSort="true" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="rq" width="100" align="center" visible="false">日期</div>
+            <div tz:datagrid="column" field="lib" displayField="libName" width="120" align="center">库房</div>
+            <div tz:datagrid="column" field="code" width="100" align="center" allowSort="true">编码</div>
+            <div tz:datagrid="column" field="cpcodeNameName" name="cpcodeNameName" align="left" width="120">名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" align="left" width="100">规格</div>
+            <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" align="left" width="100">标重</div>
+            <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" align="left" width="100">品牌</div>
+            <div tz:datagrid="column" field="cpcodeFlName" name="cpcodeFlName" align="left" width="80">大类</div>
+            <div tz:datagrid="column" field="qcsl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">期初数量</div>
+            <div tz:datagrid="column" field="qcje" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">期初金额</div>
+            <div tz:datagrid="column" header="本期入库">
+                <div property="columns">
+                    <div tz:datagrid="column" field="cgrk" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">采购入库</div>
+                    <div tz:datagrid="column" field="cgrkje" width="100" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">采购入库金额</div>
+                    <div tz:datagrid="column" field="cgth" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">采购退回</div>
+                    <div tz:datagrid="column" field="cgthje" width="100" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">采购退回金额</div>
+                    <div tz:datagrid="column" field="scrk" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">生产入库</div>
+                    <div tz:datagrid="column" field="scrkje" width="100" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">生产入库金额</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="本期出库">
+                <div property="columns">
+                    <div tz:datagrid="column" field="scly" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">生产领用</div>
+                    <div tz:datagrid="column" field="sclyje" width="100" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">生产领用金额</div>
+                    <div tz:datagrid="column" field="lyth" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">领用退回</div>
+                    <div tz:datagrid="column" field="lythje" width="100" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">领用退回金额</div>
+                    <div tz:datagrid="column" field="xsck" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">销售出库</div>
+                    <div tz:datagrid="column" field="xsckje" width="100" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">销售出库金额</div>
+                    <div tz:datagrid="column" field="xsth" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">销售退回</div>
+                    <div tz:datagrid="column" field="xsthje" width="100" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">销售退回金额</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" field="qmsl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">期末数量</div>
+            <div tz:datagrid="column" field="qmje" width="80" align="right" numberFormat="#,0.00" summaryType="sum" dataType="double">期末金额</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_top_grid");
+    var surl = "/ck/yw/warehouseInfo";
+    grid.bindSearchForm(form);
+
+    //start
+    var cpcodeType = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(cpcodeType)) {
+        form.getField("cpcodeType").setValue(cpcodeType);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("cpcodeType,paramMod");
+
+        mini.get("lib").setUrl("/system/parameter/getParamsSelectListByParentId/仓库/{0}".format(cpcodeType));
+        //动态列转换
+        hmq.business.dynamicProductParams(cpcodeType, {
+            miniDataGrid: grid,
+            miniForm: form,
+            success: function (map, res) {
+              
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+    }
+    //end
+
+    grid.on('DrawCell', function (e) {
+        if ((e.field == "cgrk" || e.field == "cgrkje" || e.field == "scrk" || e.field == "scrkje" || e.field == "cgth" || e.field == "cgthje"
+            || e.field == "scly" || e.field == "sclyje" || e.field == "lyth" || e.field == "lythje" || e.field == "xsck" || e.field == "xsckje" || e.field == "xsth" || e.field == "xsthje") && !isNaN(e.value)) {
+            if (null != e.value && !isNaN(e.value) && parseFloat(e.value) != 0) {
+                e.cellStyle = 'background-color:lightgreen;color:white;';
+            }
+        }
+        if ((e.field == "qcsl" || e.field == "qcje" || e.field == "qmsl" || e.field == "qmje") && !isNaN(e.value)) {
+            if (null != e.value && !isNaN(e.value) && parseFloat(e.value) < 0) {
+                e.cellStyle = 'background-color:orangered;color:white;';
+            }
+        }
+    });
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     汇总
+     */
+    function onDrawSummaryCell(e) {
+        if (e.field == "lib") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        } else if (e.field == "qcsl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "insl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "outsl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        } else if (e.field == "qmsl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+
+    /**
+     * 销售客户选择列表
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderer(e) {
+        var record = e.record;
+        if (e.field == "in_rq" && record.in_rq != null) {
+            return mini.formatDate(new Date(record.in_rq), "yyyy-MM-dd");
+        } else if (e.field == "in_date") {
+            return mini.formatDate(new Date(record.dataDate), "yyyy-MM-dd HH:mm");
+        }
+
+    }
+
+    function export_option(e) {
+        assembling({
+        	json:["rq"],
+            grid: grid,
+            form: form,
+            url: surl + "/exportExcelInOutJe"
+        });
+    }
+
+</script>
+</html>

@@ -1,0 +1,283 @@
+package com.tengzhi.business.system.dept.service.impl;
+
+import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.core.lang.tree.TreeNodeConfig;
+import cn.hutool.core.lang.tree.TreeUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.TierTool;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.dept.dao.SysDeptDao;
+import com.tengzhi.business.system.dept.model.SysDept;
+import com.tengzhi.business.system.dept.service.SysDeptService;
+import com.tengzhi.business.system.org.dao.SysOrgDao;
+import com.tengzhi.business.system.position.dao.SysPositionDao;
+import com.tengzhi.business.system.user.dao.SysUserDao;
+import com.tengzhi.business.system.user.model.SysUser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class SysDeptServiceImpl implements SysDeptService {
+    @Autowired
+    private SysOrgDao sysOrgDao;
+    @Autowired
+    private SysDeptDao sysDeptDao;
+    @Autowired
+    private SysPositionDao sysPositionDao;
+    @Autowired
+    private SysUserDao sysUserDao;
+
+    @Override
+    public BasePage<SysDept> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        SessionUser sessionUser = SessionUser.SessionUser();
+        return sysDeptDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.eq("orgId", (map.get("orgId")!=null?map.get("orgId"):sessionUser.getCorpId()));
+            c.contains("deptName", map.get("deptName"));
+            c.eqbool("state", map.get("state"));
+            c.eq("deleteLogo", false);
+
+            //当前公司账套下单数据
+            if ("true".equalsIgnoreCase(String.valueOf(map.get("currentOrgId")))) {
+                c.eq("orgId", sessionUser.getCorpId());
+            }
+            //是否显示顶级节点
+            if ("false".equalsIgnoreCase(String.valueOf(map.get("showTopNode")))) {
+                c.ne("parentId", "ROOT");
+                c.ne("parentId", "root");
+            }
+
+
+        }));
+
+    }
+
+    @Override
+    public SysDept findByDeptId(String deptId) {
+        return sysDeptDao.findByDeptId(deptId);
+    }
+
+
+    @Override
+    public SysDept save(SysDept sysDept) throws Exception {
+        if (StringUtils.isNoneBlank(sysDept.getDeptId())) {
+            sysDept.setDeptId(sysDept.getDeptId().trim().toUpperCase());
+        } else {
+            throw new Exception("部门ID不得为空");
+        }
+
+        if (judgeUnique(sysDept)) {
+            SessionUser sessionUser = SessionUser.SessionUser();
+            sysDept.setDeleteLogo(false);
+            sysDept.setCreatorId(sessionUser.getUserId());
+            sysDept.setModifierId(sessionUser.getUserId());
+            sysDept.setCreator(sessionUser.getRealName());
+            sysDept.setModifier(sessionUser.getRealName());
+
+            sysDept.setOrgName(sysOrgDao.findByOrgIdAndDeleteLogo(sysDept.getOrgId(), false).getCorpExp());
+            sysDept.setCreationTime(new Timestamp(System.currentTimeMillis()));
+            sysDept.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            if ("ROOT".equalsIgnoreCase(sysDept.getParentId())) {
+                sysDept.setParentId("ROOT");
+                sysDept.setParentName("无");
+                //层级码UUID(机构+部门) 没有父部门
+                sysDept.setTierId(TierTool.join(sysOrgDao.findByOrgIdAndDeleteLogo(sysDept.getOrgId(), false).getTierId(), sysDept.getDeptId()));
+            } else {
+                //父级部门名称冗余
+                sysDept.setParentName(sysDeptDao.findByDeptId(sysDept.getParentId()).getDeptName());
+                //层级码UUID(父部门+子部门) 有父部门
+                sysDept.setTierId(TierTool.join(sysDeptDao.findByDeptId(sysDept.getParentId()).getTierId(), sysDept.getDeptId()));
+            }
+            return sysDeptDao.save(sysDept);
+        } else {
+            throw new Exception("部门名称已存在");
+        }
+    }
+
+    @Override
+    public void update(SysDept sysDept) {
+        SysDept oldBean = sysDeptDao.findByDeptId(sysDept.getDeptId());
+
+        SessionUser sessionUser = SessionUser.SessionUser();
+        sysDept.setModifierId(sessionUser.getUserId());
+        sysDept.setModifier(sessionUser.getRealName());
+        sysDept.setModifyTime(new Timestamp(System.currentTimeMillis()));
+        final String OLD_DEPT_TIERID=sysDeptDao.findByDeptId(sysDept.getDeptId()).getTierId();
+        if ("ROOT".equalsIgnoreCase(sysDept.getParentId())) {
+            sysDept.setParentId("ROOT");
+            sysDept.setParentName("无");
+            //层级码UUID(机构+部门) 没有父部门
+            sysDept.setTierId(TierTool.join(sysOrgDao.findByOrgIdAndDeleteLogo(oldBean.getOrgId(), false).getTierId(), sysDept.getDeptId()));
+        } else {
+            //父级部门名称冗余
+            sysDept.setParentName(sysDeptDao.findByDeptId(sysDept.getParentId()).getDeptName());
+            //层级码UUID(父部门+子部门) 有父部门
+            sysDept.setTierId(TierTool.join(sysDeptDao.findByDeptId(sysDept.getParentId()).getTierId(), sysDept.getDeptId()));
+        }
+
+        //...修改用户层级码
+        sysUserDao.findAll(((root, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.like(root.get("tierId").as(String.class),OLD_DEPT_TIERID+"%")
+        )).forEach(item->{
+            SysUser sysUser=new SysUser();
+            String intercept=item.getTierId().substring(OLD_DEPT_TIERID.length()+1);//截取公司后
+            sysUser.setTierId(sysDept.getTierId()+intercept);
+            sysUser.setDeptId(sysDept.getDeptId());
+            sysUser.setDeptName(sysDept.getDeptName());
+            sysUserDao.dynamicSave(sysUser,sysUserDao.findById(item.getUserId()).orElse(null));
+        });
+
+        sysDeptDao.dynamicSave(sysDept, oldBean);
+    }
+
+    @Override
+    public Result deleteByTierId(String tierId) {
+        if (sysPositionDao.countByTierIdLikeAndDeleteLogo(tierId + "%", false) == 0) {
+            sysDeptDao.deleteByTierId(tierId + "%");
+            return Result.resultOk("删除成功");
+        } else {
+            return Result.error("(部门或子部门)下挂有岗位不能删除");
+        }
+    }
+
+    @Override
+    public boolean judgeUnique(SysDept sysDept) {
+        return sysDeptDao.findAll(Specifications.where((c) -> {
+            c.eq("parentId", sysDept.getParentId());
+            c.eq("deptName", sysDept.getDeptName());
+            c.eq("orgName", sysDept.getOrgName());
+            c.eq("deleteLogo", false);
+        })).size() <= 0;
+    }
+
+    @Override
+    public List<SysDept> getComboboxList(Boolean state) {
+        return sysDeptDao.findAll(Specifications.where((c) -> {
+            c.eq("orgId", SessionUser.SessionUser().getCorpId());
+            c.eq("state", state);
+            c.eq("deleteLogo", false);
+            c.ne("parentId", "root");
+        }), Sort.by(Sort.Direction.ASC, "deptId"));
+    }
+
+    @Override
+    public List<SysDept> getComboboxList(Boolean state,String corpId) {
+        return sysDeptDao.findAll(Specifications.where((c) -> {
+            c.eq("orgId", corpId);
+            c.eq("state", state);
+            c.eq("deleteLogo", false);
+            c.ne("parentId", "root");
+        }), Sort.by(Sort.Direction.ASC, "deptId"));
+    }
+    /*
+    查询生产部门及其子部门
+     */
+    public List<SysDept> comboboxDeptTreeListByProduction(Boolean state) {
+        List<SysDept> productionDepartmentList = sysDeptDao.findProductionDepartment(state, "JD03");
+        return productionDepartmentList;
+    }
+
+
+    @Override
+    public List<SelectVo> getComboboxList(String parentId) {
+        List<SelectVo> rlist = new ArrayList<SelectVo>();
+        List<SysDept> sysParams = sysDeptDao.QueryListModel(SysDept.class, "select *  from sys_dept where tier_id like  (select tier_id  from sys_dept where dept_id = :1)||'%' ", parentId);
+        sysParams.forEach(item -> {
+            rlist.add(new SelectVo(item.getDeptId(), item.getDeptName()));
+        });
+        return rlist;
+    }
+
+    @Override
+    public Result getOrganizationTree(boolean includeEmployees) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        List<SysDept> sysDeptList = sysDeptDao.findAll(Specifications.where((c) -> {
+            c.eq("deleteLogo", false);
+            c.eq("orgId", sessionUser.getCorpId());
+        }));
+        List<SysUser> sysUserList = new ArrayList<SysUser>(0);
+        if (includeEmployees) {
+            sysUserList.addAll(sysUserDao.findAll(Specifications.where((c) -> {
+                c.eq("deleteLogo", false);
+                c.eq("orgId", sessionUser.getCorpId());
+            })));
+        }
+
+        SysDept rootSysDept = sysDeptList
+                .stream()
+                .filter(sysDept -> sessionUser.getCorpId().equals(sysDept.getDeptId()))
+                .findFirst()
+                .orElse(null);
+
+
+        //组织架构树
+        TreeNodeConfig treeNodeConfig = new TreeNodeConfig();
+        // 自定义属性名 都要默认值的
+        treeNodeConfig.setIdKey("id");
+        treeNodeConfig.setParentIdKey("uid");
+        treeNodeConfig.setWeightKey("id");
+        treeNodeConfig.setChildrenKey("groups");
+        // 最大递归深度
+        treeNodeConfig.setDeep(8);
+        List<Tree<String>> deptTree = TreeUtil.build(sysDeptList, null == rootSysDept ? "ROOT" : rootSysDept.getParentId(), treeNodeConfig,
+                (dept, tree) -> {
+                    tree.setId(dept.getDeptId());
+                    tree.setParentId(dept.getParentId());
+                    tree.setWeight(dept.getDeptId());
+                    tree.setName(dept.getDeptName());
+
+                    tree.putExtra("orgId", dept.getOrgId());
+                    tree.putExtra("orgIdName", dept.getOrgName());
+                    tree.putExtra("groupName", dept.getDeptName());
+                    tree.putExtra("groupAdmin", dept.getDeptAdmin());
+                    tree.putExtra("groupAdminName", dept.getDeptAdminName());
+                    tree.putExtra("remark", dept.getRemark());
+                    // 扩展属性 ...
+                    tree.putExtra("employees", findUserByDept(sysUserList, dept.getDeptId()));
+                });
+        return Result.resultOk(deptTree.toArray());
+    }
+
+    /**
+     * 通过部门获取用户列表
+     * {
+     * userId: 用户ID
+     * nickName: 昵称
+     * realName: 真实姓名
+     * positionName:岗位名称
+     * }
+     *
+     * @param deptId 部门ID
+     * @return
+     */
+    private List<Map<String, Object>> findUserByDept(List<SysUser> sysUserList, String deptId) {
+        List<SysUser> result = sysUserList.stream().filter(item -> deptId.equals(item.getDeptId())).collect(Collectors.toList());
+        return result.stream().map(sysUser -> {
+            return new HashMap<String, Object>() {{
+                put("userId", sysUser.getUserId());
+                put("nickName", sysUser.getNickName());
+                put("realName", sysUser.getRealName());
+                put("positionName", sysUser.getPositionName());
+            }};
+        }).collect(Collectors.toList());
+    }
+
+
+}
+

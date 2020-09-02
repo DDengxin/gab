@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>参数管理(行业分类-独立编辑页面)</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <input class="mini-hidden" name="orient"/>
+    <form id="form1">
+        <input class="mini-hidden" name="paramXtype"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>参数编码:</td>
+                <td content>
+                    <input class="mini-textbox" name="paramId" id="paramId" vtype="numberAndLetter" required>
+                </td>
+                <td title>参数名称:</td>
+                <td content colspan="3">
+                    <input class="mini-textbox" required name="paramName">
+                </td>
+           	</tr>
+           	<tr>
+                <td title>英文名称:</td>
+                <td content colspan="5">
+                    <input class="mini-textbox" name="paramNameEn"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>类型上级:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onTypeClickHander" textName="parentName" text="无"
+                           emptyText="请选择..." allowInput="false" id="parentId" name="parentId" value="ROOT"   />
+                    <input class = "mini-hidden" name="parentName" id="parentName" />
+                </td>
+                <td title>参数模块:</td>
+                <td content>
+                    <input class="mini-combobox" required name="paramMod" id="paramMod" url="/system/parameter/MainParams" onvaluechanged="onParamModValueChanged"/>
+                </td>
+                <td title>参数类型:</td>
+                <td content>
+                    <input class="mini-combobox" required name="paramType" id="paramType" allowInput="true" onvaluechanged="onParamTypeValueChanged"/>
+                    <input class="mini-hidden" name="oldParamType" />
+                </td>
+            </tr>
+             <tr>
+                <td title>动态列:</td>
+                <td content colspan="5" >
+                    <input class="mini-combobox" name="paramValue1" allowInput="true" required
+                    data="[{'id':'cpcodeXp',text:'cpcodeXp'},{'id':'cpcodeSizeEn',text:'cpcodeSizeEn'},{'id':'cpcodeName',text:'cpcodeName'},{'id':'cpcodeSize',text:'cpcodeSize'},{'id':'cpcodeFl',text:'cpcodeFl'}]"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>控件类型:</td>
+                <td content colspan="5" >
+                    <input class="mini-combobox" allowInput="true" name="paramValue2" emptyText="textbox"
+                    data="[{'id':'textbox','text':'textbox'},{'id':'combobox','text':'combobox'},{'id':'treeselect','text':'treeselect'}]"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>绑定类型:</td>
+                <td content colspan="5" >
+                    <input class="mini-textbox" name="paramValue3"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>参数值:</td>
+                <td content>
+                    <input class="mini-spinner" name="paramValue" allowLimitValue="false"/>
+                </td>
+                <td title>参数排序:</td>
+                <td content>
+                    <input class="mini-spinner" minValue="0" maxValue="1000" value="1" name="paramOrd" id="paramOrd"/>
+                </td>
+                <td title>启用状态:</td>
+                <td content>
+                    <input class="mini-combobox" required name="paramStatus" id="paramStatus" value="true" url="encodeURI('/dict/boolean?t=启用&f=禁用&equal=true')"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>备注:</td>
+                <td content colspan="5">
+                    <input class="mini-textarea" name="paramDetail">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    /**
+     * 输入框失去焦点转大小
+     **/
+    form.getField("paramId").on("blur",function(e){
+        setTimeout(function(){
+            e.sender.setValue(e.sender.getValue().trim().toUpperCase());
+        },50);
+    });
+
+    function SetData(options) {
+        var row = options.data.row;
+        var formData = options.data.formData;
+        var orient = formData.orient;
+        var paramXtype = formData.paramXtype;
+
+
+        mini.getByName("action").setValue(options.action);
+        mini.getByName("orient").setValue(formData.orient);
+
+        if ('add' == options.action) {
+            if ("true" == formData.orient) {
+                //参数类型默认去取当前选中行的下级参数(第一个子级参数)的参数类型
+                var paramtType = (row && row.children && row.children.length > 0 ?  row.children[0].paramType :formData.paramType) || formData.paramType;
+                form.setData({
+                    paramMod: formData.paramMod,
+                    paramType: paramtType,
+                    paramXtype:formData.paramXtype,
+                    parentId:row.paramId,
+                    parentName:row.paramName
+                },false);
+                if (hmq.isNotEmpty(formData.paramMod)) {
+                    setIdDisable("paramMod");
+                }
+                form.getField('paramMod').doValueChanged();
+            }
+        } else if ('edit' == options.action) {
+        	var params={
+        			paramId:row.paramId,
+        			paramType:row.paramType
+        	}
+        	$['post']("getById",JSON.stringify({ "params" : mini.encode(params) }) ,function (res) {
+                if (200 === res.code) {
+                    res.data.oldParamType = res.data.paramType;
+                    form.setData(res.data);
+                    setIdDisable("paramId");
+                    onParamModValueChanged({sender: form.getField('paramMod')}, function () {
+                        if ("true" == formData.orient) {
+                            setIdDisable("paramMod");
+                        }
+                    });
+                }
+            }, null, {
+        	    loading:true,
+	                contentType: 'application/json',
+                    complete:function(){
+                        form.getField("paramXtype").setValue(paramXtype);
+                    }
+	       	   });
+        }
+    }
+
+    /**
+     * 保存数据
+     * @constructor
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    function onTypeClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "./parameter/hierarchyParmsTree.html",
+            title: "【参数类型】选择",
+            data: mini.get("paramId").getValue(),
+            width: 500,
+            height: 620,
+            data: {
+                paramMod: form.getField("paramMod").getValue(),
+                paramType: form.getField("paramType").getValue(),
+                paramXtype: mini.getByName("paramXtype").getValue(),
+                allowEditModAndType: 'auto',
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.paramId);
+                    btnEdit.setText(data.paramName);
+                    mini.get("parentName").setValue(data.paramName);
+                    if ("true" != mini.getByName("orient").getValue()) {
+                        //非定向模式才动态改变值
+                        form.getField("paramMod").setValue(data.paramMod);
+                        if (data.paramName == "无") {
+                            form.getField("paramMod").setEnabled(true);
+                            form.getField("paramMod").setValue("");
+                        }
+                        form.getField("paramMod").doValueChanged();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 模块值改变触发类型下拉值改变
+     * @param e
+     * @param callback
+     * */
+	function onParamModValueChanged(e, callback) {
+        if (hmq.isNotEmpty(e.sender.getValue())) {
+            mini.get("paramType").load("/system/parameter/NodeParams/{0}/{1}".format(form.getField('paramMod').getValue(),form.getField("paramXtype").getValue()));
+        } else {
+            mini.get("paramType").setData(null);
+        }
+        if ($.isFunction(callback)) {
+            callback();
+        }
+    }
+
+    /**
+     * 参数值2下拉数据加载
+     * @param e
+     */
+    function onParamTypeValueChanged(e) {
+        if (hmq.isNotEmpty(e.sender.getValue())) {
+            form.getField("paramValue2").load("/system/parameter/ParamsAll/{0}/{1}".format(mini.get("paramMod").getValue(), e.sender.getValue()));
+        } else {
+            form.getField("paramValue2").setData(null);
+        }
+
+    }
+
+</script>
+</html>

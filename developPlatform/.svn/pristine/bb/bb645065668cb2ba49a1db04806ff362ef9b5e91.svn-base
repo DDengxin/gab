@@ -1,0 +1,110 @@
+package com.tengzhi.business.js.cpbom.service.impl;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.js.cpbom.dao.CpBomDao;
+import com.tengzhi.business.js.cpbom.model.EJsCpcode;
+import com.tengzhi.business.js.cpbom.service.CpBomService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.user.model.SysUser;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class CpBomServiceImpl implements CpBomService {
+
+    @Autowired
+    private CpBomDao cpBomdao;
+    
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+    
+    @Override
+	public BasePage<Map<String, Object>> sreach(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sqlWhere = "where data_corp='"+SessionUser.SessionUser().getCorpId()+"' ";
+		if(ObjectUtil.isNotEmpty(map.get("srchCp"))) {
+            sqlWhere+=" and cpcode_id ='"+map.get("srchCp")+"'";
+        }
+		baseDto.setSortField("cpcodeId");
+		baseDto.setSortOrder("DESC");
+		String sql ="select (cpcode_bom||'-'||cpcode_id||'-'||cpcode_stype) \"idField\",(cpcode_bom||'-'||cpcode_uid||'-'||cast(cpcode_stype as numeric)-1) \"parentField\",cpcode_id \"cpcodeId\",f_get_param_name ( f_get_param_name ( '产品大类', cpcode_type, '技术', FALSE )||'名称', f_getname ( 'CPCODENAME', cpcode_id, '', data_corp ), '技术', FALSE ) \"cpcodeName\",cpcode_uid \"cpcodeUid\",f_getname('CPCODENAME', cpcode_uid, '', data_corp) \"uidName\",cpcode_type \"cpcodeType\",f_get_param_name('产品大类', cpcode_type, '技术', false) \"typeName\",cpcode_stype||'级' \"cpcodeStype\",cpcode_bl \"cpcodeBl\",cpcode_sh \"cpcodeSh\",cpcode_sm \"cpcodeSm\",data_man \"dataMan\",f_getname('GETUSERNAME', data_man, '', data_corp) \"manName\",data_date \"dataDate\",data_corp \"dataCorp\",f_getname('GETCORPEXP', '', '', data_corp) \"corpName\",cpcode_bom \"cpcodeBom\",cpcode_flag \"cpcodeFlag\" from e_js_cpcode_bom "+sqlWhere;
+		String countsql="select count(*) from ("+sql+")t";
+		return cpBomdao.QueryPageList(sql,countsql,baseDto);
+	}
+    
+    @Override
+	public BasePage<Map<String, Object>> getSrchBottomList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String sqlWhere = "where data_corp='"+SessionUser.SessionUser().getCorpId()+"' and cpcode_stype <> '1' ";
+		if(ObjectUtil.isNotEmpty(map.get("cpcodeId"))) {
+			String bom = cpBomdao.findBom(map.get("cpcodeId"));
+			sqlWhere+=" and cpcode_bom ='"+bom+"'";
+		}
+		baseDto.setSortField("cpcodeId");
+		baseDto.setSortOrder("DESC");
+		String sql ="select (cpcode_bom||'-'||cpcode_id||'-'||cpcode_stype) \"idField\",(cpcode_bom||'-'||cpcode_uid||'-'||cast(cpcode_stype as numeric)-1) \"parentField\",cpcode_id \"cpcodeId\",f_getname('CPCODENAME', cpcode_id, '', data_corp) \"cpcodeName\",cpcode_uid \"cpcodeUid\",f_getname('CPCODENAME', cpcode_uid, '', data_corp) \"uidName\",cpcode_type \"cpcodeType\",f_get_param_name('产品大类', cpcode_type, '技术', false) \"typeName\",cpcode_stype \"cpcodeStype\",cpcode_bl \"cpcodeBl\",cpcode_sh \"cpcodeSh\",cpcode_sm \"cpcodeSm\",data_man \"dataMan\",f_getname('GETUSERNAME', data_man, '', data_corp) \"manName\",data_date \"dataDate\",data_corp \"dataCorp\",f_getname('GETCORPEXP', '', '', data_corp) \"corpName\",cpcode_bom \"cpcodeBom\",cpcode_flag \"cpcodeFlag\" from e_js_cpcode_bom "+sqlWhere;
+		String countsql="select count(*) from ("+sql+")t";
+		return cpBomdao.QueryPageList(sql,countsql,baseDto);
+	}
+    
+    @Override
+	public void save(EJsCpcode eJsCpcode) throws Exception {
+		SessionUser sessionUser=SessionUser.SessionUser();
+    	eJsCpcode.setDataMan(sessionUser.getUserId());
+    	eJsCpcode.setDataCorp(sessionUser.getCorpId());
+    	eJsCpcode.setDataDate(new Date());
+    	eJsCpcode.setCpcodeFlag("启用");
+    	cpBomdao.save(eJsCpcode);
+    }
+    
+    @Override
+	public void update(EJsCpcode eJsCpcode) {
+		SessionUser sessionUser=SessionUser.SessionUser();
+    	eJsCpcode.setDataMan(sessionUser.getUserId());
+    	eJsCpcode.setDataCorp(sessionUser.getCorpId());
+    	eJsCpcode.setDataDate(new Date());
+    	cpBomdao.update(eJsCpcode);
+    }
+    
+    @Override
+	public void delete(String cpcodeId, String cpcodeUid, String cpcodeBom) {
+    	cpBomdao.deleteById(cpcodeId,cpcodeUid,cpcodeBom);
+    }
+    
+    @Override
+	public void deleteByBom(String cpcodeBom,String cpcodeStype,String cpcodeId) {
+    	cpBomdao.deleteByChildren(cpcodeBom,cpcodeStype);
+    	cpBomdao.deleteBySelf(cpcodeBom,cpcodeStype,cpcodeId);
+    }
+    
+    @Override
+	public EJsCpcode findById(String cpcodeId) {
+    	String bom = cpBomdao.findBom(cpcodeId);
+		return cpBomdao.findBycpId(bom);
+	}
+    
+    @Override
+   	public Map<String,Object> getCpcode(String cpcodeId) {
+   		return cpBomdao.getCpcode(cpcodeId,SessionUser.SessionUser().getCorpId());
+   	}
+    
+    @Override
+   	public String getBom() throws Exception {
+		String note = sysGenNoteService.getNote("","BOM","yyyy",2);
+    	//String note = sysGenNoteService.getNoteDate("",new Date(),"BOM","yyyy",2);
+    	return note;
+   	}
+    
+}

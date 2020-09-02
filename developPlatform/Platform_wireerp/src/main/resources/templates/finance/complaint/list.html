@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>采购客诉</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+            <input class="mini-hidden" id="stype" name="stype" th:value="${stype}"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="客户">
+            <input name="srchCustromer" emptyText="全部" allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue" width="140"/>
+        </label>
+        <label class="hmq-label" text="业务员">
+            <input class="mini-combobox" name="srchYwy" url="/system/parameter/getParamsSelectList/销售/业务员?relatedBusiness=false" width="100" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input id="flag" name="flag" class="mini-combobox" url="/system/parameter/combobox/params?parentId=KSZT" textField="text" valueField="id" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="ks_note" url="/finance/complaint/search">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="ksRq" width="80">日期</div>
+            <div tz:datagrid="column" field="ksNote" align="center" width="100">单号</div>
+            <div tz:datagrid="column" field="ksDw" displayField="dwName" align="left" width="200">客户</div>
+            <div tz:datagrid="column" field="ksHt" width="120" align="center">业务</div>
+            <div tz:datagrid="column" field="ksSy" width="200" align="left">事由</div>
+            <div tz:datagrid="column" header="受理">
+                <div property="columns">
+                    <div tz:datagrid="column" field="slDate" width="100" align="center">日期</div>
+                    <div tz:datagrid="column" field="slMan" displayField="slManName" width="100" align="left">业务</div>
+                    <div tz:datagrid="column" field="slType" width="80" align="center">分类</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" header="结案">
+                <div property="columns">
+                    <div tz:datagrid="column" field="jaDate" width="100" align="center">日期</div>
+                    <div tz:datagrid="column" field="jaType" width="100" align="center">分类</div>
+                    <div tz:datagrid="column" field="ksJe" width="120" align="right" numberFormat="#,0.00">金额</div>
+                    <div tz:datagrid="column" field="ksJg" displayField="jgName" width="100" align="center">审核</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" field="ksFlag" displayField="flagName" width="100" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    //查询方法
+    function search_option() {
+        grid.load();
+    }
+
+    //新增方法
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}, width: '700px', height: '450px'});
+    }
+
+    //修改方法
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.ksFlag == "KSDJ") {
+                e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}, width: '700px', height: '450px'});
+            } else {
+                hmq.tipDanger("非登记状态不可修改");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //接收方法
+    function accept_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.ksFlag == "KSDJ") {
+                mini.confirm("确定要接收吗？", "接收客诉", function (action) {
+                    if (action == "ok") {
+                        $.put("accept/{0}".format(row.ksNote), function (res) {
+                            if (res.code === 200) {
+                                grid.load();
+                            }
+                        });
+                    }
+                });
+            } else {
+                hmq.tipDanger("非登记状态不可接收");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //受理方法
+    function acceptance_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.ksFlag == "KSJS") {
+                e.sender.miniopen({url: 'add.html', action: 'acceptance', data: {row: row, formData: form.getData()}, width: '700px', height: '550px'});
+            } else {
+                hmq.tipDanger("非接收状态不可受理");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //处理方法
+    function dispose_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.ksFlag == "KSSL" || row.ksFlag == "KSCL") {
+                e.sender.miniopen({url: 'add.html', action: 'dispose', data: {row: row, formData: form.getData()}, width: '700px', height: '650px'});
+            } else {
+                hmq.tipDanger("非受理或者处理状态不可处理");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //结案方法
+    function closeout_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.ksFlag == "KSCL") {
+                e.sender.miniopen({url: 'add.html', action: 'closeout', data: {row: row, formData: form.getData()}, width: '700px', height: '650px'});
+            } else {
+                hmq.tipDanger("非处理状态不可结案");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //删除方法
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.ksFlag == "KSDJ") {
+                mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                    if (action == "ok") {
+                        $["delete"]("deletAll/{0}".format(row.ksNote), function (res) {
+                            if (200 === res.code) {
+                                grid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            } else {
+                hmq.tipDanger("非登记状态不可删除");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    //客户选择弹出页面
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        var stype = mini.getByName('stype').getValue();
+        var type = "S";
+        if (stype == "采购") {
+            type = "S";
+        } else if (stype == "销售") {
+            type = "C";
+        }
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【客诉单位】选择页面",
+            width: 750,
+            data: type,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

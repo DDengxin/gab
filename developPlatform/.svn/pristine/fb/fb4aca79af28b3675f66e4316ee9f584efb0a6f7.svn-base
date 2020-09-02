@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<!-- required modeler styles -->
+<!-- modeler distro -->
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title></title>
+</th:block>
+<!-- <link rel="stylesheet" th:href="@{/static/workflow/actjs/diagram-js.css}" /> -->
+<!-- <link rel="stylesheet" th:href="@{/static/workflow/actjs/bpmn.css}" /> -->
+<!-- <script th:src="@{/static/workflow/actjs/bpmn-modeler.js}"></script> -->
+<!-- <script type="text/javascript" th:src="@{/static/workflow/actjs/jquery.js}"></script> -->
+<!-- </head> -->
+<body>
+	<input name="action" class="mini-hidden" />
+	<input name="processId" class="mini-hidden" />
+	<input name="businessId" class="mini-hidden" />
+	<div id="tabs1" class="mini-tabs" activeIndex="0" style="width: 100%; height: 100%;" plain="false" onactivechanged="tabsclik">
+		<div title="操作">
+			<div class="mini-fit hmq-iframe-box">
+				<iframe id="act_iframe" scrolling="auto" src=""></iframe>
+			</div>
+		</div>
+		<div title="历史办理记录">
+			<div class="canvas">
+				<div id="canvas"></div>
+			</div>
+			<!--撑满页面-->
+			<div class="mini-fit">
+				<div tz:datagrid="datagrid" id="srch_grid" idField="endTime" url="gethistoryTask">
+					<div property="columns">
+						<div tz:datagrid="indexcolumn" width='80'>序号</div>
+						<div tz:datagrid="column" field="linkName" width='200'>环节</div>
+						<div tz:datagrid="column" field="transactor" width='200'>办理人</div>
+						<div tz:datagrid="column" field="endTime" width='200'>办理时间</div>
+						<div tz:datagrid="column" field="opinion" width='100%'>批注</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+		//面板切换事件
+		function tabsclik(e, t) {
+			if (e.index == "1") {
+				grid.load({
+					processId : $('[name=processId]').val(),
+					businessId : $('[name=businessId]').val(),
+				});
+			}
+		}
+
+		function SetData(options) {
+			if ('add' == options.action) {
+				$('[name=action]').val(options.action);
+				$('#act_iframe').attr('src', options.data.handleUrl);
+				$('[name=processId]').val(options.data.processId);
+				$('[name=businessId]').val(options.data.businessId);
+				options.action = "sh";
+				var iframe = $('#act_iframe')[0];
+				//兼容IE
+				if (iframe.attachEvent) {
+					iframe.attachEvent("onload", function() {
+						iframe.contentWindow.SetData(options);
+					});
+				} else {
+					iframe.onload = function() {
+						iframe.contentWindow.SetData(options);
+					};
+				}
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目任务</title>
+    </th:block>
+</head>
+<body>
+<!--撑满页面-->
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="项目名称">
+            <input  class="mini-textbox" name="xmName" id="xmName"/>
+        </label>
+        <label class="hmq-label" text="项目阶段">
+            <input class="mini-combobox" id="rwStage" name="rwStage" url="/system/parameter/getParamsSelectListByParentId/项目/项目阶段/XMJD"
+                   allowInput="false" showNullItem="true" nullItemText="全部" emptyText="全部">
+        </label>
+        <label class="hmq-label" text="发布人员">
+            <input  class="mini-textbox" name="manName" id="manName"/>
+        </label>
+        <label class="hmq-label" text="接收人员">
+            <input  class="mini-textbox" name="rwJsManName" id="rwJsManName"/>
+        </label>
+        <label class="hmq-label" text="任务状态">
+            <select class="mini-combobox" id="rwFlag" name="rwFlag" emptyText="全部">
+                <option value="">全部</option>
+                <option value="登记">登记</option>
+                <option value="发布">发布</option>
+                <option value="接收">接收</option>
+                <option value="开始">开始</option>
+                <option value="完成">完成</option>
+                <option value="考评">考评</option>
+            </select>
+        </label>
+        <label class="hmq-label" text="任务考核">
+            <select class="mini-combobox" id="rwPz" name="rwPz" emptyText="全部">
+                <option value="">全部</option>
+                <option value="合格">合格</option>
+                <option value="不合格">不合格</option>
+            </select>
+        </label>
+    </th:block>
+</th:block>
+<div class="mini-fit" >
+    <div tz:datagrid="datagrid" id="srch_grid" idField="rwNote" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="rwRq" align="center" width="90">日期</div>
+            <div tz:datagrid="column" field="rwNote" align="center" width="130">任务单号</div>
+            <div tz:datagrid="column" field="rwTitle" align="left" width="120">任务主题</div>
+            <div tz:datagrid="column" field="rwFlag" align="left" width="75">任务状态</div>
+            <div tz:datagrid="column" field="rwProject" displayField="rwProjectName" align="left" width="140">所属项目</div>
+            <div tz:datagrid="column" field="rwStage" displayField="rwStageName" align="center" width="80">项目阶段</div>
+            <div tz:datagrid="column" field="rwJhStart" align="center" width="120" renderer="onActionRenderer">计划开始</div>
+            <div tz:datagrid="column" field="rwJhEnd" align="center" width="120" renderer="onActionRenderer">计划完成</div>
+            <div tz:datagrid="column" field="rwJhMan" displayField="rwJhManName" align="center" width="80">计划人员</div>
+            <div tz:datagrid="column" field="rwJhGs" align="right" width="80">计划工时</div>
+            <div tz:datagrid="column" field="man" displayField="manName" align="center" width="80">发布人员</div>
+            <div tz:datagrid="column" field="rwJsDate" align="center" width="120" renderer="onActionRenderer">任务接收</div>
+            <div tz:datagrid="column" field="rwJsMan" displayField="rwJsManName" align="center" width="80">接收人员</div>
+            <div tz:datagrid="column" field="rwKsDate" align="center" width="120" renderer="onActionRenderer">任务开始</div>
+            <div tz:datagrid="column" field="rwWcDate" align="center" width="120" renderer="onActionRenderer">任务完成</div>
+            <div tz:datagrid="column" field="rwWcGs" align="right" width="75">完成工时</div>
+            <div tz:datagrid="column" field="rwKhDate" align="center" width="120" renderer="onActionRenderer">任务考核</div>
+            <div tz:datagrid="column" field="rwPz" align="center" width="75">考核结果</div>
+            <div width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /** 查阅 */
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            var row = grid.getSelected();
+            e.sender.miniopen({url: "add.html", action: 'view', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+
+    function onActionRenderer(e) {
+        var record = e.record;
+        if(e.field == "rwJsDate"){
+            return record.rwJsDate ?mini.formatDate(new Date(record.rwJsDate), "yyyy-MM-dd HH:mm"):'';
+        }else if(e.field == "rwKsDate"){
+            return record.rwKsDate ?mini.formatDate(new Date(record.rwKsDate), "yyyy-MM-dd HH:mm"):'';
+        }else if(e.field == "rwWcDate"){
+            return record.rwWcDate ?mini.formatDate(new Date(record.rwWcDate), "yyyy-MM-dd HH:mm"):'';
+        }else if(e.field == "rwKhDate"){
+            return record.rwKhDate ?mini.formatDate(new Date(record.rwKhDate), "yyyy-MM-dd HH:mm"):'';
+        }else if(e.field == "rwJhStart"){
+            return record.rwJhStart ?mini.formatDate(new Date(record.rwJhStart), "yyyy-MM-dd HH:mm"):'';
+        }else if(e.field == "rwJhEnd"){
+            return record.rwJhEnd ?mini.formatDate(new Date(record.rwJhEnd), "yyyy-MM-dd HH:mm"):'';
+        }
+    }
+
+
+</script>
+
+
+</body>
+</html>

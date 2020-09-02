@@ -1,0 +1,60 @@
+<html layout:decorator="system/_main" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<!--/*褰撳墠main椤甸潰鐨勫疄闄呬唬鐮佸湪_main椤甸潰涓紙Spring thymeleaf layout锛夛紝涓轰簡鏂逛究浜屾寮�鍙戝拰瑕嗗啓*/-->
+<!--<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+</th:block>-->
+<th:block layout:fragment="fragment-header" >
+    <link rel="stylesheet" th:href="@{/static/gab/css/color.css}">
+</th:block>
+<script layout:fragment="fragment-footer" type="text/javascript">
+    (function () {
+  
+        $("#navbar-navs #title").click(function () {
+            mini.confirm("鍒囨崲鍒版垜鐨勯椤碉紵", "纭淇℃伅", function (action) {
+                if (action == "ok") {
+                    window.location.href = "/";
+                }
+            });
+        });
+        tabs.on('tabload', function (e) {
+            var options = {
+                targetWindow: window,
+                url: null,      
+                title: "11",     
+                width: 900,      
+                height: 470,    
+                allowResize: true,    
+                allowDrag: true,        
+                showCloseButton: true,   
+                showModal: false,       
+                loadOnRefresh: false,    
+                onload: function () {       
+                    var iframe = this.getIFrameEl();
+                    iframe.contentWindow.SetData(this.iframeData);
+                },
+            };
+            $['get']("/gab/getUserInfo", function (res) {
+                if (200 === res.code) {
+                    if (!jQuery.isEmptyObject(res.user) && (!!res.user.type)) {
+                        var user = res.user;
+                        var userinfo = res.userinfo;
+                     /*    if (userinfo.flag == "鐧昏") {
+                            var temp = {
+                                '涓撳': {url: "/platform/expert/expertedit.html", expertNote: user["supplyId"]},
+                                '鍘傚晢': {url: "/platform/supplier/supplyedit.html", supplyNote: user["supplyId"], width: 1425, height: 791},
+                                '瀹㈡埛': {url: "/platform/specialist/need/neededit.html", userId: user["userId"]},
+                            }[user.type] || '';
+                            options["iframeData"] = {data: temp, action: "complete"};
+                            mini.alert("璇峰厛瀹屽杽淇℃伅", "鎻愮ず", function () {
+                                mini.open($.extend(options, temp));
+                            })
+
+                        } */
+
+                    }
+
+                }
+            });
+        });
+    })(document);
+</script>
+</html>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.platform</groupId>
+	<artifactId>developPlatform</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>开发平台</name>
+	<packaging>pom</packaging>
+
+	<description>腾智开发平台</description>
+
+	<!--定义属性值 -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<spring.boot.version>2.0.4.RELEASE</spring.boot.version>
+		<activiti.version>6.0.0</activiti.version>
+		<commons-text.version>1.1</commons-text.version>
+		<log4j.version>1.2.17</log4j.version>
+		<poi.version>3.17</poi.version>
+	</properties>
+
+	<!-- 依赖声明 -->
+	<dependencyManagement>
+		<dependencies>
+			<!-- SpringBoot的依赖配置 -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring.boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- 日志框架 -->
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j.version}</version>
+			</dependency>
+			<!--Alibaba Druid数据连接池 -->
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>druid-spring-boot-starter</artifactId>
+				<version>1.1.10</version>
+			</dependency>
+			<!--devtools热部署 -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-devtools</artifactId>
+				<optional>true</optional>
+				<scope>compile</scope>
+			</dependency>
+			<!--工作流 -->
+			<dependency>
+				<groupId>org.activiti.dependencies</groupId>
+				<artifactId>activiti-dependencies</artifactId>
+				<version>${activiti-dependencies.version}</version>
+			</dependency>
+			<!--html转义 -->
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-text</artifactId>
+				<version>${commons-text.version}</version>
+			</dependency>
+			<!--poi -->
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-ooxml-schemas</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-ooxml</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<!-- JAva工具包 -->
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-all</artifactId>
+				<version>5.3.5</version>
+			</dependency>
+			<!--汉语字典包 -->
+			<dependency>
+				<groupId>com.belerweb</groupId>
+				<artifactId>pinyin4j</artifactId>
+				<version>2.5.1</version>
+			</dependency>
+			<!--Bean工具 -->
+			<!--<dependency> <groupId>cn.hutool</groupId> <artifactId>hutool-all</artifactId> 
+				<version>4.1.14</version> </dependency> -->
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
+			</plugin>
+			<!--编译管理 jdk版本和字符集编码 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<!--如果想在没有web.xml文件的情况下构建WAR，请设置为false。 -->
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.properties</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>*.properties</include>
+					<include>*.yml</include>
+					<include>**/*.properties</include>
+					<include>**/*.xml</include>
+					<include>**/*.tld</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>static/**</include>
+					<include>templates/**</include>
+					<include>config/**</include>
+					<include>ip2region/**</include>
+					<include>processes/**</include>
+
+					<include>**/*.woff</include>
+					<include>**/*.woff2</include>
+					<include>**/*.ttf</include>
+					<include>**/*.eot</include>
+					<include>**/*.otf</include>
+					<include>**/*.svg</include>
+
+					<include>**/*.exe</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+	<!--Maven远程仓库设置 -->
+	<!-- <repositories> <repository> <id>public</id> <name>aliyun nexus</name> 
+		<url>http://maven.aliyun.com/nexus/content/groups/public/</url> <releases> 
+		<enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled> 
+		</snapshots> </repository> <repository> <id>alfresco</id> <name>Activiti 
+		Releases</name> <url>https://artifacts.alfresco.com/nexus/content/repositories/activiti-releases/</url> 
+		<releases> <enabled>true</enabled> </releases> <snapshots> <enabled>false</enabled> 
+		</snapshots> </repository> </repositories> -->
+	<!--Maven远程插件 -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>public</id>
+			<name>aliyun nexus</name>
+			<url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+	<!-- 子模块 -->
+	<modules>
+		<module>basicsPlatform</module>
+		<module>loggingPlatform</module>
+		<module>commonPlatform</module>
+		<!--<module>workflowPlatform</module> -->
+		<module>securityPlatform</module>
+		<module>Platform_wireerp</module>
+		<module>Platform_IM</module>
+		<!--<module>Platform_gab</module>-->
+	</modules>
+
+</project>

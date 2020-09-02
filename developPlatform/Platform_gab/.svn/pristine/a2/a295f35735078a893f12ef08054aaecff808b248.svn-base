@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>下单</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/order.css}" />
+
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/PCASClass.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/order.js}"></script>
+</head>
+
+<body>
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+    </th:block>
+    <div class="order_content">
+        <div class="order_content_list">
+            <h2>产品市场</h2>
+            <h3>确认订单信息</h3>
+
+            <form action="" class="layui-form">
+                <div class="concat-msg">
+                    <p>联系人信息</p>
+                    <ul>
+                        <li><span>联系人</span><input name="concatPeo" type="text" required lay-verify="required"></li>
+                        <li>
+                            <span>地区</span>
+                            <div class="com-sel">
+                                <select class="com-opt" id="P1" name="P1" required lay-verify="required"></select>
+                            </div>
+                            <div class="com-sel">
+                                <select class="com-opt" id="C1" name="C1" required lay-verify="required"></select>
+                            </div>
+                        </li>
+                        <li><span>手机</span><input type="text" name="telphone" required lay-verify="phone"></li>
+                        <li><span>邮箱</span><input type="text" name="email" required lay-verify="email"></li>
+                    </ul>
+                </div>
+                <div class="product-msg">
+                    <p>产品清单</p>
+                    <div class="company">浙江高吴五金材料有限公司</div>
+                    <table>
+                        <tr>
+                            <td></td>
+                            <td class="proName">产品名称</td>
+                            <td>加工方式</td>
+                            <td>规格</td>
+                            <td>其他字段</td>
+                            <td>数量</td>
+                        </tr>
+                        <tr>
+                            <td><img src="../../static/gab/images/sy_50.jpg" alt=""></td>
+                            <td class="proNameAlign">产品名称产品名称产品名称产品名称产品名称产品名称产品名称产品名称产品名称产品名称产品名称</td>
+                            <td>加工方式</td>
+                            <td>规格</td>
+                            <td>其他字段</td>
+                            <td>
+                                <div>
+                                    <span class="layui-icon layui-icon-subtraction sub"></span>
+                                    <input name="orderNumber" type="text" value="1" required oninput="value=value.replace(/[^\d.]/g,'')">
+                                    <span class="layui-icon layui-icon-addition plus"></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="other-msg">
+                    <p>其他信息</p>
+                    <ul>
+                        <li><strong>是否需要发票</strong><input type="radio" name="isBill" value="true" checked>是<input
+                                type="radio" name="isBill" value="false">否</li>
+                        <li><strong>是否需要合同</strong><input type="radio" name="isContract" value="true" checked>是<input
+                                type="radio" name="isContract" value="false">否</li>
+                        <li><strong>备注信息</strong><textarea name="remarks" required lay-verify="required"></textarea>
+                        </li>
+                    </ul>
+                </div>
+                <div class="btn">
+                    <input type="button" lay-submit lay-filter="*" class="submit" value="提交订单">
+                </div>
+            </form>
+        </div>
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+    </th:block>
+</body>
+
+</html>

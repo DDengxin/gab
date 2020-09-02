@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>流程管理</title>
+</th:block>
+</head>
+<body>
+	<embed th:src="|/workflow/showImg?instanceId=${id}|" style="display: block; width: 100%; height: 450px" id="workflow" />
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid"   th:url="|/workflowInstances/queryHistoricActivitiInstance?processInstanceId=${id}|">
+			<div property="columns">
+				<div tz:datagrid="column" field="ActivityId" width="100" align="center">步骤ID</div>
+				<div tz:datagrid="column" field="ActivityName" width="100" align="center">步骤名称</div>
+				<div tz:datagrid="column" field="Assignee" width="100" align="center">执行人</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+		search_option();
+		function search_option() {
+			grid.load();
+		}
+	</script>
+</body>
+</html>

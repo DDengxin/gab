@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>项目档案</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="项目编号"> <input
+                class="mini-textbox" name="xmId" id="xmId"/>
+        </label>
+        <label class="hmq-label" text="项目负责人"> <input
+                class="mini-textbox" name="xmMan"/>
+        </label>
+        <div property="columns">
+            <div header="#" field="text"></div>
+        </div>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="xmId" showPageInfo="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="xmId" align="center" width="100">项目编号</div>
+            <div tz:datagrid="column" field="xmName" align="left" width="120">项目名称</div>
+            <div tz:datagrid="column" field="xmCustomer" displayField="xmCustomerName" align="left" width="120">项目客户</div>
+            <div tz:datagrid="column" field="xmType" displayField="xmTypeName" align="center" width="70">项目大类</div>
+            <div tz:datagrid="column" field="xmXtype" displayField="xmXtypeName" align="center" width="70">项目类型</div>
+            <div tz:datagrid="column" field="xmDept" align="left" width="70">项目部门</div>
+            <div tz:datagrid="column" field="xmMan" displayField="xmManName" align="left" width="80">项目负责人</div>
+            <div tz:datagrid="column" field="xmCode" align="left" width="120" visible="false">产品编码</div>
+            <div tz:datagrid="column" field="xmStage" displayField="xmStageName" align="center" width="100">项目阶段</div>
+            <div tz:datagrid="column" field="xmFlag" align="center" width="70">审批状态</div>
+            <div tz:datagrid="column" field="xmEnableFlag" align="center" width="70">项目状态</div>
+            <div tz:datagrid="column" field="dataMan" displayField="dataManName" align="left" width="70">操作人</div>
+            <div tz:datagrid="column" field="dataDate" align="center" width="80">操作日期</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="dataCorpName" align="center" width="85">所属公司</div>
+            <div tz:datagrid="column" field="startDate" align="center" width="80">项目开始</div>
+            <div tz:datagrid="column" field="endDate" align="center" width="80">项目结束</div>
+            <div tz:datagrid="column" field="xmSm" align="left" width="260" visible="false">项目说明</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+
+    /* 添加 */
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row});
+    }
+
+    /* 修改 */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        console.log(row);
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /* 删除 */
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteById/{0}".format(row.xmId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if ('登记' != row.xmFlag) {
+                hmq.tipDanger("当前状态不允许操作");
+            } else {
+                $['put']("getXmFlag", JSON.stringify({"params": mini.encode({xmId: row.xmId})}),
+                    function (res) {
+                        hmq.business.approvalConfirm({
+                            //  title: "项目核准",
+                            businessId: row.xmId,///Platform_wireerp/src/main/resources/templates/cg/yw/purchaseFile/purchaseRequisition/add.html
+                            url: "/project/projectArchives/xmda/add.html",
+                            error: function (res) {
+                                if (res.code == 404) {
+                                    $['put']("ok/{0}".format(row.xmId), function (res) {
+                                        if (200 === res.code) {
+                                            grid.reload();
+                                        } else {
+                                            hmq.tipDanger(res.msg);
+                                        }
+                                    });
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            }
+                        });
+                    }, null, {
+                        contentType: 'application/json'
+                    });
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            var params = {
+                xmId: row.xmId,
+                xmFlag: "确认"
+            };
+            $['put']("getXmFlag", JSON.stringify({"params": mini.encode(params)}),
+                function (res) {
+                    mini.unmask();
+                    if (200 === res.code) {
+                        mini.confirm("是否取消确认吗？", "确认信息", function (action) {
+                            if (action == "ok") {
+                                hmq.business.approvalCancel({
+                                    businessId: row.xmId,
+                                    error: function (res) {
+                                        if (res.code == 404) {
+                                            $['put']("no/{0}".format(row.xmId), function (res) {
+                                                if (200 === res.code) {
+                                                    grid.reload();
+                                                } else {
+                                                    hmq.tipDanger(res.msg);
+                                                }
+                                            });
+                                        } else {
+                                            hmq.tipDanger(res.msg);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+
+    }
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,132 @@
+package com.tengzhi.business.platform.enroll.controller;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.annotations.Anonymous;
+import com.tengzhi.business.platform.enroll.service.RegisterService;
+import com.tengzhi.business.platform.enroll.service.SupplyService;
+import com.tengzhi.business.platform.enroll.vo.modelVo;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.sms.service.SmsService;
+import com.tengzhi.business.system.user.model.SysUser;
+import com.tengzhi.business.system.workflow.vo.Examine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.util.List;
+
+@RestController
+@RequestMapping("platform/enroll")
+@SessionAttributes("SmsCode")
+public class SupplyControler {
+
+	@Autowired
+	private SupplyService  SupplyService;
+	 @Autowired
+	 private	 RegisterService registerService;
+	 @Autowired
+	 private	 SmsService SmsService;
+	 
+
+	@GetMapping("/*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+	
+	
+	@PostMapping(value = "supply/list.html")
+	public Result getList(BaseDto dto) {
+		return SupplyService.getList(dto).getResult();
+	}
+	
+	/**
+	 * 根据id查询
+	 * */
+	@GetMapping(value = "supplyid")
+	public Result getById() {
+		return Result.resultOk(SupplyService.findById());
+	}
+	
+	
+	
+	
+
+    @Anonymous
+    @PostMapping(value = "getCode")
+    public Result getCode( @RequestBody  SysUser sysuser) throws Exception { 
+    	Result  rs = new Result();
+    	rs = SupplyService.getCode(sysuser);
+        return rs;
+    }
+	
+	
+
+	/**
+     * 注册新增
+     * 
+     */
+    @Anonymous
+    @PostMapping(value = "add")
+    public Result add( @RequestBody modelVo vo) throws Exception { 
+    	Result  rs =SupplyService.save(vo);
+        return rs;
+    }
+    
+    
+	@PutMapping(value = "edit") 
+	public Result modify(@RequestBody modelVo vo) throws Exception {
+		SupplyService.update(vo); 
+	return Result.resultOkMsg("修改成功"); 
+	}
+	 
+
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@Anonymous
+	@PostMapping(value = "/getSrchGridList")
+	public Result getSrchGridList(BaseDto baseDto) throws IOException {
+		return SupplyService.getSrchGridList(baseDto).getResult();
+	}
+	@Anonymous
+	@PostMapping(value = "/getAllsupply")
+	public Result getAllsupply(BaseDto baseDto) throws IOException {
+		
+		return Result.resultOk(SupplyService.getAllsupply());
+		
+	}
+
+	@RequestMapping("/getAllsupplyxx")
+	public List<SelectVo> getAllsupplyxx() throws IOException {
+		return SupplyService.getAllsupplyxxx();
+	}
+  	
+	/**
+	 * 审批数据显示
+	 * @param needNote
+	 * @return
+	 */
+	@GetMapping(value="approve/{note}")
+	public Result getSupplyByNote(@PathVariable String note) {
+		return Result.resultOk(SupplyService.getSupplyByNote(note));
+	}
+	
+	
+    @PutMapping(value = "/agree")
+	public Result agree(@RequestBody Examine examine ) throws Exception {
+		return SupplyService.agree(examine);
+	}
+    
+	
+
+	
+	
+	
+	
+	
+	
+    
+}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>企业通讯录</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="员工编码">
+                <input class="mini-textbox" name="workerId" width="100"/>
+            </label>
+            <label class="hmq-label" text="员工姓名">
+                <input class="mini-textbox" name="workerName" width="100"/>
+            </label>
+            <label class="hmq-label" text="员工部门">
+                <input id="workerDept" name="workerDept"  class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+                       url="/system/dept/combobox/getDeptTreeList"
+                       showClose="true" oncloseclick="onCloseClickClearValue"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid" sortField="workerId"
+         idField="workerId" showPageInfo="false" parentField="parentId" resultAsTree="true" iconField="rightIconCls"
+         expandOnLoad="0" showTreeLines="false" ShowTreeicon="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="workerId" name="workerId" align="center" width="100">工号</div>
+            <div tz:datagrid="column" field="workerName" name="workerName" align="left" width="100">姓名</div>
+            <div tz:datagrid="column" field="workerPhone" name="workerPhone" width="150" align="center">电话</div>
+            <div tz:datagrid="column" field="workerDept" displayField="workerDeptName" name="workerDept" width="100" align="left">部门</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    //grid.frozenColumns ( 1, 6 );
+    //拦截加载事件，加载树形结构
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            e.cellHtml = e.value ? '是' : '否';
+        }else if (e.field == "workerSex") {
+            e.cellHtml = 'true' == e.value ? '男' : '女';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            data: "root",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                }
+            }
+        });
+    }
+    
+    function print_option(e){
+    	e.sender.miniopen({url: "print.html", action: 'print', data: {},width:1100 ,height:700});
+    }
+    
+</script>
+</body>
+</html>

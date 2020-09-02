@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>动态表单</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="gridId"/>
+        </label>
+        <label class="hmq-label" text="名称">
+            <input class="mini-textbox" name="gridName"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid"
+         idField="gridId">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="gridId" width="300">编码</div>
+            <div tz:datagrid="column" field="gridMenuId" width="200">关联菜单</div>
+            <div tz:datagrid="column" field="paramNameEn">表单名称</div>
+            <div header="配置项" align="center" headerAlign="center">
+                <div property="columns">
+                    <div tz:datagrid="column" field="paramMod" width="70" align="center">查询SQL</div>
+                    <div tz:datagrid="column" field="paramType" name="paramType" align="left">WHERE</div>
+                    <div tz:datagrid="column" field="paramType" name="paramType" align="left">GROUP</div>
+                    <div tz:datagrid="column" field="paramType" name="paramType" align="left">ORDER</div>
+                    <div tz:datagrid="column" field="paramType" name="paramType" align="left">主键字段</div>
+                </div>
+            </div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData(), paramType: paramType}});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData(), paramType: paramType}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗(包括所有下级)？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("parameter.html", JSON.stringify({paramId: row.paramId, paramType: row.paramType, paramStatus: row.paramStatus, list: grid.getChildNodes(row)}), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    }, null, {contentType: 'application/json'});
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+    <head>
+        <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+            <title>委外发料【新增】</title>
+        </th:block>
+    </head>
+    <body>
+        <div class="mini-fit">
+            <form id="form1">
+                <input name="action" class="mini-hidden"/>
+                <input name="htMo"  id="htMo" class="mini-hidden"/>
+                <input name="fhBz"  id="fhBz" class="mini-hidden"/>
+                <input name="fhTax" id="fhTax" class="mini-hidden"/>
+                <input name="fhHs"  id="fhHs" class="mini-hidden"/>
+                <input name="fhPrice" id="fhPrice" class="mini-hidden"/>
+                <table class="hmq-modify-table">
+                    <tr>
+                        <td >单号：</td>
+                        <td>
+                            <input class="mini-textbox" name="fhNote" readonly emptyText="自动生成"/>
+                        </td>
+                        <td >日 期：</td>
+                        <td>
+                            <input class="mini-datepicker" name="fhRq" value="new Date()" required/>
+                        </td>
+                        <td title>委外合同：</td>
+		                <td content>
+		                    <input required id="fhContract" name="fhContract"   emptyText="请选择..." 
+		                           allowInput="false" class="mini-buttonedit" onbuttonclick="onButtonEdit"  />
+		                </td>
+                        <td title>供货单位：</td>
+		                <td content>
+		                    <input required id="fhCustomer" name="fhCustomer"   emptyText="请选择..." readonly="readonly" 
+		                           allowInput="false" class="mini-buttonedit"/>
+		                </td>
+		                <td title>发料类型：</td>
+		                <td content>
+		                    <input class="mini-combobox" required id="fhType" name="fhType" url="/system/parameter/getParamsSelectList/技术/产品大类" onvaluechanged="onStypeChanged"/>
+		                </td>
+                        <td>库房：</td>
+                        <td>
+                            <input class="mini-combobox" name="fhLib" required/>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+
+            <div tz:datagrid="datagrid" id="detail-grid" idField="fhCode"
+                 style="width: 100%; height: 450px;"
+                 url="/production/subcontract/wwfl/getSrchBottomList"
+                 allowCellEdit="true" allowCellSelect="true" multiSelect="true"
+                 editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+                 showPager="false" allowCellValid="true"
+                 showColumnsMenu="true" showSummaryRow="true" oncellvalidation="onCellValidation"
+                 ondrawsummarycell="onDrawSummaryCell" sortMode="client">
+                <div property="columns">
+                    <div width="35" type="checkcolumn" headerAlign="center" ></div>
+					<div width="35" type="indexcolumn" headerAlign="center" ></div>
+                    <div name="fhCode" field="fhCode" align="center" width="100" sortField="fhCode" displayField="fhCode" headerAlign="center" allowSort="true">编码
+                    	<input property="editor" class="mini-buttonedit" onbuttonclick="chooseCode" allowInput="false"/>
+                    </div>
+                    <div field="cpcodeName" name="cpcodeName"align="left" width="120" sortField="cpcodeName" displayField="cpcodeName" headerAlign="center" allowSort="true">名称</div>
+                    <div field="cpcodeSize" name="cpcodeSize"align="left" width="120" sortField="cpcodeSize" displayField="cpcodeSize" headerAlign="center" allowSort="true">规格</div>
+                    <div field="cpcodeXp" name="cpcodeXp" align="left" width="120" sortField="cpcodeXp" displayField="cpcodeXp" headerAlign="center" allowSort="true">标重</div>
+                    <div field="cpcodeSizeEn" name="cpcodeSizeEn" align="left" width="80" sortField="cpcodeSizeEn" displayField="cpcodeSizeEn" headerAlign="center" allowSort="true"  >品牌</div> 
+                    <div field="cpcodeFl" name ="cpcodeFl" align="left" width="120" sortField="cpcodeFl" displayField="cpcodeFl" headerAlign="center" allowSort="true">大类</div>
+                    <div field="fhSl" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" sortField="fhSl" displayField="fhSl" headerAlign="center" allowSort="true" vtype="float,required">数量
+                    	<input property="editor" class="mini-textbox"  />
+                    </div>
+                    <div field="fhCeiling" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" sortField="fhCeiling" displayField="fhCeiling" headerAlign="center" allowSort="true" vtype="float,required">发货上限
+                    	<input property="editor" class="mini-textbox"  />
+                    </div>
+                    <div field="fhLower" width="80" align="right"  numberFormat="#,0.0000" summaryType="sum" sortField="fhLower" displayField="fhLower" headerAlign="center" allowSort="true" vtype="float,required">发货下限
+                    	<input property="editor" class="mini-textbox"  />
+                    </div>
+                    <div field="fhRemarks"   width="220" sortField="fhRemarks" displayField="fhRemarks" headerAlign="center" allowSort="true" align="left"   >备注
+                    	<input property="editor" class="mini-textbox"/>
+                    </div>
+                    <div field="" width="100%" headerAlign="center" allowSort="true" align="left" ></div>
+                </div>
+            </div>
+        </div>
+        <div class="mini-toolbar hmq-toolbar">
+            <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+            <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+            <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+            <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+            <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+        </div>
+    </body>
+    <script type="text/javascript">
+        mini.parse();
+        var form = new mini.Form('form1');
+        var detail_grid = mini.get('detail-grid');
+
+
+		/**
+		* 加工类型值改变事件
+		* 动态列名
+		*/
+		function onStypeChanged(e){
+			var fhType = mini.get("fhType").getValue();
+			if(fhType){
+				//动态列转换
+				hmq.business.dynamicProductParams(fhType, {
+					miniDataGrid : detail_grid,
+					success: function (map, res) {
+					},
+					error: function (res) {
+						hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+					}
+				});
+				form.getField('fhLib').setUrl("/system/parameter/getParamsSelectListByParentId/仓库/{0}".format(fhType));
+				form.getField('fhLib').select(0);
+			}
+		}
+
+
+        /**
+         * 页面初始化
+         **/
+        function SetData(options) {
+            var formData = options.data.formData;
+            var row = options.data.row;
+            mini.get("fhType").select(1);
+            onStypeChanged("1");
+            form.getField('action').setValue(options.action);
+            setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+            if ('add' == options.action) {
+				
+            }else if (!!~['edit','view'].indexOf(options.action)) {
+                $.post('/production/subcontract/wwfl/demandNotice/getById',{ fhNote:row.fhNote},function(res){
+                    if(200 == res.code){
+                        detail_grid.setData(res.data);
+                        if(res.data.length > 0){
+                            var formData = res.data[0];
+                            mini.get("fhCustomer").setText(formData.fhCustomerName);
+                            mini.get("fhContract").setText(formData.fhContract);
+                            form.setData(formData);
+                        }
+                    }
+                },null,{
+                    loading:true,
+                    complete:function(){
+                        if(detail_grid.getData().length > 0){
+                            setFormEnabled(form, "fhRq,fhContract,fhType,fhCustomer,fhLib", false);
+                        }
+                    }
+                });
+            }
+        }
+
+
+        /**
+         * 新增行
+         */
+        function addRow() {
+            if (hmq.isEmpty(form.getField("fhContract").getValue())) {
+                hmq.tipDanger("请选择委外合同！");
+            }  else if (hmq.isEmpty(form.getField("fhLib").getValue())) {
+                hmq.tipDanger("请选择库房！");
+            } else {
+                var index = detail_grid.getData().length;
+                detail_grid.addRow({}, index + 1);
+                setFormEnabled(form, "fhCustomer,fhLib,fhContract,fhType", false);
+            }
+        }
+
+        /**
+         * 删除行
+         */
+        function delRow() {
+            var rows = detail_grid.getSelecteds();
+            if (rows.length > 0) {
+                detail_grid.removeRows(rows, true);
+                if (detail_grid.getData() == "") {
+                    setFormEnabled(form, "fhCustomer,fhLib,fhContract,fhType", false);
+                }
+            } else {
+                hmq.tipDanger('请选择需要删除的行！');
+            }
+        }
+
+        /**
+         * 删除整单
+         */
+        function delAll() {
+        	var note = mini.get("fhNote").getValue();
+        	var rows = detail_grid.getData();
+            if (note.length > 0) {
+                mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                    if (returndata == "ok") {
+                        if (rows.length > 0) {
+                            detail_grid.removeRows(rows, true);
+                        }
+                        mini.get("delAllBtn").disable();
+                        $['delete']("delete/{0}".format(note), function (res) {
+                            if (200 === res.code) {
+                                hmq.tipSuccess(res.msg || '删除成功', {
+                                    exec: function () {
+                                        CloseWindow('refresh');
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg || '删除失败');
+                            }
+                        });
+                    }
+                });
+            } else {
+                if (rows.length > 0) {
+                    detail_grid.removeRows(rows, true);
+                    if (detail_grid.getData() == "") {
+                        setFormEnabled(form, "fhCustomer,fhLib", true);
+                    }
+                }
+            }
+        }
+
+        /**
+         * 保存
+         */
+        function SaveData() {
+            if (form.validate() && form.isValid()) {
+                detail_grid.validate();
+				if (detail_grid.isValid() == false) {
+					var error = detail_grid.getCellErrors()[0];
+					detail_grid.beginEditCell(error.record, error.column);
+					return;
+				}
+	            var entrydata = detail_grid.getChanges();
+	            var deletedList = detail_grid.getChanges('removed',false);
+	            $(entrydata).each(function (index) {
+	            	entrydata[index].rightOrd = index;
+	            	entrydata[index]._state = entrydata[index]._state || 'modified';
+	            });
+	            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+	            $[method]("add.html", JSON.stringify({
+	            	deliveryNotice : form.getData(true),
+	            	deliveryNoticeMx : entrydata,
+	                deletedList : deletedList
+	            }), function (res) {
+	                if (200 === res.code) {
+	                    hmq.tipSuccess(res.msg || '保存成功', {
+	                        exec: function () {
+	                            CloseWindow('refresh');
+	                        }
+	                    });
+	                } else {
+	                    hmq.tipDanger(res.msg || '保存失败');
+	                }
+	            }, null, {
+	                contentType: 'application/json'
+	            });
+            }
+        }
+
+        /**
+         汇总方法
+         */
+        function onDrawSummaryCell(e) {
+            if (e.field == "fhCode") {
+                e.cellHtml = "<span style='color:Brown;'>合计:</span>";
+            } else if (!!~['fhSl', 'wlZl'].indexOf(e.field)) {
+                e.cellHtml = "<span style='color:Brown;float:right;'>" + parseFloat(e.value).toFixed(4) + "</span>";
+            }
+        }
+
+        /**
+         * 获取需要添加的行数据(通过主键排除已经存在的行数据)
+         * @param rows 需要添加的行数据
+         **/
+        function getNeedAppendRows(rows) {
+            var $rows = $(rows);
+            var notExistRows = $rows.filter(function (index, row) {
+                return detail_grid.findRows(function (rrow) {
+                    return (row.wlCode == rrow.fhCode);
+                }) <= 0;
+            });
+            return (notExistRows || $([])).toArray();
+        }
+        
+        /**
+        * 编码选择框
+        */
+        function chooseCode(e){
+        	var btnEdit = this;
+        	return miniopen({
+                targetWindow: window.top,
+                url: "/cg/yw/purchaseFile/purchaseContract/wlbmselectlist.html",
+                //url: "/production/subcontract/wwfl/kcmxSelectList.html",
+                title: mini.get("fhType").getText()+"选择列表",
+                width: 1300,
+                height: 620,
+                onload: function () {
+                    var iframe = this.getIFrameEl();
+                    var data = {
+                        action: "search",
+                        cgStype: mini.get("fhType").getValue(),
+                    };
+                    iframe.contentWindow.SetData(data);
+                },
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var rows = iframe.contentWindow.GetMutiData();
+                        rows = mini.clone(rows); //必须
+                        var dataRows = appendRow(rows);
+                        if (dataRows.length > 0) {
+                            btnEdit.setValue(dataRows[0].cpcodeid);
+                            btnEdit.setText(dataRows[0].cpcodeid);
+                            var row = detail_grid.getSelected();
+                            detail_grid.updateRow(row, {
+                                fhoutCode: dataRows[0].cpcodeid,
+                                cpcodeName: dataRows[0].cpcodename,
+                                cpcodeSize: dataRows[0].cpcodesize,
+                                cpcodeXp: dataRows[0].cpcodeXp,
+                                cpcodeSizeEn: dataRows[0].cpcodeSizeEn,
+                                cpcodeFl : dataRows[0].cpcodeFl,
+                                fhHs : dataRows[0].cpcode02
+                            });
+                            if (dataRows.length > 1) {
+                                for (var i = 1; i < dataRows.length; i++) {
+                                    var r = dataRows[i];
+                                    var newRow = {
+                                        fhCode: r.cpcodeid,
+		                                cpcodeName: r.cpcodename,
+		                                cpcodeSize: r.cpcodesize,
+		                                cpcodeXp: r.cpcodeXp,
+		                                cpcodeSizeEn: r.cpcodeSizeEn,
+		                                cpcodeFl : r.cpcodeFl,
+		                                fhHs : r.cpcode02
+                                    };
+                                    detail_grid.addRow(newRow, 0);
+                                }
+                            }
+                            detail_grid.clearSelect();
+                        }
+                    }
+                }
+            });
+        }
+        
+	    
+	    /**
+	    * 委外合同选择框
+	    */
+    	function onButtonEdit(e) {
+    		var btnEdit = this;
+        	var fhType = form.getField("fhType").getValue();
+            return miniopen({
+                targetWindow: window.top,
+                url: "/production/subcontract/wwfl/wwhtsingleselectlist2.html",
+                title: "委外加工合同选择列表",
+                width: 1300,
+                height: 620,
+                onload: function () {
+                    var iframe = this.getIFrameEl();
+                    var data = {
+                        action: "search",
+                        sid: form.getField("fhType").getValue()
+                    };
+                    iframe.contentWindow.SetData(data);
+                },
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var row = iframe.contentWindow.GetData();
+                        row = mini.clone(row); //必须
+                        if(row){
+                       		btnEdit.setValue(row.htno);
+                            btnEdit.setText(row.htno);
+                            mini.get("fhCustomer").setValue(row.htsupplier);
+                            mini.get("fhCustomer").setText(row.htsuppliername);
+                            mini.get("htMo").setValue(row.htid);
+                            mini.get("fhBz").setValue(row.htbz);
+                            mini.get("fhTax").setValue(row.httax);
+                            mini.get("fhHs").setValue(row.hths);
+                        }
+                    }
+                }
+            });
+    	}
+    	
+    	function appendRow(rows) {
+	        var retRows = [];
+	        for (var i = 0; i < rows.length; i++) {
+	            if (!isEixsts(rows[i])) {
+	                retRows.push(rows[i]);
+	            } else {
+	                hmq.tipDanger("数据已添加");
+	            }
+	        }
+	        return retRows;
+	    }
+	
+	    /**
+	     判断是否存在
+	     */
+	    function isEixsts(data) {
+	        var row = detail_grid.findRow(function (row) {
+	            if (row.fhCode == data.cpcodeid)
+	                return true;
+	        });
+	        if (row != null) {
+	            return true;
+	        }
+	        return false;
+	    }
+	
+		/**
+		 验证数量、金额不小于0
+		 */
+		function onCellValidation(e) {
+			if (e.field == "fhCode") {
+				if (isNull(e.value)) {
+					e.isValid = false;
+					e.errorText = "编码不能为空！";
+					detail_grid.beginEditCell(e.record, e.field);
+					return hmq.tipDanger(e.errorText);
+				}
+			}else if (e.field == "fhSl") {
+				if(isNaN(e.value)){
+					e.isValid = false;
+					e.errorText = "数量必须为数字";
+					detail_grid.beginEditCell(e.record, e.field);
+					return hmq.tipDanger(e.errorText);
+				}
+				
+				if (isNull(e.value) || e.value < 0) {
+					e.isValid = false;
+					e.errorText = "数量不能小于0";
+					detail_grid.beginEditCell(e.record, e.field);
+					return hmq.tipDanger(e.errorText);
+				}
+			}else if (e.field == "fhCeiling" || e.field == "fhLower") {
+				if(isNaN(e.value)){
+					e.isValid = false;
+					e.errorText = "数量必须为数字";
+					detail_grid.beginEditCell(e.record, e.field);
+					return hmq.tipDanger(e.errorText);
+				}
+			}
+		}
+    </script>
+</html>

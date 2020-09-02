@@ -1,0 +1,20 @@
+package com.tengzhi.base.thymeleaf.config;
+
+import com.tengzhi.base.thymeleaf.tag.tz.TzProcessorDialect;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Thymeleaf配置
+ * @author lgl
+ * @createDate
+ *
+ */
+@Configuration
+public class ThymeleafDialectConfig {
+
+    @Bean
+    public TzProcessorDialect tzProcessorDialect() {
+        return new TzProcessorDialect();
+    }
+}

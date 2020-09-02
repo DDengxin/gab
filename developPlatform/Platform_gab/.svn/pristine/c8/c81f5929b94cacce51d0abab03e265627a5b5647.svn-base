@@ -1,0 +1,28 @@
+package com.tengzhi.business.platform.shopping.service;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+
+import java.util.List;
+import java.util.Map;
+
+public interface ShoppingService  extends BaseService {
+
+    //添加购物车
+    Result addShoppingCart(String dataMan,String productNum) throws Exception;
+
+    //保存方法
+    Result save(String dataMan,String productNum) throws Exception;
+
+    //通过owner用户查询所有的商品
+    List<Map<String, Object>> findAll(String owner);
+
+    //删除数据
+    Result deleteByPId(String productId);
+
+    //修改数据
+    Result updateByPId(String productId,String count);
+
+
+    //通过productNum获取产品名称、封面图、公司名称
+}

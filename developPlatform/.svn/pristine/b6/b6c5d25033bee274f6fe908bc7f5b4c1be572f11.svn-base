@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>接待安排</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="接待日期">
+            <input class="mini-datepicker" name="srchRq1" dataformatas="yyyy-MM-dd"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dataformatas="yyyy-MM-dd" value="new Date()"/>
+        </label>
+        <label class="hmq-label" text="来访单位">
+            <input class="mini-textbox" name="srch_fwdw"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div tz:datagrid="datagrid" url="/xt/receive/jdap/getList" id="datagrid" idField="note" sortField="note,rq" sortOrder="desc" sizeList="[50,100,200]" pageSize="100" pager="#pager1" showPager="true">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="note" width="120" align="left" >单号</div>
+            <div tz:datagrid="column" field="corpId" displayField="corpname" width="100" align="left">公司</div>
+            <div tz:datagrid="column" field="rq" width="100" align="left">接待申请日期</div>
+            <div tz:datagrid="column" field="jdrq" width="180" align="left">接待日期</div>
+            <div tz:datagrid="column" field="lfmd"  width="100" align="left">接待主题</div>
+            <div tz:datagrid="column" field="jddd" width="100" align="left">接待地点</div>
+            <div tz:datagrid="column" field="jdfzr" align="left" width="100">接待人</div>
+            <div tz:datagrid="column" field="fkDw"  align="left" width="90">来访单位</div>
+            <div tz:datagrid="column" field="fkName" align="left" width="100">访问姓名</div>
+            <div tz:datagrid="column" field="fkNum" align="right" width="100">来访人数</div>
+            <div tz:datagrid="column" field="flag" align="left" width="100">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("datagrid");
+    srch_topgrid.bindSearchForm(form);
+
+    /**
+     * 查询
+     */
+    function search_option() {
+        srch_topgrid.load();
+    }
+
+    /**
+     * 添加
+     * @param e
+     */
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', data: "", width: 900, height: 600});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'edit', data: row, width: 900, height: 600});
+    }
+
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("delete/{0}".format(row.note), function (res) {
+                        if (200 === res.code) {
+                            srch_topgrid.reload();
+                            hmq.tipSuccess('删除完成');
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+</script>
+
+</body>
+</html>
+
+

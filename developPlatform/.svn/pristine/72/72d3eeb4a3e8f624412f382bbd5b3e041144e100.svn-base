@@ -1,0 +1,22 @@
+package com.tengzhi.business.xt.receive.jdap.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.xt.receive.jdap.model.QyJdJdsq;
+
+import java.util.Map;
+
+public interface JdapService {
+
+    BasePage<Map<String,Object>> getList(BaseDto baseDto);
+
+
+    QyJdJdsq add(QyJdJdsq qyJdJdsq);
+
+    QyJdJdsq getByNote(String note);
+
+    QyJdJdsq edit(QyJdJdsq qyJdJdsq);
+
+    void deleteByNote(String note);
+}

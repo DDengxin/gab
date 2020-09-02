@@ -1,0 +1,113 @@
+package com.tengzhi.business.resouces.vo;
+
+import cn.hutool.core.util.EnumUtil;
+import com.tengzhi.base.tools.log.Log;
+
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+public class SelectVo {
+    private Object id;
+    private String text;
+    private Object pid;
+    private Object source;
+
+    public SelectVo(Object id, String text) {
+        setId(id);
+        setText(text);
+    }
+    public SelectVo(Object id, String text,Object source) {
+        setId(id);
+        setText(text);
+        setSource(source);
+    }
+
+    public Object getPid() {
+        return pid;
+    }
+
+    public void setPid(Object pid) {
+        this.pid = pid;
+    }
+
+    public Object getId() {
+        return id;
+    }
+
+    public void setId(Object id) {
+        this.id = id;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public Object getSource() {
+        return source;
+    }
+
+    public void setSource(Object source) {
+        this.source = source;
+    }
+
+    /**
+     * 枚举类转List<SelectVo>
+     * @param clazz 枚举类
+     * @param <E>
+     * @return
+     */
+    public static <E extends Enum<E>> List<SelectVo> listValueOfEnum(Class<E> clazz) {
+        String defaultFieldName = "name";
+        if(EnumUtil.getFieldNames(clazz).indexOf(defaultFieldName) >= 0){
+            return listValueOfEnum(clazz,defaultFieldName,defaultFieldName);
+        }else{
+            Log.error(String.format("当前(%s)枚举不存在name字段",clazz.getName()));
+            return new ArrayList<SelectVo>(0);
+        }
+
+    }
+
+    /**
+     * 枚举类转List<Se  lectVo>
+     * @param clazz 枚举类
+     * @param idField (枚举类) 值字段
+     * @param textField (枚举类) 显示字段
+     * @param <E>
+     * @return
+     */
+    public static <E extends Enum<E>> List<SelectVo> listValueOfEnum(Class<E> clazz, @NotNull String idField,@NotNull String textField){
+        Map<String, Object> idFieldList = EnumUtil.getNameFieldMap(clazz,idField);
+        Map<String, Object> textFieldList = EnumUtil.getNameFieldMap(clazz,textField);
+        return EnumUtil.getNames(clazz).stream().map(name -> {
+            return new SelectVo(idFieldList.getOrDefault(name,name),String.valueOf(textFieldList.getOrDefault(name,name)));
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SelectVo selectVo = (SelectVo) o;
+        return Objects.equals(id, selectVo.id) &&
+                Objects.equals(text, selectVo.text) &&
+                Objects.equals(pid, selectVo.pid) &&
+                Objects.equals(source, selectVo.source);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, text, pid, source);
+    }
+}

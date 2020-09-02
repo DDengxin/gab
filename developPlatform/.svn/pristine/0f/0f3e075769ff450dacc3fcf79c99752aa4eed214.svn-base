@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>角色管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input class="mini-hidden" name="orient" id="orient"/>
+        <input class="mini-hidden" name="zmType" id="zmType" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号：</td>
+                <td content>
+                    <input id="zmNote" name="zmNote" class="mini-textbox" emptyText="自动生成" allowInput="false"/>
+                </td>
+                <td title>日期：</td>
+                <td content>
+                    <input class="mini-datepicker" name="zmRq" id="zmRq" dateFormat="yyyy-MM-dd" value="new Date()"/>
+                </td>
+                <td title>出库单号：</td>
+                <td content>
+                    <input required id="zmDeliveryNo" name="zmDeliveryNo" emptyText="请选择..." allowInput="false" class="mini-buttonedit" onbuttonclick="onButtonClick"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <div tz:datagrid="datagrid" id="datagrid" style="width:100%;height:450px;"
+         showPager="false" url="/quality/qualityArchives/qualityCertificate/getSrchBottomList"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true"
+         editNextRowCell="true" allowMoveColumn="true"
+         oncellvalidation="onCellValidation"
+         allowCellValid="true" showSummaryRow="true">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" headerAlign=center" align=center" width="50">序号</div>
+            <div tz:datagrid="column" field="zmItem" width="90" align="center">合同</div>
+            <div tz:datagrid="column" field="zmCode" width="90" align="center">编码</div>
+            <div tz:datagrid="column" field="cpcodeName" width="90" align="center">名称</div>
+            <div tz:datagrid="column" field="cpcodeSize" width="90" align="center">规格</div>
+            <div tz:datagrid="column" field="cpcodeSizeEn" width="90" align="center">长度</div>
+            <div tz:datagrid="column" field="cpcodeXp" width="90" align="center">标重</div>
+            <div tz:datagrid="column" field="zmLotNo" width="90" align="center">批号</div>
+            <div tz:datagrid="column" field="zmStandard" width="90" align="center">标准
+                <input property="editor" class="mini-treeselect" multiSelect="true"
+                       url="/system/parameter/getParamsTreeList/技术/CPBJ"
+                       textField="combtext" valueField="combid" parentField="pid" value="无"
+                       onbeforenodeselect="disableParentSelection"
+                       popupWidth="240" popupHeight="180" allowInput="true" valueFromSelect="true"/>
+            </div>
+            <div tz:datagrid="column" field="zmJs" width="90" align="center" numberFormat="#,0.00">件数</div>
+            <div tz:datagrid="column" field="zmBrand" width="90" align="center" visible="false">牌号
+                <input property="editor" class="mini-textbox"/>
+            </div>
+            <div tz:datagrid="column" name="upload" field="upload" width="90" renderer="onActionRenderer" align="center">上传与下载</div>
+            <div tz:datagrid="column" name="fileUuid" field="fileUuid" width="90" align="center">文件ID</div>
+            <div tz:datagrid="column" field="zmSl" width="90" align="center" numberFormat="#,0.0000">数量</div>
+        </div>
+    </div>
+</div>
+
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var grid = mini.get("datagrid");
+
+
+    function search_option() {
+        grid.load({
+            params: mini.encode({
+                zmNote: mini.get("zmNote").getValue(),
+                zmDeliveryNo: mini.get("zmDeliveryNo").getValue()
+            })
+        });
+    }
+
+    function onButtonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/quality/qualityArchives/qualityCertificate/deliverySelectList.html",
+            title: "【出库】选择页面",
+            width: 1000,
+            height: 500,
+            data: {
+                outType: "CP"
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.outNote);
+                    btnEdit.setText(data.outNote);
+                    search_option();
+                    //mini.get("zmDeliveryNo").setEnabled(false);
+                }
+            }
+        });
+    }
+
+
+    function onActionRenderer(e) {
+        if ('upload' == e.field) {
+            return '<span class="fa fa-fw fa-1x iconfont icon-tianjia3 hmq-success" title="新增" onclick="upload()"></span>';
+        }
+    }
+
+
+    function upload() {
+        var row = grid.getSelected();
+        miniopen({
+            targetWindow: window.top,
+            url: "/quality/qualityArchives/qualityCertificate/upload.html",
+            title: "文件上传列表",
+            width: 500,
+            height: 200,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = {
+                    action: $("[name=action]").val(),
+                    fileId: row.fileUuid,
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var fileId = iframe.contentWindow.GetMutiDataqqx();
+                    grid.updateRow(row, {
+                        fileUuid: fileId,
+                    });
+                }
+            }
+        });
+    }
+
+
+    function onCellValidation(e) {
+        if (e.field == "zmBrand") {
+            if (e.value == "" || isNull(e.value)) {
+                console.log(e);
+                e.isValid = false;
+                e.errorText = "牌号不能为空！";
+                grid.beginEditCell(e.record, e.field);
+                return hmq.tipDanger(e.errorText);
+            }
+        }
+    }
+
+    function SetData(options) {
+        if (true !== options.isApproval) {
+            //普通口径
+            $('[name=action]').val(options.action);
+            if ('add' == options.action) {
+                mini.getByName('zmRq').setValue(new Date());
+            } else if ('edit' == options.action) {
+                var row = options.data.row;
+                grid.setUrl("/quality/qualityArchives/qualityCertificate/getSrchBottomList1111")
+                mini.getbyName("zmNote").setValue(row.zmNote);
+                mini.getbyName("zmRq").setValue(row.zmRq);
+                mini.getbyName("zmDeliveryNo").setText(row.zmDeliveryNo);
+                mini.getbyName("zmNote").setEnabled(false);
+                mini.getbyName("zmRq").setEnabled(false);
+                mini.getbyName("zmDeliveryNo").setEnabled(false);
+                search_option();
+            }
+        } else {
+            grid.hideColumn('fileUuid');
+            grid.hideColumn('upload');
+
+            //审批口径
+            $.get("getzmNoteAlone/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    var data = mini.decode(res.data); //zmDeliveryNo
+                    mini.getbyName("zmDeliveryNo").setText(data.zmDeliveryNo);
+
+                    grid.setUrl("/quality/qualityArchives/qualityCertificate/getSrchBottomList1111")
+
+                    search_option();
+                }
+            }, null, null, {
+                complete: function () {
+                    grid.setAllowCellEdit(false);
+                    grid.setUrl("/quality/qualityArchives/qualityCertificate/getSrchBottomList1111")
+                    //表单只读
+                    setFormReadOnly(form);
+
+                    //隐藏按钮区域
+                    $('.mini-toolbar.hmq-toolbar').hide();
+                    //禁用grid编辑
+                    grid.setAllowCellEdit(false);
+
+                }
+            });
+
+
+        }
+
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                qualityCertificate: form.getData(true),
+                qCDetailed: grid.getData()
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,145 @@
+package com.tengzhi.business.sc.task.blcl.service.impl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.RecursiveTask;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.production.productionSite.siteTask.Vo.MScGclistVo;
+import com.tengzhi.business.production.productionSite.siteTask.dao.MScGclistDao;
+import com.tengzhi.business.production.productionSite.siteTask.model.MScGclist;
+import com.tengzhi.business.sc.task.blcl.dao.Blcldao;
+import com.tengzhi.business.sc.task.blcl.model.Blcl;
+import com.tengzhi.business.system.datachart.model.SysDatachart;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.sc.task.blcl.service.BlclService;
+import com.tengzhi.business.sc.task.sctack.dao.ScTackDao;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class BlclServiceImpl implements BlclService {
+
+	@Autowired
+	private Blcldao blclDao;
+	@Autowired
+	MScGclistDao mscGcDao;
+
+	
+	
+	@Override
+	public BasePage<Map<String, Object>> getSrchGridList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		String where=" where 1=1 ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            where+=" and rq >='"+map.get("srchRq1")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            where+=" and rq <='"+map.get("srchRq2")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchBgc"))) {
+			where+=" and bgc like '%"+map.get("srchBgc")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchCode"))) {
+			where+=" and code like '%"+map.get("srchCode")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchName"))) {
+			where+=" and f_getparamname('GETBCPCODENAME',tname,'','技术',wl_type,'"+   SessionUser.getCurrentCorpId()   +"') like '%"+map.get("srchName")+"%' ";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchSize"))) {
+			where+=" and tsize like '%"+map.get("srchSize")+"%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("clFlag"))) {
+			where+=" and cl_flag = '"+map.get("clFlag")+"'";
+		}
+		String sql="select *,f_getparamname('GETBCPCODENAME',tname,'','技术',wl_type,'"+   SessionUser.getCurrentCorpId()   +"') zzpname,f_getname('GETGXNAME', gx, '', '') gxname,f_getparamname('GETTYPEBYRAMNAME',tcj,'生产车间','','','"+   SessionUser.getCurrentCorpId()   +"') cjname,f_getname('GETJTNAMES', tct, '', '') ctname"
+				+ ",f_getname('GETUSERNAME',do_man,'',data_corp) manname,f_get_param_name('生产班次',tbc,'"+   SessionUser.getCurrentCorpId()   +"','cn',false) tbcname "
+				+ " from  v_sc_blgc "+where ;
+		String countsql="select count(*) cn from ("+sql+") t";
+		baseDto.setSortField("rq");
+		baseDto.setSortOrder("desc");
+		return blclDao.QueryPageList(sql,countsql,baseDto);
+	}
+
+
+	@Override
+	public Result getGcstatus(BaseDto baseDto){
+		Map<String, String> map = baseDto.getParamsMap();
+		String bgc= map.get("bgc");
+		String sql="select gc_flag  from m_sc_gclist where bgc='"+bgc+"'";
+		return Result.resultOk(blclDao.QueryFirstString(sql));
+	}
+
+	@Override
+	public  Result getById(BaseDto baseDto) {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object bgc=map.get("bgc");
+		String sql=" SELECT *,f_getname('GETJTNAMES', gc_ct, '', '') gc_ct_name,f_getparamname('GETTYPEBYRAMNAME',gc_cj,'生产车间','','','"+   SessionUser.getCurrentCorpId()   +"') gc_cj_name,f_getname('USERNAMERWTOCOL',gc_man,'','') gc_man_name,f_getname('GETGXNAME', gc_gx, '', '') gc_gx_name,f_getname('USERNAMERWTOCOL',cl_man,'','') cl_man_name  FROM m_sc_gclist_blcl where bgc=?1 ";
+		Object[] val = {bgc};
+		Map<String,Object> gclsit=blclDao.QueryToFirstMap(sql,val);
+		//List<Map> gclsit=blclDao.QueryListMap(sql,val);
+		if(!gclsit.isEmpty()&&!"".equals(gclsit.isEmpty())){
+				if("BL".equals(gclsit.get("clDo"))){
+				gclsit.put("clDo","");//清空处理结果值
+				}
+			return Result.resultOk(gclsit);
+		}else{
+			return Result.error("未获取到不良信息，请检查数据！");
+		}
+	}
+
+
+	//保存不良处理的数据
+	@Override
+	public void saveDataBl(MScGclist strvo){
+		Blcl blclist =new Blcl();
+		Timestamp daystr = new Timestamp(System.currentTimeMillis());
+		blclist.setBgc(strvo.getBgc());
+		blclist.setGcScmo(strvo.getScMo());
+		blclist.setRq(daystr);
+		blclist.setBlType(strvo.getBlType());
+		blclist.setBlXm(strvo.getBlXm());
+		blclist.setBlQk(strvo.getBlQk());
+		blclist.setGcCj(strvo.getTcj());
+		blclist.setGcCt(strvo.getTct());
+		blclist.setGcMan(strvo.getDoMan());
+		blclist.setGcGx(strvo.getGx());
+		blclist.setDataCorp(strvo.getDataCorp());
+		blclist.setDataMan(strvo.getDoMan());
+		blclist.setDataDate(daystr);
+		blclist.setClDo("BL");
+		blclDao.save(blclist);
+	}
+
+
+	/**
+	 * 修改
+	 */
+	public Result update(Blcl blclstr) {
+		Timestamp daystr = new Timestamp(System.currentTimeMillis());
+		blclstr.setDataDate(daystr);
+		blclDao.update(blclstr);
+		String flag="";
+		if(blclstr.getClDo().equals("FX")){//放行
+			flag="HG";
+		}else{//改制或者报废
+			flag=blclstr.getClDo();
+		}
+		Object[] val = {flag,blclstr.getBgc()};
+		String sql = "update m_sc_gclist set gc_flag='"+flag+"' where bgc='"+blclstr.getBgc()+"' ";
+		mscGcDao.executeUpdateSql(sql);
+		return Result.resultOk(blclstr.getBgc());
+	}
+}

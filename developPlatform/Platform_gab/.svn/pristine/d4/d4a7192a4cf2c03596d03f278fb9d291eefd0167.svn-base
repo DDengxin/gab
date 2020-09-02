@@ -1,0 +1,20 @@
+package com.tengzhi.business.platform.enroll.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.enroll.model.GUserInfo;
+
+public interface GUserInfoDao extends BasedaoRepository<GUserInfo, String>  {
+    /**
+     * 通过用户ID获取实体
+     * @param userId
+     * @return
+     */
+    GUserInfo findByUserId(String userId);
+    /**
+     * 通过手机号码获取实体
+     * @param userMtel
+     * @return
+     */
+    GUserInfo findByUserMtel(String userMtel);
+
+}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>产品选择页面</title>
+    </th:block>
+</head>
+
+<body>
+<form id="form1" method="post">
+    <div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderStyle="border:0;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="white-space: nowrap;" align="left">
+                    <label class="hmq-label" text="类型">
+                        <input class="mini-combobox" name="type" showNullItem="true" nullItemText="全部" emptyText="全部"
+                               data="[{'id':'YL',text:'原料'},{'id':'WL',text:'物料'},{'id':'CP',text:'成品'},{'id':'ZZP',text:'半成品'}]"/>
+                    </label>
+                    <label class="hmq-label" text="批次号">
+                        <input class="mini-textbox" name="pack"/>
+                    </label>
+                    <label class="hmq-label" text="单号">
+                        <input class="mini-textbox" name="note"/>
+                    </label>
+                </td>
+                <td style="white-space: nowrap;" align="right">
+                    <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+                    <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+                    <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="pack" onrowdblclick="onRowDblClick"
+         url="/finance/constituent/productSelection.html">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn"></div>
+            <div tz:datagrid="column" field="pack" width="100%">包装号</div>
+            <div tz:datagrid="column" field="code" width="100%">品号</div>
+            <div tz:datagrid="column" field="contract" width="100%">合同号</div>
+            <div tz:datagrid="column" field="luhao" width="100%">炉号</div>
+            <div tz:datagrid="column" field="type" width="100%">类型</div>
+            <div tz:datagrid="column" field="note" width="100%">单号</div>
+            <div tz:datagrid="column" field="js" width="100%" numberFormat="#,0.00">件数</div>
+            <div tz:datagrid="column" field="sl" width="100%">数量</div>
+            <div tz:datagrid="column" field="zl" width="100%" numberFormat="#,0.0000">重量</div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    var page_options = {
+        multiSelect: false, //是否多选
+        type:null,//产品类型
+    };
+
+    /**
+     * 初始化页面
+     * @param options r
+     *  multiSelect:是否多选
+     * @constructor
+     */
+    function SetData(options) {
+        page_options = $.extend(page_options, options.data);
+        grid.setMultiSelect(page_options.multiSelect);
+        form.setData(page_options, true);
+        //默认查询
+        search_option();
+    }
+
+    /**
+     * 本地筛选
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    function confirm(e) {
+        if (grid.getSelecteds().length <= 0) {
+            hmq.tipDanger('请选中一行数据!');
+        } else {
+            closeWindow('ok');
+        }
+    }
+
+
+    /**
+     * 获取数据
+     * @returns {*}
+     * @constructor
+     */
+    function GetData() {
+        if (page_options.multiSelect) {
+            return grid.getSelecteds();
+        } else {
+            return grid.getSelected();
+        }
+    }
+
+    /**
+     * 行双击事件
+     * @param e
+     */
+    function onRowDblClick(e) {
+        confirm("ok");
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+
+</html>

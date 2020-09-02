@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>请假申请</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden" />
+		<form id="form1">
+			<input name="jbqjId" class="mini-hidden" />
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>请假单号</td>
+					<td content>
+						<input class="mini-textbox" name="qjNote" emptyText="请假单号自动生成" allowInput="false" />
+					</td>
+					<td title>请假人员</td>
+					<td content>
+						<input id="workerId" name="workerId" emptyText="全部" allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" />
+					</td>
+				</tr>
+				<tr>
+					<td title>
+						<label>开始时间</label>
+					</td>
+					<td>
+						<input name="qjKrq" class="mini-datepicker" format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showTime="true" />
+					</td>
+					<td title>
+						<label>结束时间</label>
+					</td>
+					<td>
+						<input name="qjDrq" class="mini-datepicker" format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showTime="true" />
+					</td>
+				</tr>
+				<tr>
+					<td title>请假类型</td>
+					<td content>
+						<input class="mini-combobox" name="qjZtype" url="/personnel/checkWorkAttendance/leave/addType" textField="param_name" valueField="param_id" />
+					</td>
+					<!-- 	<td title>中类</td>
+					<td content><input class="mini-textbox" name="qjZtype" /></td> -->
+					<td title>请假时长</td>
+					<td content>
+						<input id="qjSc" name="qjSc" class="mini-textbox" vtype="float" required="true" />
+					</td>
+				</tr>
+				<tr>
+					<td title>请假事由</td>
+					<td content colspan="3">
+						<input class="mini-textbox" name="qjSy" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form('form1');
+	mini.parse();
+
+	function SetData(options) {
+		if (!!~['view','sh'].indexOf(options.action)) {
+			$.get("/personnel/checkWorkAttendance/leave/leave/{0}".format(options.data.businessId), function(res) {
+				if (200 === res.code) {
+					form.setData(res.data);
+					mini.get("workerId").setValue(res.data.workerId);
+					mini.get("workerId").setText(res.data.workerName);
+				}
+			});
+			mini.getChildControls($('.hmq-modify-table')[0]).forEach(function(control) {
+				control.setReadOnly(true);
+			})
+		}
+	}
+	function SaveData() {
+		if (form.validate() && form.isValid()) {
+			var method = 'put';
+			$[method]("/personnel/checkWorkAttendance/leave/add.html", JSON.stringify(form.getData(true)), function(res) {
+				if (200 === res.code) {
+					hmq.tipSuccess(res.msg || '保存成功', {
+						exec : function() {
+							(window.parent || window).CloseWindow('refresh')
+						}
+					});
+				} else {
+					hmq.tipDanger(res.msg || '保存失败');
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+		}
+	}
+
+	/*  员工选择 */
+	function onSupplierClick(e) {
+		var btnEdit = e.sender;
+		return miniopen({
+			targetWindow : window.top,
+			url : "/personnel/checkWorkAttendance/leave/worker.html",
+			title : "【员工】选择页面",
+			width : 750,
+			data : {},
+			height : 620,
+			ondestroy : function(action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var data = iframe.contentWindow.GetData();
+					btnEdit.setValue(data.workerId);
+					btnEdit.setText(data.workerName);
+				}
+			}
+		});
+	}
+</script>
+</html>

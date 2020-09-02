@@ -1,0 +1,27 @@
+package com.tengzhi.business.finance.voucher.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.finance.voucher.model.Accout;
+
+
+public interface AccoutService extends BaseService{
+	BasePage<Accout> findAll(BaseDto baseDto);
+
+	Accout findById(String Id);
+
+	Accout save(Accout accout) throws Exception;
+	
+	List<Accout> findAll() ;
+	List<Map>findACTGroup();
+	void update(Accout accout);
+	boolean judgeUniqueset(Accout accout);
+	boolean judgeUniqueother(Accout afva);
+
+	Result deleteById(String Id);
+}

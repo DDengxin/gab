@@ -1,0 +1,429 @@
+html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6, form, fieldset, legend, img, input, figure, figcaption {
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font: 12px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background: #fff
+}
+
+b, i {
+	font-weight: normal;
+	font-style: normal;
+}
+
+a, img {
+	border: none;
+}
+
+a {
+	text-decoration: none;
+	color: #333;
+}
+
+ul li, ol li {
+	list-style: none;
+}
+
+.fl {
+	float: left
+}
+
+.fr {
+	float: right
+}
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.clearfix {
+	display: inline-block;
+}
+
+.w {
+	width: 1187px;
+	margin: 0 auto;
+	height: 100%;
+}
+
+.container {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	display: table;
+}
+
+.content-mid {
+	width: 100%;
+	overflow: hidden;
+	background: #fff;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.header {
+	width: 1187px;
+	margin: 0 auto;
+	height: 60px;
+	overflow: hidden;
+	min-width: 1187px;
+}
+
+.header .top {
+	width: 100%;
+	height: 100%;
+	padding: 0 40px 0 12px;
+}
+
+.logo {
+	width: 246px;
+	height: 100%;
+	float: left;
+	display: table;
+}
+
+.logo a {
+	display: table-cell;
+	width: 100%;
+	height: 100%;
+	vertical-align: middle;
+	color: #fff;
+}
+
+.logo a img {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.tel {
+	float: right;
+	height: 100%;
+	display: table;
+}
+
+.tel p {
+	height: 100%;
+	font-size: 14px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.tel p b {
+	font-weight: normal;
+	color: #e80000;
+	margin-left: 20px;
+}
+
+.tel p a {
+	color: rgb(157, 157, 157);
+	text-decoration: underline;
+}
+.tel p a:hover {
+	color: #e80000;
+}
+
+.main {
+	width: 100%;
+	background: url(../images/dlbj.jpg) no-repeat top center;
+	background-size: cover;
+	height: 524px;
+	overflow: hidden;
+	min-width: 1198px;
+}
+
+.wrap {
+	width: 1187px;
+	min-width: 1187px;
+	margin: 0 auto;
+	height: 100%;
+}
+.word{
+	float: left;
+	color: #fff;
+	width: 650px;
+	font-size: 15px;
+	line-height: 2;
+	margin-top: 120px;
+}
+.word h3{
+	font-size: 30px;
+}
+
+.dengl {
+	width: 395px;
+	height: 446px;
+	background: #fff;
+	margin-top: 38px;
+	float: right;
+	padding: 30px;
+}
+
+.dengl #tablist {
+	width: 100%;
+	overflow: hidden;
+}
+
+#tablist li {
+	width: 50%;
+	padding-bottom: 10px;
+	border-bottom: 2px solid #d0d0d0;
+	text-align: center;
+	font-size: 22px;
+	color: #333333;
+	float: left;
+	cursor: pointer;
+}
+
+.tabin {
+	border-color: #e80000 !important;
+}
+
+.content-box {
+	width: 100%;
+	overflow: hidden;
+	position: relative;
+}
+
+.content-box .content {
+	width: 100%;
+	clear: both;
+	color: #333;
+	position: relative;
+	top: 0;
+	left: 0;
+	display: none;
+	padding: 0 20px 20px;
+}
+.contentin{
+	display: block !important;
+}
+
+.yonhu {
+	width: 100%;
+	margin-top: 2px;
+}
+
+.yonhu li {
+	padding-top: 18px;
+	width: 100%;
+}
+
+.yonhu li input {
+	display: block;
+	width: 100%;
+	height: 42px;
+	line-height: 40px;
+	border-radius: 3px;
+	outline-style: none;
+	border: 1px solid #d6d6d6;
+}
+
+.user {
+	background: url(../images/user.png) no-repeat 13px center;
+	/* width: 243px; */
+	height: 42px;
+	padding-left: 52px;
+	color: #999;
+	font-size: 14px;
+}
+
+.pass {
+	background: url(../images/ls.png) no-repeat 13px center;
+	/* width: 243px; */
+	height: 42px;
+	padding-left: 52px;
+	color: #999;
+	font-size: 14px;
+}
+
+.yzm {
+	width: 100%;
+	position: relative;
+}
+
+.yan {
+	background: url(../images/yzm.png) no-repeat 13px center;
+	width: 100%;
+	padding-left: 52px;
+	color: #999;
+	height: 42px;
+	font-size: 14px;
+}
+
+.yzm span {
+	display: block;
+	height: 40px;
+	width: 104px;
+	position: absolute;
+	top: 19px;
+	right: 1px;
+}
+.yzm .btn-code{
+	display: block;
+    height: 36px;
+    width: 104px;
+    position: absolute;
+    top: 21px;
+    right: 4px;
+    text-align: center;
+    line-height: 35px;
+    background: #e80000;
+    color: #fff !important;
+    font-size: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.captcha{
+	color: #fff !important;
+}
+
+.remember-password-content {
+	position: relative;
+}
+
+.remember-password-content input[type=checkbox] {
+	width: 16px;
+	height: 16px;
+	margin-left: 5px;
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	z-index: 2;
+	font-size: initial;
+}
+
+.remember-password-content input[type=checkbox]:checked+span {
+	background-position-y: 0px;
+}
+
+.remember-password-content span {
+	position: absolute;
+	top: 22px;
+	left: 5px;
+	width: 16px;
+	height: 16px;
+	border: 1px solid #d6d6d6;
+	border-radius: 3px;
+	background: url(../images/check.png);
+	background-size: 16px;
+	background-repeat: no-repeat;
+	background-position-x: 0px;
+	background-position-y: 20px;
+	-webkit-transition: background-position-y 0.1s linear;
+	-o-transition: background-position-y 0.1s linear;
+	transition: background-position-y 0.1s linear;
+}
+
+.remember-password-content .remember-me-label {
+	color: #999;
+	font-weight: normal;
+	margin-left: 25px;
+	cursor: pointer;
+	font-size: 13px;
+}
+
+label {
+	display: inline-block;
+	max-width: 100%;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+.forgetPwd{
+	float: right;
+    color: #999;
+}
+.forgetPwd:hover{
+	color: #e80000;
+}
+
+.dl {
+	width: 100%;
+	height: 45px;
+	line-height: 45px;
+	background: #e80000;
+	color: #fff;
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	border: none !important;
+	cursor: pointer;
+}
+.reg{
+	color: #999;
+	font-size: 14px;
+}
+.reg a{
+	color: #e80000;
+}
+.reg a:hover{
+	text-decoration: underline;
+}
+
+.footer {
+	width: 100%;
+	background: #fff;
+	height: 100px;
+	overflow: hidden;
+}
+
+.footer .fl {
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	padding-top: 25px;
+}
+
+.footer p {
+	width: 100%;
+	text-align: center;
+	color: rgb(55, 55, 55);
+	font-size: 13px;
+}
+
+.footer p:first-child {
+	margin-bottom: 10px;
+}
+
+.footer p a {
+	color: #cdcdcd;
+}
+
+.footer p b:first-child+b {
+	margin-right: 25px;
+}
+
+
+.under {
+	text-decoration: underline;
+}
+
+.footer p b i {
+	margin-left: 13px;
+}
+
+.soft {
+	color: #e80000;
+	text-decoration: underline;
+	margin-left: 0 !important;
+}

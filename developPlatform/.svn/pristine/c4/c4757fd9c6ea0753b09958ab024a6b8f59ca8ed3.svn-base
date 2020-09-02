@@ -1,0 +1,21 @@
+package com.tengzhi.business.sc.capacity.specification.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+
+import java.util.Map;
+
+/**
+ * @Auther: huangbiao
+ * @Date: 2020/8/12 0012 14:50
+ * @Description:
+ */
+
+public interface MScGgclService {
+
+    BasePage<Map<String, Object>> findAll(BaseDto baseDto);
+
+    Result findCjType();
+
+}

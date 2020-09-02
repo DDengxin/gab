@@ -1,0 +1,5 @@
+collocate:
+   security:
+      salt: qwer #MD5盐
+   system: 
+      xmladdress: E:\\  #在线xml保存地址

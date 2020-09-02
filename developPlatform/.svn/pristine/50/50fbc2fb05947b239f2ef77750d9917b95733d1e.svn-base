@@ -1,0 +1,138 @@
+package com.tengzhi.business.ck.yw.ckck.service.impl;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.cg.yw.purchaseSettle.dao.ECwYsyfDao;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.ck.yw.ckck.model.ECkOut;
+import com.tengzhi.business.ck.yw.ckck.service.WarehouseOutService;
+import com.tengzhi.business.ck.yw.ckrk.service.WarehouseInService;
+
+import cn.hutool.core.util.ObjectUtil;
+
+
+@Service
+@Transactional
+public class WarehouseOutServiceImpl  implements WarehouseOutService {
+	@Autowired
+	private ECkOutDao eCkOutDao;
+
+	@Autowired
+	private ECwYsyfDao eCwYsyfDao;
+
+	@Override
+    public BasePage<ECkOut> getSrchTopList(BaseDto baseDto) throws Exception {
+        Map<String, String> map = baseDto.getParamsMap();
+        Object srchRq1=map.get("srchRq1");
+        Object srchRq2=map.get("srchRq2");
+        Object inNote=map.get("srchinNote");
+        Object supplier=map.get("srchSupplier");
+        Object cgStype=map.get("cgStype");
+        String sqlWhere = " where 1=1 ";
+		if (!StringUtils.isBlank(srchRq1.toString())) {
+			 sqlWhere += " and out_rq >='" + srchRq1 + "'";
+		}
+		if (!StringUtils.isBlank(srchRq2.toString())) {
+			 sqlWhere += " and out_rq <='" + srchRq2 + "'";
+		}
+		if (!StringUtils.isBlank(inNote.toString())) {
+			sqlWhere += " and out_note like'%" + inNote + "%'";
+		}
+		if (!StringUtils.isBlank(supplier.toString())) {
+			sqlWhere += " and out_customer like'%" + supplier + "%'";
+		}
+		if(ObjectUtil.isNotEmpty(map.get("srchflag"))) {
+            sqlWhere+=" and out_flag like '%"+map.get("srchflag")+"%'";
+        }
+		
+		if(cgStype != null && cgStype.toString().trim().length() > 0) {
+			sqlWhere +=" and out_type = '"+cgStype+"' ";
+ 		}
+		
+        String  sql="select  * from  (\r\n" + 
+        		" select out_rq ,out_note ,out_customer ,out_lib,out_act,out_bz,out_tax ,abs(sum(out_js)) out_js,abs(sum(out_sl)) out_sl,abs(sum(out_zl)) out_zl,out_flag ,data_man ,MAX(data_date) data_date,data_corp,out_type  ,f_get_param_name('产品大类',out_type) outtypename,f_get_param_name('仓库收发',out_act) outactname,f_get_param_name('交易币种',out_bz) outbzname,f_getname('GETDWNAME',out_customer,'',data_corp) outcustomername,f_get_param_name('库房档案',out_lib) outlibname,f_getname('GETUSERNAME',data_man,'',data_corp) datamanname  \r\n" + 
+        		" from  e_ck_out  where 1=1 " + 
+        		"\r\n" + 
+        		" group by out_rq,out_note,out_customer,out_act,out_flag,data_man,data_corp,out_lib,out_bz,out_tax,out_type  \r\n" + 
+        		 ")a "+sqlWhere;
+      
+        return eCkOutDao.QueryPageLists(baseDto,sql+" order by out_rq desc,out_note desc");
+    }
+	  
+	 @Override
+    public BasePage<ECkOut> getSrchBottomList(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        Object outNote=map.get("outNote");
+        String sql="select * from (\r\n" + 
+        		"select out_note||'_'||out_contract||'_'||out_code as id,out_code,out_js ,out_sl ,out_zl ,(out_sl*out_price) outje,out_pack ,out_bpack ,out_price ,out_contract ,out_kfcontract ,out_Kfcode, out_checkflag , out_month ,out_type,f_get_param_name('产品大类',out_type) outtypename ,out_luono ,out_vnote out_hs,f_getparamname('GETBCPCODENAME',b.cpcode_name,'','技术',out_type,'')  cpcode_name,b.cpcode_size,b.cpcode_fl,f_getparamname('GETBYPARENTID',b.cpcode_bz,'计量单位','技术','','')  cpcode_bz,b.cpcode_xp,b.cpcode_check,b.cpcode01,b.cpcode02,b.cpcode03,b.cpcode_Size_En from  e_ck_out a,e_js_cpcode b where a.out_Code=b.cpcode_id and out_note='"+outNote+"' \r\n" + 
+        		")n \r\n";
+        return eCkOutDao.QueryNoPageLists(sql);
+    }
+
+	 
+	 @Override
+	 public Result getFlag(String outNote, String flag) {
+			String flagString=eCkOutDao.getFlag(outNote);
+			if(flag.equals(flagString)) {
+				return  Result.resultOk("操作成功！");
+			}
+			return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+		}
+		
+	@Override
+	public Result setFlag(String outNote, String flag) {
+		SessionUser securityUser=SessionUser.SessionUser();
+		if("库审".equals(flag)) {
+			eCkOutDao.out(outNote,securityUser.getUserId());
+			eCwYsyfDao.setFlag(outNote, flag);
+		}else if("结算".equals(flag)) {
+			//取消入库需要判断库存
+			
+			//库存判断结束
+			eCkOutDao.setFlag(outNote,flag);
+		}
+		return  Result.resultOk("操作成功！");
+	}
+
+	@Override
+	public ModelAndView table(ModelAndView mv, String outNote) {
+		String sql = "select out_act,out_note,to_char(out_rq,'YYYY-MM-DD') out_rq,f_getname('GETCORPNAME', '','',data_corp) \"corpName\",f_getname('GETDWEXP',out_customer,'',data_corp) \"corpExp\",(f_get_param_name('产品大类', out_type,'')||f_get_param_name('仓库收发', out_act,'')) \"typeAndAct\",f_getname('GETUSERNAME', data_man,'', data_corp) \"manName\",f_get_param_name('库房档案', out_lib,'') \"libName\",to_char(now(),'YYYY-MM-DD HH24:MI:SS') now,f_getname('GETUSERNAME', out_man,'', data_corp) \"outMan\" FROM E_Ck_Out WHERE out_note= '"+outNote+"' limit 1 ";
+		List<Map> table = eCkOutDao.QueryListMap(sql);
+		mv.addObject("outNote", table.get(0).get("out_note"));
+		mv.addObject("outRq", table.get(0).get("out_rq"));
+		mv.addObject("corpName", table.get(0).get("corpName"));
+		mv.addObject("corpExp", table.get(0).get("corpExp"));
+		mv.addObject("typeAndAct", table.get(0).get("typeAndAct"));
+		mv.addObject("manName", table.get(0).get("manName"));
+		mv.addObject("libName", table.get(0).get("libName"));
+		mv.addObject("now", table.get(0).get("now"));
+		mv.addObject("outMan", table.get(0).get("outMan"));
+		String mxSql = "select ((coalesce(j.cpcode_size_en,''))||'   '||f_getparamname('GETBCPCODENAME',j.cpcode_name,'','技术',out_type,'')||'￠'||(coalesce(j.cpcode_size,''))||'       '||(coalesce(j.cpcode_xp,''))) \"cpNSB\",round(out_sl,2) out_sl,f_get_param_name('计量单位',j.cpcode_bz,'')cpcode_bz,e.out_pack,f_get_param_name('产品大类', j.cpcode_type,'') cpcode_type,out_ph,f_get_param_name('仓库库位',out_kw,'')out_kw from e_js_cpcode j,e_ck_out e where e.out_code = j.cpcode_id and e.out_note= '"+outNote+"'";
+		List<Map> tableMx = eCkOutDao.QueryListMap(mxSql);
+		mv.addObject("mx", tableMx);
+		mv.addObject("mxCount", tableMx.size());
+		double sum = 0;
+		for(int i = 0 ; i < tableMx.size() ; i++) {
+			sum += Double.parseDouble(tableMx.get(i).get("out_sl").toString());
+		}
+		mv.addObject("sum", sum);
+		return mv;
+	}
+	
+}

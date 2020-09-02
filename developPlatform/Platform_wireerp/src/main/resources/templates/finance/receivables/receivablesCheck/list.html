@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>销售合同</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="orient" id="orient"/>
+        <input class="mini-hidden" name="cwStype" id="cwStype" width="100"/>
+        <input class="mini-hidden" name="paramMod" id="paramMod" width="100"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNo"/>
+        </label>
+        <label class="hmq-label" text="单位">
+            <input name="srchCustomer" emptyText="请选择..."
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <input class="mini-combobox" name="srchFlag" id="srchFlag" textField="text" valueField="id" popupHeight="200" width="80px"
+                   data="[{id:'结算',text:'结算'},{id:'库审',text:'库审'},{id:'确认',text:'确认'}]" nullItemText="全部" showNullItem="true"/>
+        </label>
+        <label class="hmq-label" text="类别">
+            <input class="mini-combobox" name="srchCwType" width="90" id="srchCwType" url="/system/parameter/getParamsSelectListByParentId/技术/产品大类/CPDL" emptyText="全部" showNullItem="true" nullItemText="全部"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div tz:datagrid="datagrid" id="datagrid" idField="htNo" sortField="cwRq,cwNote" sortOrder="desc" sizeList="[50,100,200]" pageSize="100"
+         pager="#pager1" showPager="true" ondrawsummarycell="onDrawSummaryCell" showSummaryRow="true">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="cwRq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="cwNote" width="120" align="center">单号</div>
+            <div tz:datagrid="column" field="cwDw" width="140" align="left">单位</div>
+            <div tz:datagrid="column" field="cwShl" width="60" align="left" visible="false">税率</div>
+            <div tz:datagrid="column" field="cwSl" d width="120" align="right" numberFormat="#,0.0000" summaryType="sum">数量</div>
+            <div tz:datagrid="column" field="cwSje" width="120" align="right" numberFormat="#,0.00" summaryType="sum">金额</div>
+            <div tz:datagrid="column" field="cwBz" width="60" align="center">币种</div>
+            <div tz:datagrid="column" field="cwAct" width="120" align="center">口径</div>
+            <div tz:datagrid="column" field="cwType" displayField="cwtypename" width="80" align="center">类型</div>
+            <div tz:datagrid="column" field="cwFlag" width="80" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("datagrid");
+    srch_topgrid.bindSearchForm(form);
+
+    //start
+    var cwStype = hmq.getQueryString("paramType");
+    var paramMod = hmq.getQueryString("paramMod");
+    form.getField("orient").setValue(hmq.getQueryString("orient"));
+    if (hmq.isNotEmpty(cwStype)) {
+        form.getField("cwStype").setValue(cwStype);
+        form.getField("paramMod").setValue(paramMod);
+        setIdReadOnly("cwStype,paramMod");
+        //动态列名
+
+    }
+    //end
+
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().htNo;
+        }
+    });
+
+    function onSupplierClick(e) {
+        var cwStype = mini.get("cwStype").getValue();
+        var customerType = "C";
+        if (cwStype == "CG") {
+            customerType = "S";
+        } else {
+            customerType = "C";
+        }
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【单位】选择页面",
+            width: 750,
+            data: customerType,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    function search_option() {
+        srch_topgrid.load();
+    }
+
+    function onDrawSummaryCell(e) {
+        if (e.field == "cwRq") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "cwSje") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(2) + "</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "cwSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+    function view_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: {row: row, formData: form.getData()}});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.cwNote, '库审'), function (res) {
+                if (200 === res.code) {
+
+                    /*  hmq.business.approvalConfirm({
+                        businessId: row.cwNote,
+                        url: '/finance/receivables/receivablesCheck/add.html',
+                        error: function (res) {
+                            if (404 == res.code) {
+                                $.put("confirm/{0}".format(row.cwNote), function (res) {
+                                    if (200 === res.code) {
+                                        srch_topgrid.reload();
+                                    } else {
+                                        hmq.tipDanger(res.msg);
+                                    }
+                                });
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        }
+                    });  */
+                    mini.confirm("注意:确定要审核吗 ？", "提示信息", function (action) {
+                        if (action == "ok") {
+                            $.put("confirm/{0}".format(row.cwNote), function (res) {
+                                if (200 === res.code) {
+                                    srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+
+    }
+
+    function cancel_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.cwNote, '确认'), function (res) {
+                if (200 === res.code) {
+                    /*      hmq.business.approvalCancel({
+                             businessId: row.cwNote,
+                             error: function (res) {
+                                 if (404 == res.code) {
+                                     $.put("cancel/{0}".format(row.cwNote), function (res) {
+                                            if (200 === res.code) {
+                                                srch_topgrid.reload();
+                                            } else {
+                                                hmq.tipDanger(res.msg);
+                                            }
+                                        });
+                                 } else {
+                                     hmq.tipDanger(res.msg);
+                                 }
+                             }
+                         });  */
+                    mini.confirm("注意:确定要取消吗 ？", "提示信息", function (action) {
+                        if (action == "ok") {
+                            $.put("cancel/{0}".format(row.cwNote), function (res) {
+                                if (200 === res.code) {
+                                    srch_topgrid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+
+</body>
+</html>
+
+

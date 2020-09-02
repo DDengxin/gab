@@ -1,0 +1,197 @@
+package com.tengzhi.business.mSbJt.model;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tengzhi.business.cg.yw.purchaseContract.model.ECgContractDetailed.ECgContractDetailed_PK;
+
+@Entity
+@Table(name = "m_sb_jtbj")
+@IdClass(value = MSbJtbj.MSbJtbj_PK.class)
+public class MSbJtbj {
+	@Id
+	private String machineId;
+	@Id
+	private Integer machineBid;
+	private Integer machineJe;
+	private String machineBname,machineZid,machineType,machineFlag,machineSm,dataMan,dataCorp;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date machineIndate;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date dataDate;
+	
+	@Transient
+	private String _state;
+
+	public String getMachineId() {
+		return machineId;
+	}
+
+	public void setMachineId(String machineId) {
+		this.machineId = machineId;
+	}
+
+	public Integer getMachineBid() {
+		return machineBid;
+	}
+
+	public void setMachineBid(Integer machineBid) {
+		this.machineBid = machineBid;
+	}
+
+	public Integer getMachineJe() {
+		return machineJe;
+	}
+
+	public void setMachineJe(Integer machineJe) {
+		this.machineJe = machineJe;
+	}
+
+	public String getMachineBname() {
+		return machineBname;
+	}
+
+	public void setMachineBname(String machineBname) {
+		this.machineBname = machineBname;
+	}
+
+	public String getMachineZid() {
+		return machineZid;
+	}
+
+	public void setMachineZid(String machineZid) {
+		this.machineZid = machineZid;
+	}
+
+	public String getMachineType() {
+		return machineType;
+	}
+
+	public void setMachineType(String machineType) {
+		this.machineType = machineType;
+	}
+
+	public String getMachineFlag() {
+		return machineFlag;
+	}
+
+	public void setMachineFlag(String machineFlag) {
+		this.machineFlag = machineFlag;
+	}
+
+	public String getMachineSm() {
+		return machineSm;
+	}
+
+	public void setMachineSm(String machineSm) {
+		this.machineSm = machineSm;
+	}
+
+	public String getDataMan() {
+		return dataMan;
+	}
+
+	public void setDataMan(String dataMan) {
+		this.dataMan = dataMan;
+	}
+
+	public String getDataCorp() {
+		return dataCorp;
+	}
+
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+
+	public Date getMachineIndate() {
+		return machineIndate;
+	}
+
+	public void setMachineIndate(Date machineIndate) {
+		this.machineIndate = machineIndate;
+	}
+
+	public Date getDataDate() {
+		return dataDate;
+	}
+
+	public void setDataDate(Date dataDate) {
+		this.dataDate = dataDate;
+	}
+
+	public String get_state() {
+		return _state;
+	}
+
+	public void set_state(String _state) {
+		this._state = _state;
+	}
+    public static class MSbJtbj_PK implements Serializable {
+    	private String machineId;
+    	private Integer machineBid;
+		public String getMachineId() {
+			return machineId;
+		}
+		public void setMachineId(String machineId) {
+			this.machineId = machineId;
+		}
+		public Integer getMachineBid() {
+			return machineBid;
+		}
+		public void setMachineBid(Integer machineBid) {
+			this.machineBid = machineBid;
+		}
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((machineBid == null) ? 0 : machineBid.hashCode());
+			result = prime * result + ((machineId == null) ? 0 : machineId.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+                return true;
+            }
+			if (obj == null) {
+                return false;
+            }
+			if (getClass() != obj.getClass()) {
+                return false;
+            }
+			MSbJtbj_PK other = (MSbJtbj_PK) obj;
+			if (machineBid == null) {
+				if (other.machineBid != null) {
+                    return false;
+                }
+			} else if (!machineBid.equals(other.machineBid)) {
+                return false;
+            }
+			if (machineId == null) {
+                return other.machineId == null;
+			} else {
+                return machineId.equals(other.machineId);
+            }
+        }
+		
+		public MSbJtbj_PK(String machineId, Integer machineBid) {
+			super();
+			this.machineId = machineId;
+			this.machineBid = machineBid;
+		}
+		public MSbJtbj_PK() {
+			
+		}
+		
+		
+    	
+    }
+    
+}

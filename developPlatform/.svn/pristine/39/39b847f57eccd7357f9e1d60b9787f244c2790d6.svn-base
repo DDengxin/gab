@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+    <script type="text/javascript" src="/static/javascript/LodopPrint.js?version=3"></script>
+    <object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width="0" height="0">
+        <embed id="LODOP_EM" type="application/x-print-lodop" width="0" height="0" />
+    </object>
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>现场任务</title>
+</th:block>
+	<style type="text/css">
+		.bb {
+			border: solid 0.5px #DDDDDD;
+			background-color: #F8F8F8;
+		}
+		.bb td {
+			border-right: solid 0.5px #DDDDDD;
+			border-bottom: solid 0.5px #DDDDDD;
+
+
+		}
+
+	</style>
+</head>
+
+<body>
+	<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+		<th:block th:fragment="content">
+			<label class="hmq-label" text="工序">
+				<input class="mini-combobox"  id="srchGx" name="srchGx" url="/js/cpgy/scgx/getGxAllSelectList"
+					emptyText="全部" nullItemText="全部" showNullItem="true"  onvaluechanged="search_option(e)"  />
+			</label>
+
+			<label class="hmq-label" text="车台">
+				<input class="mini-combobox" id="srchCt" name="srchCt"
+					emptyText="全部" nullItemText="全部" showNullItem="true" onvaluechanged="search_option(e)" url="/mSbJt/sb/getJtAllList" />
+			</label>
+			<!-- <label class="hmq-label" text="品名">
+				<input id="srchCode" name="srchCode" class="mini-buttonedit" onbuttonclick="onButtonEdit"
+					allowInput="false" />
+			</label> -->
+		</th:block>
+	</th:block>
+	<div class="mini-splitter" vertical="true" allowResize="false" handlerSize="1" style="width:100%;height:88%;">
+		<div size="62%" >
+			<div class="mini-splitter"  style="width:100%;height:100%;">
+				<div size="48%">
+						<div tz:datagrid="datagrid" style="width: 100%; height: 100%;" id="srch_top_left_grid" pager="#pager1"
+							 idField="gxId" sizeList="[50,100,200]" pageSize="100"
+							 showPager="false" sortField="scMo" sortOrder="desc"
+							 selectonload="false" sortMode="client"
+							 onSelectionChanged="onSelectionChanged">
+							<div property="columns">
+								<div tz:datagrid="indexcolumn" width="40">序号</div>
+								<div tz:datagrid="column" field="scmo" width="100" align="center" visible="false">任务单</div>
+								<div tz:datagrid="column" field="gxid" width="100" align="center" visible="false">工序</div>
+								<div tz:datagrid="column" field="rwmoandcode" width="140" align="left">任务及品名</div>
+								<div tz:datagrid="column" field="gxandct" width="130" align="left">工序及车台</div>
+								<div tz:datagrid="column" field="gxsl" width="70" align="right" numberFormat="#,0.0000"
+									 dataType="double"  summaryType="sum" >数量</div>
+								<div tz:datagrid="column" field="ywsl" width="70" align="right" numberFormat="#,0.0000"
+									 dataType="double" summaryType="sum" >已完</div>
+								<div tz:datagrid="column" field="wwsl" width="70" align="right" numberFormat="#,0.0000"
+									 dataType="double" summaryType="sum">未完</div>
+								<div tz:datagrid="column" field="blsl" width="70" align="right" numberFormat="#,0.0000"
+									 dataType="double" summaryType="sum">不良</div>
+								<!--<div tz:datagrid="column" width="100%" style="border-right:none !important;"></div>-->
+							</div>
+						</div>
+				</div>
+				<div>
+					<div class="mini-splitter" vertical="true" allowResize="false" style="width:100%;height:100%;">
+						<div size="48%" style="border: 0px">
+							<form class="bb"
+								  style="width: 100%; height: 100%; background: #fff !important;border-bottom: none;"
+								  id="rightform">
+									<table class="form-table" style="width:100%;height:100%;padding-right: 5px;">
+										<tr>
+											<td class="center" width="160px">车台</td>
+											<td>
+												<input class="mini-textbox" id="ctname"  name="ctname" width="120px"/>
+												<input class="mini-hidden" id="gxCt" name="gxCt" />
+											</td>
+											<td class="center" width="160px">工序</td>
+											<td><input class="mini-hidden" id="gxId" name="gxId" />
+												<input class="mini-textbox" id="gxName" name="gxName" width="120px"/>
+											</td>
+											<td class="center" width="160px">品号</td>
+											<td>
+												<input class="mini-textbox" id="code" name="code" width="120px"/>
+											</td>
+											<td class="center" width="160px">品名</td>
+											<td>
+												<input class="mini-textbox" id="cpcodeName"  name="cpcodeName" width="120px"/>
+											</td>
+											<td colspan="2" class="center" style="background: rgb(146, 208, 80); font-weight: bold;">任务</td>
+										</tr>
+										<tr>
+											<td class="center" width="120px">任务</td>
+											<td><input class="mini-textbox" id="scMo" name="scMo" width="120px"/>
+											</td>
+											<td class="center" width="160px">计划</td>
+											<td><input class="mini-textbox" id="gxSl" name="gxSl" width="120px"/>
+											</td>
+											<td class="center" width="120px">未完</td>
+											<td><input class="mini-textbox" id="wwsl" name="wwsl" width="120px"/>
+											</td>
+											<td class="center" width="160px">已完</td>
+											<td><input class="mini-textbox" id="ywsl" name="ywsl" width="120px"/>
+											</td>
+											<td class="center" width="160px">不良</td>
+											<td><input class="mini-textbox" id="blsl" name="blsl" width="120px"/>
+											</td>
+										</tr>
+										<tr>
+											<td class="center" width="160px">技术标准</td>
+											<td colspan="5">
+												<input class="mini-textarea" id="gxJsyq" name="gxJsyq" style="width:100%"/>
+											</td>
+											<td class="center" width="160px">注意要求</td>
+											<td colspan="3">
+												<input class="mini-textarea" id="gyJysx"  name="gyJysx" style="width:100%"/>
+											</td>
+										</tr>
+									</table>
+							  </form>
+							</div>
+						<div>
+							<div class="mini-splitter" style="width:100%;height:100%;">
+								<div size="50%" >
+									<div style="width: 100%; height: 100%;" tz:datagrid="datagrid"
+										 id="srch_top_right_grid" pager="#pager1" idField="wlcode"
+										 sizeList="[50,100,200]" pageSize="100" showPager="false"
+										 sortMode="client" allowCellSelect="true" multiSelect="false">
+										<div property="columns">
+											<div tz:datagrid="checkcolumn" width="5"></div>
+											<div tz:datagrid="column" field="scMo" width="10" align="center" visible="false">任务</div>
+											<div tz:datagrid="column" field="gyId" width="10" align="center" visible="false" >工艺</div>
+											<div tz:datagrid="column" field="gxId" displayField="gxName" width="10" align="center" visible="false">工序</div>
+											<div tz:datagrid="column" field="gxCj" displayField="cjName" width="10" align="center" visible="false" >车间</div>
+											<div tz:datagrid="column" field="wlCode" width="14" align="left">品号</div>
+											<div tz:datagrid="column" field="cpcodeName" width="10" align="left">品名</div>
+											<div tz:datagrid="column" field="cpcodeSize" width="10" align="left" visible="false">规格</div>
+											<div tz:datagrid="column" field="wlPh" width="10" align="left">牌号</div>
+											<div tz:datagrid="column" field="wlSl" width="13" align="right" numberFormat="#,0.0000" >数量</div>
+											<div tz:datagrid="column" field="wlType" displayField="typeName" width="8" align="center">分类</div>
+										</div>
+									</div>
+								</div>
+								<div>
+									<div tz:datagrid="datagrid" style="width: 100%;height:100%;"
+										 id="srch_top_right_gcgrid" pager="#pager1" idField="wlcode"
+										 sizeList="[50,100,200]" pageSize="100" showPager="false"
+										 sortMode="client" allowCellSelect="true" multiSelect="false">
+										<div property="columns">
+											<div tz:datagrid="checkcolumn" width="5"></div>
+											<div tz:datagrid="column" field="sgc" width="15" align="center">上工程号</div>
+											<div tz:datagrid="column" field="wlName" width="10" align="left">品名</div>
+											<div tz:datagrid="column" field="wlSize" width="10" align="left">规格</div>
+											<div tz:datagrid="column" field="wlPh" width="10" align="left">牌号</div>
+											<div tz:datagrid="column" field="sgcSl" width="10" align="right" numberFormat="#,0.0000" >数量</div>
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div >
+			<!--<div class="mini-splitter" style="width:100%;height:100%;">
+				<div size="48%">
+					<div style="width: 100%;height:100%;" tz:datagrid="datagrid" id=""
+						 pager="#pager1" pageSize="100" showPager="false" sortMode="client"
+						 showSummaryRow="false">
+						<div property="columns">
+							<div tz:datagrid="indexcolumn" width="40">序号</div>
+							<div tz:datagrid="column" field="" align="center">项目</div>
+							<div tz:datagrid="column" field="" align="center">状态</div>
+							<div tz:datagrid="column" field="" align="center">现场</div>
+						</div>
+					</div>
+				</div>
+				<div>-->
+					<div style="width: 100%;height:100%;" tz:datagrid="datagrid"
+						 id="srch_bottom_right_grid" pager="#pager1" pageSize="100"
+						 showPager="false" sortMode="client" showSummaryRow="false">
+						<div property="columns">
+							<div tz:datagrid="column" field="gc_flag" width="15" align="center" renderer="onActionRenderer">品质状态</div>
+							<div tz:datagrid="column" field="bgc" width="20" align="left">本工程</div>
+							<div tz:datagrid="column" field="code" width="15" align="left">品号</div>
+							<div tz:datagrid="column" field="tname" width="15" align="left">品名</div>
+							<div tz:datagrid="column" field="tph" width="15" align="left">牌号</div>
+							<div tz:datagrid="column" field="tsl" width="15" align="right" numberFormat="#,0.0000" >数量</div>
+							<div tz:datagrid="column" field="tct" width="25" align="left">车台</div>
+							<div tz:datagrid="column" field="gx" width="15" align="left">工序</div>
+							<div tz:datagrid="column" field="bgctl" width="20" align="center"  renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">开始</div>
+							<div tz:datagrid="column" field="bgcwc" width="20" align="center" renderer="onActionRenderer" dateFormat="yyyy-MM-dd HH:mm">完成</div>
+							<div tz:datagrid="column" field="sc" width="15" align="right">用时</div>
+							<div tz:datagrid="column" field="doman" width="15" align="left">人员</div>
+							<div tz:datagrid="column" field="nextgx" width="15" align="left">下工序</div>
+						</div>
+					</div>
+			<!--	</div>
+			</div>-->
+		</div>
+	</div>
+	<div style="border-left: 1px solid #ddd;height:2%;border-right: 1px solid #ddd;">
+		<div style="float: right;margin-right: 5px;">
+			<a class="mini-button" onclick="gxtl()" iconCls="icon-upload" id="10">上料</a>
+			<a class="mini-button" onclick="gxxl()" iconCls="icon-download" id="gxxl">下料</a>
+			<!-- <a class="mini-button" onclick="print_option2" iconCls="" id="19">标签设计</a> -->
+			<a class="mini-button" onclick="print_option" iconCls="icon-print" id="19">标签</a>
+			<!-- <a class="mini-button" onclick="print_option3" iconCls="" id="19">模板设置</a> -->
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var rightform = new mini.Form("rightform");
+	rightform.setLabelModel(true);
+	var srch_topleftgrid = mini.get("srch_top_left_grid");
+	var srch_toprightgrid = mini.get("srch_top_right_grid");
+	var srch_toprightgcgrid = mini.get("srch_top_right_gcgrid");
+	var srch_bottomrightgrid = mini.get("srch_bottom_right_grid");
+	var form = new mini.Form("form1");
+
+	var surl = "/production/productionSite/siteTask";
+	srch_topleftgrid.setUrl(surl + "/getTopLeftGridList");
+	srch_toprightgrid.setUrl(surl + "/getTopRightGridList");
+	srch_toprightgcgrid.setUrl(surl + "/getTopRightGcGridList");
+	srch_bottomrightgrid.setUrl(surl + "/getBottomRightGcGridList");
+	srch_topleftgrid.bindSearchForm(form);
+
+	function search_option(e) {
+		srch_topleftgrid.load();
+	}
+
+	srch_topleftgrid.on("DrawCell", function (e) {
+        if (e.field == "wwsl") {
+            var record = e.record;
+            e.cellHtml = parseFloat(record.gxsl).toFixed(4)-parseFloat(record.ywsl!=null?record.ywsl:0).toFixed(4);
+        }
+    });
+	/**
+	 行改变方法
+	 */
+	function onSelectionChanged(e) {
+		var srch_topleftgrid = e.sender;
+		var record = srch_topleftgrid.getSelected();
+		if (record) {
+			$.get(surl + "/getByRwGx/{0}/{1}".format(record.scmo, record.gxid),
+					function(res) {
+						if (200 === res.code) {
+							var data = mini.decode(res.data);
+							rightform.setData(res.data, false);
+							srch_toprightgrid.load({
+								params : JSON.stringify({
+									scMo : record.scmo,
+									gxId : record.gxid
+								})
+							});
+
+							srch_toprightgcgrid.load({
+								params : JSON.stringify({
+									scMo : record.scmo,
+									gxId : record.gxid
+								})
+							});
+
+							srch_bottomrightgrid.load({
+								params : JSON.stringify({
+									scMo : record.scmo,
+									gxId : record.gxid
+								})
+							});
+						}
+					});
+
+		}
+	}
+
+	/*function onSelectionChangedRw(e) {
+		var srch_toprightgrid = e.sender;
+		var record = srch_toprightgrid.getSelected();
+		if (record) {
+			srch_toprightgcgrid.load({
+				params : JSON.stringify({
+					scMo : record.scMo,
+					gxId : record.gxId,
+					code : record.wlCode
+				})
+			});
+
+		}
+	}*/
+
+	function gxxl() {
+		var row = srch_topleftgrid.getSelected();
+		if (row) {
+			var sxgchrow =srch_toprightgcgrid.getData();
+			if(sxgchrow.length<1){
+				return hmq.tipDanger('未生成上线，不能操作下线！');
+			}
+			var params = {
+				scMo : row.scmo,
+				gxId : row.gxid,
+
+			};
+			$['put'](surl + "/getCount", JSON.stringify({
+				"params" : mini.encode(params)
+			}), function(res) {
+				mini.unmask();
+				if (200 === res.code) {
+					miniopen({
+						url : "gxxl.html",
+						title : "工序报工",
+						action : 'gxxl',
+						data : params,
+						width : 670,
+						height : 500
+					});
+				} else {
+					hmq.tipDanger(res.msg);
+				}
+			}, null, {
+				contentType : 'application/json'
+			});
+
+		} else {
+			return hmq.tipDanger('请选择一行数据！');
+		}
+	}
+
+	function srch_option(strscmo,strgx) {
+		srch_toprightgcgrid.load({
+			params : JSON.stringify({
+				scMo : strscmo,
+				gxId : strgx
+			})
+		});
+		srch_bottomrightgrid.load({
+			params : JSON.stringify({
+				scMo : strscmo,
+				gxId : strgx
+			})
+		});
+	}
+
+
+	function gxtl() {
+		/*var row = srch_topleftgrid.getSelected();
+		if (row) {
+			var params = {
+				gxId : mini.get("gxId").getValue(),
+				gxName : mini.get("gxName").getValue(),
+				gxCt : mini.get("gxCt").getValue(),
+				ctname : mini.get("ctname").getValue(),
+				scMo : row.scmo
+			};*/
+			miniopen({
+				url : "gxtl.html",
+				title : "工序投料",
+				action : 'gxtl',
+				data : "",
+				width : 1100,
+				height : 500
+			});
+		/*} else {
+			return hmq.tipDanger('请选择投料的数据！');
+		}*/
+	}
+
+	srch_toprightgcgrid.on("DrawCell", function(e) {
+		if (e.field == "gcCl") {
+			e.cellHtml = e.value == "SC" ? '生产' : '禁用';
+		}
+	});
+
+	/**
+	渲染方法
+	 */
+	function onActionRenderer(e) {
+		var record = e.record;
+		if (e.field == "bgctl" && record.bgctl != null) {
+			return mini.formatDate(new Date(record.bgctl), "yyyy-MM-dd HH:mm");
+		}
+
+		if (e.field == "bgcwc" && record.bgcwc != null) {
+			return mini.formatDate(new Date(record.bgcwc), "yyyy-MM-dd HH:mm");
+		}
+
+		if(e.field == "gc_flag"&& record.gc_flag!=null){
+			if(record.gc_flag=="HG"){
+				return "合格";
+			}else if(record.gc_flag=="BL"){
+				return "不良";
+			}else if(record.gc_flag=="GZ"){
+				return "改制";
+			}else if(record.gc_flag=="BF"){
+				return "报废";
+			}
+		}
+	}
+	function print_option2(){
+		LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));
+		var row = srch_bottomrightgrid.getSelected();
+		if(row){
+
+			$['post']("getDataByGch/{0}".format(row.bgc), function (res) {
+		        if (200 === res.code) {
+		        	var data = res.data[0];
+		        	LODOP.PRINT_INITA("0mm","0mm","70.01mm","50.01mm","库存");
+			        LODOP.NewPage();
+				    var QR =data.bgc;
+				    LODOP.SET_PRINT_PAGESIZE(1,700,500,""); //纸张大小
+				     /*LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE",1);
+				    LODOP.ADD_PRINT_BARCODE("4.00mm","1.50mm","25mm","25mm","QRCode",QR);
+				    LODOP.SET_PRINT_STYLEA(0,"QRCodeVersion",5); */
+				    LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE",1);
+				    LODOP.ADD_PRINT_BARCODE("2.00mm","45.00mm","49.61mm","28.97mm","QRCode",QR);
+				    LODOP.SET_PRINT_STYLEA(0,"QRCodeVersion",5);
+				    LODOP.ADD_PRINT_TEXT("2.00mm","1.00mm","46.57mm","5.29mm","任务 "+data.sc_mo);
+				    LODOP.ADD_PRINT_TEXT("7.50mm","1.00mm","46.57mm","5.29mm","产品 "+data.cpcodename);
+				    LODOP.ADD_PRINT_TEXT("13.00mm","1.00mm","22.49mm","5.29mm","计划 "+data.jhsl);
+				    LODOP.ADD_PRINT_TEXT("13.00mm","24.00mm","25.14mm","5.29mm","已完 "+data.ywsl);
+				    LODOP.ADD_PRINT_TEXT("18.50mm","1.00mm","22.49mm","5.29mm","未完 "+data.wwsl);
+				    LODOP.ADD_PRINT_TEXT("18.50mm","24.00mm","25.14mm","5.29mm","不良 "+data.blsl);
+				    LODOP.ADD_PRINT_TEXT("24.00mm","1.00mm","41.54mm","5.29mm","工程 "+data.bgc);
+				    LODOP.ADD_PRINT_TEXT("24.00mm","36.50mm","23.81mm","5.29mm","工序 "+data.gxname);
+				    LODOP.ADD_PRINT_TEXT("29.50mm","1.00mm","41.54mm","5.29mm","品名 "+data.tname);
+				    LODOP.ADD_PRINT_TEXT("29.50mm","36.50mm","41.54mm","5.29mm","规格 "+data.tsize);
+				    LODOP.ADD_PRINT_TEXT("35.00mm","1.00mm","42.07mm","5.29mm","炉号 "+data.tph);
+				    LODOP.ADD_PRINT_TEXT("35.00mm","36.50mm","42.07mm","5.29mm","数量 "+data.tsl);
+				    LODOP.ADD_PRINT_TEXT("40.50mm","1.00mm","41.01mm","5.29mm","工作 "+data.gzname);
+				    LODOP.ADD_PRINT_TEXT("40.50mm","36.50mm","41.01mm","5.29mm","车台 "+data.ctname);
+				    LODOP.ADD_PRINT_TEXT("46.00mm","1.00mm","40.22mm","5.29mm","开始 "+data.kssj);
+				    LODOP.ADD_PRINT_TEXT("46.00mm","36.50mm","40.22mm","5.29mm","完成 "+data.wcsj);
+				    LODOP.PRINT_SETUP();
+				    //LODOP.PRINT_DESIGN();
+			        //LODOP.PREVIEW("_dialog",500,400,'');
+			        //LODOP.PRINTA();
+		        } else {
+		            hmq.tipDanger(res.msg);
+		        }
+		    });
+
+		}else {
+			return hmq.tipDanger('请选择一行数据！');
+		}
+
+	}
+	function print_option(e){
+		LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));
+		var row = srch_bottomrightgrid.getSelected();
+		if(row){
+
+			$['post']("getDataByGch/{0}".format(row.bgc), function (res) {
+		        if (200 === res.code) {
+		        	var data = res.data[0];
+		        	LODOP.PRINT_INITA("0mm","0mm","70.01mm","50.01mm","库存");
+			        LODOP.NewPage();
+				    var QR =data.bgc;
+
+				     LODOP.SET_PRINT_PAGESIZE(1,700,500,""); //纸张大小
+				     /*LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE",1);
+				    LODOP.ADD_PRINT_BARCODE("4.00mm","1.50mm","25mm","25mm","QRCode",QR);
+				    LODOP.SET_PRINT_STYLEA(0,"QRCodeVersion",5); */
+
+				    LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE",1);
+				    LODOP.ADD_PRINT_BARCODE("2.00mm","45.00mm","49.61mm","28.97mm","QRCode",QR);
+				    LODOP.SET_PRINT_STYLEA(0,"QRCodeVersion",5);
+				    LODOP.ADD_PRINT_TEXT("2.00mm","1.00mm","46.57mm","5.29mm","任务 "+data.sc_mo);
+				    LODOP.ADD_PRINT_TEXT("7.50mm","1.00mm","46.57mm","5.29mm","产品 "+data.cpcodename);
+				    LODOP.ADD_PRINT_TEXT("13.00mm","1.00mm","22.49mm","5.29mm","计划 "+data.jhsl);
+				    LODOP.ADD_PRINT_TEXT("13.00mm","24.00mm","25.14mm","5.29mm","已完 "+data.ywsl);
+				    LODOP.ADD_PRINT_TEXT("18.50mm","1.00mm","22.49mm","5.29mm","未完 "+data.wwsl);
+				    LODOP.ADD_PRINT_TEXT("18.50mm","24.00mm","25.14mm","5.29mm","不良 "+data.blsl);
+				    LODOP.ADD_PRINT_TEXT("24.00mm","1.00mm","41.54mm","5.29mm","工程 "+data.bgc);
+				    LODOP.ADD_PRINT_TEXT("24.00mm","36.50mm","23.81mm","5.29mm","工序 "+data.gxname);
+				    LODOP.ADD_PRINT_TEXT("29.50mm","1.00mm","41.54mm","5.29mm","品名 "+data.tname);
+				    LODOP.ADD_PRINT_TEXT("29.50mm","36.50mm","41.54mm","5.29mm","规格 "+data.tsize);
+				    LODOP.ADD_PRINT_TEXT("35.00mm","1.00mm","42.07mm","5.29mm","炉号 "+data.tph);
+				    LODOP.ADD_PRINT_TEXT("35.00mm","36.50mm","42.07mm","5.29mm","数量 "+data.tsl);
+				    LODOP.ADD_PRINT_TEXT("40.50mm","1.00mm","41.01mm","5.29mm","工作 "+data.gzname);
+				    LODOP.ADD_PRINT_TEXT("40.50mm","36.50mm","41.01mm","5.29mm","车台 "+data.ctname);
+				    LODOP.ADD_PRINT_TEXT("46.00mm","1.00mm","40.22mm","5.29mm","开始 "+data.kssj);
+				    LODOP.ADD_PRINT_TEXT("46.00mm","36.50mm","40.22mm","5.29mm","完成 "+data.wcsj);
+			        LODOP.SET_PREVIEW_WINDOW(1,2,1,700,500,'');
+			        LODOP.PREVIEW();
+			        //LODOP.PREVIEW("_dialog",500,400,'');
+			        //LODOP.PRINTA();
+		        } else {
+		            hmq.tipDanger(res.msg);
+		        }
+		    });
+
+		}else {
+			return hmq.tipDanger('请选择一行数据！');
+		}
+	}
+	function print_option3(){
+		LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));
+		LODOP.PRINT_INITA("0mm","0mm","70.01mm","50.01mm","标签");
+		LODOP.PRINT_DESIGN();
+	}
+</script>
+
+</html>

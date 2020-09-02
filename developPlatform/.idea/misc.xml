@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/Platform_wireerp" />
+  </component>
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/basicsPlatform/pom.xml" />
+        <option value="$PROJECT_DIR$/commonPlatform/pom.xml" />
+        <option value="$PROJECT_DIR$/loggingPlatform/pom.xml" />
+        <option value="$PROJECT_DIR$/Platform_gab/pom.xml" />
+        <option value="$PROJECT_DIR$/Platform_IM/pom.xml" />
+        <option value="$PROJECT_DIR$/Platform_wireerp/pom.xml" />
+        <option value="$PROJECT_DIR$/securityPlatform/pom.xml" />
+        <option value="$PROJECT_DIR$/workflowPlatform/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/workflowPlatform/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+  <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="https://119.3.70.222:8443/svn/nbtzrepository/developPlatform" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/Platform_gab">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="trunkUrl" value="https://119.3.70.222:8443/svn/nbtzrepository/GAB/Platform_gab" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -1,0 +1,212 @@
+package com.tengzhi.business.base.publicinterfac;
+
+import com.tengzhi.base.security.common.tool.spring.SpringUtil;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.params.service.SysParamService;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+
+/**
+ * 行业分类参数获取
+ * @author: gaodu
+ * @date: 2020/6/24 20:58
+ **/
+public class ProductType {
+    private static SysParamService sysParamService = null;
+    public static String WL = "WL";
+    public static String CP = "CP";
+
+    /**
+     * 动态字段
+     */
+    /*public enum DynamicField {
+        cpcodeXp("cpcodeXp"),
+        cpcodeSizeEn("cpcodeSizeEn"),
+        cpcodeName("cpcodeName"),
+        cpcodeSize("cpcodeSize"),
+        cpcodeFl("cpcodeFl"),
+        cpcodeCheck("cpcodeCheck");
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        private void setName(String name) {
+            this.name = name;
+        }
+
+        DynamicField(String name) {
+            setName(name);
+        }
+    }*/
+
+    /**
+     * 参数ID
+     */
+    private String paramId;
+    /**
+     * 参数名称
+     */
+    private String paramName;
+    /**
+     * 参数类型
+     */
+    private String paramType;
+    /**
+     * 参数xtype
+     */
+    private String paramXtype;
+    /**
+     * 是否自动编码(根据行业分类中的第二个参数确定)
+     */
+    private String automaticCoding;
+
+    public String getParamId() {
+        return paramId;
+    }
+
+    private void setParamId(String paramId) {
+        this.paramId = paramId;
+    }
+
+    private void setParamName(String paramName) {
+        this.paramName = paramName;
+    }
+
+    private void setParamType(String paramType) {
+        this.paramType = paramType;
+    }
+
+    public String getParamName() {
+        return paramName;
+    }
+
+    public String getParamType() {
+        return paramType;
+    }
+
+    public String getAutomaticCoding() {
+        return automaticCoding;
+    }
+
+    public String getParamXtype() {
+        return paramXtype;
+    }
+
+    private void setParamXtype(String paramXtype) {
+        this.paramXtype = paramXtype;
+    }
+
+    public boolean isAutomaticCoding() {
+        return !"手动编码".equalsIgnoreCase(String.valueOf(automaticCoding).trim());
+    }
+
+    private void setAutomaticCoding(String automaticCoding) {
+        this.automaticCoding = automaticCoding;
+    }
+
+    /**
+     * 构造函数
+     *
+     * @param paramId    参数ID
+     * @param paramName  参数名称
+     * @param paramType  参数类型
+     * @param paramXtype 参数Xtype
+     */
+    ProductType(String paramId, String paramName, String paramType, String paramXtype) {
+        setParamId(paramId);
+        setParamName(paramName);
+        setParamType(paramType);
+        setParamXtype(paramXtype);
+    }
+
+    /**
+     * 从paramId获取参数配置
+     *
+     * @param paramId      行业参数ID
+     * @param defaultValue 默认值
+     * @return
+     */
+    public static ProductType valueOfParamId(Object paramId, @NotNull String defaultValue) {
+        if (null == paramId || StringUtils.isEmpty(paramId.toString())) {
+            paramId = null == defaultValue ? StringUtils.EMPTY : defaultValue;
+        }
+        if (null == sysParamService) {
+            sysParamService = SpringUtil.getBean(SysParamService.class);
+        }
+        //读取参数配置
+        SysParams sysParam = sysParamService.findByParameterId(String.valueOf(paramId), "行业分类");
+        ProductType productType = new ProductType(sysParam.getParamId(), sysParam.getParamName(), sysParam.getParamType(), sysParam.getParamXtype());
+        //填充编码规则
+        productType.setAutomaticCoding(sysParam.getParamValue2());
+        return productType;
+    }
+
+    /**
+     * 从paramId获取参数配置
+     *
+     * @param paramId 行业参数ID
+     * @return
+     */
+    public static ProductType valueOfParamId(Object paramId) {
+        return valueOfParamId(paramId, null);
+    }
+
+
+    /**
+     * 获取字段名称
+     *
+     * @param dynamicField 字段(对应paramValue1的值)
+     * @return
+     */
+    public String getFieldParamName(String dynamicField) {
+        return getChildrenNode(dynamicField).getParamName();
+    }
+
+    /**
+     * 获取字段控件类型
+     *
+     * @param dynamicField 字段(对应paramValue1的值)
+     * @return
+     */
+    public String getFieldParam2Value(String dynamicField) {
+        return getChildrenNode(dynamicField).getParamValue2();
+    }
+
+    /**
+     * 获取控件绑定的参数
+     *
+     * @param dynamicField 字段(对应paramValue1的值)
+     * @return
+     */
+    public String getFieldParam3Value(String dynamicField) {
+        return getChildrenNode(dynamicField).getParamValue3();
+    }
+
+    /**
+     * 获取当前行业分类下面的指定子节点
+     *
+     * @return
+     */
+    public List<SysParams> getChildrenNode() {
+        List<SysParams> sysParamsList = sysParamService.findByParentIdAndParamXtype(getParamId(), getParamXtype());
+        return sysParamsList;
+    }
+    /**
+     * 获取当前行业分类下面的指定子节点
+     *
+     * @param dynamicField 字段(对应paramValue1的值)
+     * @return
+     */
+    private SysParams getChildrenNode(String dynamicField) {
+        return getChildrenNode()
+                .stream()
+                .filter(sysParams -> dynamicField.equals(sysParams.getParamValue1()))
+                .findFirst().orElse(new SysParams());
+    }
+
+
+}

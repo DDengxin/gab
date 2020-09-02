@@ -1,0 +1,49 @@
+package com.tengzhi.business.sc.finishedPicking.notice.dao.impl;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.sc.finishedPicking.notice.dao.finishedPickingNoticeDao;
+import org.springframework.stereotype.Repository;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Repository
+public class finishedPickingNoticeDaoNoticeDaoImpl extends BasicsDaoImpl<String, String>
+        implements finishedPickingNoticeDao {
+
+    @Override
+    public List<Map<String, Object>> findOrderNo(String type) {
+        SessionUser securityUser = SessionUser.SessionUser();
+        String sql = "select  *  from e_xs_contract a where a.ht_stype = '" + type
+                + "' and ht_flag='核准' and data_corp='" + securityUser.getCorpId() + "'";
+        return super.queryToMap(sql);
+    }
+
+    @Override
+    public Result findSerialNumber(BaseDto dto) {
+        Map<String, String> map = dto.getParamsMap();
+        SessionUser sessionUser = SessionUser.SessionUser();
+        String where = SqlJoint.start()
+                .eq("corpid", sessionUser.getCorpId(), true)
+                .eq("dtype", map.get("type"), true)
+                .eq("code", map.get("cpcodeId"))
+                .eq("cpcodename", map.get("cpcodeName")).getAndSuffixSqlStr();
+
+        String sql = "select *,f_getparamname('GETCPCODEXP',cpcode_xp,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')  cpcode_xp_name  "
+                + " from ( "
+                + "     select code,cpcodename,cpcode_size,cpcodebzname,cpcode_xp,cpcode_type,sum(sl) sl "
+                + "     from v_ck_mx  "
+                + "     where  1=1 " + where
+                + "     group by code,cpcodename,cpcode_size,cpcodebzname,cpcode_xp,cpcode_type "
+                + " ) t";
+        String countSql = "select count(1) from (select * from v_ck_mx where 1=1 " + where + ") t";
+        Map<String, Object> map1 = new HashMap<String, Object>();
+        return super.QueryPageList(sql, countSql, map1, dto);
+    }
+
+}

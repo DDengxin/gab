@@ -1,0 +1,148 @@
+.layui-form-select {
+    width: 25%;
+}
+.bussiness .layui-form-select{
+    width: 54% !important;
+}
+
+.layui-form-select input {
+    width: 100% !important;
+    padding-right: 0 !important;
+}
+
+.layui-form-select .layui-select-title {
+    width: 100%;
+}
+.layui-input{
+    width: 100% !important;
+}
+.layui-inline .layui-input {
+    width: 255px !important;
+}
+
+.layui-textarea {
+    resize: none;
+}
+
+.layui-form-item .layui-inline:first-child {
+    margin-right: 165px;
+}
+
+.checkbox-width {
+    width: 54% !important;
+    margin: 0 !important;
+}
+
+.layui-input-block {
+    position: relative;
+}
+
+.layui-input-block i {
+    position: absolute;
+    right: 5px;
+    top: 9px;
+    color: #666;
+}
+
+.pad {
+    padding-right: 20px;
+}
+
+.layui-form-label {
+    padding: 9px 8px !important;
+}
+
+.layui-form-item b {
+    left: 93px !important;
+}
+
+.layui-inline .layui-form-select {
+    width: 100% !important;
+}
+
+.input_box {
+    margin-left: 0 !important;
+}
+
+.input_box .input_content {
+    border-color: #e6e6e6 !important;
+    height: 38px !important;
+    line-height: 36px !important;
+    border-radius: 2px !important;
+}
+
+.keyTips {
+    color: #999;
+}
+
+.input_box a {
+    padding: 0px 14px 0 5px !important;
+    height: 38px;
+    line-height: 36px;
+    position: relative;
+}
+
+.input_box em {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.layui-form-checkbox i {
+    height: 30px !important;
+}
+
+.layui-form-checked span, .layui-form-checked:hover span {
+    background-color: #409fff !important;
+}
+
+.layui-form-checked i, .layui-form-checked:hover i {
+    color: #409fff !important;
+}
+
+.address-width {
+    width: 100% !important;
+}
+
+select {
+    width: 21.6% !important;
+    height: 38px;
+    float: left;
+    margin-right: 15px;
+    border: 1px solid #e6e6e6;
+    padding-left: 10px;
+    color: rgb(103, 103, 103);
+    cursor: pointer;
+}
+
+.user-address-width .layui-form-select {
+    width: 25% !important;
+    float: left;
+    margin-right: 10px;
+}
+.layui-form-select dl dd.layui-this {
+    background-color: #409fff;
+    color: #fff;
+}
+.layui-btn{
+    margin-left: 300px !important;
+}
+input[disabled='true']{
+    background: rgb(246, 246, 246) !important;
+}
+.edit{
+    width: 80px;
+    height: 38px;
+    border: none;
+    background: #409fff;
+    color: #fff;
+    position: absolute;
+    top: 0px;
+    left: 270px;
+}
+.layui-textarea {
+    min-height: 76px !important;
+}
+.inputCheckbox .layui-inline:first-child{
+    margin: 0 !important;
+}

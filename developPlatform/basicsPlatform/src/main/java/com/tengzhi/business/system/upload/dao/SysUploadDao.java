@@ -1,0 +1,33 @@
+package com.tengzhi.business.system.upload.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.system.upload.model.SysUpload;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Date;
+
+public interface SysUploadDao extends BasedaoRepository<SysUpload,String>{
+
+    @Modifying
+    @Query(value = "DELETE FROM com_file where uuid=:uuid",nativeQuery = true)
+    int deleteByUuid(@Param("uuid") String uuid);
+
+    @Query(value = "SELECT * FROM com_file where uuid=:uuid",nativeQuery = true)
+    SysUpload getByUuid(@Param("uuid") String uuid);
+    
+    @Query(value = "SELECT uuid FROM com_file where line_primary=:file_id ",nativeQuery = true)
+    String getUuid(@Param("file_id") String file_id);
+
+    /*SysUpload findByLine_primary(String linePrimary);*/
+
+    @Modifying
+    @Query(value = "INSERT INTO com_file(uuid,parent_uuid,upload_date,upload_user_id,file_name,file_path,file_sufixx,line_primary,power,denydelete,denydownload,file_backup,converter_html)VALUES(:uuid,:parent_uuid,:upload_date,:upload_user_id,:file_name,:file_path,:file_sufixx,:line_primary,:power,:denydelete,:denydownload,:file_backup,:converter_html);",nativeQuery = true)
+    int add(@Param("uuid") String uuid,@Param("parent_uuid") String parent_uuid,@Param("upload_date") Date upload_date,
+    		@Param("upload_user_id") String upload_user_id,@Param("file_name") String file_name,@Param("file_path") String file_path,
+			@Param("file_sufixx") String file_sufixx, @Param("line_primary") String line_primary,
+			@Param("power") String power, @Param("denydelete") String denydelete,
+			@Param("denydownload") String denydownload, @Param("file_backup") String file_backup,
+			@Param("converter_html") String converter_html);
+}

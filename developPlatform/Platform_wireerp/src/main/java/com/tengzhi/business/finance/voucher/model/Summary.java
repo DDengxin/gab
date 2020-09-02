@@ -1,0 +1,41 @@
+package com.tengzhi.business.finance.voucher.model;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity(name = "e_f_voucher_summary")
+public class Summary {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long fid;
+	private String fdesc;
+	private String finternalind;
+	private String dataCorp;
+	public Long getFid() {
+		return fid;
+	}
+	public void setFid(Long fid) {
+		this.fid = fid;
+	}
+	public String getFdesc() {
+		return fdesc;
+	}
+	public void setFdesc(String fdesc) {
+		this.fdesc = fdesc;
+	}
+	public String getFinternalind() {
+		return finternalind;
+	}
+	public void setFinternalind(String finternalind) {
+		this.finternalind = finternalind;
+	}
+	public String getDataCorp() {
+		return dataCorp;
+	}
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+	
+}

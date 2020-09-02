@@ -1,0 +1,136 @@
+
+getMyShoppingCart()
+
+$(function () {
+    // 省市联动
+    // new PCAS("district","city");
+
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on('submit(productAction)', function (data) {
+            console.log(data.elem) //被执行事件的元素DOM对象，一般为button对象
+            console.log(data.form) //被执行提交的form对象，一般在存在form标签时才会返回
+            console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+            //return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+    });
+
+    // $('.submit').click(function () {
+    //     var data = $('form').serializeArray();
+    //     console.log(data);
+    //     return false;
+    // })
+
+    // 总件数
+    var num = 0;
+    $("table tr").each(function (i, e) {
+        if (i > 0) num += parseInt($(e).find("td:eq(3)>em").text());
+        return num;
+    });
+    $('.summary').find("div:eq(0)>span").text(num);
+
+    // 商品总计
+    var total = 0;
+    $("table tr").each(function (i, e) {
+        if (i > 0) total += parseInt($(e).find("td:eq(4)>em").text());
+        return total;
+    });
+    $('.summary').find("div:eq(0)>strong>em").text(total);
+
+})
+
+// 设为默认地址
+function defaultAddress(el){
+    $('ol>li').find('div:eq(0)>span').removeClass('setDefault');
+    $(el).parent().parent().find('div:eq(0)>span').addClass('setDefault');
+}
+
+// 新增地址
+function addAddress() {
+    $('.needsInp').css('display', 'block');
+}
+
+// 编辑地址
+function edit(el) {
+    $('.needsInp').css('display', 'block');
+}
+
+// 删除地址
+function deleteAddress(el) {
+    $(el).parent().parent().remove();
+}
+
+
+function getMyShoppingCart() {
+    var productIds = window.sessionStorage.getItem("productIds").split(',');
+    // var productIds = window.sessionStorage.getItem("productIds")
+    console.log(productIds)
+    $.ajax({
+        url: "/platform/shopping/getorderSure",
+        type: 'POST',
+        data: {
+          "productIds": productIds,
+        },
+        traditional: true,
+        async: true,
+        success: function (res) {
+            if(res.code == 200){
+                creatShopHtml(res.data);
+
+            }
+        }
+    });
+
+}
+function creatShopHtml(data){
+
+
+    var html = "";
+    var supply = "";
+    for(let i = 0;i < data.length;i++){
+        if(supply != data[i].productCompany){
+            if(i>0){
+                html += '</tbody>';
+            }
+            supply = data[i].productCompany
+            html += '<tbody>' +
+                '<tr>' +
+                '<td colspan="6">' +
+                '<div class="company-name">' +
+                '<input type="checkbox" onclick="selectP(this)">' +
+                '<a href="#">'+data[i].productcompany+'</a>' +
+                '</div>' +
+                '</td>' +
+                '</tr>';
+        }
+        html += '<tr name="tr1" class="goodsList">' +
+            '<td>' +
+            '<div class="all-sp">' +
+            '<input type="checkbox" name="checkboxname" onchange="selectC(this)" value="'+data[i].productId+'">' +
+            '<a href="javascript:void(0);"><img src="/system/setting/image?line_primary='+data[i].coverpicture+'" default-img="/static/gab/images/wt.png"></a>' +
+            '</div>' +
+            '</td>' +
+            '<td>' +
+            '<p class="sp-p"><a href="#">'+data[i].cpcodename+'</a></p>' +
+            '</td>' +
+            '<td align="middle"><span class="under-span"><em>￥</em><em>10.00</em></span></td>' +
+            '<td align="middle">' +
+            '<div class="num-div">' +
+            '<a href="javascript:void(0);" onclick="clickNumber(this,-1);">-</a>' +
+            '<input type="text" value="1" onchange="changeNumber(this);" name="productCount">' +
+            '<a href="javascript:void(0);" onclick="clickNumber(this,1);">+</a>' +
+            '</div>' +
+            '</td>' +
+            '<td align="middle"><span class="under-span">' +
+            '<em>￥</em><em class="smallTotal">0.00</em></span></td>' +
+            '<td align="middle">' +
+            '<a class="remove-a" href="javascript:void(0);" onclick="deleteR(this,\''+data[i].productId+'\')">' +
+            '<i class="layui-icon layui-icon-delete"></i>' +
+            '</a>' +
+            '</td>' +
+            '</tr>';
+    }
+    $(".js-tab tboby").remove();
+    $(".js-tab").append(html);
+}
+

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>结算账户【新增】</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+	<form id="form1" method="post">
+        <table class="hmq-modify-table">
+        	<tr>
+                <td title>账户id:</td>
+            	<td>
+	                 <input  id="accountid" name="accountid" class="mini-textbox" style="width:200px;" required> </input>
+				</td>
+
+            </tr>
+          	<tr>
+                <td title>账户名称:</td>
+            	<td>
+	                 <input  id="accountname" name="accountname" class="mini-textbox" style="width:200px;" required> </input>
+				</td>
+
+            </tr>
+
+				<tr>
+					<td title>期初余额:</td>
+            	<td>
+	                 <input  id="qcje" name="qcje" class="mini-textbox" style="width:200px;" required> </input>
+				</td>
+				</tr>
+				<tr>
+					<td title>备注:</td>
+            	<td>
+	                 <input  id="remarks" name="remarks" class="mini-textbox" style="width:200px;" required> </input>
+				</td>
+				</tr>
+			</table>
+	</form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form1");
+
+		function SetData(options) {
+			console.log(options);
+			if ('add' == options.action) {
+				$('[name=action]').val(options.action);
+			} else if ('edit' == options.action) {
+				$.get("/finance/voucher/settlementAcNo/saveSettlementAcNo}"
+						.format(options.data.fid), function(res) {
+					if (200 === res.code) {
+						form.setData(res.data);
+						tableName();
+					}
+				});
+			}
+		}
+
+		function SaveData() {
+			if (form.validate() && form.isValid()) {
+				var method = 'add' == $('[name=action]').val() ? 'post'
+						: 'post';
+				$[method]("/finance/voucher/settlementAcNo/saveSettlementAcNo", JSON
+						.stringify(form.getData()), function(res) {
+					if (200 === res.code) {
+						hmq.tipSuccess(res.msg || '保存成功', {
+							exec : function() {
+								CloseWindow('refresh');
+							}
+						});
+					} else {
+						hmq.tipDanger(res.msg || '保存失败');
+					}
+				}, null, {
+					contentType : 'application/json'
+				});
+			}
+		}
+	</script>
+
+
+</html>

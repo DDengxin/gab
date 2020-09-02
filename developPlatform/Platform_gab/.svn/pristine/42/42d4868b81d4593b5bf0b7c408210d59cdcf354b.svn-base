@@ -1,0 +1,28 @@
+package com.tengzhi.business.platform.manage.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.platform.manage.model.G_PriceConfigure;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@SuppressWarnings("rawtypes")
+public interface PriceConfigureService  extends BaseService{
+	//新增
+	Result  save(G_PriceConfigure model) throws Exception;
+	//查询所有数据，适合分页
+	BasePage<Map<String, Object>> getSrch(BaseDto baseDto) throws IOException;
+	
+	G_PriceConfigure findByPcNote(String Id);
+	
+	void update(G_PriceConfigure advisory);
+	
+	void deleteByPcNote(String Id);
+	//通过类型查找数据
+	List<Map<String,Object>> findByType(String type);
+
+}

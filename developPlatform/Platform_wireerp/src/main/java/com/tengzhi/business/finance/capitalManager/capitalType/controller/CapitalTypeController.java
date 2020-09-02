@@ -1,0 +1,85 @@
+package com.tengzhi.business.finance.capitalManager.capitalType.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.finance.capitalManager.capitalType.model.EFVoucherCapitaltype;
+import com.tengzhi.business.finance.capitalManager.capitalType.service.CapitalTypeService;
+import com.tengzhi.business.finance.reportItem.service.ReportItemService;
+import com.tengzhi.business.finance.reportItem.vo.ReportItemVo;
+import com.tengzhi.business.project.projectProcess.projectTask.model.EXmXmrw;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/finance/capitalManager/capitalType/")
+public class CapitalTypeController {
+
+
+    @Autowired
+    private CapitalTypeService service;
+
+    @GetMapping("*.html")
+    public ModelAndView pageForwart(ModelAndView mv) {
+        return mv;
+    }
+
+    /**
+     * 新增保存
+     */
+    @PostMapping("add.html")
+    public Result saveData(@RequestBody EFVoucherCapitaltype model) throws Exception {
+        return Result.resultOk(service.save(model));
+    }
+
+
+    @GetMapping("getById/{sid}")
+    public Result getById(@PathVariable String sid){
+        return Result.resultOk(service.findById(sid));
+    }
+
+    /**
+     * 删除对象数据
+     * @param cId
+     * **/
+    @DeleteMapping(value = "deleteById/{cId}")
+    public Result delete(@PathVariable(value = "cId") String cId) {
+        service.deleteByNote(cId);
+        return Result.resultOk();
+    }
+
+
+    /**
+     *
+     *修改数据
+     * @param model
+     * */
+    @PutMapping("add.html")
+    public Result modify(@RequestBody EFVoucherCapitaltype model) {
+        service.update(model);
+        return Result.resultOk();
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @return
+     */
+    @PostMapping(value = "list.html")
+    public Result getList(BaseDto baseDto) throws IOException {
+        return service.getList(baseDto).getResult();
+    }
+
+    /**
+     * 资产类别下拉选
+     */
+    @RequestMapping("getCapitalSelectList.html")
+    public List<Map<String,Object>> getCapitalSelectList(){
+        return service.getCapitalSelectList();
+    }
+
+
+}

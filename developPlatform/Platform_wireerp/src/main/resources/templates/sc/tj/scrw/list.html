@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>系统参数</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <!--<input class="mini-hidden" name="orient"/>
+        <input class="mini-hidden" name="paramType"/>
+        <input class="mini-hidden" name="paramXtype"/>-->
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="类别">
+            <input class="mini-combobox" id="srchCpcodeType" name="srchCpcodeType" width="70px" url="/system/parameter/getCorpChainOrCorpProduction/SC" onvaluechanged="onValueChangeType"/>
+        </label>
+        <label class="hmq-label" text="任务单">
+            <input class="mini-textbox" name="srchScmo" id="srchScmo"/>
+        </label>
+        <label class="hmq-label" text="订单号">
+            <input class="mini-textbox" name="srchNote" id="srchNote" width="100"/>
+        </label>
+        <label class="hmq-label" text="品号" for="cpcodeName">
+            <input class="mini-textbox" id="cpcodeName" name="srchCode"  width="100"/>
+        </label>
+        <label class="hmq-label" text="规格" for="cpcodeSize">
+            <input class="mini-textbox" id="cpcodeSize" name="srchSize"  width="100"/>
+        </label>
+
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <!--virtualScroll参数请不要轻易设置，只因为该页参数过多，为提高流畅度才使用-->
+    <div tz:datagrid="treegrid" id="srch_grid" sortField="gxOrd" treeColumn="trename"
+         idField="scMo" parentField="pid" resultAsTree="true"
+         expandOnLoad="0" showTreeLines="true" ShowTreeicon="false" pageSize="100"
+         showPageInfo="false" virtualScroll="true">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="scMo" name="trename" displayField="scMoName" width="260">任务单</div>
+            <div tz:datagrid="column" field="code" name="code" width="100" align="center">品号</div>
+            <div tz:datagrid="column" name="cpcodeName" field="cpcodeName" displayField="cpcodeNameName" width="150" align="left">品名</div>
+            <div tz:datagrid="column" name="cpcodeSize" field="cpcodeSize" displayField="cpcodeSizeName" width="80" align="center">规格</div>
+            <div tz:datagrid="column" field="gxCt" displayField="ctName" align="left">车台</div>
+            <div tz:datagrid="column" field="jhSl" width="90" align="right" numberFormat="#,0.000">计划数量</div>
+            <div tz:datagrid="column" field="wcSl" width="90" align="right" numberFormat="#,0.000">已完成</div>
+            <div tz:datagrid="column" field="wwSl" width="90" align="right" numberFormat="#,0.000">未完成</div>
+            <div tz:datagrid="column" field="blSl" width="90" align="right" numberFormat="#,0.000">不良</div>
+            <div tz:datagrid="column" field="scMan" align="left">生产人员</div>
+            <div tz:datagrid="column" field="scMoName" name="scMoName" width="100" align="center" visible="false"></div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    mini.get("srchCpcodeType").select(0);
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+        grid.collapseAll();
+    }
+
+    function onValueChangeType() {
+        var srchCpcodeType = mini.get("srchCpcodeType").getValue();
+        //动态列转换
+        if (hmq.isNotEmpty(srchCpcodeType)) {
+            hmq.business.dynamicProductParams(srchCpcodeType, {
+                miniDataGrid: grid,
+                miniForm: form,
+                formMapping: {
+                    cpcodeName: 'cpcodeName',
+                    cpcodeSize: 'cpcodeSize'
+                },
+                success: function (map, res) {
+                    search_option();
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }
+        //end
+    }
+
+    //拦截加载事件，加载树形结构
+    grid.on('load', function (e) {
+
+        var tree = new mini.DataTree();
+        tree.setExpandOnLoad(grid.getExpandOnLoad());
+        tree.setSortOrder(grid.getSortField());
+        tree.setCheckSelectOnLoad(grid.getCheckSelectOnLoad());
+        tree.setMultiSelect(grid.setMultiSelect());
+        tree.setData(mini.listToTree(JSON.parse(e.text).data, grid.getNodesField(), grid.getIdField(), grid.getParentField()));
+
+
+        //过滤参数类型
+        var paramTypes = mini.get("srchScmo").getValue();
+        if (paramTypes.length > 0) {
+            var parentNodes = tree.getAllChildNodes().filter(function (node) {
+                return !!~node.scMo.indexOf(paramTypes);
+            });
+            tree.filter(function (node) {
+                for (var i = 0, max = parentNodes.length; i < max; i += 1) {
+                    if (parentNodes[i].scMoName == node.scMoName || tree.isAncestor(parentNodes[i], node)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        grid.loadList(tree.getDataView());
+        //销毁控件，释放内存
+        tree.destroy();
+    });
+
+
+</script>
+
+</body>
+</html>
+
+

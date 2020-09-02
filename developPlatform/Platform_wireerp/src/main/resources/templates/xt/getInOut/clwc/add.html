@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>车辆外出【新增】</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input id="action" name="action" class="mini-hidden"/>
+        <label class="hmq-label" text="日期">
+            <input id="srchRq1" name="srchRq1" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input id="srchRq2" name="srchRq2" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="wcRq" sort url="/xt/getInOut/clwc/getWcsqList"
+         multiSelect="true" style="width:100%;height:250px;">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="wcRq" width="100" align="center">外出日期</div>
+            <div tz:datagrid="column" field="wcsqNote" width="140" align="center">单号</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="corpExp" width="80" align="left">公司</div>
+            <div tz:datagrid="column" field="wcDept" displayField="deptName" width="80" align="right">部门</div>
+            <div tz:datagrid="column" field="wcMan" displayField="wcManName" width="80" align="center">申请人</div>
+            <div tz:datagrid="column" field="wcAdd"  width="120" align="left">外出地点</div>
+            <div tz:datagrid="column" field="wcTcrq" width="100" align="center">预计出厂时间</div>
+            <div tz:datagrid="column" field="wcThrq" width="100" align="center">预计回厂时间</div>
+            <div tz:datagrid="column" field="wcYc"  width="100" align="left">是否用车</div>
+            <div tz:datagrid="column" field="wcYcsm"  width="160" align="left">用车说明</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<div tz:datagrid="datagrid" id="datagrid" idField="wcRq" sortField="wcRq" sortOrder="desc" style="width:100%;height:250px;" url="/xt/getInOut/clwc/getById"
+         allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+         showPager="false" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true"
+         showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" allowSortColumn="false">
+    <input id="wcRq" name="wcRq" class="mini-hidden" />
+    <div property="columns">
+        <div tz:datagrid="checkcolumn" width="35"></div>
+        <div tz:datagrid="column" field="wcsqNote" name="wcsqNote" align="left" width="120">外出单号</div>
+        <div tz:datagrid="column" field="dataCorp" name="dataCorp" displayField="corpExp" align="right" width="80">公司</div>
+        <div tz:datagrid="column" field="wcDept" name="wcDept" displayField="deptName" align="left" width="80">部门</div>
+        <div tz:datagrid="column" field="wcMan" name="wcMan" displayField="wcManName" align="center" width="80">申请人</div>
+        <div tz:datagrid="column" field="wcAdd" name="wcAdd" align="left" width="120">外出地点</div>
+        <div tz:datagrid="column" field="wcTcrq" name="wcTcrq" align="center" width="100">预计出厂日期</div>
+        <div tz:datagrid="column" field="wcThrq" name="wcThrq" align="center" width="100">预计回厂日期</div>
+        <div tz:datagrid="column" field="wcYc" name="wcYc" align="left" width="80">是否用车</div>
+        <div tz:datagrid="column" field="wcYcsm" name="wcYcsm" align="left" width="180">用车说明</div>
+        <div tz:datagrid="column" field="wcCp" name="wcCp" align="center" width="100">车牌号
+            <input property="editor" class="mini-textbox" />
+        </div>
+        <div tz:datagrid="column" field="wcDriver" name="wcDriver" displayField="driverName" align="center" width="100">驾驶员
+            <input property="editor" class="mini-buttonedit" onbuttonclick="onButtonEditMan" />
+        </div>
+        <div tz:datagrid="column" field="wcCclc" name="wcCclc" align="right" width="100">出厂里程
+            <input property="editor" class="mini-textbox" />
+        </div>
+        <div tz:datagrid="column" field="wcHclc" name="wcHclc" align="right" width="100">回厂里程
+            <input property="editor" class="mini-textbox" />
+        </div>
+        <div tz:datagrid="column" field="wcSm" name="wcSm" align="left" width="160">备注
+            <input property="editor" class="mini-textbox" />
+        </div>
+    </div>
+</div>
+<!--<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>-->
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_grid = mini.get("srch_grid");
+    var grid = mini.get("datagrid");
+    srch_grid.bindSearchForm(form);
+    /*srch_grid.frozenColumns(0,6);
+    grid.frozenColumns(0,5);*/
+
+    function search_option(){
+        srch_grid.load();
+    }
+    /**
+     新增行
+     */
+    function addRow() {
+        /*var index = grid.getData().length;
+        var newRow = {
+            name: "",
+        };
+        grid.addRow(newRow, index + 1);*/
+        var rows = srch_grid.getSelecteds();
+        if(rows.length > 0){
+            rows = mini.clone(rows); //必须
+            srch_grid.removeRows(srch_grid.getSelecteds());
+            grid.addRows(rows);
+        }else{
+            hmq.tipDanger('请选择一条外出申请');
+        }
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+            srch_grid.addRows(rows);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("sid").getValue();
+        var rows = grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                grid.removeRows(rows, true);
+            }
+        }
+    }
+    /**
+     人员选择
+     */
+    function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                    mini.get("jbDept").setValue(data.workerDept);
+                }
+            }
+        });
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed', false);
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            console.log(method);
+            $[method]("add.html", JSON.stringify({
+                eXtClwc: form.getData(true),
+                eXtClwcList: entrydata,
+                removedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh',false);
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     * 回调函数
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+
+            //普通口径
+            var formData = options.data.formData;
+            var row = options.data.row;
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+                data = mini.clone(options);
+                form.setChanged(false);
+            } else if ('edit' == options.action) {
+                /*$.get("getById/{0}".format(row.note), function (res) {
+                    if (200 === res.code) {
+                        var data = mini.clone(res.data);
+                        /!*grid.setData(res.data);*!/
+                        grid.load({
+                            params: JSON.stringify({note: data.note})
+                        });
+                    }
+                });*/
+                grid.load({
+                    params: JSON.stringify({note: row.note})
+                });
+            }
+        } else {
+            //审批口径
+            $.get("add.html/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            }, null, null, {
+                complete: function () {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //表单只读
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+    }
+</script>
+</html>

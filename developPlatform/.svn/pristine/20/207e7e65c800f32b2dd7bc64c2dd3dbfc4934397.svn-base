@@ -1,0 +1,20 @@
+#【【【东台屾盛】】】生产环境Tomcat端口配置
+server:
+  port: 80
+
+spring:
+  profiles:
+    include: prod-base #引入其他配置文件
+  datasource:
+    url: jdbc:postgresql://122.112.193.222:5432/tz_dtss?currentSchema=dtss #部署数据库连接
+    password: tzsoft@2020 #密码
+    username: dtss #账号
+
+kkfileview:
+  ip: 122.112.225.103
+  port: 8082
+
+collocate:
+  business:
+    userName: 1001 #超级用户
+    defaultCorp: SS #登录页面展示的默认账套

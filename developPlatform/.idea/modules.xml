@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Platform_IM/Platform_IM.iml" filepath="$PROJECT_DIR$/Platform_IM/Platform_IM.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Platform_gab/Platform_gab.iml" filepath="$PROJECT_DIR$/Platform_gab/Platform_gab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Platform_wireerp/Platform_wireerp.iml" filepath="$PROJECT_DIR$/Platform_wireerp/Platform_wireerp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/basicsPlatform/basicsPlatform.iml" filepath="$PROJECT_DIR$/basicsPlatform/basicsPlatform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/commonPlatform/commonPlatform.iml" filepath="$PROJECT_DIR$/commonPlatform/commonPlatform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/developPlatform.iml" filepath="$PROJECT_DIR$/developPlatform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/loggingPlatform/loggingPlatform.iml" filepath="$PROJECT_DIR$/loggingPlatform/loggingPlatform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/securityPlatform/securityPlatform.iml" filepath="$PROJECT_DIR$/securityPlatform/securityPlatform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/workflowPlatform/workflowPlatform.iml" filepath="$PROJECT_DIR$/workflowPlatform/workflowPlatform.iml" />
+    </modules>
+  </component>
+</project>

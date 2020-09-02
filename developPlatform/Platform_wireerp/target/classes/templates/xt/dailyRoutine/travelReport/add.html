@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>差旅费用【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <input id="dataMan" name="dataMan" class="mini-hidden"/>
+        <input id="dataCorp" name="dataCorp" class="mini-hidden"/>
+        <input id="dataDate" name="dataDate" class="mini-hidden"/>
+        <input id="bzFlag" name="bzFlag" class="mini-hidden"/>
+        <input id="wcNote" name="wcNote" class="mini-hidden"/>
+        <input id="bzCorp" name="bzCorp" class="mini-hidden"/>
+        <div>
+        <table class="hmq-modify-table">
+            <tr >
+                <td title>申请日期：</td>
+                <td content>
+                    <input id="bzRq" name="bzRq" class="mini-datepicker" format="yyyy-MM-dd" required value="new Date()" />
+                </td>
+                <td title>姓名：</td>
+                <td content>
+                    <input id="bzMan" name="bzMan" class="mini-buttonedit" onbuttonclick="onButtonEditMan"
+                            required allowInput="false"/>
+                </td>
+                <td title>部门：</td>
+                <td content>
+                    <input id="bzDept" name="bzDept" class="mini-textbox" readonly />
+                </td>
+                <td title>职务：</td>
+                <td content>
+                    <input id="bzPost" name="bzPost" class="mini-textbox" readonly />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>费用类别：</td>
+                <td content>
+                    <select id="bzCostType" name="bzCostType" class="mini-combobox"  >
+                        <option value="内销费用">内销费用</option>
+                        <option value="外销费用">外销费用</option>
+                        <option value="常规费用">常规费用</option>
+                    </select>
+                </td>
+                <td title>暂借费用：</td>
+                <td content>
+                    <input id="bzCostBorrow" name="bzCostBorrow" class="mini-textbox" vtype="float" required value="0.0"  />
+                </td>
+
+                <td title>付款方式：</td>
+                <td content>
+                    <input id="bzPayMethod" name="bzPayMethod" class="mini-comboBox"
+                           url="/system/parameter/getParamsSelectList/财务/付款方式" required />
+                </td>
+
+                <td title>报支银行：</td>
+                <td content>
+                    <input id="bzBank" name="bzBank" class="mini-textbox"  />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>报支卡号：</td>
+                <td content colspan="3">
+                    <input id="bzCard" name="bzCard" class="mini-textbox"  />
+                </td>
+            </tr>
+        </table>
+        </div>
+<!--    </form>
+</div>-->
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="search_option" iconCls="icon-search" >查询明细</a>
+    <a class="mini-button" onclick="bz_option" iconCls="icon-search">帮助</a>
+</div>
+<div class="mini-fit">
+    <!--<div tz:datagrid="datagrid" id="srch_grid" idField="wcRq" sort url="/xt/dailyRoutine/travelReport/getWcsqList"
+         multiSelect="true" style="width:100%;height:160px;">-->
+    <div tz:datagrid="datagrid" id="srch_grid" idField="wcRq"  style="width:100%;height:160px;"url="/xt/dailyRoutine/travelReport/getWcsqList"
+         allowCellSelect="true" multiSelect="true" showPager="false" showColumnsMenu="true" showSummaryRow="true" >
+        <div property="columns">
+            <div tz:datagrid="checkcolumn" width="48"></div>
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="wcRq" width="100" align="center">外出日期</div>
+            <div tz:datagrid="column" field="note" width="140" align="center">单号</div>
+            <div tz:datagrid="column" field="wcDept" displayField="deptName" width="80" align="center">部门</div>
+            <div tz:datagrid="column" field="wcSm"  width="120" align="left">外出事由</div>
+            <div tz:datagrid="column" field="wcType"  width="120" align="left">外出类型</div>
+            <div tz:datagrid="column" field="wcAdd"  width="120" align="left">外出地点</div>
+            <div tz:datagrid="column" field="wcTcrq" width="140" align="center">预计出厂时间</div>
+            <div tz:datagrid="column" field="wcThrq" width="140" align="center">预计回厂时间</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<div >
+    <!--<form id="form2">-->
+        <table class="hmq-modify-table">
+            <tr >
+                <td title>单号：</td>
+                <td content>
+                    <input id="bzNote" name="bzNote" class="mini-textbox" readonly emptyText="自动生成"  />
+                </td>
+                <td title>日期(起)：</td>
+                <td content>
+                    <input id="wcStartRq" name="wcStartRq" class="mini-datepicker" format="yyyy-MM-dd"  value="new Date()" />
+                </td>
+                <td title>日期(止)：</td>
+                <td content>
+                    <input id="wcEndRq" name="wcEndRq" class="mini-datepicker" format="yyyy-MM-dd"  value="new Date()" />
+                </td>
+                <td title>共计(日)：</td>
+                <td content>
+                    <input id="wcDays" name="wcDays" class="mini-textbox"vtype="float"  />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>交通9%：</td>
+                <td content>
+                    <input id="bzCostTraffic9" name="bzCostTraffic9" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceTraffic9" name="bzInvoiceTraffic9" class="mini-textbox" vtype="int"  />
+                </td>
+
+                <td title>交通3%：</td>
+                <td content>
+                    <input id="bzCostTraffic3" name="bzCostTraffic3" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceTraffic3" name="bzInvoiceTraffic3" class="mini-textbox" vtype="int"  />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>交通其他：</td>
+                <td content>
+                    <input id="bzCostTraffic" name="bzCostTraffic" class="mini-textbox" vtype="float"   onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceTraffic" name="bzInvoiceTraffic" class="mini-textbox" vtype="int"  />
+                </td>
+                <td title>膳食补贴：</td>
+                <td content>
+                    <input id="bzSubMeals" name="bzSubMeals" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>膳食费：</td>
+                <td content>
+                    <input id="bzCostMeals" name="bzCostMeals" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceMeals" name="bzInvoiceMeals" class="mini-textbox" vtype="int"  />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>住宿6%：</td>
+                <td content>
+                    <input id="bzCostHotel6" name="bzCostHotel6" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceHotel6" name="bzInvoiceHotel6" class="mini-textbox" vtype="int" />
+                </td>
+                <td title>住宿3%：</td>
+                <td content>
+                    <input id="bzCostHotel3" name="bzCostHotel3" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceHotel3" name="bzInvoiceHotel3" class="mini-textbox" vtype="int"  />
+                </td>
+                <td title>住宿1%：</td>
+                <td content>
+                    <input id="bzCostHotel1" name="bzCostHotel1" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+            </tr>
+
+            <tr >
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceHotel1" name="bzInvoiceHotel1" class="mini-textbox" vtype="int"  />
+                </td>
+                <td title>住宿补贴：</td>
+                <td content>
+                    <input id="bzSubHotel" name="bzSubHotel" class="mini-textbox" vtype="float"  onvaluechanged="onChangeFy"/>
+                </td>
+      <!--      </tr>
+
+            <tr>-->
+                <td title>住宿其他：</td>
+                <td content>
+                    <input id="bzCostHotel" name="bzCostHotel" class="mini-textbox" vtype="float"   onvaluechanged="onChangeFy"/>
+                </td>
+                <td title>发票张数：</td>
+                <td content>
+                    <input id="bzInvoiceHotel" name="bzInvoiceHotel" class="mini-textbox" vtype="int" />
+                </td>
+                <td title>合计：</td>
+                <td content>
+                    <input id="bzCostTotal" name="bzCostTotal" class="mini-textbox" readonly   />
+                </td>
+            </tr>
+
+            <tr >
+                <td title>报支口径：</td>
+                <td content>
+                    <select id="bzKj" name="bzKj" class="mini-combobox"   >
+                        <option value="公共费用">公共费用</option>
+                        <option value="标件费用">标件费用</option>
+                        <option value="线材费用">线材费用</option>
+                    </select>
+                </td>
+                <td title>出差摘要(起讫地点)：</td>
+                <td content colspan="3">
+                    <input id="bzDigested" name="bzDigested" class="mini-textbox"  />
+                </td>
+            </tr>
+        </table>
+    <!--</form>-->
+</div>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<div tz:datagrid="datagrid" id="datagrid" idField="wcRq" sortField="bzNote" sortOrder="desc" style="width:100%;height:160px;" url="/xt/dailyRoutine/travelReport/getReportList"
+     allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+     showPager="false" OnCellCommitEdit="OnCellCommitEdit" allowCellValid="true" showColumnsMenu="true" onCellendEdit="onCellendEdit"
+     showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit" allowSortColumn="false">
+    <div property="columns">
+        <div tz:datagrid="checkcolumn" width="35"></div>
+        <div tz:datagrid="column" field="bzNote" name="bzNote" align="center" visible="false">bzNote</div>
+        <div tz:datagrid="column" field="wcStartRq" name="wcStartRq" align="center" width="100">开始日期
+            <input property="editor" class="mini-datepicker" style="width:100%;" />
+        </div>
+        <div tz:datagrid="column" field="wcEndRq" name="wcEndRq" align="center" width="100">结束日期
+            <input property="editor" class="mini-datepicker" style="width:100%;" />
+        </div>
+        <div tz:datagrid="column" field="wcDays" name="wcDays" align="right" width="80">出差天数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="int"/>
+        </div>
+        <div tz:datagrid="column" field="bzDigested" name="bzDigested" align="left" width="140">出差摘要
+            <input property="editor" class="mini-textbox" style="width:100%;" />
+        </div>
+        <div tz:datagrid="column" field="bzCostBorrow" name="bzCostBorrow" align="right" width="80">暂借费用
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostTraffic9" name="bzCostTraffic9" align="right" width="80">交通9%
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceTraffic9" name="bzInvoiceTraffic9" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostTraffic3" name="bzCostTraffic3" align="right" width="80">交通3%
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceTraffic3" name="bzInvoiceTraffic3" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostTraffic" name="bzCostTraffic" align="right" width="80">交通其他
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceTraffic" name="bzInvoiceTraffic" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostMeals" name="bzCostMeals" align="right" width="80">膳食费
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceMeals" name="bzInvoiceMeals" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzSubMeals" name="bzSubMeals" align="right" width="80">膳食补贴
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostHotel6" name="bzCostHotel6" align="right" width="80">住宿6%
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceHotel6" name="bzInvoiceHotel6" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostHotel3" name="bzCostHotel3" align="right" width="80">住宿3%
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceHotel3" name="bzInvoiceHotel3" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostHotel1" name="bzCostHotel1" align="right" width="80">住宿1%
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceHotel1" name="bzInvoiceHotel1" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostHotel" name="bzCostHotel" align="right" width="80">住宿其他
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzInvoiceHotel" name="bzInvoiceHotel" align="right" width="80">发票张数
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzSubHotel" name="bzSubHotel" align="right" width="80">住宿补贴
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzKj" name="bzKj" align="center" width="80">报支口径
+            <select property="editor" class="mini-combobox" style="width:100%;" vtype="float">
+                <option value="公共费用">公共费用</option>
+                <option value="标件费用">标件费用</option>
+                <option value="线材费用">线材费用</option>
+            </select>
+        </div>
+        <div tz:datagrid="column" field="bzKj" name="bzKj" align="left" width="120">出差摘要
+            <input property="editor" class="mini-textbox" style="width:100%;" vtype="float"/>
+        </div>
+        <div tz:datagrid="column" field="bzCostTotal" name="bzCostTotal" align="right" width="80">合计</div>
+    </div>
+</div>
+
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_grid = mini.get("srch_grid");
+    var grid = mini.get("datagrid");
+    srch_grid.bindSearchForm(form);
+    var ids = [];
+    var id = "";
+
+    function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("bzMan").setValue(data.workerId);
+                    mini.get("bzMan").setText(data.workerName);
+                    form.getField("bzDept").setValue(data.workerDept);
+                    form.getField("bzDept").setText(data.workerDeptName);
+                    form.getField("bzPost").setValue(data.workerPost);
+                    //form.getField("bzPost").setText(data.workerPostName);
+                    form.getField("bzCorp").setValue(data.workerCorpid);
+                }
+            }
+        });
+    }
+    /**
+     费用合计
+     */
+    function onChangeFy(){
+        var traffic9 = mini.get("bzCostTraffic9").getValue();
+        var traffic3 = mini.get("bzCostTraffic3").getValue();
+        var traffic = mini.get("bzCostTraffic").getValue();
+        var subMeals = mini.get("bzSubMeals").getValue();
+        var Meals = mini.get("bzCostMeals").getValue();
+        var hotel6 = mini.get("bzCostHotel6").getValue();
+        var hotel3 = mini.get("bzCostHotel3").getValue();
+        var hotel1 = mini.get("bzCostHotel1").getValue();
+        var hotel = mini.get("bzCostHotel").getValue();
+        var subHotel = mini.get("bzSubHotel").getValue();
+        var borrow = mini.get("bzCostBorrow").getValue();
+        var total = parseFloat(traffic9)+parseFloat(traffic3)+parseFloat(traffic)+parseFloat(subMeals)+parseFloat(Meals)+parseFloat(hotel6)
+                    +parseFloat(hotel3)+parseFloat(hotel1)+parseFloat(hotel)+parseFloat(subHotel)-parseFloat(borrow)
+        mini.get("bzCostTotal").setValue(total);
+    }
+    function search_option(){
+        var man = mini.get("bzMan").getValue();
+        if(man==null || man==""){
+            hmq.tipDanger("请选择报支人");
+            return;
+        }
+        srch_grid.load({
+            params: JSON.stringify({wcMan: mini.get("bzMan").getValue()})
+        });
+    }
+
+    function bz_option() {
+        alert("交通9%票据: 出差人员取得注明旅客身份信息的航空运输电子客票行程单的（票价+燃油附加费）的金额（国内航线）和取得注明旅客身份信息的铁路车票的票面金额;"+'\n'
+            +"6%票据: 出差人员取得注明单位信息的税率为6%的电子普通发票的金额;"+'\n'+"3%票据: 出差人员取得注明旅客身份信息的公路、水路等其他客票的票面金额和取得注明单位信息的税率为3%电子普通发票的金额;"
+            +'\n'+"交通其它: 出差人员除以上票据外的发票（如地铁票、汽车票、航空运输电子客票行程单中除票价和燃油附加费以外的费用、国际航空运输发票等）;"+'\n'+"膳食费: 填写有膳食费发票并能实际报销的金额;"+'\n'
+            +"膳食补贴: 填写未取得膳食费发票，但能按出差报销制度规定可报销的金额;"+'\n'+"住宿费6%: 出差人员取得增值税专用发票（增值税税率是6%）的发票金额;"+
+            '\n'+"住宿费3%: 出差人员取得增值税专用发票（增值税税率是3%）的发票金额;"+'\n'+"住宿其它: 填写出差人员取得其它住宿费票据的金额;"+'\n'+"住宿补贴: 填写出差人员按出差报销制度规定可报销住宿费金额与实际取得住宿费发票的差额");
+    }
+    /**
+     新增行
+     */
+    function addRow() {
+        var rows = srch_grid.getSelecteds();
+        if(rows.length > 0){
+            var newRow = {
+                name : "New Row",
+                addr : ""
+            };
+            grid.addRow(newRow, 0);
+            grid.updateRow(newRow,form.getData(true));
+            //srch_grid.removeRows(srch_grid.getSelecteds());
+        }else{
+            hmq.tipDanger('请选择一条外出申请');
+        }
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = grid.getSelecteds();
+        if (rows.length > 0) {
+            grid.removeRows(rows, true);
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("bzNote").getValue();
+        var rows = grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                grid.removeRows(rows, true);
+            }
+        }
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            grid.validate();
+            if (grid.isValid() == false) {
+                var error = grid.getCellErrors()[0];
+                grid.beginEditCell(error.record, error.column);
+                return;
+            }
+
+            var rows = srch_grid.getSelecteds();
+            for ( var i = 0, l = rows.length; i < l; i++) {
+                var r = rows[i];
+                ids.push(r.note);
+                id=id+","+r.note+"";
+            }
+            id=id.substring(1);
+            mini.get("wcNote").setValue(id);
+            var entrydata = grid.getData();
+            var deletedList = grid.getChanges('removed', false);
+            $(entrydata).each(function (index) {
+                entrydata[index].rightOrd = index;
+                entrydata[index]._state = entrydata[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+                headdata: form.getData(true),
+                enterydata: entrydata,
+                removedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh',false);
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    /**
+     * 回调函数
+     * @param options
+     * @constructor
+     */
+    function SetData(options) {
+        if (true !== options.isApproval) {
+
+            //普通口径
+            var formData = options.data.formData;
+            var row = options.data.row;
+            if ('add' == options.action) {
+                $('[name=action]').val(options.action);
+                data = mini.clone(options);
+                mini.get("bzCostTraffic9").setValue(0);
+                mini.get("bzCostTraffic3").setValue(0);
+                mini.get("bzCostTraffic").setValue(0);
+                mini.get("bzSubMeals").setValue(0);
+                mini.get("bzCostMeals").setValue(0);
+                mini.get("bzCostHotel6").setValue(0);
+                mini.get("bzCostHotel3").setValue(0);
+                mini.get("bzCostHotel1").setValue(0);
+                mini.get("bzCostHotel").setValue(0);
+                mini.get("bzSubHotel").setValue(0);
+                mini.get("bzCostBorrow").setValue(0);
+                form.setChanged(false);
+            } else if ('edit' == options.action) {
+                $['get']("getByNote/{0}".format(row.bzNote), function (res) {
+                    if(200==res.code){
+                        form.setData(res.data, false);
+                        var data = mini.clone(res.data);
+                        mini.get("wcStartRq").setValue("");
+                        mini.get("wcStartRq").disable();
+                        mini.get("wcEndRq").setValue("");
+                        mini.get("wcEndRq").disable();
+                        mini.get("bzMan").setValue(data.bzMan);
+                        mini.get("bzMan").setText(data.bzManName);
+                        mini.get("bzDept").setValue(data.bzDept);
+                        mini.get("bzDept").setText(data.bzDeptName);
+                        mini.get("bzKj").setValue("");
+                        mini.get("bzDigested").setValue("");
+                        form.setEnabled(false);
+                        grid.load({
+                            params: JSON.stringify({bzNote: row.bzNote})
+                        });
+                    }
+                });
+            }
+        } else {
+            //审批口径
+            $.get("add.html/{0}".format(options.data.businessId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+            }, null, null, {
+                complete: function () {
+                    //隐藏按钮区域
+                    $(".mini-toolbar.hmq-toolbar a.mini-button").hide();
+                    //表单只读
+                    setFormReadOnly(form);
+                }
+            });
+        }
+    }
+
+    function OnCellBeginEdit(e) {
+        var record = e.record;
+        var field = e.field;
+    }
+    function OnCellCommitEdit(e) {
+        var editor = e.editor;
+        editor.validate();
+        if (editor.isValid() == false) {
+            hmq.tipDanger(editor.getErrorText());
+            e.cancel = true;
+        }
+    }
+    function onCellendEdit(e){
+        var record = e.record;
+        var field = e.field, value = e.value;
+        if(field=="bzCostBorrow"||field=="bzCostTraffic9"||field=="bzCostTraffic3"||field=="bzCostTraffic"||field=="bzCostMeals"||
+            field=="bzCostHotel6"||field=="bzCostHotel3"||field=="bzCostHotel"||field=="bzSubHotel"||field=="bzSubMeals"||field=="bzCostHotel1"){
+            var borrow = record.bzCostBorrow;var traffic9 = record.bzCostTraffic9;var traffic3 = record.bzCostTraffic3;var traffic = record.bzCostTraffic;
+            var meals = record.bzCostMeals;var hotel6 = record.bzCostHotel6;var hotel3 = record.bzCostHotel3;var hotel = record.bzCostHotel;var subHotel = record.bzSubHotel;
+            var subMeals = record.bzSubMeals;var hotel1 = record.bzCostHotel1;
+            var hj = parseFloat(traffic9)+parseFloat(traffic3)+parseFloat(traffic)+parseFloat(meals)+parseFloat(hotel6)+
+                parseFloat(hotel3)+parseFloat(hotel)+parseFloat(subHotel)+parseFloat(subMeals)+parseFloat(hotel1)-parseFloat(borrow);
+            grid.updateRow(e.record, {
+                bzCostTotal : hj
+            });
+        }
+    }
+</script>
+</html>

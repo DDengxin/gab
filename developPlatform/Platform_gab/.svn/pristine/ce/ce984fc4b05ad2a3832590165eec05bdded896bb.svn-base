@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{gab/common/CommonHead :: head(~{::title},_,_,${'basic'})}">
+        <title>评价</title>
+    </th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/comment.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/comment.js}"></script>
+</head>
+
+<body>
+
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+
+    <div class="main w">
+        <div class="main-title">订单评价</div>
+        <div class="content">
+            <div class="common_star">
+                <dl>
+                    <dt>
+                        <i class="layui-icon layui-icon-username"></i>
+                        <div><b>服务评价</b><span>请您为此次订单服务进行肯定</span></div>
+                    </dt>
+                    <dd>
+                        <div>任务质量</div>
+                        <div id="quality"></div>
+                    </dd>
+                    <dd>
+                        <div>响应速度</div>
+                        <div id="speed"></div>
+                    </dd>
+                    <dd>
+                        <div>服务态度</div>
+                        <div id="attitude"></div>
+                    </dd>
+                </dl>
+            </div>
+            <div class="details">
+                <div class="goods_details">
+                    <div class="goods_details_content">
+                        <img th:src="@{'/system/upload/getImage?line_primary='+${product.coverPicture}}" alt=""
+                             default-img="/static/gab/images/wt.png">
+                        <div class="goods_name" id="productName" th:text="${product.cpcodeName}">商品名称商品名称商品名称商品名称商品名称
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" th:value="${product.cpcodeId}" id="productNum">
+                <div class="goods_comment">
+                    <p><i class="layui-icon layui-icon-tips"></i>请至少写一件商品的评价</p>
+                    <div class="goods_rate">
+                        <span>商品评价</span>
+                        <div id="evaluation"></div>
+                    </div>
+                    <div class="comment_content">
+                        <span>评价内容</span>
+                        <textarea name="" cols="80" rows="8" id="evaluationContent"></textarea>
+                    </div>
+                    <!--                    <div class="up_images">-->
+                    <!--                        <div><i class="layui-icon layui-icon-camera"></i><span>电脑传图</span></div>-->
+                    <!--                        <div><i class="layui-icon layui-icon-camera"></i><span>电脑传图</span></div>-->
+                    <!--                        <p>共<b>0</b>张，还能上传<b>5</b>张</p>-->
+                    <!--                    </div>-->
+                </div>
+            </div>
+            <div class="submit_comment">
+                <button onclick="getProductInfo()">评价</button>
+            </div>
+        </div>
+
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+    </th:block>
+</body>
+
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首页</title>
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/index.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/scroll.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/index.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+</head>
+<script id="needMarket" type="text/html">
+	{{#layui.each(d.list, function(index, item){}}
+		<li class="tcontent">
+			<p class="tb01">{{item.cpcodeName}}</p>
+			<p class="tb02">{{item.formType}}</p>
+			{{# if (item.typeName === null) { }}
+			<p class="tb03">-</p>
+			{{# } else { }}
+			<p class="tb03">{{item.typeName}}</p>
+			{{# }  }}
+			<p class="tb04">{{item.needProvince}}{{item.needCity}}</p>
+			<p class="tb05">{{item.endTime}}</p>
+			<p class="tb06"><a href="/gab/needs.html?needNote={{item.needNote}}">立即报价</a></p>
+		</li>
+
+
+  		{{#  });
+	}}
+</script>
+<script id="technicalCase" type="text/html">
+	{{#layui.each(d.list, function(index, item){}}
+		<li>
+			<a class="imglink"  href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}"    >
+				<img src="{{item.imageSrc}}"    alt="" default-img="/static/gab/images/wt.png">
+			</a>
+			<div class="p_c_details">
+				<p>
+					<a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a>
+					<b>专家团队:<a  href="/gab/expertDetails.html?id={{item.supplyid}}" >{{item.userName!=null?item.userName:'无'}}</a></b>
+				</p>
+				<p class="bottom">{{item.briefIntroduction}}</p>
+			</div>
+		</li>
+  		{{#  });
+	}}
+</script>
+<script id="academicPaper" type="text/html">
+	{{#layui.each(d.list, function(index, item){}}
+		<li><a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a></li>
+  		{{#  });
+	}}
+</script>
+<script id="experienceSharing" type="text/html">
+	{{#layui.each(d.list, function(index, item){}}
+		<li><a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a></li>
+  		{{#  });
+	}}
+</script>
+<script id="industryKnowledge" type="text/html">
+	{{#layui.each(d.list, function(index, item){}}
+		<li><b>></b><a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a></li>
+  		{{#  });
+	}}
+</script>
+<script id="industryDynamics" type="text/html">
+	{{#layui.each(d.list, function(index, item){}}
+		<li><b>></b><a href="/gab/academic.html?reqId={{item.articleId}}&classify={{item.classify}}">{{item.title}}</a></li>
+  		{{#  });
+	}}
+</script>
+<script id="commercialActivity" type="text/html">
+	{{#layui.each(d.list, function(index, item){}}
+		<div class="title">
+			<p>商会活动</p>
+			<a href="/gab/share.html?present=activity">往期活动</a>
+		</div>
+		<dl>
+			<dt>
+				<a href="/gab/academic.html?reqId={{item.activitiesId}}&classify=商会活动">
+					<img src="{{item.imageSrc}}" alt="" default-img="/static/gab/images/wt.png">
+				</a>
+			</dt>
+			<dd>{{item.title}}</dd>
+			<dd>活动时间：{{item.eventDateStart}}~{{item.eventDateEnd}}</dd>
+			<dd>参与方式：{{item.classify}}</dd>
+			<dd>报名方式：官网在线申请</dd>
+		</dl>
+  		{{#  });
+	}}
+</script>
+<script id="supply" type="text/html">
+<div class="content contentin">
+	<ul>
+		{{#layui.each(d.list, function(index, item){}}
+		<li>
+			<a href="/gab/supply.html?supplyNote={{item.supplyNote}}">
+					<img src="{{item.headImg}}" alt="" default-img="/static/gab/images/wt.png">
+					<p class="company">{{item.supplyName}}</p>
+					<p class="describe">{{item.supplyInfo}}</p>
+					<p class="key">
+						<span>关键词:</span>
+						{{# if (item.keyWord != null) { }}
+                         {{#layui.each(item.keyWord, function(gjindex, gjitem){ }}
+    						<b>{{gjitem}}</b>
+						 {{#  }); }}	
+    					{{# } else { }}
+							<b>暂无</b>
+						{{# }  }}
+					</p>
+				</a>
+			</li>
+			{{#  });
+		}}
+	{{#  if(d.list.length === 0){ }}
+		<div class="noData"><h1>暂无供应商</h1></div>
+	{{#  } }}	
+	</ul>
+</div>
+</script>
+<script  id="expertTemplate"  type="text/html">
+		{{#layui.each(d.list, function(index, item){}}
+	          <li>
+						<p>
+							<img src="{{item.headimgsrc}}"   default-img='/static/gab/images/wt.png'  alt="">
+						</p>
+						<p class="name">
+							<span>{{item.expert_name}}</span>
+							<b>{{item.job_age}}年</b>
+						</p>
+						<p class="work">
+							<b>{{item.expert_type}}</b>
+							
+						</p>
+						<p class="level">
+							资质等级:
+							<b>{{item.level}}</b>
+						</p>
+						<p class="profession">
+							主要职业:
+							<b>{{item.main_job}}</b>
+						</p>
+						<p class="point">
+							专长优势:
+							<b>{{item.introduce}}</b>
+						</p>
+						<p class="btn">
+							<a href="/gab/expertDetails.html?id={{item.expert_note}}&imgsrc={{item.headimgsrc}}">查看详情</a>
+						</p>
+					</li>
+			{{#  });
+		}}
+</script>
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+	<div class="banner">
+		<div class="banner_content">
+			<img th:src="@{/static/gab/images/sy_10.jpg}" alt="">
+		</div>
+	</div>
+
+	<div class="menu">
+		<div class="menu_content">
+			<ul>
+				<li>
+					<p>
+						<i></i>
+						<b>下单咨询</b>
+					</p>
+					<p>定制设计 资料保密</p>
+					<p class="link">
+						<a href="#">
+							<b>立即咨询</b>
+						</a>
+					</p>
+				</li>
+				<li>
+					<p>
+						<i></i>
+						<b>产品销售</b>
+					</p>
+					<p>品质保障 品种齐全</p>
+					<p class="link">
+						<a href="/gab/goodsList.html">
+							<b>立即采购</b>
+						</a>
+					</p>
+				</li>
+				<li>
+					<p>
+						<i></i>
+						<b>需求发布</b>
+					</p>
+					<p>优质供应商智能推荐</p>
+					<p class="link">
+						<a href="javascript:void(0);" onclick="verifyLogin({type:'url',url:'/gab/requirement.html'})">
+							<b>立即发布</b>
+						</a>
+					</p>
+				</li>
+				<li>
+					<p>
+						<i></i>
+						<b>搜寻厂商</b>
+					</p>
+					<p>快速查找指定厂商</p>
+					<p class="link">
+						<a href="/gab/all.html?cur=jj">
+							<b>立即搜索</b>
+						</a>
+					</p>
+				</li>
+				<li>
+					<p>
+						<i></i>
+						<b>专家团队</b>
+					</p>
+					<p>资深专家帮您解决难题</p>
+					<p class="link">
+						<a href="/gab/expertList.html">
+							<b>立即申请</b>
+						</a>
+					</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="firm">
+		<div class="firm_content">
+			<ul id="tablist">
+				<h2>优质服务厂商</h2>
+				<h5>优质服务厂商 满足您业务的全方位需求</h5>
+				<li class="tabin">夹具厂商</li>
+				<li>辅件厂商</li>
+				<li>整合厂商</li>
+				<li>特色经贸商</li>
+			</ul>
+			<div class="content-box" id="supplyUl"></div>
+		</div>
+	</div>
+
+	<div class="market">
+		<div class="market_content">
+			<div class="model_title">
+				<h2>需求市场</h2>
+				<p>智能匹配100万优质供应商</p>
+			</div>
+			<div class="model_details">
+				<ul class="tbhead">
+					<li class="tb01">需求名称</li>
+					<li class="tb02">需求类型</li>
+					<li class="tb03">应用行业</li>
+					<li class="tb04">地点</li>
+					<li class="tb05">时间</li>
+					<li class="tb06">抢单</li>
+				</ul>
+				<div id="colee" class="rollCon myscroll">
+					<ul class="rollSubject" id="needMarketUl">
+						<li class="tcontent">
+							<p class="tb01">模具采购需求发布模具采购需求发布</p>
+							<p class="tb02">工艺类型名称</p>
+							<p class="tb03">10,000</p>
+							<p class="tb04">浙江宁波</p>
+							<p class="tb05">2020-03-25</p>
+							<p class="tb06">
+								<a href="/gab/needs.html">立即报价</a>
+							</p>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="case">
+		<div class="case_content">
+			<div class="model_title">
+				<h2>行业解决方案</h2>
+				<p>赋能新制造，为您量身定制智能制造新工厂</p>
+			</div>
+			<div class="case_list">
+				<ul>
+					<li class="ask">
+						<div class="show">
+							<img th:src="@{/static/gab/images/fa1.png}" alt="">
+							<p>咨询</p>
+						</div>
+						<div class="show_hover">
+							<p>
+								<img th:src="@{/static/gab/images/fa1.png}" alt="">
+								咨询
+							</p>
+							<p>由企业管理、采购管理、销售管理、生产管理、仓库管理、品质管理、财务管理、人事管理和系统管理九大模</p>
+							<p class="btn">
+								<a href="#">立即咨询</a>
+							</p>
+						</div>
+					</li>
+					<li class="research">
+						<div class="show">
+							<img th:src="@{/static/gab/images/fa2.png}" alt="">
+							<p>研发</p>
+						</div>
+						<div class="show_hover">
+							<p>
+								<img th:src="@{/static/gab/images/fa2.png}" alt="">
+								研发
+							</p>
+							<p>由企业管理、采购管理、销售管理、生产管理、仓库管理、品质管理、财务管理、人事管理和系统管理九大模</p>
+							<p class="btn">
+								<a href="#">立即咨询</a> 
+							</p>
+						</div>
+					</li>
+					<li class="create">
+						<div class="show">
+							<img th:src="@{/static/gab/images/fa3.png}" alt="">
+							<p>制造</p>
+						</div>
+						<div class="show_hover">
+							<p>
+								<img th:src="@{/static/gab/images/fa3.png}" alt="">
+								制造
+							</p>
+							<p>由企业管理、采购管理、销售管理、生产管理、仓库管理、品质管理、财务管理、人事管理和系统管理九大模</p>
+							<p class="btn">
+								<a href="#">立即咨询</a><!--链接到MES-->
+							</p>
+						</div>
+					</li>
+					<li class="manager">
+						<div class="show">
+							<img th:src="@{/static/gab/images/fa4.png}" alt="">
+							<p>管理</p>
+						</div>
+						<div class="show_hover">
+							<p>
+								<img th:src="@{/static/gab/images/fa4.png}" alt="">
+								管理
+							</p>
+							<p>由企业管理、采购管理、销售管理、生产管理、仓库管理、品质管理、财务管理、人事管理和系统管理九大模</p>
+							<p class="btn">
+								<a href="/gab/erp.html">立即咨询</a><!--链接到ERP-->
+							</p>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="expert">
+		<div class="expert_content">
+			<div class="model_title">
+				<h2>资深工艺专家</h2>
+				<p>行业的资深专家帮您解决难题</p>
+			</div>
+			<div class="expert_list">
+				<ul id="expert_list">
+					
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="plat">
+		<div class="plat_content">
+			<div class="model_title">
+				<h2>
+					案例
+					<b>|</b>
+					学术
+					<b>|</b>
+					交流
+				</h2>
+			</div>
+			<div class="plat_list">
+				<div class="plat_case"><!--  plat_case-->
+					<ul id="technicalCaseUl"></ul>
+					
+				</div>
+
+				<div class="academic">
+					<div class="title_bg">
+						<a href="/gab/share.html?present=academic">
+							<img th:src="@{/static/gab/images/sy_62.jpg}" alt="">
+						</a>
+					</div>
+					<ul id="academicPaperUl"></ul>
+				</div>
+
+				<div class="experience">
+					<div class="title_bg">
+						<a href="/gab/share.html?present=share">
+							<img th:src="@{/static/gab/images/sy_64.jpg}" alt="">
+						</a>
+					</div>
+					<ul id="experienceSharingUl"></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="more">
+		<div class="more_content">
+			<div class="knowledge">
+				<div class="title">
+					<p>工艺知识</p>
+					<a href="/gab/share.html?present=know">更多</a>
+				</div>
+				<ul id="industryKnowledgeUl"></ul>
+			</div>
+			<div class="news">
+				<div class="title">
+					<p>行业动态</p>
+					<a href="/gab/share.html?present=news">更多</a>
+				</div>
+
+				<ul id="industryDynamicsUl"></ul>
+			</div>
+			<div class="activity" id="commercialActivityDiv"></div>
+		</div>
+	</div>
+
+	<div class="partner">
+		<div class="partner_content">
+			<div class="model_title">
+				<h2>合作伙伴</h2>
+			</div>
+			<ul>
+				<li>
+					<a target="_blank" href="http://www.feng-zhou.com">
+						<img th:src="@{/static/gab/images/sy_86.png}" alt="">
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="http://www.wuxibest.com/">
+						<img th:src="@{/static/gab/images/sy02.jpg}" alt="">
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="http://www.ksyxmc.com/">
+						<img th:src="@{/static/gab/images/sy03.jpg}" alt="">
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="http://www.cnchufeng.com/">
+						<img th:src="@{/static/gab/images/sy04.jpg}" alt="">
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="http://www.foertai.cn/">
+						<img th:src="@{/static/gab/images/sy05.jpg}" alt="">
+					</a>
+				</li>
+				<li>
+					<a target="_blank" href="http://www.aerosun.cn/">
+						<img th:src="@{/static/gab/images/sy06.jpg}" alt="">
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+<script type="text/javascript">
+
+function Rendering(res) {
+	var data = {
+		"list": res
+	}
+	var getTpl = expertTemplate.innerHTML, view = document
+		.getElementById("expert_list");
+	laytpl(getTpl).render(data, function (html) {
+		view.innerHTML = html;
+	});
+}
+
+  $.ajax({
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		url : '/gab/getRandomExpert' ,
+		success : function(e) {
+			var art =  e.data;
+			var  learning = $("ul#expert_list");
+			var  expertList_html = "";
+			Rendering(art);		
+		},
+		//请求失败，包含具体的错误信息
+		error : function(e) {
+
+		}
+	});
+</script>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>领用入库</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="Act"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" id="srchRq1" dateFormat="yyyy-MM-dd" />
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" id="srchRq2" dateFormat="yyyy-MM-dd" />
+        </label>
+        <label class="hmq-label" text="领用单号"> <input
+                class="mini-textbox" name="srchoutNote" />
+        </label>
+        <label class="hmq-label" text="部门">
+            <input id="outCustomer" name="outCustomer" class="mini-treeselect"  multiSelect="false" valueFromSelect="false" emptyText="全部" allowInput="true" onbeforenodeselect="disableParentSelection" width="110" popupWidth="240" popupHeight="180" />
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit"
+     style="height: 100%; clear: both; margin-bottom: 0px; padding-bottom: 0px;">
+    <div class="mini-splitter" vertical="true"  style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" style="width: 100%; height: 100%;"
+                     sizeList="[50,100,200]" pageSize="100" onselectionchanged="onSelectionChanged"
+                     pager="#pager1" showPager="false"  sortField="dataDate" sortOrder="desc"
+                     url="/tooling/toolingstore/sendAndReceiveToolingHome">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="outRq" width="100" align="center">日期</div>
+                        <div tz:datagrid="column" field="outNote" width="120" align="center">领用单号</div>
+<!--
+                        <div tz:datagrid="column" field="outAct" width="80" align="center">口径</div>
+-->
+                        <div tz:datagrid="column" field="outCustomerName" width="120" align="center">领用部门</div>
+                        <div tz:datagrid="column" field="outLyrName" width="90" align="center">领用人</div>
+                        <div tz:datagrid="column" field="outSl" width="80" align="right" headerAlign="center"  renderer="onABSRenderer" allowSort="true" numberFormat="#0.0000" summaryType="sum">总数量</div>
+                        <div tz:datagrid="column" field="outFlag" width="60" align="center">状态</div>
+                        <div tz:datagrid="column" field="dateCorp" width="60"align="center" visible="false">公司代码</div>
+                        <div tz:datagrid="column" field="dataManName" width="80" align="center">制单人</div>
+                        <div tz:datagrid="column" field="dataDate" width="135" align="center" dateFormat="yyyy-MM-dd">制单时间</div>
+                        <div tz:datagrid="column" field="outManName"  width="80" align="center" >库审人</div>
+                        <div tz:datagrid="column" field="outDate" width="135" align="center" dateFormat="yyyy-MM-dd" >库审时间</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 35px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="white-space: nowrap;">
+                            <div id="pager1" class="mini-pager" showPageIndex="true"
+                                 showReloadButton="false" showPageInfo="false"
+                                 style="width: 380px;" sizeList="[50,100,200]">
+                            </div>
+                        </td>
+                        <td style="white-space: nowrap;" align="right" id="btnbar" />
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid"
+                style="width: 100%; height: 100%;" showPager="false"
+                ondrawsummarycell="onDrawSummaryCellmx" url="/tooling/toolingstore/sendAndReceiveToolingHomeYo"
+                showSummaryRow="true">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="outCode" width="80"align="center">产品编码</div>
+                        <div tz:datagrid="column" field="outCode" width="100"align="center" visible="false">产品编码</div>
+                        <div tz:datagrid="column" field="cpcodeName" width="120" align="left">产品材质</div>
+                        <div tz:datagrid="column" field="cpcodeSize" width="60" align="left">产品规格</div>
+                        <div tz:datagrid="column" field="cpcodeFl" align="left" width="80">大类</div>
+                        <div tz:datagrid="column" field="cpcodeXp" align="left" width="80">标重</div>
+                        <div tz:datagrid="column" field="outSl" width="80" align="right" renderer="onABSRenderer" numberFormat="#,0.0000"  summaryType="sum" dataType="double">领用数量</div>
+                        <div tz:datagrid="column" field="cpcodeBz" align="left" width="60">单位</div>
+                        <div field="outRemarks" name="outRemarks" width="120" headerAlign="center">模具编码</div>
+                        <div field="outOriginalPack" name="outOriginalPack" width="120" headerAlign="center" visible="false">原包装号</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    srch_topgrid.bindSearchForm(form);
+
+    var Act = hmq.getQueryString("Act");
+    mini.get("outCustomer").load("/system/dept/combobox/getDeptTreeList");
+    if (hmq.isNotEmpty(Act)) {
+        if(Act=="LY02"){
+            srch_bottomgrid.showColumn("outOriginalPack");
+        }
+        form.getField("Act").setValue(Act);
+    }
+
+    function search_option() {
+        srch_topgrid.load();
+    }
+    function onABSRenderer(e) {
+        if ('outSl' == e.field) {
+            if(!isNull(e.value))
+                return Math.abs(e.value).toFixed(3);
+        }
+    }
+
+    function onSelectionChanged(e) {
+        var record = e.sender.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params : mini.encode({
+                    outNote : record.outNote
+                })
+            });
+        }
+    }
+
+
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row:"",formData:form.getData(true)} ,width:1198,height: 580});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if(row.outFlag=='登记'){
+                e.sender.miniopen({url: "add.html", action: 'edit', data: {row:row,formData:form.getData(true)} ,width:1198,height: 580});
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if(row.outFlag=='登记'){
+                mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                    if (action == "ok") {
+                        $.delete("toolingDelete/{0}".format(row.outNote), function (res) {
+                            if (200 === res.code) {
+                                loading:true;
+                                srch_topgrid.reload();
+                                srch_bottomgrid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if(row.outFlag=='登记'){
+                e.sender.miniopen({url: "add.html", action: 'ok', data: {row:row,formData:form.getData()} ,width:1198,height: 580});
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "outSl") {
+            var s = "<span style='color:Brown;float:right;'>" + Math.abs(e.value).toFixed(3) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+</script>
+</html>

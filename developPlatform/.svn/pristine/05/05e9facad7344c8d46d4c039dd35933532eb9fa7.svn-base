@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>图文档案</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="paramType" id="paramType" width="100"/>
+        <label class="hmq-label" text="客户">
+            <input id="customer" name="customer" emptyText="全部"
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"/>
+        </label>
+        <label class="hmq-label" text="状态">
+            <select id="flag" name="flag" class="mini-combobox" value="Y">
+                <option value="Y">启用</option>
+                <option value="N">禁用</option>
+            </select>
+        </label>
+        <label class="hmq-label" text="产品编号">
+            <input id="code" name="code" emptyText="全部"
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onButtonEdit"/>
+        </label>
+        <label class="hmq-label" text="图文单号">
+            <input class="mini-textbox" name="note"/>
+        </label>
+        <label class="hmq-label" text="图文名称">
+            <input id="twName" name="twName" class="mini-textbox"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+
+    <div class="mini-splitter" style="width:100%;height:100%;">
+        <!--
+        url:用于div表格数据拉取的拉取地址，将表单与该div绑定后，会将参数一起提交上去
+        datagrid="datagrid"：将该div下的所有div渲染成数据表格
+        -->
+        <div size="70%" showCollapseButton="true">
+            <div tz:datagrid="datagrid" id="srch_grid" idField="note"  onSelectionChanged="onSelectionChanged" sortField="note" multiSelect="true" url="findAll">
+                <div property="columns">
+                    <!--field：div对应数据拉取后的字段属性-->
+                    <div tz:datagrid="indexcolumn"></div>
+                    <div tz:datagrid="column" field="note" width="140" align="center">单号</div>
+                    <div tz:datagrid="column" field="rq" width="80" align="left">上传日期</div>
+                    <div tz:datagrid="column" field="twName" width="90" align="center">图文名称</div>
+                    <div tz:datagrid="column" field="code" width="80" align="left">产品编码</div>
+                    <div tz:datagrid="column" field="dataMan" width="60" align="left">操作人</div>
+                    <div tz:datagrid="column" field="dataDate" width="120" align="center">操作时间</div>
+                    <div tz:datagrid="column" field="flag" th:width="60" align="center">状态</div>
+                    <div tz:datagrid="column" field="customer" width="120" align="center">客户</div>
+                </div>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <!--  <div style="width:30%;height:100%;">-->
+            <iframe id="iRequest" style="width: 100%;height: 100%;z-index:-999" scrolling="auto"></iframe>
+            <!--  </div>-->
+            <!--  <img class="image" src="/2020-08-14/31f7349ec6004cb9b2306c150b8f0a65/5dba71a22d6f1.jpg" alt="预览图片">-->
+
+        </div>
+        <div tz:datagrid="column" width="100%"></div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    mini.parse();//预先强制加载所有标签组件
+    var form = new mini.Form("form_home");//获取form表单控件
+    var grid = mini.get("srch_grid");//获取div控件
+    grid.bindSearchForm(form);//将form表单绑定到div
+    var paramType = hmq.getQueryString("paramType");
+    if (hmq.isNotEmpty(paramType)) {
+        form.getField("paramType").setValue(paramType);
+        setIdReadOnly("paramType");
+        /*//动态列转换
+        hmq.business.dynamicProductParams(htStype, {
+            miniDataGrid: srch_bottomgrid,
+            miniForm: form,
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });*/
+    }
+    /**
+     * 查询函数
+     * 用于查询按钮提交后执行的函数
+     * 会将表单参数数据传送后端，并拉取后端数据
+     */
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "flag") {
+            e.cellHtml = 'Y' === e.value ? '启用' : '禁用';
+        }
+    });
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}, width: 600, height: 550});
+    }
+
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topleftgrid = e.sender;
+        var row = grid.getSelected();
+        if (row) {
+            var arFileId=row.uuid;
+            var filesuffis = row.filePath;
+            if (filesuffis.length!=0){
+                $.post("/system/upload/Info/"+row.arFileId, function (res) {
+                    var originUrl = window.location.origin + '/system/upload/download?uuid=' + arFileId;
+                    var previewUrl = originUrl + '&fullfilename=TZSOFT' + arFileId + '.' + name.split('.').pop().toLowerCase();
+                    filesuffis = filesuffis.substring(filesuffis.lastIndexOf(".")+1);
+                    document.getElementById("iRequest").src ='http://' + res.ip + ':' + res.port + '/onlinePreview?url=' + encodeURIComponent(previewUrl.substring(0,previewUrl.lastIndexOf("."))+'.'+filesuffis);
+                });
+            }
+        }
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}, width: 600, height: 550});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteByNote/{0}".format(row.note), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                            hmq.tipSuccess(res.msg);
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function auth_option() {
+        var row = grid.getSelected();
+        if (row) {
+            miniopen({url: 'hierarchyUserAuthTree.html', title: "【用户管理】授权", data: {userId: row.userId}, width: 500, height: 620});
+        } else {
+            hmq.tipDanger("请选中一条记录！");
+        }
+    }
+
+    /**
+     * Description:->销售客户选择
+     * @author: huangbiao
+     * @date: 2020/8/14 0014 11:49
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Description:->产品编码选择
+     * @author: huangbiao
+     * @date: 2020/8/14 0014 11:48
+     */
+    function onButtonEdit(e) {
+        var btnEdit = this;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/sale/saleProduct/saleContract/wlbmselect.html",
+            title: "编码单选择列表",
+            width: 1300,
+            height: 620,
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = {
+                    action: "search",
+                    cgStype: form.getField("paramType").getValue()
+                };
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var rows = iframe.contentWindow.GetData();
+                    btnEdit.setValue(rows.cpcodeid);
+                    btnEdit.setText(rows.cpcodeid);
+                }
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>角色管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="名称">
+            <input class="mini-textbox" name="employeeName"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="employeeName" url="/workflow/test/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="employeeName">名称</div>
+            <div tz:datagrid="column" field="day">请假天数</div>
+            <div tz:datagrid="column" field="reason">请假原因</div>
+            <div tz:datagrid="column" field="type">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "type") {
+            if (e.value == '1') {
+                e.cellHtml = '草稿';
+            } else if (e.value == '3') {
+                e.cellHtml = '完成';
+            } else if (e.value == '2') {
+                e.cellHtml = '审核中';
+            }
+        }
+    });
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({
+            url: "add.html",
+            title: '请假流程',
+            action: 'add',
+            data: row,
+            height: 150
+        });
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row.type != "1") {
+            hmq.tipDanger('数据审核中，请选择草稿数据！');
+        }
+        e.sender.miniopen({
+            url: "add.html",
+            title: '请假流程修改',
+            action: 'edit',
+            data: row,
+            height: 150
+        });
+    }
+</script>
+</body>
+</html>

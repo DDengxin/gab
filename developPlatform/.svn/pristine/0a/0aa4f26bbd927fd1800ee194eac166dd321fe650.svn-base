@@ -1,0 +1,68 @@
+package com.tengzhi.business.system.org.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.system.org.model.SysOrg;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * @author 王翔
+ * @create 2020-04-12
+ */
+public interface SysOrgService extends BaseService {
+
+    /**
+     * 查找所有机构信息
+     * @param baseDto
+     * @return
+     * @throws IOException
+     */
+    BasePage<SysOrg> findAll(BaseDto baseDto) throws IOException;
+
+    /**
+     * 获取启用的账套
+     * @param orgIds 账套ID
+     * @return
+     */
+    List<SysOrg> findAllEnableBean(String orgIds);
+
+    /**
+     * 通过机构信息查找数据
+     * @param orgId
+     * @return
+     */
+    SysOrg findByOrgId(String orgId);
+
+    /**
+     * 保存数据
+     * @param sysOrg
+     * @return
+     * @throws Exception
+     */
+    SysOrg save(SysOrg sysOrg) throws Exception;
+
+    /**
+     * 更新数据
+     * @param sysOrg
+     */
+    void update(SysOrg sysOrg);
+
+    /**
+     * 通过层级吗删除数据
+     * @param tireId
+     * @return
+     */
+    Result deleteByTireId(String tireId);
+
+    /**
+     * 判断主键是否重复
+     * @param sysOrg
+     * @return
+     */
+    boolean judgeUnique(SysOrg sysOrg);
+
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>人员外出</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <!--        <label class="hmq-label" text="公司">
+                    <input class="mini-combobox" id="srchCorp" name="srchCorp" url="" showNullItem="true"
+                           nullItemText="全部" emptyText="全部" popupMaxHeight="120"/>
+                </label>-->
+        <label class="hmq-label" text="部门">
+            <input name="srchDept" popupMaxHeight="240px" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList"
+                   showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="外出人">
+            <input id="srchMan" name="srchMan" allowInput="true" class="mini-buttonedit" onbuttonclick="onButtonEditMan"/>
+        </label>
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="wcRq" url="/xt/dailyRoutine/wcsq/getConfirmList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="wcRq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="note" width="140" align="center">单号</div>
+            <div tz:datagrid="column" field="wcType" width="80" align="center">外出类型</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="corpexp" width="100" align="center">所属公司</div>
+            <div tz:datagrid="column" field="wcDept" displayField="deptName" width="100" align="left">部门</div>
+            <div tz:datagrid="column" field="wcMan" displayField="manName" width="100" align="center">外出人</div>
+            <div tz:datagrid="column" field="wcAdd" width="180" align="left">地点</div>
+            <div tz:datagrid="column" field="wcTcrq" width="120" align="center">预计出厂时间</div>
+            <div tz:datagrid="column" field="wcThrq" width="120" align="center">预计回厂时间</div>
+            <div tz:datagrid="column" field="wcMcrq" width="120" align="center">实际出厂时间</div>
+            <div tz:datagrid="column" field="wcMhrq" width="120" align="center">实际回厂时间</div>
+            <div tz:datagrid="column" field="wcYc" width="100" align="center">是否用车</div>
+            <div tz:datagrid="column" field="wcFlag" width="60" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    function onButtonEditMan(e){
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("srchMan").setValue(data.workerId);
+                    mini.get("srchMan").setText(data.workerName);
+                }
+            }
+        });
+    }
+    /**
+     * 查询
+     */
+    function search_option(){
+        grid.load();
+    }
+
+    function out_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.note,'确认'),function(res){
+                if (200 === res.code) {
+                    mini.confirm("注意:确定已出厂？", "出厂确认", function (action) {
+                        if (action == "ok") {
+                            $.put("out/{0}".format(row.note), function (res) {
+                                if (200 === res.code) {
+                                    grid.reload();
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function back_option() {
+        var row = grid.getSelected();
+        if (row) {
+            $['put']("getFlag/{0}/{1}".format(row.note,'出厂'),function(res){
+                if(200==res.code){
+                    mini.confirm("注意：确认已回厂？","回厂确认",function(action){
+                        if(action=="ok"){
+                            $['put']("back/{0}".format(row.note),function(res){
+                                if(200==res.code){
+                                    grid.reload();
+                                }else{
+                                    hmq.tipDanger(res.msg)
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+
+    }
+
+</script>
+</html>

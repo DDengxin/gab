@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>保养任务</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="维保单号">
+                <input class="mini-textbox" name="sbwbNote" width="120"/>
+            </label>
+            <label class="hmq-label" text="设备编号">
+                <input class="mini-textbox" name="sbwbSbid" width="120"/>
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid"  id="srch_grid"  sortField="sbwbSbid" treeColumn="sbwbDept" 
+         idField="sbwbSbid"  parentField="parentId" resultAsTree="true" iconField="rightIconCls"
+         expandOnLoad="0"  showTreeLines="false" ShowTreeicon="false" >
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            
+            <div tz:datagrid="column" field="sbwbNote" name="sbwbNote" align="left" width="80">维保单号</div>
+            <div tz:datagrid="column" field="sbwbRq" name="sbwbRq" align="center" width="100">维保日期</div>
+            <div tz:datagrid="column" field="sbwbSbid" name="sbwbSbid" align="center" width="120">设备编号</div>
+            <div tz:datagrid="column" field="sbwbDept" name="sbwbDept" align="center" width="80">维保部门</div>
+            <div tz:datagrid="column" field="sbwbType" name="sbwbType" align="center" width="80" visible="true">保养类型</div>
+            <div tz:datagrid="column" field="sbwbDtype" name="sbwbDtype" align="center" width="80">维保大类</div>
+            <div tz:datagrid="column" field="sbwbXtype" name="sbwbXtype" align="center" width="80">维保小类</div>
+            <div tz:datagrid="column" field="sbwbSm" name="sbwbSm" align="left" width="140">维保情况</div>
+            <div tz:datagrid="column" field="sbwbFlag" name="sbwbFlag" align="center" width="80">维保状态</div>
+            <div tz:datagrid="column" field="sbwbSman" name="sbwbSman" align="center" width="80">申请人员</div>
+            <div tz:datagrid="column" field="sbwbJtime" name="sbwbJtime" align="center" width="80">受理时间</div>
+            <div tz:datagrid="column" field="sbwbPtime" name="sbwbPtime" align="center" width="80" visible="false">计划时间</div>
+            <div tz:datagrid="column" field="sbwbPman" name="sbwbPman" align="center" width="80" visible="false">计划人员</div>
+            <div tz:datagrid="column" field="sbwbDtime" name="sbwbDtime" align="center" width="80" visible="false">完成时间</div>
+            <div tz:datagrid="column" field="sbwbDman" name="sbwbDman" align="center" width="80" visible="false">完成人员</div>
+            <div tz:datagrid="column" field="sbwbDsm" name="sbwbDsm" align="center" width="80" visible="false">完成说明</div>
+            <div tz:datagrid="column" field="sbwbKtype" name="sbwbKtype" align="center" width="80" visible="false">处理归类</div>
+            <div tz:datagrid="column" field="dataMan" name="dataMan" align="center" width="80" visible="false">操作人员</div>
+            <div tz:datagrid="column" field="dataDate" name="dataDate" align="center" width="80" visible="false">操作日期</div>
+            <div tz:datagrid="column" field="dataCorp" name="dataCorp" align="center" width="80" visible="false">所属公司</div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row,height:'400px',width:'700px'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+        	if(row.sbwbFlag=="登记"){
+        		e.sender.miniopen({url: 'add.html', action: 'edit', data: row,height:'200px'});
+        	}else{
+        		hmq.tipDanger("非登记状态不能修改");
+        	}
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("mSbSbwbList.html/{0}".format(row.sbwbNote), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    //确认
+    function confirm_option(){
+    	var row = grid.getSelected();
+        if (row) {
+            mini.confirm("是否确认？", "状态确认", function (action) {
+                if (action == "ok") {
+                	$.get("sure?sbwbNote="+row.sbwbNote, function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    //接单
+    function okk_option(){
+    	var row = grid.getSelected();
+        if (row) {
+            mini.confirm("是否接单？", "状态接单", function (action) {
+                if (action == "ok") {
+                	$.get("okk?sbwbNote="+row.sbwbNote, function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    //完成
+    function conf_option(){
+    	var row = grid.getSelected();
+        if (row) {
+            mini.confirm("是否完成？", "状态完成", function (action) {
+                if (action == "ok") {
+                	$.get("conf?sbwbNote="+row.sbwbNote, function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+
+</body>
+</html>

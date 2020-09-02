@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'page_main'})}">
+        <title th:text="${SYS_SETTING_XTMC}!=null?${SYS_SETTING_XTMC}:'腾智信息技术有限公司'"></title>
+    </th:block>
+    <script th:src="@{/static/script/im/IMjs/IMjsCommunication.js}"></script>
+    <script type="text/javascript" th:inline="javascript">
+        var userId = [[${ userId }]];
+        IMinit(userId);
+    </script>
+    <style>
+
+        .ul-context-menu {
+            list-style: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 99999999999999999999999999;
+            padding: 5px 0;
+            min-width: 80px;
+            margin: 0;
+            display: none;
+            font-family: "微软雅黑";
+            font-size: 14px;
+            background-color: #fff;
+            border: 5px solid rgba(0, 0, 0, .15);
+            box-sizing: border-box;
+            border-radius: 4px;
+            -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            -moz-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            -ms-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            -o-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .ul-context-menu .ui-context-menu-item {
+            margin: 0;
+            padding: 0;
+        }
+
+        .ul-context-menu .ui-context-menu-item a {
+            display: block;
+            padding: 0 10px;
+            color: #333;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .ul-context-menu .ui-context-menu-item a:hover {
+            text-decoration: none;
+            color: #262626;
+        }
+
+        .ul-context-menu .ui-context-menu-item .icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: sub;
+            border: 0;
+        }
+
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .layui-layim {
+            display: block !important;
+            height: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+            background-size: cover;
+        }
+
+        .layui-layer {
+            box-shadow: none !important
+        }
+
+        .layui-layim-info,
+        .layui-layer-setwin {
+            display: none !important;
+        }
+
+        .layui-layim-main {
+            height: 100%;
+            top: -110px !important;
+        }
+
+        .layim-tab-content {
+            height: 100% !important;
+        }
+
+        .layui-layim-search {
+            bottom: -98px !important;
+        }
+
+        .layui-layim-chat {
+            width: 100% !important;
+            top: 0 !important;
+            left: 260px !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
+            height: 100% !important;
+        }
+
+        .layim-chat,
+        .layim-chat-box {
+            height: 100% !important;
+        }
+
+        .layim-chat-main {
+            height: 63% !important;
+        }
+
+        .layui-layim-chat .layui-layer-content {
+            padding-right: 260px;
+        }
+
+        .layim-chat-footer {
+            height: 37% !important;
+        }
+
+        .layim-chat-textarea {
+            width: 99%;
+			height: 60%;
+			outline: none;
+			overflow-y: auto;
+        }
+
+        .layim-chat-textarea textarea {
+            height: 100% !important;
+        }
+
+        .layui-layer-iframe .layui-layer-setwin {
+            display: block !important;
+        }
+
+        .layui-layim-chat .layui-layer-setwin {
+            position: absolute !important;
+            top: 30px !important;
+            right: 293px !important;
+            display: block !important;
+        }
+
+        .layui-layim-chat .layui-layer-setwin .layui-layer-max,
+        .layui-layim-chat .layui-layer-setwin .layui-layer-min {
+            display: none !important;
+        }
+
+        .layui-layer-border .layui-layer-setwin {
+            display: block !important;
+        }
+
+        .layui-anim-upbit {
+            top: -80px !important;
+        }
+
+        .layim-send-set .layui-edge {
+            position: absolute;
+            top: 13px !important;
+            left: 9px !important;
+            border-width: 6px;
+            border-bottom-style: solid;
+            border-bottom-color: white;
+            border-top-style: none !important;
+            border-top-color: none !important;
+        }
+        
+    .layui-layer-max{
+      display: none !important;
+    }
+    </style>
+</head>
+
+<body>
+
+</body>
+</html>

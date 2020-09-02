@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>产品大类：</td>
+                <td content>
+                    <input class="mini-combobox" required id="gxType" name="gxType" url="/finance/invoice/getCplx"  onvaluechanged="onTgytypeValueChanged" />
+                </td>
+                <td title>上级工序：</td>
+                <td content>
+                    <input class="mini-combobox"  id="gxUid" name="gxUid" url="/js/cpgy/scgx/getGxAllSelectList" />
+                </td>
+            </tr>
+            <tr>
+                <td title>工序编码：</td>
+                <td content>
+                    <input class="mini-textbox"  required  id="gxId" name="gxId" emptyText="请输入"   />
+                </td>
+                <td title>工序名称：</td>
+                <td content>
+                    <input class="mini-textbox"  id="gxName" name="gxName" />
+                </td>
+            </tr>
+             <tr>
+                <td title>产品类型：</td>
+                <td>
+              
+                    <input class="mini-combobox"  id="gxCptype" name="gxCptype" multiSelect="true" />
+                </td>
+                <td title>生产方式：</td>
+                <td>
+                    <input class="mini-combobox"  id="gxStype" name="gxStype"  url="/system/parameter/getParamsSelectListByParentId/生产/SCFS" multiSelect="false" />
+                </td>
+            </tr>
+             <tr>
+                 <td title>上线检验：</td>
+                <td>
+                    <input class="mini-combobox"  id="gxSxjj" name="gxSxjj"  url="/system/parameter/getParamsSelectListByValue3/半成品检验/SX"  multiSelect="false" />
+                </td>
+                 <td title>下线检验：</td>
+                <td>
+                    <input class="mini-combobox"  id="gxXxjj" name="gxXxjj" url="/system/parameter/getParamsSelectListByValue3/半成品检验/XX"  multiSelect="false" />
+                </td>
+            </tr>
+             <tr>
+               
+                <td title>加工检验：</td>
+                <td>
+                    <input class="mini-combobox"  id="gxDojj" name="gxDojj"  url="/system/parameter/getParamsSelectListByValue3/半成品检验/GG"  multiSelect="false" />
+                </td>
+                <td title>工序标签：</td>
+                <td>
+                    <input class="mini-combobox"  id="gxBq" name="gxBq"  url="/system/parameter/getParamsSelectListByParentId/生产/ZZBQ"  multiSelect="false" />
+                </td>
+              <tr>
+             <tr>
+               	<td title>所属车间：</td>
+                <td>
+                    <input class="mini-combobox"  id="gxCj" name="gxCj"  url="/system/parameter/getParamsSelectListByParentId/技术/SCCJ" multiSelect="true"  onvaluechanged="onGxCtValueChanged" />
+                </td>
+                <td title>生产车台：</td>
+                <td>
+                    <input class="mini-combobox"  id="gxCt" name="gxCt" multiSelect="true" />
+                </td>
+         
+            </tr>
+            <tr>
+                 <td title>工序排序:</td>
+                <td content>
+                    <input class="mini-spinner" minValue="0" maxValue="1000" value="1" name="gxOrd" id="gxOrd"/>
+                </td>
+                <td title>工序状态:</td>
+                <td content>
+                    <input class="mini-combobox" required name="gxFlag" id="gxFlag" value="true" url="encodeURI('/dict/boolean?t=启用&f=禁用&equal=true')"/>
+                </td>
+               
+            </tr>
+            <tr>
+                <td title>加工要求：</td>
+                <td content colspan="3">
+                    <input class="mini-textarea" name="gxJgyq" id="gxJgyq" style="height:40px;"  />
+                </td>
+            </tr>
+            <tr>
+                <td title>注意事项：</td>
+                <td content colspan="3">
+                    <input class="mini-textarea" name="gxZysx" id="gxZysx" style="height:60px;"/>
+                </td>
+            </tr>
+         
+        </table>
+    </form>
+    <div class="mini-fit">
+        <div tz:datagrid="datagrid" id="button-grid" idField="gxxmId" sortField="gxxmOrd" sortOrder="asc" style="width:100%;height:300px;"
+             url="/js/cpgy/scgx/getSrchBottomList"
+             allowCellEdit="true" allowCellSelect="true" multiSelect="true"  showPager="false"   sortMode="client">
+            <div property="columns">
+                <div tz:datagrid="checkcolumn" width="35"></div>
+                <div tz:datagrid="column" field="gxxmOrd" width="60" align="center">序号
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="gxxmId" field="gxxmId" width="130" align="left">项目编码
+                      <input property="editor" class="mini-textbox"/>
+                </div>
+                <div tz:datagrid="column" name="gxxmName" field="gxxmName"  align="left" width="150">项目名称
+                      <input property="editor" class="mini-textbox"/>
+                </div>
+               
+                <div tz:datagrid="column" name="gxxmValuetype" field="gxxmValuetype" width="150" align="left">值类型
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+          
+                <div tz:datagrid="column" field="gxxmValuedo" width="100" align="center">项目必填
+                   <input  property="editor" class="mini-combobox" value="true" url="encodeURI('/dict/boolean?t=是&f=否&equal=true')"/>
+                </div>
+                <div tz:datagrid="column" field="gxxmSm" width="350" align="left">备注
+                    <input property="editor" class="mini-textbox"/>
+                </div>
+
+                <div tz:datagrid="column" field="" width="100%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="addRow" iconCls="icon-add" id="addBtn">增行</a>
+    <a class="mini-button" onclick="delRow" iconCls="icon-remove" id="delBtn">删行</a>
+    <a class="mini-button" onclick="delAll" iconCls="icon-remove" id="delAllBtn">删单</a>
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var button_grid = mini.get('button-grid');
+
+
+    function onTgytypeValueChanged(){
+    	var gytype=mini.get("gxType").getValue();
+    	$.get("/system/parameter/getByAddName/{0}".format(gytype || ''), function (res) {
+            if (200 === res.code) {
+            	var data = mini.decode(res.data);
+            	mini.get("gxCptype").load(data.cpcodeFl);
+            }
+        });
+    	mini.get("gxSxjj").load("/system/parameter/getParamsSelectListByValue2AndValue3/半成品检验/{0}/SX".format(gytype || ''));
+    	mini.get("gxXxjj").load("/system/parameter/getParamsSelectListByValue2AndValue3/半成品检验/{0}/XX".format(gytype || ''));
+    	mini.get("gxDojj").load("/system/parameter/getParamsSelectListByValue2AndValue3/半成品检验/{0}/GG".format(gytype || ''));
+    	/* if(gytype=="CP"){
+		
+			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/线材大类");
+		}else if(gytype=="WL"){
+		
+			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/物料大类");
+		}else if(gytype=="YL"){
+		
+			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/原料大类");
+		
+		}else if(gytype=="GW"){
+		
+			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/工模大类");
+		
+		}else {
+		
+			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/线材大类");
+		} */
+
+    }
+    
+    function onGxCtValueChanged(){
+    	var gxCj=mini.get("gxCj").getValue();
+    	if(gxCj.length>0){
+        	mini.get("gxCt").setUrl("/mSbJt/sb/getJtList/{0}".format(gxCj));  		
+    	}
+    }
+    
+    button_grid.on("DrawCell", function (e) {
+        if (e.field == "gxxmValuedo") {
+            e.cellHtml = e.value == "true" ? '是' : '否';
+        }
+    }); 
+    
+    /**
+     新增行
+     */
+    function addRow() {
+        var index = button_grid.getData().length;
+        var newRow = {
+            name: "",
+            gxxmOrd: index+1,
+            gxxmValuedo : 'true'
+
+        };
+        button_grid.addRow(newRow, index + 1);
+    }
+
+    /**
+     删除行
+     */
+    function delRow() {
+        var rows = button_grid.getSelecteds();
+        if (rows.length > 0) {
+            button_grid.removeRows(rows, true);
+            if(button_grid.getData()==""){
+            	delAll();
+            }
+        } else {
+            hmq.tipDanger('请选择需要删除的行！');
+        }
+    }
+
+    /**
+     删除整单
+     */
+    function delAll() {
+        var note = mini.get("gxId").getValue();
+        var rows = button_grid.getData();
+        if (note.length > 0) {
+            mini.confirm("确定删除整单吗？", "提示信息", function (returndata) {
+                if (returndata == "ok") {
+                    if (rows.length > 0) {
+                        button_grid.removeRows(rows, true);
+                    }
+                    mini.get("delAllBtn").disable();
+                    $['delete']("delete/{0}".format(note), function (res) {
+                        if (200 === res.code) {
+                            hmq.tipSuccess(res.msg || '删除成功', {
+                                exec: function () {
+                                    CloseWindow('refresh');
+                                }
+                            });
+                        } else {
+                            hmq.tipDanger(res.msg || '删除失败');
+                        }
+                    });
+                }
+            });
+        } else {
+            if (rows.length > 0) {
+                button_grid.removeRows(rows, true);
+            }
+        }
+    }
+
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            button_grid.validate();
+            if (button_grid.isValid() == false) {
+                var error = button_grid.getCellErrors()[0];
+                button_grid.beginEditCell(error.record, error.column);
+                return;
+            }
+            var buttons = button_grid.getChanges();
+            if (buttons == "") {
+                buttons = button_grid.getData();
+            }
+            var deletedList = button_grid.getChanges('removed', false);
+            $(buttons).each(function (index) {
+                buttons[index].rightOrd = index;
+                buttons[index]._state = buttons[index]._state || 'modified';
+            });
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify({
+            	mScScgx: form.getData(true),
+            	mScScgxmx: buttons,
+                deletedList: deletedList
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+        var row = options.data;
+        if ('add' == options.action) {
+            button_grid.clearData();
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(row.gxId), function (res) {
+                if (200 === res.code) {
+                    var data = mini.decode(res.data);
+                    $.get("/system/parameter/getByAddName/{0}".format(gytype || ''), function (res) {
+                        if (200 === res.code) {
+                        	var text = mini.decode(res.data);
+                        	mini.get("gxCptype").load(data.cpcodeFl);
+                        }
+                    });
+                	mini.get("gxSxjj").load("/system/parameter/getParamsSelectListByValue2AndValue3/半成品检验/{0}/SX".format(gytype || ''));
+                	mini.get("gxXxjj").load("/system/parameter/getParamsSelectListByValue2AndValue3/半成品检验/{0}/XX".format(gytype || ''));
+                	mini.get("gxDojj").load("/system/parameter/getParamsSelectListByValue2AndValue3/半成品检验/{0}/GG".format(gytype || ''));
+                    /* if(data.gyType=="CP"){
+            			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/线材大类");
+            		}else if(data.gyType=="WL"){
+            			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/物料大类");
+            		}else if(data.gyType=="YL"){
+            			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/原料大类");
+            		}else if(data.gyType=="GW"){
+            			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/工模大类");
+            		}else {
+            			mini.get("gxCptype").load("/system/parameter/getParamsSelectList/技术/线材大类");
+            		} */
+                    mini.get("gxCt").setUrl("/mSbJt/sb/getJtList/{0}".format(data.gxCj));
+                    form.setData(res.data, false);
+                    button_grid.load({
+                        params: JSON.stringify({gxId: form.getField('gxId').getValue()})
+                    });
+                    setIdDisable("gxId");
+                }
+            });
+        }
+    }
+
+
+</script>
+</html>

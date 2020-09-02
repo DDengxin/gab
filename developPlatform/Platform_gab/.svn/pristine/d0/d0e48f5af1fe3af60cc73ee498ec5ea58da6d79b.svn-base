@@ -1,0 +1,43 @@
+$(function () {
+    layui.use('rate', function () {
+        var rate = layui.rate;
+
+        //渲染
+        rate.render({
+            elem: '#rate1',  //绑定元素
+            value: 0,
+            text: true,
+            half: false,
+            setText: function(value){
+                this.span.text(value + "分");
+              }
+        });
+        rate.render({
+            elem: '#rate2',  //绑定元素
+            value: 0,
+            text: true,
+            half: false,
+            setText: function(value){
+                this.span.text(value + "分");
+              }
+        });
+        rate.render({
+            elem: '#rate3',  //绑定元素
+            value: 0,
+            text: true,
+            half: false,
+            setText: function(value){
+                this.span.text(value + "分");
+              }
+        });
+        rate.render({
+            elem: '#rate4',  //绑定元素
+            value: 0,
+            text: true,
+            half: false,
+            setText: function(value){
+                this.span.text(value + "分");
+              }
+        });
+    });
+})

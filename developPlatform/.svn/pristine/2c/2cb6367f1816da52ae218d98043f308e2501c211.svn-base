@@ -1,0 +1,325 @@
+package com.tengzhi.business.cg.yw.purchaseContract.model;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@Entity
+@Table(name = "e_cg_contract_detailed")
+@IdClass(value = ECgContractDetailed.ECgContractDetailed_PK.class)
+public class ECgContractDetailed {
+	
+	@Id
+	private Integer htId;
+	@Id
+	private String htNo;
+	
+	private String htCode,htHs,htSm,htDgnote,htSqnote,htCgnote,htFlag,dataMan,dataCorp,brand;
+	private BigDecimal htJs,htSl,htPrice,htJe,htZl;
+	
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date htJq;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date dataRq;
+	
+	@Transient
+	private String _state;
+	 
+	public String getHtNo() {
+		return htNo;
+	}
+	public void setHtNo(String htNo) {
+		this.htNo = htNo;
+	}
+	public String getHtCode() {
+		return htCode;
+	}
+	public void setHtCode(String htCode) {
+		this.htCode = htCode;
+	}
+	public String getHtHs() {
+		return htHs;
+	}
+	public void setHtHs(String htHs) {
+		this.htHs = htHs;
+	}
+	public String getHtSm() {
+		return htSm;
+	}
+	public void setHtSm(String htSm) {
+		this.htSm = htSm;
+	}
+	public String getHtDgnote() {
+		return htDgnote;
+	}
+	public void setHtDgnote(String htDgnote) {
+		this.htDgnote = htDgnote;
+	}
+	public String getHtSqnote() {
+		return htSqnote;
+	}
+	public void setHtSqnote(String htSqnote) {
+		this.htSqnote = htSqnote;
+	}
+	public String getHtCgnote() {
+		return htCgnote;
+	}
+	public void setHtCgnote(String htCgnote) {
+		this.htCgnote = htCgnote;
+	}
+	public String getHtFlag() {
+		return htFlag;
+	}
+	public void setHtFlag(String htFlag) {
+		this.htFlag = htFlag;
+	}
+	public String getDataMan() {
+		return dataMan;
+	}
+	public void setDataMan(String dataMan) {
+		this.dataMan = dataMan;
+	}
+	
+	public String getDataCorp() {
+		return dataCorp;
+	}
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+	public Integer getHtId() {
+		return htId;
+	}
+	public void setHtId(Integer htId) {
+		this.htId = htId;
+	}
+	public BigDecimal getHtJs() {
+		return htJs;
+	}
+	public void setHtJs(BigDecimal htJs) {
+		this.htJs = htJs;
+	}
+	public BigDecimal getHtSl() {
+		return htSl;
+	}
+	public void setHtSl(BigDecimal htSl) {
+		this.htSl = htSl;
+	}
+	public BigDecimal getHtPrice() {
+		return htPrice;
+	}
+	public void setHtPrice(BigDecimal htPrice) {
+		this.htPrice = htPrice;
+	}
+	public BigDecimal getHtJe() {
+		return htJe;
+	}
+	public void setHtJe(BigDecimal htJe) {
+		this.htJe = htJe;
+	}
+	public Date getHtJq() {
+		return htJq;
+	}
+	public void setHtJq(Date htJq) {
+		this.htJq = htJq;
+	}
+	public Date getDataRq() {
+		return dataRq;
+	}
+	public void setDataRq(Date dataRq) {
+		this.dataRq = dataRq;
+	}
+	
+	public String get_state() {
+        return _state;
+    }
+
+    public void set_state(String _state) {
+        this._state = _state;
+    }
+    
+    
+   
+
+
+
+public String getBrand() {
+		return brand;
+	}
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+public BigDecimal getHtZl() {
+		return htZl;
+	}
+	public void setHtZl(BigDecimal htZl) {
+		this.htZl = htZl;
+	}
+
+
+
+
+
+
+public static class ECgContractDetailed_PK implements Serializable {
+    	
+    	private String htNo;
+    	private Integer htId;
+		public String getHtNo() {
+			return htNo;
+		}
+		public void setHtNo(String htNo) {
+			this.htNo = htNo;
+		}
+		public Integer getHtId() {
+			return htId;
+		}
+		public void setHtId(Integer htId) {
+			this.htId = htId;
+		}
+		
+		public ECgContractDetailed_PK(String htNo,Integer htId) {
+			setHtNo(htNo);
+			setHtId(htId);
+		}
+		
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((htId == null) ? 0 : htId.hashCode());
+			result = prime * result + ((htNo == null) ? 0 : htNo.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+                return true;
+            }
+			if (obj == null) {
+                return false;
+            }
+			if (getClass() != obj.getClass()) {
+                return false;
+            }
+			ECgContractDetailed_PK other = (ECgContractDetailed_PK) obj;
+			if (htId == null) {
+				if (other.htId != null) {
+                    return false;
+                }
+			} else if (!htId.equals(other.htId)) {
+                return false;
+            }
+			if (htNo == null) {
+                return other.htNo == null;
+			} else {
+                return htNo.equals(other.htNo);
+            }
+        }
+    	
+		public ECgContractDetailed_PK() {
+			
+		}
+    	
+    }
+    
+	@Transient
+	private String cpcodeId,cpcodeName,cpcodeSize,cpcodeFl,cpcodeBz,cpcodeXp,cpcodeCheck,cpcode01,cpcode02,cpcode03,cpcodeSizeEn;
+	@Transient
+	private BigDecimal cpcodePb;
+
+	public String getCpcodeId() {
+		return cpcodeId;
+	}
+	public void setCpcodeId(String cpcodeId) {
+		this.cpcodeId = cpcodeId;
+	}
+	public String getCpcodeName() {
+		return cpcodeName;
+	}
+	public void setCpcodeName(String cpcodeName) {
+		this.cpcodeName = cpcodeName;
+	}
+	public String getCpcodeSize() {
+		return cpcodeSize;
+	}
+	public void setCpcodeSize(String cpcodeSize) {
+		this.cpcodeSize = cpcodeSize;
+	}
+	public String getCpcodeFl() {
+		return cpcodeFl;
+	}
+	public void setCpcodeFl(String cpcodeFl) {
+		this.cpcodeFl = cpcodeFl;
+	}
+	
+	public String getCpcodeBz() {
+		return cpcodeBz;
+	}
+	public void setCpcodeBz(String cpcodeBz) {
+		this.cpcodeBz = cpcodeBz;
+	}
+	public String getCpcodeXp() {
+		return cpcodeXp;
+	}
+	public void setCpcodeXp(String cpcodeXp) {
+		this.cpcodeXp = cpcodeXp;
+	}
+	public String getCpcodeCheck() {
+		return cpcodeCheck;
+	}
+	public void setCpcodeCheck(String cpcodeCheck) {
+		this.cpcodeCheck = cpcodeCheck;
+	}
+	public String getCpcode01() {
+		return cpcode01;
+	}
+	public void setCpcode01(String cpcode01) {
+		this.cpcode01 = cpcode01;
+	}
+	public String getCpcode02() {
+		return cpcode02;
+	}
+	public void setCpcode02(String cpcode02) {
+		this.cpcode02 = cpcode02;
+	}
+	public String getCpcode03() {
+		return cpcode03;
+	}
+	public void setCpcode03(String cpcode03) {
+		this.cpcode03 = cpcode03;
+	}
+	public BigDecimal getCpcodePb() {
+		return cpcodePb;
+	}
+	public void setCpcodePb(BigDecimal cpcodePb) {
+		this.cpcodePb = cpcodePb;
+	}
+	
+	
+	public String getCpcodeSizeEn() {
+		return cpcodeSizeEn;
+	}
+	public void setCpcodeSizeEn(String cpcodeSizeEn) {
+		this.cpcodeSizeEn = cpcodeSizeEn;
+	}
+
+
+	@Transient
+	private String dgsl;
+
+	public String getDgsl() {
+		return dgsl;
+	}
+	public void setDgsl(String dgsl) {
+		this.dgsl = dgsl;
+	}
+	
+	
+}

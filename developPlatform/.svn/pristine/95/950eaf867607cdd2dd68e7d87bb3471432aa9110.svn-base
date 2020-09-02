@@ -1,0 +1,28 @@
+package com.tengzhi.app.daily.service.impl;
+
+import com.tengzhi.app.daily.dao.DailyDao;
+import com.tengzhi.app.daily.service.DailyService;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Map;
+
+@Service
+@Transactional
+public class DailyServiceImpl implements DailyService {
+    @Autowired
+    DailyDao dailyDao;
+
+    /**
+     * 查询今天快讯
+     */
+    @Override
+    public BasePage<Map<String, Object>> getTodayNews(BaseDto baseDto) throws IOException {
+        String sql = "select sms_rq,sms_content  from e_xt_sms where sms_rq=(select max(sms_rq) from e_xt_sms)";
+        return dailyDao.QueryToMapPage(baseDto, sql);
+    }
+}

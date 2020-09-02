@@ -1,0 +1,38 @@
+#基础生产环境配置
+#该配置文件是生产环境的基础配置，区别于开发环境，会对性能、安全配置项进行覆盖配置
+server:
+  port: 80
+  servlet:
+    session:
+      timeout: 600000
+spring:
+  profiles:
+    include: jdbc,thymeleaf,devtools,logging #引入其他配置文件
+  main:
+    allow-bean-definition-overriding: true #同名bean，后定义的bean会覆盖之前定义的相同名称的bean
+  mvc:
+    static-path-pattern: /static/**
+  thymeleaf:
+    cache: true #开启模板缓存
+    check-template: false #不检查模板是否存在(提高速度)
+  resources:
+    chain:
+      gzipped: true #开启gzip压缩
+  chain:
+    cache: true #启用缓存
+    cache-period: 2592000 #缓存时间30天
+  devtools:
+    restart:
+      enabled: true #关闭热部署
+  datasource:
+    druid:
+      web-stat-filter:
+        enabled: false #关闭webStateFilter
+      stat-view-servlet:
+        enabled: false #关闭statViewServlet
+
+tengzhi:
+  security:
+    browser:
+      maxSessions: 1 #同一个账号最多允许多少个session
+      cache: false # 禁用spring.security的缓存管理，因为默认的缓存管理会在http头追加参数，使得请求无法被缓存

@@ -1,0 +1,114 @@
+package com.tengzhi.business.finance.capitalManager.capitalType.model;
+
+import com.tengzhi.base.jpa.model.BaseModel;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.UUID;
+
+@Entity
+@Table(name = "e_f_voucher_capitaltype")
+public class EFVoucherCapitaltype  extends BaseModel {
+
+  @Id
+  private String sid = UUID.randomUUID().toString();
+  private String code;
+  private String name;
+  private String zjff;
+  private String yjsynx;
+  private String zq;
+  private String yjjczl;
+  private String gdzckm;
+  private String ljzjkm;
+  private String remarks;
+  private String dataCorp;
+
+  public String getSid() {
+    return sid;
+  }
+
+  public void setSid(String sid) {
+    this.sid = sid;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getZjff() {
+    return zjff;
+  }
+
+  public void setZjff(String zjff) {
+    this.zjff = zjff;
+  }
+
+  public String getYjsynx() {
+    return yjsynx;
+  }
+
+  public void setYjsynx(String yjsynx) {
+    this.yjsynx = yjsynx;
+  }
+
+  public String getZq() {
+    return zq;
+  }
+
+  public void setZq(String zq) {
+    this.zq = zq;
+  }
+
+  public String getYjjczl() {
+    return yjjczl;
+  }
+
+  public void setYjjczl(String yjjczl) {
+    this.yjjczl = yjjczl;
+  }
+
+  public String getGdzckm() {
+    return gdzckm;
+  }
+
+  public void setGdzckm(String gdzckm) {
+    this.gdzckm = gdzckm;
+  }
+
+  public String getLjzjkm() {
+    return ljzjkm;
+  }
+
+  public void setLjzjkm(String ljzjkm) {
+    this.ljzjkm = ljzjkm;
+  }
+
+  public String getRemarks() {
+    return remarks;
+  }
+
+  public void setRemarks(String remarks) {
+    this.remarks = remarks;
+  }
+
+  public String getDataCorp() {
+    return dataCorp;
+  }
+
+  public void setDataCorp(String dataCorp) {
+    this.dataCorp = dataCorp;
+  }
+}

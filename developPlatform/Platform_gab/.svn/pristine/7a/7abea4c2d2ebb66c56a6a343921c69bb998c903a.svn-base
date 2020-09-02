@@ -1,0 +1,98 @@
+.manage {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 125px;
+    padding-bottom: 50px;
+}
+
+.manage_content {
+    width: 1200px;
+    overflow: hidden;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.manage_content h2 {
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+    font-size: 18px;
+    color: #333333;
+    position: relative;
+    padding-left: 15px;
+    font-weight: bold;
+}
+
+.manage_content h2:before {
+    display: inline-block;
+    width: 5px;
+    content: '';
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 10px;
+    position: absolute;
+    left: 0;
+    background: rgb(232, 0, 0);
+    border-radius: 5px;
+}
+
+.manage_content h3 {
+    font-size: 26px;
+    color: #e80000;
+    font-weight: bold;
+    margin: 30px 0 20px;
+}
+
+.manage_content .sidebar {
+    width: 182px;
+    height: 100%;
+    background: rgb(248, 248, 248);
+    padding: 20px 0;
+    float: left;
+}
+
+.manage_content .sidebar dl:first-child {
+    margin-bottom: 40px;
+}
+
+.manage_content .sidebar dl, .manage_content .sidebar dt, .manage_content .sidebar dd {
+    width: 100%;
+}
+
+.manage_content .sidebar dt {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 2;
+}
+
+.manage_content .sidebar dd {
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.manage_content .sidebar dd a {
+    display: block;
+    height: 100%;
+    color: #666;
+}
+
+.manage_content .sidebar dd a:hover {
+    background: rgb(236, 236, 236) !important;
+    border-left: 6px solid #e80000 !important;
+    color: #e80000 !important;
+}
+
+.selected{
+    background: rgb(236, 236, 236) !important;
+    border-left: 6px solid #e80000 !important;
+    color: #e80000 !important;
+}
+
+.right{
+    width: 1018px;
+    padding-left: 18px;
+    float: left;
+}

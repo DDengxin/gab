@@ -1,0 +1,8 @@
+package com.tengzhi.business.xt.dailyRoutine.expenseReport.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.xt.dailyRoutine.expenseReport.model.EXtExpenseReportPayment;
+
+public interface ExpenseReportPaymentDao extends BasedaoRepository<EXtExpenseReportPayment, String> {
+
+}

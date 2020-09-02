@@ -1,0 +1,110 @@
+.knowledge_content {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 103px;
+}
+
+.knowledge_content_list {
+    width: 100%;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.fl{
+    width: 855px;
+    overflow: hidden;
+    float: left;
+}
+.fl .title{
+    width: 100%;
+    overflow: hidden;
+    padding-top: 30px;
+}
+.fl .title h2{
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    color: #409fff;
+    margin-bottom: 19px;
+    font-weight: bold;
+}
+.fl .title p{
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    color: #409fff;
+    margin-bottom: 19px;
+}
+.fl_details{
+    width: 100%;
+    overflow: hidden;
+}
+.fl_details div{
+    width: 100%;
+    margin-bottom: 40px;
+    font-size: 14px;
+    color: #666666;
+    overflow: hidden;
+}
+.fl_details div p{
+    width: 100%;
+    margin-bottom: 15px;
+    line-height: 1.7;
+}
+.fl_details div:first-child p{
+    float: left;
+    width: 67%;
+    padding-top: 20px;
+}
+.fl_details div:first-child span{
+    display: block;
+    margin-bottom: 20px;
+}
+.fl_details div:first-child img{
+    width: 275px;
+    height: 180px;
+    float: right;
+}
+
+.fr{
+    width: 305px;
+    overflow: hidden;
+    float: right;
+    margin-top: 35px;
+}
+.fr dl{
+    width: 100%;
+    border: 1px solid #ececec;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+.fr dl dt{
+    font-size: 18px;
+    color: #409fff;
+    margin-bottom: 12px;
+}
+.fr dl dt:before{
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 20px;
+    background: #409fff;
+    vertical-align: text-top;
+    margin-right: 10px;
+}
+.fr dl dd{
+    font-size: 14px;
+    line-height: 2;
+}
+.fr dl dd a{
+    display: block;
+    color: #666;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.fr dl dd a:hover{
+    color: #ec0a0a;
+    text-decoration: underline;
+}

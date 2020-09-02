@@ -1,0 +1,263 @@
+html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6, form, fieldset, legend, img, input, figure, figcaption {
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+ul, ol, li {
+    list-style: none;
+}
+
+b, strong {
+    font-weight: normal;
+}
+
+em, i {
+    font-style: normal;
+}
+
+a, u {
+    text-decoration: none;
+}
+
+img {
+    border: 0;
+    display: block;
+}
+
+input {
+    outline: none;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.wrap_iframe {
+    width: 100%;
+    height:100%;
+    overflow: hidden;
+}
+/*鍔炵悊鎰忚*/
+.wrap_handle {
+    width:100%;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid rgb(232, 232, 232);
+}
+
+.wrap_handle .handle_head {
+    width: 100%;
+    height: 34px;
+    background: rgb(64, 146, 254);
+    color: #fff;
+    line-height: 34px;
+    padding-left: 32px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.info_flow {
+    width: 100%;
+    height: 95.6%;
+    overflow-y: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.info_flow .flow_list {
+    width: 100%;
+    padding: 0 20px 10px 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.info_flow .flow_list>span {
+    float: left;
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: url(../img/y1.png) no-repeat center center;
+    position: absolute;
+    top: 54%;
+    margin-top: -9px;
+}
+
+.info_flow .flow_list:first-child:before {
+    content: '';
+    display: block;
+    width: 0px;
+    height: 0px;
+    background-color: none;
+}
+
+.info_flow .flow_list:last-child:after {
+    content: '';
+    display: block;
+    width: 0px;
+    height: 0px;
+    background-color: none;
+}
+
+.change:after {
+    content: '';
+    display: block;
+    width: 0px !important;
+    height: 0px !important;
+    background-color: none !important;
+}
+
+.info_flow .flow_list:before {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 50%;
+    background-color: rgb(64, 146, 254);
+    position: absolute;
+    top: 0;
+    left: 18px;
+}
+
+.info_flow .flow_list:after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 50%;
+    background-color: rgb(64, 146, 254);
+    position: absolute;
+    left: 18px;
+    bottom: -11px;
+}
+
+.flow_list_content {
+    float: left;
+    margin-left: 35px;
+    width: 90%;
+}
+
+.flow_list_content>p {
+    width: 100%;
+    margin-bottom: 5px;
+    overflow: hidden;
+}
+
+.flow_list_content p .link_name {
+    color: rgb(64, 146, 254);
+    font-size: 17px;
+    float: left;
+}
+
+.flow_list_content p u {
+    font-size: 14px;
+    float: right;
+}
+
+.flow_list_content p u .time {
+    margin-right: 5px;
+}
+
+.yes {
+    color: rgb(61, 184, 103);
+}
+
+.no {
+    color: rgb(255, 1, 1) !important;
+}
+
+.list_content {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgb(76, 153, 254);
+    border-radius: 10px;
+    color: rgb(106, 106, 106);
+    font-size: 14px;
+    position: relative;
+}
+
+.list_content:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -10px;
+    margin-top: -4%;
+    width: 0;
+    height: 0;
+    border-right: 10px solid rgb(76, 153, 254);
+    border-bottom: 10px solid transparent;
+    border-top: 10px solid transparent;
+}
+
+.list_content:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -9px;
+    margin-top: -3.5%;
+    width: 0;
+    height: 0;
+    border-right: 9px solid #fff;
+    border-bottom: 9px solid transparent;
+    border-top: 9px solid transparent;
+}
+/* 婊氬姩鏉℃暣浣� */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    background-color: rgb(80, 77, 77);
+}
+
+/* 婊氬姩鏉′袱绔寜閽� */
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-button:vertical {
+    display: none;
+}
+
+/* 婊氬姩鏉″灞傝建閬� */
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track:vertical {
+    background-color: black;
+    border-radius: 5px;
+}
+
+/* 婊氬姩鏉″唴灞傝建閬� */
+::-webkit-scrollbar-track-piece {
+    background-color: #ccc8c8;
+    border-radius: 5px;
+}
+
+/* 婊氬姩鏉￠噷闈㈠彲鎷栧姩閮ㄥ垎 */
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:vertical {
+    margin-right: 0px;
+    background-color: rgb(138, 133, 133);
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:vertical:hover {
+    background-color: #aaa;
+    border-radius: 5px;
+}
+
+/* 杈硅 */
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-corner:vertical {
+    background-color: #535353;
+    border-radius: 5px;
+}
+
+/* 鍙充笅瑙掓嫋鍔ㄥ潡鐨勬牱寮� */
+::-webkit-scrollbar-resizer,
+::-webkit-scrollbar-resizer:vertical {
+    background-color: #ff6e00;
+    border-radius: 5px;
+}

@@ -1,0 +1,83 @@
+<html layout:decorator="~{gab/layout/gabPlatformManage}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="header">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/ownOrders.css}">
+    <link rel="stylesheet" th:href="@{/static/gab/css/manage/ownCollect.css}">
+    <script th:src="@{/static/gab/js/manage/ownCollect.js}"></script>
+</th:block>
+<th:block layout:fragment="right-content">
+    <div class="main">
+        <div class="main-x">
+            <div class="title">
+                我的收藏
+            </div>
+            <div class="search_content">
+                <input id="orderSearchContent" type="text" placeholder="请输入搜索内容">
+                <b id="orderSearch">搜索</b>
+            </div>
+            <div class="sp-tab">
+                <table class="js-tab" cellspacing="0" cellpadding="0" id="tab" border="0">
+                    <thead>
+                        <tr>
+                            <td width="150">
+                                <div class="com-sel">
+                                    <select class="com-opt">
+                                        <option value="全部收藏">全部收藏</option>
+                                        <option value="供应厂商">供应厂商</option>
+                                        <option value="专家团队">专家团队</option>
+                                        <option value="产品市场">产品市场</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td width="450">内容标题</td>
+                            <!-- <td width="150">收藏方式</td> -->
+                            <td width="150">收藏备注</td>
+                            <td width="150">收藏日期</td>
+                            <td width="150">操作</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="checkboxname" onchange="selectC(this)">
+                                <span>供应厂商</span>
+                            </td>
+                            <td>
+                                <img src="" alt="" default-img="/static/gab/images/wt.png">
+                                <span class="name"><a href="#">商品名称商品名称商品名称商品名称商品名称</a></span>
+                            </td>
+                            <!-- <td>收藏方式</td> -->
+                            <td>有意向客户</td>
+                            <td>2020-09-02</td>
+                            <td><i class="layui-icon layui-icon-delete" onclick="deleteCollect(this)"></i></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="checkboxname" onchange="selectC(this)">
+                                <span>专家团队</span>
+                            </td>
+                            <td>
+                                <img src="" alt="" default-img="/static/gab/images/wt.png">
+                                <span class="name"><a href="#">邓维明</a></span>
+                            </td>
+                            <!-- <td>收藏方式</td> -->
+                            <td>资深专家</td>
+                            <td>2020-09-02</td>
+                            <td><i class="layui-icon layui-icon-delete" onclick="deleteCollect(this)"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="no">还没有收藏哦~快去收藏您心仪的对象吧</div>
+                <div class="all-collect">
+                    <input type="checkbox" onclick="selectAll(this.checked)">全部收藏
+                    <span onclick="removeSelect(this)">删除选中收藏</span>
+                </div>
+                <div id="page"></div>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block layout:fragment="footer">
+</th:block>
+
+</html>

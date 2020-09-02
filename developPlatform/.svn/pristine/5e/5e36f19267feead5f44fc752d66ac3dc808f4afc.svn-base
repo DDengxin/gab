@@ -1,0 +1,50 @@
+package com.tengzhi.business.project.projectArchives.projectTreams.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.project.projectArchives.projectTreams.dao.ProjectTreamDao;
+import com.tengzhi.business.project.projectArchives.projectTreams.model.EXmXmxz;
+import com.tengzhi.business.project.projectArchives.projectTreams.service.ProjectTreamService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Map;
+
+@Service
+@Transactional
+public class ProjectTreamServiceImpl implements ProjectTreamService {
+    @Autowired
+    private ProjectTreamDao dao;
+
+    @Override
+    public BasePage<EXmXmxz> findAll(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String sql = " select xm_id,work_id,work_name,xm_role,work_tel,work_mail,work_sm,data_corp from e_xm_xmxz ";
+        return dao.QueryPageLists(baseDto,sql);
+    }
+
+    @Override
+    public EXmXmxz save(EXmXmxz eXmXmxz) {
+        SessionUser securityUser=SessionUser.SessionUser();
+        eXmXmxz.setDataCorp(securityUser.getCorpId());
+        return dao.save(eXmXmxz);
+    }
+
+    @Override
+    public EXmXmxz getByXmId(String xmId) {
+        return dao.findById(xmId).orElse(null);
+    }
+
+    @Override
+    public void update(EXmXmxz eXmXmxz) {
+        dao.dynamicSave(eXmXmxz,dao.findById(eXmXmxz.getXmId()).orElse(null));
+    }
+
+    @Override
+    public void deleteByXmId(String xmId) {
+        dao.deleteById(xmId);
+//        dao.deleteByXmId(xmId);
+    }
+}

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>系统参数</title>
+    </th:block>
+</head>
+<body>
+<form id="form_home">
+    <input class="mini-hidden" name="orient"/>
+    <input class="mini-hidden" name="paramType"/>
+    <input class="mini-hidden" name="paramXtype"/>
+    <th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+        <th:block th:fragment="content">
+            <label class="hmq-label" text="排单日期">
+                <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110" />
+            </label>
+            <label class="hmq-label" text="至">
+                <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110" />
+            </label>
+            <label class="hmq-label" text="类别">
+                <input class="mini-combobox" id="htStype" name="htStype" width="70px"   url="/system/parameter/getParamsSelectListByValue3/产品大类/库存常用" onvaluechanged="onValueChangeType" value="CP"/>
+            </label>
+            <label class="hmq-label" text="工序">
+                <input class="mini-combobox"  id="srchScgx" name="srchScgx" url="/js/cpgy/scgx/getGxAllSelectList"
+                       emptyText="全部" nullItemText="全部" showNullItem="true"  onvaluechanged="search_option(e)"  />
+            </label>
+        </th:block>
+    </th:block>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <!--virtualScroll参数请不要轻易设置，只因为该页参数过多，为提高流畅度才使用-->
+    <div tz:datagrid="treegrid" id="srch_grid" sortField="gxOrd" treeColumn="trename"
+         idField="gxId" parentField="pid" resultAsTree="true"
+         expandOnLoad="0" showTreeLines="true" ShowTreeicon="false" pageSize="100"
+         showPageInfo="false" virtualScroll="true">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn"></div>
+            <div tz:datagrid="column" field="gxId" name="trename"  width="260">工序</div>
+            <div tz:datagrid="column" field="tname" name="cpcodeName" width="150" align="left">品名</div>
+            <div tz:datagrid="column" field="tsize" name="cpcodeSize" width="80" align="center">规格</div>
+            <div tz:datagrid="column" field="gxCt" displayField="ctName"  align="left">车台</div>
+            <div tz:datagrid="column" field="jhSl" width="90" align="right"  numberFormat="#,0.000">计划数量</div>
+            <div tz:datagrid="column" field="wcSl" width="90"  align="right" numberFormat="#,0.000">已完成</div>
+            <div tz:datagrid="column" field="wwSl" width="90" align="right"  numberFormat="#,0.000">未完成</div>
+            <div tz:datagrid="column" field="blSl" width="90" align="right"  numberFormat="#,0.000">不良</div>
+            <div tz:datagrid="column" field="scMan"  align="left">生产人员</div>
+            <div tz:datagrid="column" field="gxAcm" name="gxAcm" width="100" align="center" visible="false"></div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.load();
+        grid.collapseAll();
+    }
+
+    function onValueChangeType(){
+        var htStype=mini.get("htStype").getValue();
+        //动态列转换
+        if(hmq.isNotEmpty(htStype)) {
+            hmq.business.dynamicProductParams(htStype, {
+                miniDataGrid: grid,
+                miniForm: form,
+                formMapping: {
+                    cpcodeName: 'cpcodeName',
+                    cpcodeSize:'cpcodeSize'
+                },
+                success: function (map, res) {
+                    search_option();
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }
+        //end
+    }
+
+    //拦截加载事件，加载树形结构
+    grid.on('load', function (e) {
+
+        var tree = new mini.DataTree();
+        tree.setExpandOnLoad(grid.getExpandOnLoad());
+        tree.setSortOrder(grid.getSortField());
+        tree.setCheckSelectOnLoad(grid.getCheckSelectOnLoad());
+        tree.setMultiSelect(grid.setMultiSelect());
+        tree.setData(mini.listToTree(JSON.parse(e.text).data, grid.getNodesField(), grid.getIdField(), grid.getParentField()));
+
+        var paramTypes = mini.getByName("srchScgx").getSelecteds().map(function (v) {
+            return v.id
+        });
+        //过滤参数类型
+        if (paramTypes.length > 0) {
+            var parentNodes = tree.getAllChildNodes().filter(function (node) {
+                return !!~node.gxId.indexOf(paramTypes);
+            });
+            tree.filter(function (node) {
+                for (var i = 0, max = parentNodes.length; i < max; i += 1) {
+                    if (parentNodes[i].gxAcm == node.gxAcm ||tree.isAncestor(parentNodes[i], node)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        grid.loadList(tree.getDataView());
+        //销毁控件，释放内存
+        tree.destroy();
+    });
+
+
+
+</script>
+
+</body>
+</html>
+
+

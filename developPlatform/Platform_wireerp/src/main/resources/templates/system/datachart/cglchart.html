@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(_,_,_,${'jquery-1.12.4,common,echarts'})}">
+        <title>采购-交易额</title>
+    </th:block>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript">
+    var container = document.getElementById('container');
+    var chart = echarts.init(container);
+    var titlename =hmq.getQueryString("name");
+    //绑定尺寸改变事件,可以动态调整图表大小
+    hmq.addEvents(window, 'resize', chart.resize);
+    $(window).on("load", function (e) {
+        $.get("/system/datachart/getChartCglDatalist",function (res) {
+            if (200 === res.code) {
+                var cglmap = res.data.CGL;
+                setchardata(cglmap.cglcode,cglmap.cglrq,cglmap.cgldata,titlename);
+            }
+        });
+    });
+
+    function setchardata(strcode,strrq,cgldata,titlename){
+        var option = {
+            title: {
+                text: titlename
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                data: strcode
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: strrq
+
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+
+                }
+            ],
+            series:cgldata
+        };
+        chart.setOption(option,true);
+    }
+</script>
+</body>
+</html>

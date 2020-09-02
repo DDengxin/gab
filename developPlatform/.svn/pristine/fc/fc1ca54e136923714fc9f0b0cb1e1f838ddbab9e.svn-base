@@ -1,0 +1,210 @@
+package com.tengzhi.IM.Dwr.controller;
+
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.tengzhi.IM.business.message.model.SysImMessage;
+import com.tengzhi.IM.business.message.service.SysImMessageService;
+import com.tengzhi.IM.websocket.server.WebSocketServer;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.base.security.common.tool.spring.SpringUtil;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.directwebremoting.ScriptBuffer;
+import org.directwebremoting.ScriptSession;
+import org.directwebremoting.WebContextFactory;
+import org.directwebremoting.annotations.RemoteMethod;
+import org.directwebremoting.annotations.RemoteProxy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Service
+@RemoteProxy
+public class Dwrmsg {
+	@Autowired
+	private SysImMessageService sysImMessageService;
+	private static ConcurrentHashMap<String, ScriptSession> criptSession = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, ScriptSession> heartbeat = new ConcurrentHashMap<>();
+
+	public static Boolean getfalg(String key) {
+		return criptSession.containsKey(key);
+	}
+
+	public static ConcurrentHashMap<String, ScriptSession> getCriptSession() {
+		return criptSession;
+	}
+
+	public static void setCriptSession(ConcurrentHashMap<String, ScriptSession> criptSession) {
+		Dwrmsg.criptSession = criptSession;
+	}
+
+	@RemoteMethod
+	public void onPageLoad(String tag) {
+		try {
+			ScriptSession scriptSession = WebContextFactory.get().getScriptSession();
+			if (scriptSession != null) {
+				scriptSession.setAttribute("userId", tag);
+			}
+			criptSession.put(tag, scriptSession);
+		} catch (Exception e) {
+			System.out.println("初始化失敗：" + tag);
+		}
+		System.out.println("初始化：" + tag);
+	}
+
+	@RemoteMethod
+	public void heartbeat(String userId) {
+		try {
+			ScriptSession scriptSession = WebContextFactory.get().getScriptSession();
+			heartbeat.put(userId, scriptSession);
+		} catch (Exception e) {
+
+		}
+	}
+
+	/**
+	 * dwr session监控
+	 */
+	@PostConstruct
+	private void init() {
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					int keys = criptSession.keySet().size();
+					for (Entry<String, ScriptSession> entry : criptSession.entrySet()) {
+						ScriptBuffer script = new ScriptBuffer();
+						script.appendCall("heartbeat", entry.getKey());
+						criptSession.get(entry.getKey()).addScript(script);
+					}
+					try {
+						Thread.sleep(66666);// 睡一分钟左右
+						int newkeys = criptSession.keySet().size();
+						if (newkeys == keys) {
+							criptSession.clear();
+						}
+						offlineOronline(criptSession.keySet(), heartbeat.keySet());
+						criptSession.putAll(heartbeat);
+						heartbeat.clear();
+					} catch (InterruptedException | IOException e) {
+					}
+				}
+			}
+		});
+		thread.start();
+	}
+
+	@RemoteMethod
+	public void onMessage(String userid, String message) {
+		send(userid, message);
+	}
+
+	private void offlineOronline(Set<String> bigMapKey, Set<String> smallMapKey) throws IOException {
+		Set<String> offlineset = new HashSet<String>();
+		offlineset.addAll(bigMapKey);
+		offlineset.removeAll(smallMapKey);
+		Set<String> bigMapKeyset = new HashSet<String>();
+		bigMapKeyset.addAll(smallMapKey);
+		bigMapKeyset.removeAll(bigMapKey);
+		ConcurrentHashMap<String, WebSocketServer> webSocket = WebSocketServer.getWebSocketMap();
+		bigMapKeyset.removeAll(webSocket.keySet());
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("type", "2");
+		jsonObject.put("offline", bigMapKeyset);
+		jsonObject.put("online", offlineset);
+		if (bigMapKeyset.size() > 0 || offlineset.size() > 0) {
+			ConcurrentHashMap<String, WebSocketServer> webSocketMap = WebSocketServer.getWebSocketMap();
+			for (Entry<String, WebSocketServer> entry : webSocketMap.entrySet()) {
+				webSocketMap.get(entry.getKey()).sendMessage(jsonObject.toJSONString(1));
+			}
+			// 群消息ie9以下的用户
+			for (Entry<String, ScriptSession> entry : criptSession.entrySet()) {
+				ScriptBuffer script = new ScriptBuffer();
+				script.appendCall("offlineOronline", jsonObject.toJSONString(1));
+				criptSession.get(entry.getKey()).addScript(script);
+			}
+		}
+	}
+
+	/**
+	 * 推给指定用户
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	private void send(final String receiverid, final String message) {
+		SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ConcurrentHashMap<String, WebSocketServer> webSocketMap = WebSocketServer.getWebSocketMap();
+		String userId = securityUser.getUserId();
+		if (StringUtils.isNotBlank(message)) {
+			try {
+				JSONObject jsonObject = JSONUtil.parseObj(message);
+				jsonObject.put("fromUserId", userId);
+				String toUserId = jsonObject.getStr("receiver");
+				String group = jsonObject.getStr("group");
+				// 业务代码处理
+				SysImMessage sysImMessage = new SysImMessage();
+				sysImMessage.setId(UUIDUtil.uuid());
+				sysImMessage.setSenduser(userId);
+				sysImMessage.setReceiveuser(toUserId);
+				sysImMessage.setGroupid(group);
+				sysImMessage.setIsread("0");
+				sysImMessage.setType("0");
+				sysImMessage.setContent(jsonObject.getStr("msg"));
+				sysImMessage.setCreateuser(userId);
+				sysImMessage.setCreatedate(new Date());
+				String Imgroup = jsonObject.getStr("group");
+				jsonObject.put("type", "1");// 状态为1，聊天数据
+				sysImMessageService = SpringUtil.getBean(SysImMessageService.class);
+				sysImMessageService.IMMessageSava(sysImMessage);
+				List<Map<String,Object>> ListuserId=sysImMessageService.friendGroupAndUserList(Imgroup,userId);
+				ConcurrentHashMap<String, ScriptSession> dwrsession = Dwrmsg.getCriptSession();
+				if (StringUtils.isNotBlank(Imgroup)) {
+					for (java.util.Map<String,Object> item :ListuserId){
+						if(item.get("user_id")!=null){
+							if (!item.get("user_id").equals(toUserId)&&webSocketMap.containsKey(item.get("user_id"))){
+								sysImMessageService.TimflockReadAdd(sysImMessage.getId(),item.get("user_id").toString(),Imgroup);
+								/////////////////////////////////////////////////
+								if(webSocketMap.get(item.get("user_id"))!=null){
+									webSocketMap.get(item.get("user_id")).sendMessage(jsonObject.toJSONString(1));
+								}
+							}
+							// 群消息ie9以下的用户
+							if (!item.get("user_id").equals(toUserId)&&dwrsession.containsKey(item.get("user_id"))) {
+								sysImMessageService.TimflockReadAdd(sysImMessage.getId(),item.get("user_id").toString(),Imgroup);
+								/////////////////////////////////////////////////
+								ScriptBuffer script = new ScriptBuffer();
+								script.appendCall("showMessage", jsonObject.toJSONString(1));
+								if(dwrsession.get(item.get("user_id"))!=null){
+									dwrsession.get(item.get("user_id")).addScript(script);
+								}
+							}
+						}
+					}
+				} else if (StringUtils.isNotBlank(toUserId) && webSocketMap.containsKey(toUserId)) {
+					webSocketMap.get(toUserId).sendMessage(jsonObject.toJSONString(1));// websoket
+				} else if (StringUtils.isNotBlank(toUserId) && dwrsession.containsKey(toUserId)) {
+					// dwr推送针对ie9以下的
+					new Runnable() {
+						@Override
+						public void run() {
+							ScriptBuffer script = new ScriptBuffer();
+							script.appendCall("showMessage", jsonObject.toJSONString(1));
+							dwrsession.get(toUserId).addScript(script);
+						}
+					}.run();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+}

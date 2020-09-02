@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业ERP</title>
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/erp.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+
+	<div class="content">
+		<div class="content_list">
+			<p class="title">企业ERP管理系统</p>
+			<div class="describe">
+				<h2>系统概述</h2>
+				<p>腾智团队自2003年承担紧固件企业管理软件开发和实施，融合先进的管理思想，结合多年的行业经验，紧固件行业特点以及产品研发、项目管理、技术管理、质量控制、生产过程跟踪、交货期管理等方面难点，研发出功能强大、业务管理流程健全的紧固件行业企业管理软件。</p>
+				<img src="/static/gab/images/erp1.jpg" alt="">
+			</div>
+
+			<div class="page">
+				<h2>系统界面</h2>
+				<div class="con">
+					<img src="/static/gab/images/erp2.jpg" alt="">
+					<img src="/static/gab/images/erp3.jpg" alt="">
+				</div>
+			</div>
+
+			<div class="special">
+				<h2>特点优势</h2>
+				<p>腾智团队自2003年承担紧固件企业管理软件开发和实施，融合先进的管理思想，结合多年的行业经验，紧固件行业特点以及产品研发、项目管理、技术管理、质量控制、生产过程跟踪、交货期管理等方面难点，研发出功能强大、业务管理流程健全的紧固件行业企业管理软件。</p>
+				<img src="/static/gab/images/erp4.jpg" alt="">
+				<p>从线材、冷镦成型、红打、搓丝攻牙、机加工、热处理、筛选、包装等生产制程的任务、报工、品质、设备、物料进行实时监控和跟踪，对生产计划执行、生产进度、质量追溯和质量分析提供了全面的信息支持。</p>
+				<p>模具的库存管理、领用、报废、维修、改模、寿命、质量等管理功能与分析，有效控制模具成本，提高模具使用效率。</p>
+				<p>生产过程的成本监控与分析，通过工序、工艺参数、计划排程、质量跟踪等功能，对生产过程的异常损耗、生产周期进行分析与优化。</p>
+			</div>
+
+			<div class="model">
+				<h2>功能模块</h2>
+				<img src="/static/gab/images/erp5.jpg" alt="">
+			</div>
+
+			<div class="application">
+				<h2>现场应用</h2>
+				<img src="/static/gab/images/erp6.jpg" alt="">
+			</div>
+
+			<div class="btn">
+				<a href="#"> 立即体验 </a>
+			</div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+
+</html>

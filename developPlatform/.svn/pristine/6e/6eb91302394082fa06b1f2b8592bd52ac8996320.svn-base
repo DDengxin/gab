@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>工装档案</title>
+</th:block>
+</head>
+<body>
+	<form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+			<!-- 	<label class="hmq-label" text="产品编码">
+					<input class="mini-textbox" name="cpcodeId" />
+				</label>
+				<label class="hmq-label" text="产品名称">
+					<input class="mini-textbox" name="cpcodeName" />
+				</label>
+				<label class="hmq-label" text="英文名称">
+					<input class="mini-textbox" name="cpcodeNameEn" />
+				</label>
+				 -->
+			</th:block>
+		</th:block>
+	</form>
+	
+	
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="cpcodeId" url="/mesGz/gzda/gzcode/list">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn" width="40">序号</div>
+				<div tz:datagrid="column" field="gmCode" width="130" align="left">工模编号</div>
+				<div tz:datagrid="column" field="gmCpcode" width="100" align="left">产品编号</div>
+	         	<div tz:datagrid="column" field="cpcodeName" align="left" width="120">名称</div>
+                <div tz:datagrid="column" field="cpcodeSize" align="left" width="120">规格</div>
+                <div tz:datagrid="column" name="cpcodeSizeEn" field="cpcodeSizeEn" width="100" align="center">品牌</div>
+                <div tz:datagrid="column" field="cpcodeFl" width="120" align="left">大类</div>
+				<div tz:datagrid="column" field="cpcodeSize" width="100">规格</div>
+				<div tz:datagrid="column" field="cpcodeBz" width="80"align="center" >单位</div>
+				<div tz:datagrid="column" field="gmSl" width="100" align="right"  numberFormat="#,0.0000" >数量</div>
+				<div tz:datagrid="column" field="gmSc" width="100" align="right">使用时长</div>
+				<div tz:datagrid="column" field="gmCl" width="100" align="right">使用产量</div>
+				<div tz:datagrid="column" field="gmStatus" width="100" align="center">状态</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    
+
+    
+    grid.on("DrawCell", function (e) {
+        if (e.field == "cpcodeFlag") {
+			e.cellHtml = 'Y' === e.value ? '启用' : '禁用';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function add_option(e) {
+        e.sender.miniopen({url: "/mesGz/gzda/add.html", action: 'add',height:'350px'});
+    }
+     
+    
+    
+    
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: "/mesGz/gzda/add.html", action: 'edit', data: row,height:'350px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+    
+    
+    /**
+     * 删除
+     **/
+    function delete_option(){
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("/delete/cpcode/{0}".format(row.cpcodeId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+</body>
+</html>

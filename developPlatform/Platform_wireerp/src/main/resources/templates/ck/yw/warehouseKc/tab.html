@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>物料库存</title>
+</th:block>
+<style type="text/css">
+.main {
+	width: 100%;
+	height: 100%;
+}
+
+.iframe {
+	width: 100%;
+	height: 100%;
+}
+</style>
+</head>
+<body>
+	<div class="main">
+		<div id="mainTabs" class="mini-tabs" activeIndex="0" ontabload="getTab" style="width: 100%; height: 100%;" buttons="#tabsButtons"arrowPosition="side" >
+				<div title="明细" th:attr="url=@{${mxurl}}" name="mx"></div>
+				<div title="分类" th:attr="url=@{${flurl}}" name="fl"></div>
+				<div title="库龄" th:attr="url=@{${klurl}}" name="kl"></div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var tabsw = mini.get("mainTabs");
+
+	tabsw.on("activechanged", function (e) {
+		getTab();
+	});
+
+	function getTab(){
+		search_option();
+	}
+	
+	function search_option() {
+		var tabs = mini.get("#mainTabs");
+		var tab = tabs.getTab(mini.get("#mainTabs").getActiveIndex());
+		var iframe = tabs.getTabIFrameEl(tab);
+		if(!!iframe){
+			iframe.contentWindow.search_option();
+		}
+	}
+
+	function print_option() {
+		var tabs = mini.get("#mainTabs");
+		var tab = tabs.getTab(mini.get("#mainTabs").getActiveIndex());
+		var iframe = tabs.getTabIFrameEl(tab);
+		if(!!iframe){
+			iframe.contentWindow.print_option();
+		}
+	}
+</script>
+</html>

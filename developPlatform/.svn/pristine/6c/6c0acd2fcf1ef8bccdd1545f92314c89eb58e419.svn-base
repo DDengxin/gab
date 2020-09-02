@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+         <input id="wlType" name="wlType" class="mini-hidden" value="ZZ"/>
+         <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+        	 <tr>
+        	  	<td title>本工程号：</td>
+                <td content>
+                    <input class="mini-textbox" readonly  id="bgc" name="bgc" emptyText="自动生成" />
+                    <input class="mini-hidden" readonly  id="sgc" name="sgc" />
+                </td>
+                <td title>生产日期：</td>
+                <td content>
+                    <input class="mini-datepicker" required name="rq" id="rq" format="yyyy-MM-dd" />
+                </td>
+            </tr>
+            <tr>
+                <td title>生产批次：</td>
+                <td content>
+                       <input class="mini-textbox"   readonly id="scMo" name="scMo" />
+                </td>
+                <td title>生产品号：</td>
+                <td content>
+                      <input class="mini-textbox" readonly id="code" name="code" />
+                </td>
+            </tr>
+            <tr>
+                <td title>生产工艺：</td>
+                <td content>
+                      <input class="mini-combobox"  readonly id="gy" name="gy"  url="/js/cpgy/scgy/getGyAllSelectList" />
+                </td>
+                <td title>生产工序：</td>
+                <td content>
+                       <input class="mini-combobox"  readonly id="gx" name="gx" url="/js/cpgy/scgx/getGxAllSelectList" />
+                </td>
+            </tr>
+             <tr>
+                <td title>产品品名：</td>
+                <td>
+                    <input class="mini-treeselect" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid"   readonly id="tname" name="tname" url="/system/parameter/getParamsTreeList/技术/ZZMC"  />
+                </td>
+                <td title>当前规格：</td>
+                <td>
+                   <input class="mini-textbox" readonly id="tsize" name="tsize" />
+                </td>
+            </tr>
+             <tr>
+                 <td title>原料牌号：</td>
+                <td>
+                    <input class="mini-combobox" id="tph" name="tph"  required />
+                </td>
+                 <td title>原料批次：</td>
+                <td>
+                     <input class="mini-combobox" id="tts" name="tts" required />
+                </td>
+            </tr>
+             <tr>
+               
+                <td title>报工数量：</td>
+                <td>
+                    <input class="mini-textbox"  id="tsl" name="tsl" />
+                     <input class="mini-hidden"  id="tlyl" name="tlyl" />
+                </td>
+               	<td title>生产车间：</td>
+                <td>
+                    <input class="mini-combobox"  id="tcj" name="tcj"  />
+                </td>
+              <tr>
+               <tr>
+                 	<td title>生产车台：</td>
+                <td>
+                    <input class="mini-combobox"  id="tct" name="tct"   />
+                </td>
+             
+                 <td title>生产区位：</td>
+                <td>
+                  <input class="mini-textbox"  id="gcQw" name="gcQw"  />
+                </td>
+            </tr>
+             <tr>
+              <td title>特殊号：</td>
+                <td>
+                  <input class="mini-textbox"  readonly id="bgcVnote" name="bgcVnote"  />
+                </td>
+              
+                 <td title>生产人员:</td>
+                <td content>
+                  	 <input class="mini-hidden" readonly id="tdept" name="tdept"   />
+                  	  <input class="mini-hidden" readonly id="tbc" name="tbc"  />
+                     <input id="doMan" name="doMan" required class="mini-lookup" style="width:100%;"  
+                     	textField="workName" valueField="workId" popupWidth="auto" popup="#gridPanel" grid="#datagrid1" multiSelect="false" />
+						<div id="gridPanel" class="mini-panel" title="header" iconCls="icon-add" style="width:450px;height:250px;" 
+						        showToolbar="true" showCloseButton="true" showHeader="false" bodyStyle="padding:0" borderStyle="border:0" 
+						    >
+						        <div property="toolbar" style="padding:5px;padding-left:8px;text-align:center;">   
+						            <div style="float:left;padding-bottom:2px;">
+						                <span>姓名：</span>                
+						                <input id="srchName" class="mini-textbox" style="width:160px;" onenter="onSearchClick"/>
+						                <a class="mini-button" onclick="onSearchClick">查询</a>
+						                <a class="mini-button" onclick="onClearClick">清除</a>
+						            </div>
+						            <div style="float:right;padding-bottom:2px;">
+						                <a class="mini-button" onclick="onCloseClick">关闭</a>
+						            </div>
+						            <div style="clear:both;"></div>
+						        </div>
+						        <div id="datagrid1" class="mini-datagrid" style="width:100%;height:100%;" 
+						            borderStyle="border:0" showPageSize="false" showPageIndex="false"  onSelectionChanged="onSelectionChanged"  >
+						            <div property="columns">
+						                <div type="checkcolumn" ></div>
+										<div field="workId"   align="center" width="100" sortField="workId" displayField="workId" headerAlign="center" allowSort="true">工号</div>
+										<div field="workName" align="left"   width="100" visible="true" sortField="workName" displayField="workName" headerAlign="center" allowSort="true">姓名</div>
+						               	<div field="workDept" displayField="deptname"  align="left" width="100" sortField="workDept" headerAlign="center" allowSort="true">部门</div>
+										<div field="workBb"   displayField="bbname" align="left" width="100" sortField="workBb" headerAlign="center" allowSort="true">班别</div>
+						               
+						            </div>
+						        </div>  
+						    </div>			        
+                </td>
+         
+            </tr>
+           
+        
+             <tr>
+                <td title>品质状态:</td>
+                <td content>
+                     <input class="mini-combobox" required name="gcFlag" id="gcFlag" value="HG"  url="/production/productionSite/siteTask/getGxFlag" />
+                </td>
+                 <td title>上料时间:</td>
+                <td content>
+                     <input class="mini-datepicker" readonly name="bgcTl" id="bgcTl" format="yyyy-MM-dd HH:mm" timeFormate="HH:mm" showClearButton="false" showTime="true" showOkButton="true" showTodayButton="true"
+                     />
+                </td>
+            </tr>
+              <tr>
+                 <td title>完成时间:</td>
+                <td content>
+                     <input class="mini-datepicker"  name="bgcWc" id="bgcWc" format="yyyy-MM-dd HH:mm" timeFormate="HH:mm"  showClearButton="false" showTime="true" showOkButton="true" showTodayButton="true"
+                     onvaluechanged="onvaluechanged()" ondrawdate="onDrawDate" />
+                </td>
+                <td title>生产时长:</td>
+                <td content>
+                     <input class="mini-textbox"   id="bgcSc" name="bgcSc" />
+                </td>
+            </tr>
+            
+        </table>
+    </form>
+    
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    var surl = "/production/productionSite/siteTask";
+    
+    var grid = mini.get("datagrid1");
+  	var srchName = mini.get("srchName");
+  
+    function onSearchClick(e) {
+    	var params={
+    			srchName: mini.get("srchName").getValue(),
+    			srchGx  : mini.get("gx").getValue(),
+    			srchCt  : mini.get("tct").getValue()
+    	};
+        grid.load({
+        	"params": mini.encode(params)
+        });
+    }
+    function onCloseClick(e) {
+        var lookup = mini.get("doMan");
+        lookup.hidePopup();
+    }
+    
+    function onClearClick(e) {
+        var lookup = mini.get("doMan");
+        lookup.deselectAll();
+        mini.get("tdept").setValue("");
+		mini.get("tbc").setValue("");
+    }
+    
+    function onSelectionChanged(e) {
+		var grid = e.sender;
+		var record = grid.getSelected();
+		if (record) {
+			mini.get("doMan").setValue(record.workId);
+			mini.get("tdept").setValue(record.workDept);
+			mini.get("tbc").setValue(record.workBb);
+		}
+	}
+    
+  	
+    /**
+     保存
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+        	var tsl=mini.get("tsl").getValue();
+        	var tlyl=mini.get("tlyl").getValue();
+        	if(parseFloat(tsl)>parseFloat(tlyl)){
+        		return  hmq.tipDanger('下料数量不能超过投料数！');
+        	}
+        	if(parseFloat(tsl)<parseFloat(tlyl)){
+        		mini.confirm("该工程还有余料是否继续下料？", "提示信息", function (action) {
+                    if (action == "ok") {
+                    	 $['post'](surl+"/gxxl", JSON.stringify({
+                         	mScGclist: form.getData(true)
+                         }), function (res) {
+                             if (200 === res.code) {
+                                 hmq.tipSuccess(res.msg || '保存成功', {
+                                     exec: function () {
+                                         CloseWindow('refresh');
+                                     }
+                                 });
+                             } else {
+                                 hmq.tipDanger(res.msg || '保存失败');
+                             }
+                         }, null, {
+                             contentType: 'application/json'
+                         });
+                    }
+                });
+        	}else{
+        		 $['post'](surl+"/gxxl", JSON.stringify({
+                 	mScGclist: form.getData(true)
+                 }), function (res) {
+                     if (200 === res.code) {
+                         hmq.tipSuccess(res.msg || '保存成功', {
+                             exec: function () {
+                                 CloseWindow('refresh');
+                             }
+                         });
+                     } else {
+                         hmq.tipDanger(res.msg || '保存失败');
+                     }
+                 }, null, {
+                     contentType: 'application/json'
+                 });
+        	}
+           
+        }
+    }
+
+
+    /**
+     回调函数
+     */
+    function SetData(options) {
+         var row = options.data;
+        if ('gxxl' == options.action) {
+            $('[name=action]').val(options.action);
+            $['put'](surl+"/getByTl",JSON.stringify({"params": mini.encode(row)}), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data, true);
+                    var data = mini.decode(res.data);
+                	mini.get("rq").setValue(mini.formatDate(new Date(), "yyyy-MM-dd"));
+                	mini.get("bgcTl").setValue(mini.formatDate(new Date(data.bgcTl), "yyyy-MM-dd HH:mm"));
+                	mini.get("tlyl").setValue(data.tsl);
+                	//根据生产工序任务单获取车间，车台下拉
+                	mini.get("tcj").setUrl("/js/cpgy/scgx/getCjList/{0}".format(data.gx));
+                	mini.get("tct").setUrl("/mSbJt/sb/getGxJtList/{0}".format(data.gx));
+                	//根据任务单和工序获取投料下拉框
+                	mini.get("tph").setUrl(surl+"/getTph/{0}/{1}".format(data.scMo, data.gx));
+                	mini.get("tts").setUrl(surl+"/getTts/{0}/{1}".format(data.scMo, data.gx));
+                	grid.setUrl("/sc/da/rydg/getSrchList");
+                  	grid.load({
+                     	"params": mini.encode({	srchGx : data.gx, srchCt : data.tct})
+                     });
+                }
+            }, null, {
+                contentType: 'application/json'
+            }); 
+        }  
+    }
+
+    //计算时长
+    var leave_time = 0;//时长
+    //值改变事件
+    function onvaluechanged() {
+        var start_time = mini.formatDate(new Date(mini.get("bgcTl").getValue()), "yyyy-MM-dd HH:mm:00");
+        if(isNull(start_time)){
+        	mini.get("bgcWc").setValue("");
+        	return hmq.tipDanger('请先选择投料时间！');
+        }
+        var end_time =  mini.formatDate(new Date(mini.get("bgcWc").getValue()), "yyyy-MM-dd HH:mm:00");;
+        var stime =new Date(start_time).getTime();
+        var etime = new Date(end_time).getTime();
+        //时长计算
+        leave_time = ( etime- stime) / 3600000;
+        if (leave_time > Math.round(leave_time)) {
+            leave_time += 0.5;
+        }
+        mini.get("bgcSc").setValue(leave_time.toFixed(1) > 0 ? leave_time.toFixed(1) : '');
+
+    }
+
+    function onDrawDate(e) {
+        var date = e.date;
+        if (e.sender.name == "bgcWc" && date.getTime() < new Date(mini.get("bgcTl").getValue()).getTime()) {
+            e.allowSelect = false;
+        };
+      
+
+
+    }
+
+
+    
+</script>
+</html>

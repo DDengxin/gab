@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>供货单位【新增】</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden" />
+		<form id="form1">
+			<input name="customerId" class="mini-hidden" />
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>单位编码</td>
+					<td content><input class="mini-textbox" emptyText="单位编码自动生产"
+						allowInput="false" name="customerId" /></td>
+					<td title>单位简称</td>
+					<td content><input class="mini-textbox" name="customerExp" required="true"  /></td>
+					<td title>采购人员</td>
+					<td content><input id="customerBuyer" name="customerBuyer"
+						emptyText="请选择" class="mini-combobox"
+						url="/cg/da/sysCustomer/type/treelist" textField="combtext"
+						valueField="combid" popupHeight="150" /></td>
+				</tr>
+				<tr>
+					<td title>单位名称</td>
+					<td content colspan="5"><input class="mini-textbox"
+						required="true" name="customerName" /></td>
+				</tr>
+				<tr>
+					<td title>单位英文</td>
+					<td content colspan="5"><input class="mini-textbox"
+						name="customerIdEn" /></td>
+				</tr>
+				<tr>
+					<td title>单位联系</td>
+					<td content colspan="5"><input class="mini-textbox"
+						name="customerContact" /></td>
+				</tr>
+				<tr>
+					<td title>单位地址</td>
+					<td content colspan="5"><input class="mini-textbox"
+						name="customerAddress" /></td>
+				</tr>
+				<tr>
+					<td title>银行信息</td>
+					<td content colspan="5"><input class="mini-textarea" name="customerBank" style="height:40px;" /></td>
+				</tr>
+				<tr>
+					<td title>开票信息</td>
+					<td content colspan="5"><input class="mini-textarea" name="customerAccount" style="height:95px;"	/></td>
+				</tr>
+				<tr>
+					<!-- <td content><input class="mini-textbox" name="customerBuyer" /></td> -->
+					<!-- <td content><input  id="customerBuyer"  name="customerBuyer"  emptyText="全部" 
+                           allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick"  /></td> -->
+					<td title>采购保证金</td>
+					<td content><input name="customerJe" id="customerJe" vtype="float"
+						class="mini-textBox" /></td>
+					<td title>付款天数</td>
+					<td content><input name="customerDay" id="customerDay" vtype="int"
+						class="mini-textBox" /></td>
+					<td title>供应商级别</td>
+					<td content><input name="customerLevel" id="customerLevel"
+						class="mini-textBox" /></td>
+
+				</tr>
+				<tr>
+					<td title>省份区域</td>
+					<!-- <td content><input id="customerProvince" name="customerProvince" emptyText='--请选择省份--' class="mini-combobox" textField="name" valueField="name" onvaluechanged="valuechanged()"/>
+		</td> -->
+					<td content><input id="customerProvince"
+						name="customerProvince" emptyText="请选择" class="mini-treeselect"
+						url="/cg/da/sysCustomer/type/citylist" multiSelect="false"
+						valueFromSelect="false" textField="combtext" valueField="combid"
+						parentField="pid" popupHeight="150" /></td>
+					<td title>上级单位</td>
+					<td content><input name="customerUid" id="customerUid"
+						allowInput="false" class="mini-buttonedit"
+						onbuttonclick="onSupplierClick" /></td>
+
+					<td title>状态</td>
+					<td content><input class="mini-combobox" name="customerFlag"
+						textField="text" valueField="id" value="Y"
+						data="[{id:'Y',text:'启用'},{id:'N',text:'禁用'}]" /></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="SaveData" iconCls="icon-save"
+			id="saveBtn">保存</a> <a class="mini-button" onclick="CloseWindow"
+			iconCls="icon-cancel">关闭</a>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form('form1');
+
+	var jsonData = [ {
+		id : "0",
+		name : '北京'
+	}, {
+		id : "1",
+		name : '上海'
+	}, {
+		id : "2",
+		name : '天津'
+	}, {
+		id : "3",
+		name : '重庆'
+	}, {
+		id : "4",
+		name : '四川'
+	}, {
+		id : "5",
+		name : '贵州',
+
+	}, {
+		id : "6",
+		name : '云南',
+
+	}, {
+		id : "7",
+		name : '西藏',
+
+	}, {
+		id : "8",
+		name : '河南',
+
+	}, {
+		id : "9",
+		name : '湖北',
+
+	}, {
+		id : "10",
+		name : '湖南',
+
+	}, {
+		id : "11",
+		name : '广东',
+
+	}, {
+		id : "12",
+		name : '广西',
+
+	}, {
+		id : "13",
+		name : '陕西',
+
+	}, {
+		id : "14",
+		name : '甘肃',
+
+	}, {
+		id : "15",
+		name : '青海'
+	}, {
+		id : "16",
+		name : '宁夏',
+
+	}, {
+		id : "17",
+		name : '新疆',
+
+	}, {
+		id : "18",
+		name : '河北',
+
+	}, {
+		id : "19",
+		name : '山西',
+
+	}, {
+		id : "20",
+		name : '内蒙古',
+
+	}, {
+		id : "21",
+		name : '江苏',
+
+	}, {
+		id : "22",
+		name : '浙江',
+
+	}, {
+		id : "23",
+		name : '安徽',
+
+	}, {
+		id : "24",
+		name : '福建',
+
+	}, {
+		id : "25",
+		name : '江西',
+
+	}, {
+		id : "26",
+		name : '山东',
+
+	}, {
+		id : "27",
+		name : '辽宁',
+
+	}, {
+		id : "28",
+		name : '吉林',
+
+	}, {
+		id : "29",
+		name : '黑龙江',
+
+	}, {
+		id : "30",
+		name : '海南',
+
+	}, {
+		id : "31",
+		name : '台湾',
+
+	}, {
+		id : "32",
+		name : '香港',
+
+	}, {
+		id : "33",
+		name : '澳门'
+	} ];
+
+	function SetData(options) {
+		if ('add' == options.action) {
+			$('[name=action]').val(options.action);
+		} else if ('edit' == options.action) {
+			$.get("list.html/{0}".format(options.data.customerId),
+					function(res) {
+						if (200 === res.code) {
+							form.setData(res.data);
+							mini.get("customerUid").setValue(
+									res.data.customerUid);
+							mini.get("customerUid").setText(
+									res.data.lastcustomername);
+						}
+					});
+		}
+	}
+
+	function SaveData() {
+		if (form.validate() && form.isValid()) {
+			var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+			$[method]("add.html", JSON.stringify(form.getData()),
+					function(res) {
+						if (200 === res.code) {
+							hmq.tipSuccess(res.msg || '保存成功', {
+								exec : function() {
+									CloseWindow('refresh');
+								}
+							});
+						} else {
+							hmq.tipDanger(res.msg || '保存失败');
+						}
+					}, null, {
+						contentType : 'application/json'
+					});
+		}
+	}
+
+	/*  上级单位选择 */
+	function onSupplierClick(e) {
+		var btnEdit = e.sender;
+		return miniopen({
+			targetWindow : window.top,
+			url : "/cg/da/sysCustomer/treeCustomer.html",
+			title : "上级单位选择页面",
+			width : 750,
+			data : {},
+			height : 620,
+			ondestroy : function(action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var data = iframe.contentWindow.GetData();
+					btnEdit.setValue(data.customerId);
+					btnEdit.setText(data.customerExp);
+				}
+			}
+		});
+	}
+</script>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>表单配置【新增】</title>
+    </th:block>
+    <script type="text/javascript" th:src="@{/static/gab/js/PCASClass.js}"></script>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden">
+    <form id="form1">
+        <table class="hmq-modify-table" style="padding: 50">
+            <tr>
+                <td title>参数名称:</td>
+                <td content>
+                    <input id="parameterName" name="parameterName" class="mini-textbox" required/>
+                    <input id="id" name="id" class="mini-hidden" emptyText="自动生成" readonly="readonly"/>
+                </td>
+                <td title>参数:</td>
+                <td content>
+                    <input id="parameter" name="parameter" class="mini-textbox" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>参数类型:</td>
+                <td content>
+                    <input id="parameterType" name="parameterType" class="mini-combobox" url="/system/parameter/getParamsSelectListByParentId/平台参数/参数类型/CSLX" textField="text" valueField="id" required/>
+                </td>
+                <td title>参数方式:</td>
+                <td content>
+                    <input id="parameterWay" name="parameterWay" class="mini-combobox" onvaluechanged="enabled" url="/system/parameter/getParamsSelectListByParentId/平台参数/参数方式/CSFS" textField="text" valueField="id" required/>
+                </td>
+            </tr>
+            <tr class="showFs">
+                <td title>下拉参数:</td>
+                <td content>
+                    <input id="defaultVal" name="defaultVal" class="mini-textbox" required/>
+                </td>
+                <td title>下拉类型:</td>
+                <td content>
+                    <input id="defaultType" name="defaultType" class="mini-textbox" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>分类:</td>
+                <td content>
+                    <input id="classify" name="classify" required class="mini-treeselect" onvaluechanged="setField" multiSelect="false" valueFromSelect="true" textField="combtext" valueField="combid" parentField="pid"
+                           url="/system/parameter/getParamsTreeList/平台参数/BDPZ" onbeforenodeselect="disableParentSelection" popupWidth="100%" popupHeight="150" popupMaxHeight="200" allowInput="false"/>
+                    <input id="associatedFields" name="associatedFields" class="mini-hidden" readonly="readonly"/>
+                </td>
+                <td title>排序:</td>
+                <td content>
+                    <input id="rank" name="rank" class="mini-spinner" minValue="0" maxValue="1000" value="1" required/>
+                </td>
+            </tr>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+
+    var form = new mini.Form("form1");
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            data = mini.clone(options);
+            enabled();
+            form.setChanged(false);
+        } else if ('edit' == options.action) {
+            $.get("getById/{0}".format(options.data.id), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                }
+                enabled();
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("save", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh', false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+    function enabled() {
+        if (mini.get("parameterWay").value === "XL") {
+            $(".showFs").css("display", "");
+        } else {
+            $(".showFs").css("display", "none");
+        }
+    }
+
+    function setField() {
+        $.ajax({
+            url: "/platform/form/getFieldByClassify",
+            type: 'GET',
+            data: {
+                classify: mini.get("classify").value
+            },
+            async: false,
+            success: function (res) {
+                if (res > 20) {
+                    hmq.tipDanger('该行业分类配置已达最大限制，请联系管理员进行增加');
+                } else {
+                    mini.get("associatedFields").setValue("field" + res);
+                }
+            }
+        });
+    }
+
+    function onDeptValueChanged() {
+        mini.get("classify").setUrl("/system/parameter/getTreeList/{0}/{1}".format("平台参数", ""));
+    }
+
+</script>
+</html>

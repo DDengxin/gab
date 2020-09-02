@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>邮件配置</title>
+</th:block>
+</head>
+<body>
+	<form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<label class="hmq-label" text="姓名">
+					<input class="mini-textbox" id="nickName" name="nickName" />
+				</label>
+			</th:block>
+		</th:block>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="" url="/demo/excel/find">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn"></div>
+				<div tz:datagrid="column" field="nickName" width="200">姓名</div>
+				<div tz:datagrid="column" field="sex" width="200">性别</div>
+				<div tz:datagrid="column" field="password" width="200">密码</div>
+				<div tz:datagrid="column" field="mobile" width="200">手机号码</div>
+				<div tz:datagrid="column" field="email" width="200">邮箱</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form_home");
+		var grid = mini.get("srch_grid");
+		grid.bindSearchForm(form);
+		function search_option() {
+			grid.load();
+		}
+
+		function import_option(e) {
+			e.sender.miniopen({
+				url : "/demo/excel/import.html",
+				title : '【excel模板导入】',
+				action : 'add',
+				height : '200px'
+			});
+		}
+
+		function export_option(e) {
+			assembling({
+				grid : grid,
+				form : form,
+				url : "/demo/excel/exportExcel",
+				json:['sex']
+			});
+		}
+	</script>
+</body>
+</html>

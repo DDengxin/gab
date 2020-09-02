@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>凭证科目【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+			<table style="table-layout:fixed;margin: 0px auto;padding-top:5px;">
+				<tr>
+					<td align="center" height="25">科目编码：</td>
+					<td>
+						<input id="fnumber" name="fnumber" style="width: 200px;" class="mini-textbox" required="true" emptyText="请输入编码" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">科目名称：</td>
+					<td>
+						<input id="fname" name="fname" style="width: 200px;" class="mini-textbox" required="true" emptyText="请输入名称" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">上级科目：</td>
+					<td>
+						<input id="fparentidname" name="fparentidname" style="width: 200px;" class="mini-textbox" readOnly="true" />
+					</td>
+				</tr>
+					<tr>
+					<td align="center" height="25">科目种别：</td>
+					<td>
+						<input id="fclassid" name="fclassid" class="mini-combobox"  style="width: 200px;" url="/finance/voucher/accout/actGrouplist" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">科目类别：</td>
+					<td>
+						<input id="fgroupid" name="fgroupid" class="mini-combobox" style="width: 200px;" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">余额方向：</td>
+					<td>
+						<select id="fdc" name="fdc" class="mini-combobox" style="width: 200px;" required="true" textField="combtext" valueField="combid" emptyText="全部">
+							<option value="1">借</option>
+							<option value="-1">贷</option>
+						</select>
+					</td>
+				</tr>
+								<tr>
+					<td align="center" height="25">
+						<input id="fisitem" name="fisitem" class="mini-checkbox" text="辅助核算：" value="0" truevalue="1" falsevalue="0"></input>
+					</td>
+					<td colspan="5">
+						<input id="fcustom" name="fcustom" class="mini-checkbox" text="客户" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fsupplier" name="fsupplier" class="mini-checkbox" text="供应商" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="femp" name="femp" class="mini-checkbox" text="职员" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fproject" name="fproject" class="mini-checkbox" text="项目" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fdept" name="fdept" class="mini-checkbox" text="部门" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="finventory" name="finventory" class="mini-checkbox" text="存货" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fqt" name="fqt" class="mini-checkbox" text="其他" value="0" truevalue="1" falsevalue="0"> </input>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">
+						<input id="fisqtyaux" name="fisqtyaux" class="mini-checkbox" text="数量核算：" value="0" truevalue="1" falsevalue="0"></input>
+					</td>
+					<td>
+						<input id="funit" name="funit" style="width: 200px;" class="mini-textbox" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">外币核算：</td>
+					<td colspan="1">
+						<div id="fcur" name="fcur" class="mini-checkboxlist" repeatItems="3" repeatLayout="table" textField="combtext" valueField="combid" url="/finance/voucher/accout/getCurrency"></div>
+					</td>
+				</tr>
+				<tr>
+					<td align="right" height="25">
+						<input id="fisbank" name="fisbank" class="mini-checkbox" text="是否银行科目&nbsp;&nbsp;" value="0" truevalue="1" falsevalue="0"></input>
+					</td>
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<td colspan="4">
+						<input id="fiscash" name="fiscash" class="mini-checkbox" text="是否现金科目" value="0" truevalue="1" falsevalue="0"></input>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">状&emsp;&emsp;态：</td>
+					<td>
+						<select id="fisdelete" name="fisdelete" class="mini-combobox" style="width: 200px;" textfield="combtext" valuefield="combid" emptytext="全部">
+							<option value="0">禁用</option>
+							<option value="1">启用</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+
+
+
+
+
+</script>
+</html>

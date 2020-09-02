@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>部门会议</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input name="srch_mode" type="hidden" class="mini-hidden"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="公司">
+            <input id="srchCorp" name="srchCorp" class="mini-combobox" width="100" popupMaxHeight="240px"
+                   url="/personnel/eHrWorker/selectCorp" showNullItem="true" nullItemText="全部"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input name="srch_dept"  width="250" popupMaxHeight="240px" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" emptyText="请选择" showClose="true"
+                   oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="会议主题">
+            <input id="srch_title" name="srch_title" style="width: 120px;" allowInput="true" class="mini-textbox"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="note" url="/xt/notice/deptMeeting/sreach">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="note" width="100" align="center">单号</div>
+            <div tz:datagrid="column" field="rq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="corpname" width="100" align="center">公司</div>
+            <div tz:datagrid="column" field="hytitle"  width="200" align="center">主题</div>
+            <div tz:datagrid="column" field="hyadd" width="200" align="center">会议地点</div>
+            <div tz:datagrid="column" field="isgk" width="200" align="center">是否公开</div>
+            <div tz:datagrid="column" field="file" width="100" align="center" renderer="onActionRenderer">附件</div>
+            <div tz:datagrid="column" field="flag" width="60" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    var paramMod = hmq.getQueryString("paramMod");
+
+   /* //加载下拉框
+    form.getField('srch_type').setUrl("/system/parameter/combobox/params?parentId=" + paramMod);*/
+    //加载不同模块 ，
+    form.getField('srch_mode').setValue(paramMod);
+
+    function search_option() {
+        grid.load({params: JSON.stringify(form.getData(true))});
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row: row, formData: form.getData()}, width: 720, height: 500});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.flag == "登记") {
+                e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}, width: 720, height: 500});
+            } else {
+                hmq.tipDanger("非登记状态不能修改");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗(包括已上传附件)？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("list.html/{0}".format(row.note), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 确认
+     */
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.flag != "登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return;
+           S } else {
+                    hmq.business.approvalConfirm({
+                        businessId: row.note,
+                        url: "/xt/notice/add.html?paramMod=" + hmq.getQuerytring('paramMod'),
+                    error: function (res) {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 取消
+     */
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            hmq.business.approvalCancel({
+                businessId: row.note,
+                error: function (res) {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function find_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'view.html', action: 'view', data: row.noticeNo, width: 940, height: 760});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function onActionRenderer(e) {
+        var html = "";
+        if (e.value != null) {
+            html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 附件  ' + '</a> ';
+        } else {
+            html = '-';
+        }
+        return html;
+    }
+
+    function file_view(noticeNo) {
+        miniopen({url: 'file.html', action: 'file', data: noticeNo, width: 400, height: 390, title: '附件下载'});
+    }
+
+</script>
+
+</body>
+</html>

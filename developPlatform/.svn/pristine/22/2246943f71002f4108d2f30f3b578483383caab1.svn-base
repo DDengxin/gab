@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>常用菜单</title>
+    </th:block>
+</head>
+
+<body>
+
+<form id="forms" method="post">
+    <div class="mini-toolbar" style="text-align: center; line-height: 30px;" borderStyle="border:0;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="white-space: nowrap;" align="left">
+                    <label class="hmq-label" text="系统">
+                        <input class="mini-combobox" name="rightModule" url="/system/right/combobox/rightModule"/>
+                    </label>
+                    <label class="hmq-label" text="菜单名称">
+                        <input class="mini-textbox" name="rightName"/>
+                    </label>
+                </td>
+                <td style="white-space: nowrap;" align="right">
+                    <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+
+<input name="model" class="mini-hidden"/>
+<div class="mini-fit">
+    <form id="form1" method="post">
+        <fieldset>
+            <table>
+                <tr>
+                    <td>
+                        <div id="listbox1" class="mini-listbox" style="width:250px;height:380px;" textField="text" valueField="id" showCheckBox="true" multiSelect="true" ortField="rightOrd">
+                            <div property="columns">
+                                <div tz:datagrid="column" field="rightId" width="65" align="center" headerAlign="center" allowSort="true" visible="false">菜单模块</div>
+
+                                <div tz:datagrid="column" field="rightModule" width="80px" align="center" headerAlign="center" allowSort="true">菜单模块</div>
+                                <div tz:datagrid="column" field="rightName" width="80px" align="center" headerAlign="center" allowSort="true">菜单名称</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="width:120px;text-align:center;">
+                        <input type="button" value=">" onclick="add()" style="width:40px;"/><br/>
+                        <input type="button" value=">>" onclick="addAll()" style="width:40px;"/><br/>
+                        <input type="button" value="&lt;&lt;" onclick="removesAll()" style="width:40px;"/><br/>
+                        <input type="button" value="&lt;" onclick="removes()" style="width:40px;"/><br/>
+                    </td>
+                    <td>
+                        <div id="listbox2" class="mini-listbox" style="width:340px;height:380px;" showCheckBox="false" multiSelect="false" textField="text" valueField="id" url="/system/often">
+                            <div property="columns">
+
+                                <div tz:datagrid="indexcolumn" width="48" headerAlign="center">序号</div>
+                                <div tz:datagrid="column" field="rightId" width="65" align="center" headerAlign="center" allowSort="true" visible="false">菜单模块</div>
+
+                                <div tz:datagrid="column" field="rightModule" width="80px" align="center" headerAlign="center" allowSort="true">菜单模块</div>
+                                <div tz:datagrid="column" field="rightName" width="80px" align="center" headerAlign="center" allowSort="true">菜单名称</div>
+                                <div tz:datagrid="column" field="action" width="80px" align="center" renderer="onActionRenderer"></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+    </form>
+</div>
+<div style="text-align:center;padding:5px;">
+    <a class="mini-button" onclick="SaveData();" iconCls="icon-save">保存</a>
+    <a class="mini-button" onclick="CloseWindow('close');" iconCls="icon-save">关闭</a>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var listbox1 = mini.get("listbox1");
+    var listbox2 = mini.get("listbox2");
+
+
+    mini.getByName("rightModule").on("valuechanged", function (e) {
+        search_option();
+    });
+    mini.getByName("rightModule").select(0);
+    mini.getByName("rightModule").doValueChanged();
+
+    function search_option() {
+        $.ajax({
+            url: "/system/AuthMenuSerash",
+            type: 'post',
+            datatype: 'json',
+            data: {
+                params: JSON.stringify({
+                    rightModule: mini.getByName("rightModule").getValue(),
+                    rightName: mini.getByName("rightName").getValue()
+                })
+            },
+            success: function (data) {
+                if (200 === data.code) {
+                    listbox1.loadData(data.data.content)
+                }
+            }
+        });
+    }
+
+
+    function add() {
+        var data = listbox2.getData();
+        var items = listbox1.getSelecteds();
+        if ((data.length + items.length) > 8) {
+            return hmq.tipDanger('不能保存超过8个以上的菜单');
+        }
+        listbox1.removeItems(items);
+        listbox2.addItems(items);
+    }
+
+    function addAll() {
+        var data = listbox2.getData();
+        var items = listbox1.getData();
+        if ((data.length + items.length) > 8) {
+            return hmq.tipDanger('不能保存超过8个以上的菜单');
+        }
+        listbox1.removeItems(items);
+        listbox2.addItems(items);
+    }
+
+    function removesAll() {
+        var items = listbox2.getData();
+        listbox2.removeItems(items);
+        listbox1.addItems(items);
+    }
+
+    function removes() {
+        var items = listbox2.getSelecteds();
+        listbox2.removeItems(items);
+        listbox1.addItems(items);
+    }
+
+    function upItem() {
+        var items = listbox2.getSelecteds();
+        for (var i = 0, l = items.length; i < l; i++) {
+            var item = items[i];
+            var index = listbox2.indexOf(item);
+            listbox2.moveItem(item, index - 1);
+        }
+    }
+
+    function downItem() {
+        var items = listbox2.getSelecteds();
+        for (var i = items.length - 1; i >= 0; i--) {
+            var item = items[i];
+            var index = listbox2.indexOf(item);
+            listbox2.moveItem(item, index + 1);
+        }
+    }
+
+    function SaveData() {
+        var data = listbox2.getData();
+        var json = mini.encode(data);
+        var surl = "/system/sava";
+        $.ajax({
+            url: surl,
+            type: 'post',
+            datatype: 'json',
+            data: json,
+            cache: false,
+            success: function (data) {
+                if (200 === data.code) {
+                    CloseWindow('close');
+                    window.parent.refreshTab()
+                } else {
+                    hmq.tipDanger(data.msg || '保存失败');
+                }
+            },
+            contentType: 'application/json'
+        });
+    }
+
+
+    /**
+     * 渲染行
+     **/
+    function onActionRenderer(e) {
+        if ('action' == e.field) {
+            return '<span class="fa fa-fw fa-2x fa-angle-double-up hmq-success" title="上移" onclick="upItem()"></span>'.format(e.record) +
+                '<span class="fa fa-fw fa-2x fa-angle-double-down hmq-success" title="下移" onclick="downItem()"></span>'.format(e.record);
+        }
+    }
+
+</script>
+</body>
+</html>

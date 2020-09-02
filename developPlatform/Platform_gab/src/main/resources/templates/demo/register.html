@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>注册</title>
+    <link rel="stylesheet" type="text/css" href="/static/gab/demo/css/register.css"/>
+    <script src="/static/gab/demo/js/jquery.min.js"></script>
+    <script src="/static/gab/demo/js/register.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <div class="top">
+            <h1 class="logo">
+                <a href="#">
+                    <img src="/static/gab/demo/images/sy_03.png" alt="">
+                </a>
+                <span>专业夹治具工业互联平台</span>
+            </h1>
+            <dl>
+                <dt>我是</dt>
+                <dd class="selected">供应厂商</dd>
+                <dd>需求用户</dd>
+                <dd>专家团队</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="main">
+        <div class="wrap">
+            <div class="word">
+                <h3>欢迎来到<b>GRAB哥爱帮</b>云工厂</h3>
+                <p>
+                    愿景：
+                    <br>
+                    构建世界性的制造网络，将制造在线化，让人们获得制造服务就像获得水电一样便利
+                </p>
+                <p>
+                    使命：
+                    <br>
+                    让云工厂的制造网络成为像蒸汽机、电力一样的伟大创造，极大地提升产品研发、制造、流通效率，加速人类文明发展 的进程，让全世界都能享受到科技带来的生活水平的提升
+                </p>
+            </div>
+            <div class="dengl">
+                <ul id="tablist">
+                    <li><b>GRAB</b>哥爱帮云工厂</li>
+                </ul>
+                <div class="content-box">
+                    <div class="content">
+                        <form id="login-by-user" method="post">
+                            <ul class="yonhu">
+                                <li>
+                                    <input type="text" class="user" name="username" placeholder="请输入用户名"
+                                           id="username"/>
+                                </li>
+                                <li>
+                                    <input type="password" class="pass" id="password" name="password"
+                                           placeholder="请输入密码"/>
+                                </li>
+                                <li>
+                                    <input type="text" class="phone" id="phone" name="phone"
+                                           placeholder="请输入手机号码"/>
+                                </li>
+                                <li class="yzm">
+                                    <input type="text" class="yan" placeholder="请输入验证码" id="randcode"
+                                           name="randcode"/>
+                                    <span>获取验证码</span>
+                                </li>
+                                <li>
+                                    <input type="button" class="dl btn-login" value="立即申请"/>
+                                </li>
+                                <li class="remember-password-content">
+                                    <input type="checkbox" id="remember"/>
+                                    <span></span>
+                                    <label class="remember-me-label" for="remember">
+                                        我已阅读并同意《<a href="#">商家入驻用户协议</a> 》</label>
+                                </li>
+                                <li class="reg">
+                                    已有账号，
+                                    <a href="#">立即登录</a>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="w">
+            <div class="fl">
+                <p>
+                    <b>宁波哥爱帮科技有限公司版权所有</b>
+                    <b>ICP：浙ICP备09096774号</b>
+                    <b>
+                        技术支持：腾智软件
+                    </b>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

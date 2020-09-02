@@ -1,0 +1,80 @@
+package com.tengzhi.business.platform.enroll.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.annotations.Anonymous;
+import com.tengzhi.business.platform.enroll.service.ExpertService;
+import com.tengzhi.business.platform.enroll.vo.modelVo;
+import com.tengzhi.business.system.workflow.vo.Examine;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+@RestController
+@RequestMapping("platform/expert")
+public class ExpertControler {
+
+	@Autowired
+	private ExpertService expertService;
+
+	@GetMapping("/*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+
+
+	@PostMapping(value = "list")
+	public Result getList(BaseDto dto) {
+		return expertService.getList(dto).getResult();
+	}
+
+	/**
+	 * 根据id查询
+	 * 
+	 * @throws Exception
+	 */
+	@GetMapping(value = "expertInfo")
+	public Result getById() throws Exception {
+		return Result.resultOk(expertService.findById());
+	}
+
+	@PutMapping(value = "expertedit")
+	public Result modify(@RequestBody modelVo vo) {
+		expertService.update(vo);
+		return Result.resultOkMsg("修改成功");
+	}
+
+	/**
+	 * 通过id获取对象
+	 **/
+	@GetMapping(value = "expertalone/{note}")
+	public Result expertalone(@PathVariable String note) {
+		return Result.resultOk(expertService.expertalone(note));
+	}
+
+	/**
+	 * 审批
+	 * 
+	 * @param examine
+	 * @return
+	 * @throws Exception
+	 */
+	@PutMapping(value = "/agree")
+	public Result agree(@RequestBody Examine examine) throws Exception {
+		return expertService.agree(examine);
+	}
+
+	/**
+	 * 获取专家的记录案列
+	 * @param baseDto
+	 * @return
+	 */
+	@Anonymous
+	@PostMapping(value = "getExpertTech")
+public Result getExpertTech(BaseDto baseDto){
+	return expertService.getExpertTech(baseDto).getResult();
+}
+	
+	
+
+}

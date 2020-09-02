@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>生产定岗</title>
+</th:block>
+</head>
+<body>
+	<form id="form_home">
+		<th:block
+			th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+<!--				 <label class="hmq-label" text="日期">-->
+<!--		            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>-->
+<!--		        </label>-->
+<!--		        <label class="hmq-label" text="至">-->
+<!--		            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>-->
+<!--		        </label>-->
+		         <label class="hmq-label" text="部门">
+            		 <input id="srchDept" name="srchDept"  class="mini-treeselect" multiSelect="false" valueFromSelect="false"
+						  emptyText="全部"  onbeforenodeselect="disableParentSelection"  width="180" popupWidth="240"  popupHeight="180" showClose="true" oncloseclick="onCloseClickClearValue" />
+						  
+        		</label>
+        		
+				 <label class="hmq-label" text="工号">
+            		<input class="mini-textbox" name="srchId" width="120"/>
+        		</label>
+        		 <label class="hmq-label" text="姓名">
+            		<input class="mini-textbox" name="srchName" width="120"/>
+        		</label>
+        		
+			</th:block>
+		</th:block>
+	</form>
+	
+<!--撑满页面-->
+	
+	<div class="mini-fit">
+		  <div tz:datagrid="datagrid" id="srch_grid" style="width: 100%; height: 100%;" idField="workId" sizeList="[50,100,200]" pageSize="100"  pager="#pager1"   showPager="false" sortMode="client"  >
+			<div property="columns">
+				<div tz:datagrid="indexcolumn" width="40"  align="center">序号</div>
+<!--				<div tz:datagrid="column" field="workRq"   align="center" width="100">日期</div>-->
+				<div tz:datagrid="column" field="workDept" displayField="deptname"  align="left" width="100">部门</div>
+				<div tz:datagrid="column" field="workId"   align="center" width="100">工号</div>
+				<div tz:datagrid="column" field="workName" align="left"   width="100" visible="true">姓名</div>
+				<div tz:datagrid="column" field="workBb"   displayField="bbname" align="left" width="100" >班别</div>
+				<div tz:datagrid="column" field="workCj"   displayField="cjname" align="left" width="100">车间</div>
+<!--				<div tz:datagrid="column" field="workgx"   displayField="gxname" align="left" width="300">工序</div>-->
+				<div tz:datagrid="column" field="workCt"   displayField="ctname" align="left" width="300">车台</div>
+				<div tz:datagrid="column" field="workGz"   displayField="gzname" align="left" width="80"  visible="false">工资方式</div>
+				 <div tz:datagrid="column" field="workSm" width="250" align="left">说明 </div>
+				<div tz:datagrid="column" width="100%"></div> 
+			</div>
+		</div>
+	</div>
+    <div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+               <table style="width: 100%;">
+                   <tr>
+                       <td style="white-space: nowrap;">
+                           <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+                       </td>
+                       <td style="white-space: nowrap;" align="right" id="btnbar"/>
+                   </tr>
+               </table>
+           </div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form_home");
+		var grid = mini.get("srch_grid");
+		var surl = "/sc/da/rydg";
+		grid.setUrl(surl + "/getSrchList");
+		grid.bindSearchForm(form);
+		 
+
+	  	mini.get("srchDept").load("/system/dept/combobox/comboboxDeptTreeListByProduction");
+	  	
+	  	
+		function search_option() {
+			grid.load();
+		}
+		
+		/* 添加 */
+	    function add_option(e) {
+	        var row = grid.getSelected();
+	        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 1210, height: 500});
+	    }
+		
+		/* 修改 */
+	    function edit_option(e) {
+	        var row = grid.getSelected();
+	        if (row) {
+	            e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: 1210, height: 500});
+	        } else {
+	            hmq.tipDanger("请选择一条记录");
+	        }
+	    }
+		
+	</script>
+
+
+</body>
+</html>

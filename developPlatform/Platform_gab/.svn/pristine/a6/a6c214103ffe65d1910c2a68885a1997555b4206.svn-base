@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'page_index'})}">
+	<title th:text="${SYS_SETTING_XTMC}!=null?${SYS_SETTING_XTMC}:'哥爱帮管理系统'"></title>
+</th:block>
+
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/login.css}" />
+<script type="text/javascript">
+	var reqUrl = "[[${url}]]";
+	//不允许iframe页面嵌套
+	if (window.self !== window.top) {
+		window.top.location.href = window.self.location.href;
+	}
+</script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="content-mid">
+			<div class="header">
+				<div class="top w">
+					<h1 class="logo">
+						<a href="#">
+							<img src="/static/gab/images/sy_03.png" alt="">
+						</a>
+					</h1>
+					<div class="tel">
+						<p>
+							<a href="/gab/index.html">返回首页</a>
+							<b>服务热线：400-888-0000</b>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="main">
+				<div class="wrap">
+					<div class="word">
+						<h3>欢迎来到GRAB哥爱帮云工厂</h3>
+						<p>
+							愿景：
+							<br>
+							构建世界性的制造网络，将制造在线化，让人们获得制造服务就像获得水电一样便利
+						</p>
+						<p>
+							使命：
+							<br>
+							让云工厂的制造网络成为像蒸汽机、电力一样的伟大创造，极大地提升产品研发、制造、流通效率，加速人类文明发展 的进程，让全世界都能享受到科技带来的生活水平的提升
+						</p>
+					</div>
+					<div class="dengl">
+						<ul id="tablist">
+							<li class="tabin">账号登录</li>
+							<li>手机登录</li>
+						</ul>
+						<div class="content-box">
+							<div class="content contentin">
+								<form id="login-by-user" method="post">
+									<ul class="yonhu">
+										<li>
+											<input type="text" class="user" name="username" placeholder="请输入用户名" id="username" />
+										</li>
+										<li>
+											<input type="password" class="pass" id="password" name="password" placeholder="请输入密码" />
+										</li>
+										<li class="yzm">
+											<input type="text" class="yan" placeholder="验证码" id="randcode" name="randcode"/>
+											<span>
+											    <img class="verification-code" th:src="@{static/img/login/yz.jpg}"/>
+											</span>
+										</li>
+										<li class="remember-password-content">
+											<input type="checkbox" id="remember" />
+											<span></span>
+											<label class="remember-me-label" for="remember">记住密码</label>
+											<a href="javascript:void(0);" class="forgetPwd">忘记密码</a>
+										</li>
+										<li>
+											<input type="button" class="dl btn-login" value="登录" />
+										</li>
+										<li class="reg">
+											还没有账号，
+											<a href="/gab/application.html">立即注册</a>
+										</li>
+									</ul>
+								</form>
+							</div>
+
+							<div class="content">
+								<form id="login-by-phone" method="post">
+									<ul class="yonhu">
+										<li>
+											<input type="text" class="user" name="username"  placeholder="请输入手机号码" />
+										</li>
+										<li class="yzm">
+											<input type="text" name="randcode" class="yan" placeholder="验证码" />
+											<span class="btn-code"><a class="btn captcha">发送验证码</a></span>
+										</li>
+										<li>
+											<input type="button" class="dl btn-login" value="登录" />
+										</li>
+									</ul>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer">
+				<div class="w">
+					<div class="fl">
+						<p>
+							<b>版权所有:</b>
+							<b class="under">浙ICP备09096774号</b>
+							<b>
+								技术支持：
+								<i class="soft">腾智软件</i>
+							</b>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" th:src="@{/static/gab/js/login.js}"></script>
+</html>

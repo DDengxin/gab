@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产减损【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input id="ksid" name="ksid" class="mini-hidden"/>
+        <input id="action" name="action" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>单号</td>
+                <td content >
+                    <input class="mini-textbox" name="note" readonly = "readonly" emptyText="自动生成"/>
+                </td>
+                <td title>日期</td>
+                <td content >
+                    <input class="mini-datepicker" name="rq" required="true" value="new Date()" allowInput="false"/>
+                </td>
+                <td title>资产编码</td>
+                <td content >
+                    <input class = "mini-buttonedit" name="zccode" allowInput="false" onbuttonclick = "onButtonEdit" showClose="true" oncloseclick="onCloseClickClearValue" required="true"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>物料编码</td>
+                <td content >
+                    <input class="mini-textbox" name="cgcode" required="true" />
+                </td>
+                <td title>设备名称</td>
+                <td content >
+                    <input class="mini-textbox" name="sname"/>
+                </td>
+                <td title>规格型号</td>
+                <td content >
+                    <input class="mini-textbox" name="ksize"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>耐用年限</td>
+                <td content >
+                    <input class="mini-textbox" name="nynx"  vtype = "float;"/>
+                </td>
+                <td title>已用月份</td>
+                <td content >
+                    <input class="mini-textbox" name="yyyf" vtype = "float;"/>
+                </td>
+                <td title>账面残值</td>
+                <td content >
+                    <input class="mini-textbox" name="zmcz" vtype = "float;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>资产类别</td>
+                <td content >
+                    <input class="mini-textbox" name="zctype" />
+                </td>
+                <td title>废品价值</td>
+                <td content >
+                    <input class="mini-textbox" name="fpjz" vtype = "float;"/>
+                </td>
+                <td title>处理费用</td>
+                <td content >
+                    <input class="mini-textbox" name="clfy" vtype = "float;" />
+                </td>
+            </tr>
+            <tr>
+                <td title>实际损失额</td>
+                <td content >
+                    <input class="mini-textbox" name="sjss" vtype = "float;"/>
+                </td>
+                <td title>抵押行库</td>
+                <td content >
+                    <input class="mini-textbox" name="dyhk"/>
+                </td>
+                <td title>厂牌号码</td>
+                <td content >
+                    <input class="mini-textbox" name="cph"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>数量</td>
+                <td content >
+                    <input class="mini-textbox" name="sl" vtype = "float;"/>
+                </td>
+                <td title>购置日期</td>
+                <td content >
+                    <input class="mini-datepicker" name="gzrq" value="new Date()" allowInput="false"/>
+                </td>
+                <td title>取得价值</td>
+                <td content >
+                    <input class="mini-textbox" name="qdjz" vtype = "float;"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>申请人</td>
+                <td content >
+                    <input class="mini-textbox" name="sqr"/>
+                </td>
+                <td title>已提折旧</td>
+                <td content >
+                    <input class="mini-textbox" name="ytzj" vtype = "float;"/>
+                </td>
+                <td title>存放地点</td>
+                <td content >
+                    <input class="mini-textbox" name="cfdd"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>用途</td>
+                <td content >
+                    <input class="mini-textbox" name="yt" />
+                </td>
+                <td title>减损原因</td>
+                <td content >
+                    <input class="mini-textbox" name="bfyy" />
+                </td>
+                <td title>财务意见</td>
+                <td content >
+                    <input class="mini-textbox" name="cwyj" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+
+
+
+
+
+
+
+
+
+
+    function SetData(options) {
+        setTimeout(function(){AutoResizePopupWindow(window.self,true,true);},100);
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action || 'view' == options.action) {
+            $.get("getById/{0}".format(options.data.ksid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("zccode").setText(res.data.zccodeName);
+                    if('view' == options.action){
+                        form.setEnabled(false);
+                        $("#saveBtn").hide();
+                    }
+                }
+            });
+        }
+    }
+
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+
+
+
+    function onButtonEdit(e) {
+        var btnEdit = this;
+        mini.open({
+            targetWindow: window.parent,
+            url: "/finance/capitalManager/capitalDepletion/capitalSelectList.html",
+            title: "资产档案选择列表",
+            width: 650,
+            height: 380,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    data = mini.clone(data); //必须
+                    if (data) {
+                        btnEdit.setValue(data.fcardid);
+                        btnEdit.setText(data.fnumber +""+ data.fname);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+</script>
+</html>

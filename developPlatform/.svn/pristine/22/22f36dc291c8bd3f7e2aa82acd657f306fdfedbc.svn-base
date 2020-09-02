@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>领用入库</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <input class="mini-hidden" name="mjAct"/>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" id="srchRq1" dateFormat="yyyy-MM-dd" />
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" id="srchRq2" dateFormat="yyyy-MM-dd" />
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="mjNote" />
+        </label>
+        <label class="hmq-label" text="部门">
+            <input id="srchSupplier" name="lyDept" class="mini-treeselect"  multiSelect="false" valueFromSelect="false" emptyText="全部" allowInput="true" onbeforenodeselect="disableParentSelection" width="110" popupWidth="240" popupHeight="180" />
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit"
+     style="height: 100%; clear: both; margin-bottom: 0px; padding-bottom: 0px;">
+    <div class="mini-splitter" vertical="true"  style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" style="width: 100%; height: 100%;"
+                     sizeList="[50,100,200]" pageSize="100" onselectionchanged="onSelectionChanged"
+                     pager="#pager1" showPager="false"  sortField="dataDate" sortOrder="desc" url="">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="mjRq" width="90" align="center" >日期</div>
+                        <div tz:datagrid="column" field="mjNote" width="150"   align="center">单号</div>
+                         <div tz:datagrid="column" field="lyDeptName" width="90"   align="center">部门</div>
+                        <div tz:datagrid="column" field="lyManName" width="90"    align="center">使用人</div>
+                        <div tz:datagrid="column" renderer="onABSRenderer" field="mjSl" width="90"     align="left"  numberFormat="#,0000" summaryType="sum">数量</div>
+                        <div tz:datagrid="column" field="mjFlag" width="90"   align="center">状态</div>
+                        <div tz:datagrid="column" field="dateCorp" width="90" align="center" visible="false">公司代码</div>
+                        <div tz:datagrid="column" field="dataManName" width="90"  align="center">制单人</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 35px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="white-space: nowrap;">
+                            <div id="pager1" class="mini-pager" showPageIndex="true"
+                                 showReloadButton="false" showPageInfo="false"
+                                 style="width: 380px;" sizeList="[50,100,200]">
+                            </div>
+                        </td>
+                        <td style="white-space: nowrap;" align="right" id="btnbar" />
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_bottom_grid"
+                style="width: 100%; height: 100%;" showPager="false"
+                ondrawsummarycell="onDrawSummaryCellmx" url=""
+                showSummaryRow="true" sortField="mjCode" sortOrder="asc">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="mjCode" align="center"width="128">模具编码</div>
+                        <div tz:datagrid="column" field="cpcodeName" align="left" width="120">产品名称</div>
+                        <div tz:datagrid="column" field="mjKsize" align="center"width="120">模具规格</div>
+                        <div tz:datagrid="column" field="cpcodeFl" width="100" align="center">产品分类</div>
+                        <div tz:datagrid="column" renderer="onABSRenderer" field="mjSl" width="80" align="right" numberFormat="#,00000" summaryType="sum">数量</div>
+                        <div tz:datagrid="column" field="mjRemarks" name="mjRemarks" width="100" align="center" visible="false">模具状态</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var surl = "/tooling/grantandrecover";
+    srch_topgrid.setUrl(`${surl}/sendAndReceiveToolingHome`);
+    srch_bottomgrid.setUrl(`${surl}/sendAndReceiveToolingHomeYo`);
+    srch_topgrid.bindSearchForm(form);
+
+    var mjAct = hmq.getQueryString("mjAct");
+    mini.get("srchSupplier").load("/system/dept/combobox/getDeptTreeList");
+    if (hmq.isNotEmpty(mjAct)) {
+        form.getField("mjAct").setValue(mjAct);
+        if(mjAct=="MJ02")srch_bottomgrid.showColumn("mjRemarks");
+    }
+
+
+
+    function search_option() {
+        srch_topgrid.load();
+    }
+
+
+    function onABSRenderer(e) {
+        if ('mjSl' == e.field) {
+            if(!isNull(e.value))
+                return Math.abs(e.value).toFixed(3);
+        }
+    }
+
+
+
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params : mini.encode({
+                    mjNote : record.mjNote,
+                    mjAct : record.mjAct
+                })
+            });
+        }
+    }
+
+
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', data: {row:"",formData:form.getData()} ,width:1198,height: 580});
+    }
+
+    function edit_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if(row.mjFlag=='登记'){
+                e.sender.miniopen({url: "add.html", action: 'edit', data: {row:row,formData:form.getData()} ,width:1198,height: 580});
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function delete_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if(row.mjFlag=='登记'){
+                mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $.delete("toolingDelete/{0}".format(row.mjNote), function (res) {
+                        if (200 === res.code) {
+                            loading:true;
+                            srch_topgrid.reload();
+                            srch_bottomgrid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function ok_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if(row.mjFlag=='登记'){
+                e.sender.miniopen({url: "add.html", action: 'ok', data: {row:row,formData:form.getData()} ,width:1198,height: 580});
+            }else{
+                hmq.tipDanger("不是登记的数据不能操作!");
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+
+
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "mjSl") {
+            var s = "<span style='color:Brown;float:right;'>" + Math.abs(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+    }
+
+
+
+</script>
+</html>

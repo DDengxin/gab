@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>发票管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="deptId" class="mini-hidden"/>
+        <input class="mini-TextBox"  emptyText="自动生成"  allowInput="false" name="sfkId"  visible="false" required="false"/>
+        <input class="mini-TextBox"   emptyText="自动生成"  allowInput="false" name="sfkNote"  visible="false"  required="false"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <!-- <td title>单号:</td>
+                <td content >
+                
+                </td> -->
+                <td title>收款日期:</td>
+                <td content>
+                   <input class="mini-datepicker" format="yyyy-MM-dd" value="new Date()"    name="sfkRq" />
+                </td>
+                <td title>客户:</td>
+                <td content >
+                   <!--  <input class="mini-TextBox" name="sfkDw"  required/> -->
+                    <input name="sfkDw" id="sfkDw"
+						allowInput="false" class="mini-buttonedit"
+						onbuttonclick="onSupplierClick" />
+                </td>
+            </tr>
+            <tr>
+                <td title>收款币种:</td>
+                <td content >
+                    <input class="mini-comboBox" name="sfkBz" url="/cg/yw/purchaseFile/purchaseContract/getHtBz" textField="text" valueField="id"  required value="RMB" />
+                </td>
+                <td title>收款汇率:</td>
+                <td content >
+                    <input class="mini-TextBox" name="sfkShl" vtype="float" required value="1" />
+                </td>
+            </tr>
+            <tr>
+               
+                <td title>收款方式:</td>
+                <td content>
+                    <input class="mini-comboBox"   name="sfkFkfs"  url="/system/parameter/getParamsSelectList/财务/收款方式" value="SKXJ"/>
+                </td>
+                <td title>收款金额:</td>
+                <td content>
+                    <input class="mini-TextBox" required id="sfkFkje" name="sfkFkje" vtype="float"/>
+                </td>
+            </tr>
+            <!-- <tr>
+                <td title>实收金额:</td>
+                <td content>
+                    <input class="mini-TextBox" required id="sfkFkje" name="sfkYfje" vtype="float" onvaluechanged="ValueChanged(this)"/>
+                </td>
+                <td title>手续费:</td>
+                <td content>
+                    <input class="mini-TextBox" required id="sfkYfje" name="sfkFkje" vtype="float" onvaluechanged="ValueChanged(this)"/>
+                </td>
+            </tr> -->
+            <tr>
+            <tr>
+            	<td title>收款信息:</td>
+                <td content colspan="3">
+                    <input class="mini-TextBox"  name="sfkMess" />
+                </td>
+            </tr>
+            <tr>
+               <td title>收款备注:</td>
+               <td content colspan="3">
+                   <input class="mini-TextBox"  name="sfkSm" />
+               </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+<th:block th:replace="~{model/Approval :: Approval() }"></th:block>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+ 	   if (true !== options.isApproval) {
+          //普通口径
+ 	        if ('add' == options.action) {
+ 	            $('[name=action]').val(options.action);
+ 	        } else if ('edit' == options.action) {
+ 	            $.get("gatheringList.html/{0}".format(options.data.sfkId), function (res) {
+ 	            	if (200 === res.code) {
+ 	                    form.setData(res.data);
+ 	                    mini.get("sfkDw").setValue(res.data.sfkdw);
+ 	                    mini.get("sfkDw").setText(res.data.sfkdwname);
+ 	                }
+ 	            });
+ 	        }else if ('view' == options.action) {
+ 	        	form.setEnabled(false);
+ 	            $.get("gatheringList.html/{0}".format(options.data.sfkId), function (res) {
+ 	            	if (200 === res.code) {
+ 	                    form.setData(res.data);
+ 	                    mini.get("sfkDw").setValue(res.data.sfkdw);
+ 	                    mini.get("sfkDw").setText(res.data.sfkdwname);
+ 	                    $('#saveBtn').css("display","none");
+ 	                }
+ 	            });
+ 	        }  
+ 	   }else{
+ 		   //审批口径
+ 		  $.get("gatheringList.html/{0}".format(options.data.businessId), function (res) {
+              if (200 === res.code) {
+            	  form.setData(res.data);
+                   mini.get("sfkDw").setValue(res.data.sfkdw);
+                   mini.get("sfkDw").setText(res.data.sfkdwname);
+                   $('#saveBtn').css("display","none");
+              }
+          }, null, null, {
+              complete: function () {
+                 //隐藏按钮区域
+                 $('.mini-toolbar.hmq-toolbar').hide();
+             	//表单只读
+ 				setFormReadOnly(form);
+                 
+              }
+          });
+ 		   
+ 	   }
+    	
+    	
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html",JSON.stringify(form.getData(true)),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /**
+     *  机构选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/org/hierarchyOrgTree.html",
+            title: "【机构】选择",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.orgName);
+                }
+            }
+        });
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/dept/hierarchyDeptTree.html",
+            title: "【部门】选择",
+            data:"root",
+            width: 500,
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.deptId);
+                    btnEdit.setText(data.deptName);
+                }
+            }
+        });
+    }
+    
+    
+    /*  上级单位选择 */
+	/* function onSupplierClick(e) {
+		var btnEdit = e.sender;
+		return miniopen({
+			targetWindow : window.top,
+			url : "/cg/da/sysCustomer/lastCustomer.html",
+			title : "上级单位选择页面",
+			width : 750,
+			data : {},
+			height : 620,
+			ondestroy : function(action) {
+				if (action == "ok") {
+					var iframe = this.getIFrameEl();
+					var data = iframe.contentWindow.GetData();
+					btnEdit.setValue(data.customerId);
+					btnEdit.setText(data.customerExp);
+				}
+			}
+		});
+	} */
+	function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url : "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data:"C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+	function ValueChanged(e){
+		var sfkBzje = getMiniValue(mini.get("sfkBzje").getValue(),0);
+		
+		var sfkFkje = getMiniValue(mini.get("sfkFkje").getValue(),0);
+    	var sfkYfje = getMiniValue(mini.get("sfkYfje").getValue(),0);
+    	if(e.name=="sfkBzje"){
+    		mini.get("sfkYfje").setValue(sfkFkje-e.value);
+    	}else if(e.name=="sfkYfje"){
+    		mini.get("sfkBzje").setValue(sfkFkje-e.value);
+    	}else if(e.name=="sfkFkje"){
+    		mini.get("sfkYfje").setValue(e.value-sfkBzje);
+    	}
+    }
+	function getMiniValue(key, defaultValue) {
+	    if (key == null || key == undefined || key == "") {
+	        return defaultValue;
+	    }
+	    return key;
+	}
+
+</script>
+</html>

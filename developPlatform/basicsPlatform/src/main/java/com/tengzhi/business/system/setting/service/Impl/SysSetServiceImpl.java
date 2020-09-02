@@ -1,0 +1,198 @@
+package com.tengzhi.business.system.setting.service.Impl;
+
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import com.tengzhi.base.ehcache.config.ManagerCacheConfig;
+import com.tengzhi.base.property.Property;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.ehcache.util.EhcacheTemplate;
+import com.tengzhi.base.tools.log.Log;
+import com.tengzhi.business.resouces.vo.SelectVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.dao.SysParamDao;
+import com.tengzhi.business.system.params.model.SysParams;
+import com.tengzhi.business.system.setting.dao.SysSetDao;
+import com.tengzhi.business.system.setting.model.SysSet;
+import com.tengzhi.business.system.setting.service.SysSetService;
+import com.tengzhi.business.system.upload.dao.SysUploadDao;
+import com.tengzhi.business.system.upload.service.impl.SysUploadServiceImpl;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+@CacheConfig(cacheNames = "ehCacheConfig")
+public class SysSetServiceImpl implements SysSetService {
+
+    @Autowired
+    private SysSetDao sysSetDao;
+
+    @Autowired
+    private SysUploadDao sysUploadDao;
+
+    @Autowired
+    private SysUploadServiceImpl sysUploadServiceImpl;
+
+    @Autowired
+    private SysParamDao sysParamDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Autowired
+    Property property;
+
+    @Autowired
+    private EhcacheTemplate ehcacheTemplate;
+
+
+    @Override
+    public List<Map> getSetting(String corp) {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        if (StringUtils.isBlank(corp)) {
+            if (sessionUser != null && StringUtils.isNotBlank(sessionUser.getCorpId())) {
+                corp = sessionUser.getCorpId();
+            } else if (StringUtils.isNotBlank(property.getBusiness().getDefaultCorp())) {
+                corp = property.getBusiness().getDefaultCorp();
+            }
+        }
+
+        if (null == corp) {
+            corp = StringUtils.EMPTY;
+            Log.warn("【获取系统配置】corp 为空，将会显示默认系统信息,如需指定请在yml中配置collocate.business.defaultCorp=账套!");
+        }
+       return getCorpSetting(corp);
+    }
+
+    /**
+     * 获取该账套的配置信息
+     * (该方法特意从getSetting中剥离出来，并且没有再接口中体现，是为了配置缓存)
+     * @param corp
+     * @return
+     */
+    @Override
+    @Cacheable(cacheManager= ManagerCacheConfig.CacheManagerName.EHCACHE_CACHE_MAANGER,key="#corp")
+    public List<Map> getCorpSetting(String corp){
+        List<Map> list = sysSetDao.QueryListMap("select s.*,r.* from sys_param  s left join sys_set r on s.param_name = r.sys_item and r.sys_corp = ? where s.parent_id = 'SYS_SETTING' order by param_ord", corp);
+        return list;
+    }
+
+    @Override
+    public ModelAndView modelAndView(ModelAndView mv) {
+        List<Map> setting = getSetting("");
+        for (int i = 0; i < setting.size(); i++) {
+            String paramId = StrUtil.nullToDefault((CharSequence) setting.get(i).get("param_id"), null);
+            String sysFile = StrUtil.nullToDefault((CharSequence) setting.get(i).get("sys_file"), null);
+
+            if ("SYS_SETTING_XTTB".equals(paramId) && StringUtils.isNotBlank(sysFile)) {
+                mv.addObject("TEXT_" + paramId, sysFile);
+                mv.addObject(paramId, "/system/setting/image?line_primary=" + sysFile);
+            } else if ("SYS_SETTING_ZYTB".equals(paramId) && StringUtils.isNotBlank(sysFile)) {
+                mv.addObject("TEXT_" + paramId, sysFile);
+                mv.addObject(paramId, "/system/setting/image?line_primary=" + sysFile);
+            } else if ("SYS_SETTING_DLTB".equals(paramId) && StringUtils.isNotBlank(sysFile)) {
+                mv.addObject("TEXT_" + paramId, sysFile);
+                mv.addObject(paramId, "/system/setting/image?line_primary=" + sysFile);
+            } else if ("SYS_SETTING_DLTP1".equals(paramId) && StringUtils.isNotBlank(sysFile)) {
+                mv.addObject("TEXT_" + paramId, sysFile);
+                mv.addObject(paramId, "/system/setting/image?line_primary=" + sysFile);
+            } else if ("SYS_SETTING_DLTP2".equals(paramId) && StringUtils.isNotBlank(sysFile)) {
+                mv.addObject("TEXT_" + paramId, sysFile);
+                mv.addObject(paramId, "/system/setting/image?line_primary=" + sysFile);
+            } else if ("SYS_SETTING_DLTP3".equals(paramId) && StringUtils.isNotBlank(sysFile)) {
+                mv.addObject("TEXT_" + paramId, sysFile);
+                mv.addObject(paramId, "/system/setting/image?line_primary=" + sysFile);
+            } else if ("SYS_SETTING_LOGIN_BG".equals(paramId) && StringUtils.isNotBlank(sysFile)) {
+                mv.addObject("TEXT_" + paramId, sysFile);
+                mv.addObject(paramId, "/system/setting/image?line_primary=" + sysFile);
+            }
+        }
+        return mv;
+    }
+
+    @Override
+    public List<SelectVo> findComboboxParams(String content) {
+        List<SelectVo> listSelectVo = new ArrayList<SelectVo>();
+        String[] strArr = content.split("_");
+        for (int i = 0; i < strArr.length; i++) {
+            SelectVo se = new SelectVo(strArr[i], strArr[i]);
+            listSelectVo.add(se);
+        }
+        return listSelectVo;
+    }
+
+
+    @Override
+    public Map<String, Object> saveImg(MultipartFile file, String pid, HttpServletRequest req) throws IOException {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        if (StringUtils.isNotBlank(file.getOriginalFilename())) {
+            String uuid = sysUploadDao.getUuid(pid);
+            if (StringUtils.isNotBlank(uuid)) {
+                rmap = sysUploadServiceImpl.delete("{\"uuid\":\"" + uuid + "\"}");
+            }
+            rmap = sysUploadServiceImpl.uploadFile(file, req);
+            return rmap;
+        } else {
+            rmap.put("status", true);
+            rmap.put("message", "未选择文件");
+            return rmap;
+        }
+    }
+
+    @Override
+    public Map<String, Object> save(String data) throws Exception {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        SessionUser sessionUser = SessionUser.SessionUser();
+
+        //清除缓存
+        ehcacheTemplate.remove("ehCacheConfig",sessionUser.getCorpId());
+
+        List<SysParams> listParams = sysParamDao.findComboboxParams("SYS_SETTING");
+        List<SysSet> listSysSet = new ArrayList<SysSet>();
+        JSONObject json = new JSONObject(data);
+        SysSet sysSet = null;
+        for (int i = 0; i < listParams.size(); i++) {
+            sysSetDao.deleteByCorp(sessionUser.getCorpId(), listParams.get(i).getParamId());
+            sysSet = new SysSet();
+            sysSet.setSysCorp(sessionUser.getCorpId());
+            if ("file-upload-image".equals(listParams.get(i).getParamValue1())) {
+                String uuid = sysUploadDao.getUuid((String) json.get(listParams.get(i).getParamId()));
+                if (uuid != null && uuid.length() > 0) {
+                    sysSet.setSysFile((String) json.get(listParams.get(i).getParamId()));
+                }
+            }
+            sysSet.setSysItem(listParams.get(i).getParamName());
+            String note = sysGenNoteService.getyyyyMMddNote4(SysSet.class, "SET");
+            sysSet.setSysItemid(note);
+            sysSet.setSysOrd("" + listParams.get(i).getParamOrd());
+            sysSet.setSysSecode(listParams.get(i).getParamId());
+            if ("mini-textbox".equals(listParams.get(i).getParamValue1()) || "mini-combobox".equals(listParams.get(i).getParamValue1()) || "mini-combobox-multiSelect".equals(listParams.get(i).getParamValue1())) {
+                sysSet.setSysValue((String) json.get(listParams.get(i).getParamId()));
+            }
+            listSysSet.add(sysSet);
+        }
+        for (int i = 0; i < listSysSet.size(); i++) {
+            sysSetDao.save(listSysSet.get(i));
+        }
+        return rmap;
+    }
+
+    @Override
+    public SysSet getSysset(String sysSecode) {
+        SessionUser securityUser = SessionUser.SessionUser();
+        return sysSetDao.findBySysSecodeAndSysCorp(sysSecode, securityUser.getCorpId());
+    }
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,umeditor,upload'})}">
+        <title>服务管理【新增】</title>
+    </th:block>
+    <script type="text/javascript" th:src="@{/static/gab/js/formConfig.js}"></script>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="articleId" class="mini-hidden"/>
+        <input name="functionalMark" value="2" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>服务主题:</td>
+                <td content>
+                    <input name="serviceTitle" class="mini-textbox" required/>
+                    <input name="serviceNote" class="mini-hidden"/>
+                </td>
+                <td title>服务编码:</td>
+                <td content>
+                    <input name="serviceCode" class="mini-textbox" required/>
+                </td>
+                <td title>服务产品:</td>
+                <td content>
+                    <input name="serviceProduct" class="mini-textbox" required/>
+                </td>
+                <td title>服务结果:</td>
+                <td content>
+                    <input id="serviceResult" name="serviceResult" class="mini-combobox" onvaluechanged="config"
+                           url="/system/parameter/getParamsSelectListByParentId/平台参数/表单配置/FWXQ" textField="text" valueField="id" required/>
+                </td>
+            </tr>
+            <tbody id="ConfigForm">
+
+            </tbody>
+            <tr>
+                <td title>服务类型:</td>
+                <td content colspan="1">
+                    <select name="serviceType" class="mini-combobox" required>
+                        <option value="免费">免费</option>
+                        <option value="付费">付费</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td title>产品图片:</td>
+                <td content colspan="7">
+                    <div id="productImg"></div>
+                    <input name="productImg" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>产品图纸:</td>
+                <td content colspan="7">
+                    <div id="productImgPaper"></div>
+                    <input id="annex" name="productImgPaper" class="mini-hidden"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>产品文件:</td>
+                <td content colspan="7">
+                    <div id="productFile"></div>
+                    <input name="productFile" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        $('[name=action]').val(options.action);
+        if ('add' == options.action) {
+            addupload();
+        } else if (!!~['view', 'edit'].indexOf(options.action)) {
+            formConfig({
+                classify: options.data.service_result,
+                index: 4,
+                show: "backstage"
+            });
+            $.get("uniqueQuery/{0}/{1}".format(options.data.service_note, options.data.service_result), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    editUpload(res.data.status);
+                }
+            });
+        }
+    }
+
+    //初始化上传控件
+    function _init_upload(arr, data) {
+        if ($.isArray(arr) && arr.length > 0 && (!!data == false)) {
+            $.each(arr, function (_index, value) {
+                var fild_id = getFileId();
+                form.getField(value).setValue(fild_id);
+                $("#" + value).filesUpload({
+                    pickerid: fild_id,
+                    filecount: 1
+                });
+            });
+        } else {
+            $.each(arr, function (_index, value) {
+                var temp = form.getField(value).getValue();
+                $("#" + value).filesUpload({
+                    pickerid: temp,
+                    filecount: 1,
+                    viewdownload: true
+                });
+            });
+        }
+    }
+
+    function addupload() {
+        _init_upload(["productImg", "productImgPaper", "productFile"]);
+    }
+
+    function editUpload(status) {
+        _init_upload(["productImg", "productImgPaper", "productFile"], true);
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            var jsonData = JSON.stringify({
+                'g_ServiceManage': JSON.stringify(form.getData()),
+                'dynamic': JSON.stringify(getFormData("ConfigForm", false))
+            });
+            $[method]("add", jsonData, function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            }, null, {
+                contentType: 'application/json'
+            });
+        }
+    }
+
+    function config() {
+        formConfig({
+            classify: mini.get("serviceResult").value,
+            index: 4,
+            show: "backstage"
+        });
+    }
+</script>
+</html>

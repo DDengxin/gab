@@ -1,0 +1,30 @@
+package com.tengzhi.business.xt.getINOut.clwc.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.xt.getINOut.clwc.model.EXtClwc;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface ClwcDao extends BasedaoRepository<EXtClwc,String> {
+
+    @Modifying
+    @Query(value = "update EXtClwc set wcFlag= :wcFlag where note = :note")
+    void updateFlag(@Param(value="note")String note,@Param(value="wcFlag")String wcFlag);
+
+    @Modifying
+    @Query(value="delete from EXtClwc where note =:note")
+    void deleteByNote(@Param(value="note")String note);
+
+    @Query(value="select wc_flag from e_xt_clwc where note = :note",nativeQuery=true)
+    String getFlag(@Param(value="note")String note);
+
+    @Modifying
+    @Query(value="update EXtClwc set wcSjcc=current_time where note =:note")
+    void updateSjcc(@Param(value="note")String note);
+
+    @Modifying
+    @Query(value="update EXtClwc set wcSjhc=current_time where note =:note")
+    void updateSjhc(@Param(value="note")String note);
+
+}

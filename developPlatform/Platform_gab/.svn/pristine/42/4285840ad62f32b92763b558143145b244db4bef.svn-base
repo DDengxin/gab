@@ -1,0 +1,16 @@
+<!--/*前端模板【全局】框架页面*/-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+    <head>
+        <th:block th:replace="~{gab/common/CommonHead :: head(_,_,_,${'basic'})}"></th:block>
+        <th:block layout:fragment="header"></th:block>
+    </head>
+    <body>
+        <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+        <th:block layout:fragment="content">
+
+        </th:block>
+        <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}"></th:block>
+    </body>
+    <th:block layout:fragment="footer"></th:block>
+</html>

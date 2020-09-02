@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(_,_,_,${'jquery-1.12.4,common,echarts'})}">
+        <title>公共图表-月统计</title>
+    </th:block>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript">
+    var container = document.getElementById('container');
+    var chart = echarts.init(container);
+    //绑定尺寸改变事件,可以动态调整图表大小
+    hmq.addEvents(window, 'resize', chart.resize);
+
+    /**
+     * 刷新表格数据
+     * @param chart
+     * @param options
+     */
+    function refreshChartData(chart, options) {
+        options = $.extend(true, {
+            title: {
+                text: decodeURI(hmq.getQueryString('name'))
+            }
+        }, options);
+        chart.setOption(options);
+    }
+
+    /**
+     * 基础图表封装类
+     **/
+    function BaseChart(chart) {
+        //图表对象
+        this.chart = chart;
+        //图标默认配置(需继承)
+        this.DefaultOptions = {};
+        //图表数据(需继承)
+        this.ChartData = {};
+        /**
+         * 合并默认配置于图标数据(需继承)
+         **/
+        this.mergeParams = function () {
+        };
+        /**
+         * 加载数据(需继承)
+         **/
+        this.setChartData = function (ChartData) {
+            this.ChartData = ChartData;
+            this.refreshChartData(this.ChartData);
+        };
+        /**
+         * 刷新图标数据
+         * @param options 图标配置
+         **/
+        this.refreshChartData = function (data) {
+            var options = $.extend(true, {
+                title: {
+                    text: decodeURI(hmq.getQueryString('name'))
+                }
+            }, this.DefaultOptions);
+            options = this.mergeParams(options, data || this.ChartData);
+            console.log(options);
+            this.chart.setOption(options);
+        };
+        return this;
+    }
+
+    /**
+     * 折线图
+     **/
+    function LineChart(chart) {
+        //https://segmentfault.com/a/1190000016708006
+        BaseChart.apply(this, arguments);
+        /**
+         * 图标加载数据
+         **/
+        this.ChartData = {
+            legend_data: ["最高气温", "最低气温"],
+            xAxis_data: {
+                'category': ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+            },
+            series_data: {
+                "最高气温": [11, 11, 15, 13, 12, 13, 10],
+                "最低气温": [11, 3, 44, 22, 12, 11, 10],
+            }
+        };
+        /**
+         * 合并参数
+         * @param setting 图表配置
+         * @param data 图表数据
+         */
+        this.mergeParams = function (setting, data) {
+            var setting = $.extend(true, {}, setting);
+            //合并系列
+            var key_legend = 'legend';
+            var key_legend_data = 'legend_data';
+            setting[key_legend] = setting[key_legend] || {};
+            setting[key_legend]['data'] = data[key_legend_data];
+
+            //合并横坐标
+            var key_xAxis = 'xAxis';
+            var key_xAxis_data = 'xAxis_data';
+            data[key_xAxis_data] = $.extend(true, {}, data[key_xAxis_data]);
+            setting[key_xAxis] = setting[key_xAxis] || [];
+            for (var key in data[key_xAxis_data]) {
+                if (data[key_xAxis_data].hasOwnProperty(key)) {
+                    $(setting[key_xAxis]).each(function (index, row) {
+                        if (row['type'] == key) {
+                            setting[key_xAxis][index]['data'] = data[key_xAxis_data][key];
+                        }
+                    });
+                }
+            }
+            //合并纵坐标
+            var key_series = 'series';
+            var key_series_data = 'series_data';
+            data[key_series_data] = $.extend(true, {}, data[key_series_data]);
+            setting[key_series] = setting[key_series] || [];
+            for (var key in data[key_series_data]) {
+                if (data[key_series_data].hasOwnProperty(key)) {
+                    $(setting[key_series]).each(function (index, row) {
+                        if (row['name'] == key) {
+                            setting[key_series][index]['data'] = data[key_series_data][key];
+                        }
+                    });
+                }
+            }
+            return setting;
+        };
+        /**
+         * 加载数据
+         **/
+        this.loadData = function(){
+
+        };
+        /**
+         * 默认配置
+         */
+        this.DefaultOptions = {
+            title: {
+                //text: "未来一周气温变化"
+            },
+            tooltip: {
+                trigger: "axis"
+            },
+            legend: {
+                // data: ["最高气温", "最低气温"]
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    contractList.html  mark: {
+                        show: true
+                    },
+                    dataView: {
+                        show: true,
+                        readOnly: true
+                    },
+                    magicType: {
+                        show: false,
+                        type: ["line", "bar"]
+                    },
+                    restore: {
+                        show: true
+                    },
+                    saveAsImage: {
+                        show: true
+                    }
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: "category",
+                    //data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+                }
+            ],
+            yAxis: [
+                {
+                    type: "value",
+                    name: "°C"
+                }
+            ],
+            series: [
+                {
+                    name: "最高气温",
+                    type: "line",
+                    //data: [11, 11, 15, 13, 12, 13, 10]
+                },
+                {
+                    name: "最低气温",
+                    type: "line",
+                    //data: [1, -2, 2, 5, 3, 2, 0]
+                }
+            ]
+        }
+    };
+    var lineChart = new LineChart(chart);
+    lineChart.loadData();
+
+    // 使用刚指定的配置项和数据显示图表。
+    //refreshChartData(chart, option);
+</script>
+</body>
+</html>

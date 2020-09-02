@@ -1,0 +1,159 @@
+package com.tengzhi.business.system.position.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.TierTool;
+import com.tengzhi.base.tools.UUID.UUIDUtil;
+import com.tengzhi.base.tools.ehcache.util.EhcacheEnum;
+import com.tengzhi.base.tools.ehcache.util.EhcacheTemplate;
+import com.tengzhi.business.system.dept.dao.SysDeptDao;
+import com.tengzhi.business.system.dept.model.SysDept;
+import com.tengzhi.business.system.org.dao.SysOrgDao;
+import com.tengzhi.business.system.position.dao.SysPositionDao;
+import com.tengzhi.business.system.position.model.SysPosition;
+import com.tengzhi.business.system.position.service.SysPositionService;
+import com.tengzhi.business.system.user.dao.SysUserDao;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class SysPositionServiceImpl implements SysPositionService {
+    @Autowired
+    private SysOrgDao sysOrgDao;
+    @Autowired
+    private SysPositionDao sysPositionDao;
+    @Autowired
+    private SysDeptDao sysDeptDao;
+    @Autowired
+    private SysUserDao sysUserDao;
+    @Autowired
+    private EhcacheTemplate template;
+
+    @Override
+    public BasePage<SysPosition> findAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysPositionDao.QueryPageList(baseDto, Specifications.where((c) -> {
+            c.contains("deptName", map.get("deptName"));
+            c.contains("positionName", map.get("positionName"));
+            c.eqbool("state",map.get("state"));
+            c.eq("deleteLogo", false);
+
+            c.eq("deptId", map.get("deptId"));
+        }));
+    }
+
+    @Override
+    public SysPosition findByPositionId(String positionId) {
+        return sysPositionDao.findByPositionId(positionId);
+    }
+
+
+    @Override
+    public SysPosition save(SysPosition sysPosition) throws Exception {
+        if(StringUtils.isNotEmpty(sysPosition.getPositionId())){
+            sysPosition.setPositionId(sysPosition.getPositionId().trim());
+        }else{
+            throw new Exception("岗位ID不得为空");
+        }
+        if (judgeUnique(sysPosition)) {
+            SessionUser securityUser=SessionUser.SessionUser();
+
+
+            SysDept sysDept=sysDeptDao.findByDeptIdAndDeleteLogo(sysPosition.getDeptId(),false);
+            //层级码(部门+岗位)
+            sysPosition.setTierId(TierTool.join(sysDept.getTierId(),sysPosition.getPositionId()));
+
+            sysPosition.setOrgId(sysOrgDao.findByOrgIdAndDeleteLogo(sysPosition.getOrgId(),false).getOrgId());
+            sysPosition.setDeleteLogo(false);
+            sysPosition.setDeptId(sysDept.getDeptId());
+            sysPosition.setCreatorId(securityUser.getUserId());
+            sysPosition.setModifierId(securityUser.getUserId());
+            sysPosition.setCreator(securityUser.getNickName());
+            sysPosition.setModifier(securityUser.getNickName());
+            sysPosition.setCreationTime(new Timestamp(System.currentTimeMillis()));
+            sysPosition.setModifyTime(new Timestamp(System.currentTimeMillis()));
+            sysPosition.Validate();
+            return sysPositionDao.save(sysPosition);
+        } else {
+            throw new Exception("岗位名称已存在");
+        }
+    }
+
+    @Override
+    public void update(SysPosition sysPosition){
+        SysPosition oldSysPosition = sysPositionDao.findByPositionId(sysPosition.getPositionId());
+        SessionUser sessionUser=SessionUser.SessionUser();
+        SysDept sysDept = sysDeptDao.findByDeptIdAndDeleteLogo(sysPosition.getDeptId(), false);
+        sysPosition.setTierId(TierTool.join(sysDept.getTierId(), sysPosition.getPositionId()));
+        sysPosition.setDeptId(sysDept.getDeptId());
+        sysUserDao.updateTier(
+                //TODO:该处可能有问题
+                TierTool.join(sysDept.getTierId(), UUIDUtil.uuid()),
+                sysDept.getDeptId(),
+                sysDept.getDeptName(),
+                sysPosition.getPositionName(),
+                oldSysPosition.getTierId() + "%"
+        );
+
+
+        sysPosition.setModifierId(sessionUser.getUserId());
+        sysPosition.setModifier(sessionUser.getRealName());
+        sysPosition.setModifyTime(new Timestamp(System.currentTimeMillis()));
+        sysPositionDao.dynamicSave(sysPosition,oldSysPosition);
+    }
+
+    @Override
+    public Result deleteByPositionId(String positionId,String tierId){
+        if(sysUserDao.countByTierIdLikeAndDeleteLogo(tierId+"%",false)==0){
+            sysPositionDao.delLogByPositionId(positionId);
+            sysPositionDao.PositionAuthDelete(positionId);
+            return Result.resultOk("删除成功");
+        }else{
+            return Result.error("岗位下挂有人员不能删除");
+        }
+
+    }
+
+    @Override
+    public boolean judgeUnique(SysPosition sysPosition) {
+        return sysPositionDao.findAll(Specifications.where((c) -> {
+            c.eq("positionName", sysPosition.getPositionName());
+            c.eq("deptName",sysPosition.getDeptName());
+            c.eq("deleteLogo",false);
+        })).size() <= 0;
+    }
+
+
+    @Transactional
+    @Override
+    public void PositionAuthSave(Map<String,Object> map){
+        template.removeLike("ehCacheConfig", EhcacheEnum.menu.getGroup());
+        template.removeLike("ehCacheConfig", EhcacheEnum.button.getGroup());
+        String posId=map.get("positionId").toString();
+        sysPositionDao.PositionAuthDelete(posId);
+        List<Map<String,Object>> roleMap=(List<Map<String,Object>>) map.get("roleMap");
+        roleMap.forEach(item->{
+            sysPositionDao.PositionAuthAdd(UUIDUtil.uuid(),item.get("role_id").toString(),posId);
+        });
+    }
+
+    @Override
+    public BasePage<Map<String, Object>> findSysPositionRightAll(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        return sysPositionDao.QueryNOPageList("SELECT a.*,b.id,b.validation FROM sys_role a LEFT JOIN (SELECT id,role_id validation from sys_position_r_role where position_id='"+map.get("positionId")+"') b on a.role_id = b.validation where role_name like '%"+map.get("roleName")+"%' ORDER BY role_ord asc " );
+    }
+
+
+}
+

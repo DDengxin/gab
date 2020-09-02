@@ -1,0 +1,45 @@
+<!--/*前端模板【平台信息】模板*/-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <th:block th:replace="~{gab/common/CommonHead :: head(_,~{::link},~{::script},${'basic'})}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/platform/platform.css}" />
+        <script type="text/javascript" th:src="@{/static/gab/js/platform/platform.js}"></script>
+    </th:block>
+    <th:block layout:fragment="header"></th:block>
+</head>
+
+<body>
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+    <div class="platform">
+        <div class="platform_content">
+            <h2>平台信息</h2>
+            <h3>平台简介</h3>
+            <div class="sidebar">
+                <dl>
+                    <dt>平台信息</dt>
+                    <dd>
+                        <a href="/gab/introduction.html" name="PTJJ">平台简介</a>
+                    </dd>
+                    <dd>
+                        <a href="/gab/about.html" name="PTGAB">关于哥爱帮</a>
+                    </dd>
+                    <dd>
+                        <a href="/gab/contact.html " name="PTLX">联系我们</a>
+                    </dd>
+                    <dd>
+                        <a href="/gab/help.html" name="PTBZ">帮助中心</a>
+                    </dd>
+                </dl>
+            </div>
+            <div class="right">
+                <th:block layout:fragment="right-content"></th:block>
+            </div>
+        </div>
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}"></th:block>
+</body>
+<th:block layout:fragment="footer"></th:block>
+
+</html>

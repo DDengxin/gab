@@ -1,0 +1,190 @@
+package com.tengzhi.business.platform.specialist.need.service.impl;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.platform.enroll.dao.SupplyDao;
+import com.tengzhi.business.platform.form.dao.DynamicFormDetailSqlDao;
+import com.tengzhi.business.platform.specialist.need.dao.NeedDao;
+import com.tengzhi.business.platform.specialist.need.dao.NeedSqlDao;
+import com.tengzhi.business.platform.specialist.need.model.G_Need;
+import com.tengzhi.business.platform.specialist.need.service.NeedService;
+import com.tengzhi.business.platform.specialist.need.vo.needVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.workflow.service.ProcessService;
+import com.tengzhi.business.system.workflow.vo.Examine;
+
+@Service
+@Transactional
+public class NeedServiceImpl implements NeedService {
+
+	@Autowired
+    private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private NeedDao needDao;
+	
+	@Autowired
+	private NeedSqlDao needSqlDao;
+	
+	@Autowired
+	private SupplyDao supplyDao;
+	
+	@Autowired
+	private DynamicFormDetailSqlDao dynamicFormDetailSqlDao;
+	
+	@Autowired
+	private ProcessService processService;
+	
+	private String needSql() {
+		return "select need_note \"needNote\",(CASE WHEN need_form = 'CP' THEN f_getparamname ( 'GETBYPARENTID', cpcode_xp, '夹具大类', '技术', 'CP', '' ) WHEN need_form = 'HW' THEN f_getparamname ( 'GETBYPARENTID', cpcode_xp, '服务大类', '技术', 'HW', '' ) end) \"typeName\",need_province \"needProvince\",need_city \"needCity\",to_char(end_time,'yyyy-MM-dd') \"endTime\",need_img \"needImg\",('/system/setting/image?line_primary='||need_img) \"imgSrc\",need_file \"needFile\",need_flag \"needFlag\",data_man \"dataMan\",to_char(data_date,'yyyy-MM-dd') \"dataDate\",data_corp \"dataCorp\",f_getname('GETCORPNAME', '', '', data_corp) \"corpName\",duty_cycle \"dutyCycle\",apply_man \"applyMan\" ,cpcode_name \"cpcodeName\",cpcode_size \"cpcodeSize\",cpcode_size_en \"cpcodeSizeEn\",introduce \"introduce\",cpcode_fl \"cpcodeFl\",cpcode_xp \"cpcodeXp\",case when need_form='CP' then '产品' when need_form='HW' then '服务' else '' end as \"formType\" from g_need ";
+	}
+	
+	@Override
+	public BasePage<Map<String,Object>> sreach(BaseDto baseDto) throws IOException {
+		return needSqlDao.sreach(baseDto);
+	}
+	
+	@Override
+	public Map<String,Object> findById(String needNote, String cpcodeXp) {
+		return needSqlDao.findById(needNote,cpcodeXp);
+	}
+
+	@Override
+	public Result saveNeed(needVo needVo) throws Exception{
+		SessionUser sessionUser = SessionUser.SessionUser();
+		G_Need g_Need = needVo.getG_Need();
+		String note = sysGenNoteService.getNote("g_need","NEED","yyyyMM",4);
+		g_Need.setDataCorp(sessionUser.getCorpId());
+		g_Need.setDataMan(sessionUser.getUserId());
+		g_Need.setDataDate(new Date());
+		g_Need.setApplyCorp(sessionUser.getCorpId());
+		g_Need.setApplyMan(sessionUser.getUserId());
+		g_Need.setApplyDate(new Date());
+		g_Need.setNeedNote(note);
+		g_Need.setNeedFlag("登记");
+		needDao.save(g_Need);
+		dynamicFormDetailSqlDao.saveDynamicFormDetail(g_Need.getCpcodeXp(), note, "g_need", needVo.getDynamic());
+		Map<String,Object> map = needVo.getFlow();
+		if(needVo.getFlow()!=null) {
+			Examine examine = new Examine();
+			examine.setMenuId(map.get("menuId").toString());
+			examine.setTitle(map.get("title").toString());
+			examine.setUrl(map.get("url").toString());
+			examine.setBusinessId(g_Need.getNeedNote());
+			processService.startFinishFirstStep(examine);
+		}
+		return Result.resultOk(g_Need.getNeedNote());
+	}
+	
+	public void updateNeed(needVo needVo) throws Exception{
+		SessionUser sessionUser = SessionUser.SessionUser();
+		G_Need g_Need = needVo.getG_Need();
+		g_Need.setDataCorp(sessionUser.getCorpId());
+		g_Need.setDataMan(sessionUser.getUserId());
+		g_Need.setDataDate(new Date());
+		g_Need.setApplyCorp(sessionUser.getCorpId());
+		g_Need.setApplyMan(sessionUser.getUserId());
+		g_Need.setApplyDate(new Date());
+		g_Need.setNeedFlag("登记");
+		dynamicFormDetailSqlDao.updataDynamicFormDetail(g_Need.getCpcodeXp(), g_Need.getNeedNote(), "g_need", needVo.getDynamic());
+		needDao.update(g_Need);
+	}
+	
+	@Override
+	public void deleteByNote(String needNote) {
+		needDao.deleteByNote(needNote);
+	}
+	
+	@Override
+	public List<Map<String,Object>> getNeed(String type,String value,String form) throws IOException {
+		String where = " where 1=1 ";
+		if (StringUtils.isNotBlank(value)&&type.equals("flag")) {
+			String flagVal = value.replace(",","','");
+			where += " and need_flag in ('" + flagVal + "')";
+		}
+		if (StringUtils.isNotBlank(value)&&type.equals("needNote")) {
+			where += " and need_note = '"+value+"'";
+		}
+		if (StringUtils.isNotBlank(form)) {
+			where += " and need_form = '" + form + "'";
+		}
+		String sql = needSql() + where +" order by end_time asc";
+		return needDao.SelectListMap(sql);
+	}
+	
+	@Override
+	public List<Map<String,Object>> getNeedByDataMan(String man,String note) throws IOException {
+		String sql = needSql() + " where data_man = '"+man+"' and need_note != '"+note+"' and need_flag = '投标中' order by end_time desc limit 6";
+		return needDao.SelectListMap(sql);
+	}
+	
+	@Override
+	public List<Map<String,Object>> getTypeNeed(String type,String note) throws IOException {
+		String sql = needSql() + " where cpcode_fl = '" + type + "' and need_note != '"+note+"' and need_flag = '投标中' limit 9";
+		return needDao.SelectListMap(sql);
+	}
+	
+	@Override
+	public List<Map<String,Object>> getFirmNeed(String firm) throws IOException {
+		String sql = "select supply_note \"supplyNote\",supply_name \"supplyName\",'/system/setting/image?line_primary='||head_img \"headImg\",supply_info \"supplyInfo\" from g_supply where supply_type = '" + firm + "' and status = '核准'  order by register_date desc limit 4";
+		return supplyDao.SelectListMap(sql);
+	}
+	
+	public Map<String,Object> getNeedPaging(String params,String pageIndex,String pageSize) throws Exception {
+		Map<String,Object> rmap = new HashMap<String, Object>();
+		JSONObject json = new JSONObject(params);
+		String where = " where need_flag = '投标中' ";
+		String rank = " order by data_date,end_time desc ";
+		if (StringUtils.isNotBlank(json.get("type").toString())) {
+			where += " and cpcodeFl = '" + json.get("type") + "'";
+		}
+		if(StringUtils.isNotBlank(json.get("flag").toString())) {
+			if(json.get("flag").toString().equals("已截止")) {
+				where += " and end_time <= '"+new Date()+"'";
+			}else {
+				where += " and need_flag = '" + json.get("flag") + "'";
+			}
+		}
+		if(StringUtils.isNotBlank(json.get("search").toString())) {
+			where += " and cpcodeName like '%" + json.get("search") + "%'";
+		}
+		if(StringUtils.isNotBlank(json.get("rankType").toString())) {
+			String[] strs = json.get("rankType").toString().split(",");
+			rank = " order by ";
+			for(int i = 0;i<strs.length;i++) {
+				if(i>0) {
+					rank+=",";
+				}
+				rank+= strs[i] +"  "+ json.get("rank");
+			}
+		}
+		String sql = needSql() +where+rank+" limit " + pageSize + " offset (" + pageIndex + " -1 ) * " + pageSize;
+		List<Map<String,Object>> list = needDao.SelectListMap(sql);
+		rmap.put("data", list);
+		list = needDao.SelectListMap(needSql()+where);
+		rmap.put("total", list.size());
+		return rmap;
+	}
+
+	@Override
+	public Map<String, Object> examination(String needNote) {
+		String type = needDao.getType(needNote);
+		return findById(needNote,type);
+	}
+	
+}

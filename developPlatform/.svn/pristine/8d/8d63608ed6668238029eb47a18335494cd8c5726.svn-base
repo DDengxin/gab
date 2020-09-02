@@ -1,0 +1,18 @@
+package com.tengzhi.IM.Dwr.config;
+
+import org.directwebremoting.Container;
+import org.directwebremoting.create.NewCreator;
+import org.directwebremoting.extend.Configurator;
+import org.directwebremoting.extend.CreatorManager;
+
+public class DwrXml implements Configurator {
+
+	@Override
+	public void configure(Container container) {
+		CreatorManager creatorManager = container.getBean(CreatorManager.class);
+		NewCreator creator = new NewCreator();
+        creator.setClass("com.tengzhi.IM.Dwr.controller.Dwrmsg");
+        creator.setJavascript("Dwrmsg");
+		creatorManager.addCreator(creator);
+	}
+}

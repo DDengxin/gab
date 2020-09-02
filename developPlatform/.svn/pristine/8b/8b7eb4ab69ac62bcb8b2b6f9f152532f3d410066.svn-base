@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>操作手册</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="操作手册名称">
+            <input class="mini-textbox" name="docName"/>
+        </label>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="TimeStart" dateFormat="yyyy-MM-dd" />
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="TimeEnd" dateFormat="yyyy-MM-dd" />
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="gridId"  sizeList="[50,100,200]" pageSize="100" url="docDataFindAll">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="35">序号</div>
+            <div tz:datagrid="column" field="docName" width="120" align="center" >操作手册名称</div>
+            <div tz:datagrid="column" field="docTime" width="120"   align="center">创建时间</div>
+            <div tz:datagrid="column" field="createUser" width="120"   align="center">创建人</div>
+            <div tz:datagrid="column" field="orgIdName" width="120" align="center" >公司名称</div>
+            <div tz:datagrid="column" field="description" width="200"   align="center">描述</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("gridId");
+    grid.bindSearchForm(form);
+
+    function search_option() {
+        grid.load();
+    }
+
+    function view_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'view', data: row, width: 600, height: 250});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "developdocAdd.html", action: 'add', data: row, width: 1200, height: 600});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'developdocAdd.html', action: 'edit', data: row, width: 1200, height: 600});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $.delete("docDataDelete/{0}".format(row.docId),function (res) {
+                        if (200 === res.code) {
+                            search_option();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+</script>
+
+</body>
+</html>

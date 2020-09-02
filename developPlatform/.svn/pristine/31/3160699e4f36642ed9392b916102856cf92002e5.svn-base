@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>部门管理</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="所属公司">
+            <input class="mini-combobox" name="dataCorp" url="/system/org/combobox/getOrgList" nullItemText="全部" showNullItem="true" allowInput="true" valueFromSelect="true"/>
+        </label>
+        <label class="hmq-label" text="部门名称">
+            <input class="mini-textbox" name="deptName"/>
+        </label>
+        <label class="hmq-label" text="启用状态">
+            <input class="mini-combobox" name="state" url="/dict/boolean" nullItemText="全部"
+                   showNullItem="true"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid" sortField="rank" treeColumn="deptName" idField="deptId"
+         parentField="parentId" resultAsTree="true" iconField="rightIconCls" expandOnLoad="true"
+         showTreeLines="false" ShowTreeicon="false">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="deptName" name="deptName" width="150">部门名称</div>
+            <div tz:datagrid="column" field="deptId" width="100">部门编码</div>
+            <div tz:datagrid="column" field="deptAdmin" displayField="deptAdminName" width="100">部门主管</div>
+            <div tz:datagrid="column" field="orgName" width="150">所属公司</div>
+            <div tz:datagrid="column" field="state" width="62" align="center">启用状态</div>
+            <div tz:datagrid="column" field="rank" width="40" align="center">排序</div>
+            <div tz:datagrid="column" field="remark" width="300">备注</div>
+            <!-- <div tz:datagrid="column" field="creator" width="80" align="center">创建人</div>
+        <div tz:datagrid="column" field="creationTime" width="80" align="center">更新时间</div>
+        <div tz:datagrid="column" field="modifier" width="80" align="center">更新人</div>
+        <div tz:datagrid="column" field="modifyTime" width="80" align="center">更新时间</div>-->
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+    //默认选择当前操作账套所在公司
+    form.getField('dataCorp').setValue(TZ_SETTING.corpId);
+
+    //拦截加载事件，加载树形结构
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });
+
+    grid.on("DrawCell", function (e) {
+        if (e.field == "state") {
+            e.cellHtml = e.value ? '是' : '否';
+        }
+    });
+
+    function search_option() {
+        grid.load();
+    }
+
+    function view_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'view', data: row, width: '600px', height: '290px'});
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: '600px', height: '290px'});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: '600px', height: '290px'});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function view_organization_option(e) {
+        var winopen = miniopen({
+            title: "组织架构【查阅】",
+            url: "showOrganization.html",
+            action: 'view'
+        });
+        winopen.max();
+    }
+
+    /**
+     * 删除
+     **/
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            mini.confirm("注意:确定要删除吗(包括所有下级)？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $["delete"]("dept.html/{0}".format(row.tierId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+package com.tengzhi.business.platform.common.dao;
+
+import com.tengzhi.base.jpa.dao.BasicsDao;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.enroll.model.G_Expert;
+
+public interface OperatorDaoSql extends BasicsDao<G_Expert, String> {
+	
+	Result   getAllLikeSearch(String  SearchKeyword );
+	
+
+}

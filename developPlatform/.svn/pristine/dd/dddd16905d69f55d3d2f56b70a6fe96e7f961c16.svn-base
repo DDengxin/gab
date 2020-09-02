@@ -1,0 +1,203 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingImplement.service.impl;
+
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.dao.EHrTrainingPersonnelDao;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.dao.EHrTrainingRecordDao;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.model.EHrTrainingPersonnel;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.service.TrainingImplementService;
+import com.tengzhi.business.personnel.personnelTraining.trainingImplement.vo.TrainingImplementVo;
+import com.tengzhi.business.personnel.personnelTraining.trainingPlan.model.EHrTrainingPlan;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+
+@Service
+@Transactional
+public class TrainingImplementServiceImpl implements TrainingImplementService {
+
+    @Autowired
+    private EHrTrainingRecordDao eHrTrainingRecordDao;
+    @Autowired
+    private EHrTrainingPersonnelDao eHrTrainingPersonnelDao;
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+    /**
+     * 查询
+     * @param baseDto
+     * @return
+     * */
+    @Override
+    public BasePage<Map<String, Object>> getList(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(c->{
+            c.contains("jl_stype",map.get("jlStype"));
+            c.contains("jl_training_mode",map.get("jlTrainingMode"));
+            c.le("jl_date",map.get("srchRq2"));
+            c.ge("jl_date",map.get("srchRq1"));
+        });
+        String sql = "select jl_note,jl_date,jl_type,jl_plan_note,jl_title,f_get_param_name('培训类型',jl_stype,data_corp) stype_name,jl_stype,f_get_param_name('培训方式',jl_training_mode,data_corp)mode_name,jl_training_mode," +
+                "jl_training_content,f_get_param_name('培训讲师',jl_training_lecturer,data_corp)lecturer_name,jl_training_lecturer,jl_training_address,jl_plan,jl_actual," +
+                "jl_training_duration,jl_training_check,f_get_param_name('培训效果',jl_training_effect,data_corp)effect_name,jl_training_effect,jl_training_cost,jl_attachment,f_getname('GETUSERNAME',data_man,'',data_corp)data_man,f_getname('GETCORPNAME',data_corp,'',data_corp)data_corp ,to_char(data_date,'yyyy-MM-dd')data_date from e_hr_training_record "+where;
+
+        return eHrTrainingRecordDao.QueryMapPageList(baseDto, sql, true);
+    }
+    /**
+     * 根据Note获取对象数据
+     * @param jlNote
+     * */
+    @Override
+    public Map<String, Object> getByNote(String jlNote) {
+        String sql = "select jl_note,jl_date,jl_type,jl_plan_note,jl_title,f_get_param_name('培训类型',jl_stype,data_corp) stype_name,jl_stype,f_get_param_name('培训方式',jl_training_mode,data_corp) mode_name,jl_training_mode ," +
+                "jl_training_content,f_get_param_name('培训讲师',jl_training_Lecturer,data_corp)lecturer_name,jl_training_Lecturer,jl_training_address,jl_plan,jl_actual," +
+                "jl_training_duration,jl_training_check,f_get_param_name('培训效果',jl_training_effect,data_corp)effect_name,jl_training_effect,jl_training_cost,jl_attachment,f_getname('GETUSERNAME',data_man,'',data_corp)data_man,f_getname('GETCORPNAME',data_corp,'',data_corp)data_corp ,to_char(data_date,'yyyy-MM-dd')data_date from e_hr_training_record  where jl_note ='" + jlNote + "' ";
+        return eHrTrainingRecordDao.QueryToFirstMap(sql);
+    }
+
+    /**
+    * 修改
+    * @param trainingImplementVo
+     * */
+    public Result update(TrainingImplementVo trainingImplementVo) {
+        List<EHrTrainingPersonnel> addModel=new ArrayList<EHrTrainingPersonnel>();
+        List<EHrTrainingPersonnel> modifyedModel=new ArrayList<EHrTrainingPersonnel>();
+        List<EHrTrainingPersonnel> deteleModel=new ArrayList<EHrTrainingPersonnel>();
+        SessionUser securityUser = SessionUser.SessionUser();
+        trainingImplementVo.getHeaddata().setDataMan(securityUser.getUserId());
+        trainingImplementVo.getHeaddata().setDataCorp(securityUser.getCorpId());
+        trainingImplementVo.getHeaddata().setDataDate(new Date());
+        trainingImplementVo.getHeaddata().getJlTrainingEffect();
+        trainingImplementVo.getHeaddata().getJlStype();
+        //业务处理
+        if(trainingImplementVo.getEntitydata().size()>0) {
+            int id = Integer.parseInt(eHrTrainingRecordDao.getSingleResult("select COALESCE(max(sid)+1,1)  from  e_hr_training_personnel"));
+            for (EHrTrainingPersonnel item : trainingImplementVo.getEntitydata()) {
+                if (item.getSid()==null) {
+                    item.setDataMan(trainingImplementVo.getHeaddata().getDataMan());
+                    item.setDataDate(trainingImplementVo.getHeaddata().getDataDate());
+                    item.setDataCorp(trainingImplementVo.getHeaddata().getDataCorp());
+                    item.setSid(id);
+                    id++;
+                    addModel.add(item);
+                } else if ("modified".equals(item.get_state())) {
+                    modifyedModel.add(item);
+                } else if ("removed".equals(item.get_state())) {
+                    deteleModel.add(item);
+                }
+            }
+        }
+        //数据处理
+        if(addModel.size()>0) {
+            addModel.forEach( model -> {
+                eHrTrainingPersonnelDao.save(model);
+            });
+        }
+        //修改
+        if(modifyedModel.size()>0) {
+            modifyedModel.forEach( model -> {
+                eHrTrainingPersonnelDao.dynamicSave(model,eHrTrainingPersonnelDao.QueryListModel(EHrTrainingPersonnel.class,"select * from e_hr_training_personnel where sid=" + model.getSid()+ " ").get(0));
+
+            });
+        }
+        //删除
+        if(deteleModel.size()>0){
+            eHrTrainingPersonnelDao.deleteAll(trainingImplementVo.getEntitydata());
+        }
+        //表头保存
+        eHrTrainingRecordDao.dynamicSave(trainingImplementVo.getHeaddata(),eHrTrainingRecordDao.findById(trainingImplementVo.getHeaddata().getJlNote()).orElse(null));
+        return Result.resultOk();
+    }
+
+    /**
+     * 保存
+     * @param trainingImplementVo
+     * */
+    @Override
+    public Result save(TrainingImplementVo trainingImplementVo) throws Exception {
+        List<EHrTrainingPersonnel> addModel=new ArrayList<EHrTrainingPersonnel>();
+        List<EHrTrainingPersonnel> modifyedModel=new ArrayList<EHrTrainingPersonnel>();
+        List<EHrTrainingPersonnel> deteleModel=new ArrayList<EHrTrainingPersonnel>();
+        SessionUser securityUser = SessionUser.SessionUser();
+        trainingImplementVo.getHeaddata().setDataMan(securityUser.getUserId());
+        trainingImplementVo.getHeaddata().setDataCorp(securityUser.getCorpId());
+        trainingImplementVo.getHeaddata().setDataDate(new Date());
+        trainingImplementVo.getHeaddata().getJlTrainingEffect();
+        trainingImplementVo.getHeaddata().getJlStype();
+        trainingImplementVo.getHeaddata().setJlNote(sysGenNoteService.getNote(EHrTrainingPlan.class,"CL","yymm",3));
+        if(trainingImplementVo.getEntitydata().size()>0) {
+            int id = Integer.parseInt(eHrTrainingRecordDao.getSingleResult("select COALESCE(max(sid)+1,1)  from  e_hr_training_personnel"));
+            for (EHrTrainingPersonnel item : trainingImplementVo.getEntitydata()) {
+                if (item.getSid()==null) {
+                    item.setDataMan(trainingImplementVo.getHeaddata().getDataMan());
+                    item.setDataDate(trainingImplementVo.getHeaddata().getDataDate());
+                    item.setDataCorp(trainingImplementVo.getHeaddata().getDataCorp());
+                    item.setRyNote(trainingImplementVo.getHeaddata().getJlPlanNote());
+                    item.setSid(id);
+                    id++;
+                    addModel.add(item);
+                } else if ("modified".equals(item.get_state())) {
+                    modifyedModel.add(item);
+                } else if ("removed".equals(item.get_state())) {
+                    deteleModel.add(item);
+                }
+            }
+        }
+        //数据处理
+        if(addModel.size()>0) {
+            addModel.forEach( model -> {
+                eHrTrainingPersonnelDao.save(model);
+            });
+        }
+        //修改
+        if(modifyedModel.size()>0) {
+            modifyedModel.forEach( model -> {
+                eHrTrainingPersonnelDao.dynamicSave(model,eHrTrainingPersonnelDao.QueryListModel(EHrTrainingPersonnel.class,"select * from e_hr_training_personnel where sid=" + model.getSid()+ " ").get(0));
+
+            });
+        }
+        //删除
+        if(deteleModel.size()>0){
+            eHrTrainingPersonnelDao.deleteAll(trainingImplementVo.getEntitydata());
+        }
+        //表头保存
+        eHrTrainingRecordDao.save(trainingImplementVo.getHeaddata());
+        return Result.resultOk();
+    }
+
+
+    /**
+     * 删除
+     * @param jlNote
+     * */
+    @Override
+    public void deleteByNote(String jlNote) {
+        eHrTrainingRecordDao.deleteByNote(jlNote);
+    }
+
+    /**
+     * 刷新gird
+     * @param baseDto
+     * @return
+     * */
+    @Override
+    public BasePage<Map<String, Object>> getRushGrid(BaseDto baseDto) {
+        Map<String, String> map = baseDto.getParamsMap();
+        String where = SqlJoint.whereSuffixWhere(c->{
+            c.eq("tz_note",map.get("tzNote"));
+        });
+        String sql="select tz_note ry_note,tz_work_id ry_worker_id,tz_work_name worker_name,ry_sign_remarks,f_get_param_name('判定参数',ry_check,b.data_corp)ry_check_name,f_get_param_name('考核状态',ry_check_flag,b.data_corp)ry_check_flag_name,ry_check_flag,ry_check_score,ry_check_remarks,sid,f_get_param_name('判定参数',ry_sign_in,b.data_corp)ry_sign_in_name,ry_sign_in,f_get_param_name('签到状态',ry_sign_flag,b.data_corp)ry_sign_flag_name,ry_sign_flag from e_hr_training_notice a left join e_hr_training_personnel b on a.tz_note = ry_note and a.tz_work_id = ry_worker_id  "+where;
+        return eHrTrainingRecordDao.QueryToMapPage(baseDto,sql);
+    }
+
+
+}

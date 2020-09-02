@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>闲置资产</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input id="srchRq1" name="srchRq1" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input id="srchRq2" name="srchRq2" class="mini-datepicker" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="资产名称">
+            <input id="srchName" name="srchName" class="mini-textbox" width="110"/>
+        </label>
+        <label class="hmq-label" text="资产类型">
+            <select id="srchType" name="srchType" class="mini-combobox" width="110">
+                <option value="">全部</option>
+                <option value="电子设备">电子设备</option>
+                <option value="生产设备">生产设备</option>
+                <option value="其他">其他</option>
+            </select>
+        </label>
+        <label class="hmq-label" text="状态">
+            <select id="srchFlag" name="srchFlag" class="mini-combobox" >
+                <option value="">全部</option>
+                <option value="闲置">闲置</option>
+                <option value="启用">启用</option>
+            </select>
+        </label>
+    </th:block>
+</th:block>
+
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" showPageInfo="false" idField="sid" sort url="/ck/assets/idleAssets/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="sid" width="100" align="center" visible="false">sid</div>
+            <div tz:datagrid="column" field="zcRq" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="zcNo" width="80" align="center">资产编号</div>
+            <div tz:datagrid="column" field="zcType" width="100" align="center">资产类别</div>
+            <div tz:datagrid="column" field="zcName" width="120" align="left">资产名称</div>
+            <div tz:datagrid="column" field="zcKsize" width="120" align="left">资产规格</div>
+            <div tz:datagrid="column" field="zcSl" width="80" align="right">数量</div>
+            <div tz:datagrid="column" field="zcPrice" width="80" align="right">单价</div>
+            <div tz:datagrid="column" field="zcJe" width="100" align="right">金额</div>
+            <div tz:datagrid="column" field="zcSm" width="240" align="left">备注</div>
+            <div tz:datagrid="column" field="zcFrom" width="240" align="left">来源</div>
+            <div tz:datagrid="column" field="zcFlag" width="60" align="center">状态</div>
+            <div tz:datagrid="column" field="zcFile" width="100" align="center" renderer="onActionRenderer">附件</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form =new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    grid.bindSearchForm(form);
+
+    function search_option(){
+        grid.load();
+    }
+
+    /**
+     * 新增
+     * @param e
+     */
+    function add_option(e){
+        var row = grid.getSelected();
+        e.sender.miniopen({url : 'add.html',action : 'add', data : {row : row,formData : form.getData()},width :600,height : 400});
+    }
+
+    /**
+     * 编辑
+     * @param e
+     */
+    function edit_option(e){
+        var row = grid.getSelected();
+        if(row){
+            e.sender.miniopen({url : 'add.html', action : 'edit', data: {row: row, formData: form.getData()}, width : 600, height : 400});
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     * @param e
+     */
+    function delete_option(e){
+        var row = grid.getSelected();
+        if(row){
+            mini.confirm("注意:确定要删除吗？","删除信息",function(action){
+                if(action=="ok"){
+                    $['delete']("delete/{0}".format(row.sid),function(res){
+                        if(200==res.code){
+                            grid.reload();
+                        }else{
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        }else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 状态修改
+     */
+    function updateFlag_option(){
+        var row = grid.getSelected();
+        if(row){
+            mini.confirm("注意:确定要修改状态吗？","状态修改",function(action){
+                if(action=="ok"){
+                    $.put("updateFlag/{0}".format(row.sid),function(res){
+                        if(200==res.code){
+                            grid.reload();
+                        }else{
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+    function onActionRenderer(e) {
+        var html = "";
+        if (e.value != null) {
+            html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 附件  ' + '</a> ';
+        } else {
+            html = '-';
+        }
+        return html;
+    }
+
+    function file_view(sid) {
+        miniopen({url: 'file.html', action: 'file', data: sid, width: 400, height: 390, title: '附件下载'});
+    }
+</script>
+
+</html>

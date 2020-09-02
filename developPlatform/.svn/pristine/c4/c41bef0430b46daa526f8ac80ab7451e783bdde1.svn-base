@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>版本管理</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+        <input name="uuid" class="mini-hidden"/>
+        <input name="genTime" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>应用包名:</td>
+                <td content colspan="3">
+                    <input class="mini-comboBox" name="appPackage" textField="text" valueField="text" url="/system/pda/getPackageSelectList"
+                           allowInput="true"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>应用平台:</td>
+                <td content>
+                    <input class="mini-comboBox" name="platform" textField="text" valueField="text" url="/system/pda/getPlatformSelectList">
+                </td>
+                <td title>启用状态:</td>
+                <td content colspan="1">
+                    <input class="mini-combobox" required name="appFlag" id="appFlag" value="true" url="encodeURI('/dict/boolean?t=启用&f=禁用&equal=true')"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>应用版本:</td>
+                <td content colspan="1">
+                    <input class="mini-textbox" name="version" required/>
+                </td>
+                <td title>应用版本号:</td>
+                <td content colspan="1">
+                    <input class="mini-textbox" name="versionCode" required/>
+                </td>
+            </tr>
+            <tr>
+                <td title>强制更新:</td>
+                <td content colspan="1">
+                    <input class="mini-combobox" required name="forceUpdate" id="forceUpdate" value="true" url="encodeURI('/dict/boolean?t=强制&f=不强制&equal=true')"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>附件:</td>
+                <td content colspan="3">
+                    <div id="uploader"></div>
+                    <input id="fileId" name="fileId" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            data = mini.clone(options);
+            var fileId = getFileId();
+            mini.get("fileId").setValue(fileId);
+            $("#uploader").filesUpload({
+                pickerid: fileId,
+                filecount: 50,
+            });
+        } else if ('edit' == options.action) {
+            $.get("pda.html/{0}".format(options.data.uuid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("fileId").getValue(),
+                        filecount: 50,
+                    });
+                    setTimeout(function(){
+                        AutoResizePopupWindow(window.self,true,true);
+                    },100);
+                }
+            });
+        }
+    }
+
+    /**
+     * 保存数据
+     * @constructor
+     */
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+</script>
+</html>

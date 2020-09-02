@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>部门管理【新增】</title>
+    </th:block>
+</head>
+<body>
+
+
+<div class="mini-fit">
+    <input name="action" class="mini-hidden"/>
+    <form id="form1">
+        <input name="deptId" class="mini-hidden"/>
+        <table class="hmq-modify-table">
+            <tr colspan="3">
+                <td title>部门编码:</td>
+                <td content>
+                    <input class="mini-textbox" id="deptId" name="deptId" required vtype="numberAndUpper"/>
+                </td>
+
+                <td title>排序:</td>
+                <td content>
+                    <input class="mini-spinner" maxValue="1000" value="1" name="rank"/>
+                </td>
+
+            </tr>
+            <tr>
+                <td title>所属公司:</td>
+                <td content colspan="1">
+                    <input class="mini-buttonedit" onbuttonclick="onOrgClickHander"
+                           emptyText="请选择..." allowInput="false" name="orgId" required/>
+                </td>
+                <td title>上级部门:</td>
+                <td content>
+                    <input class="mini-buttonedit" onbuttonclick="onDeptClickHander"
+                           emptyText="请选择..." allowInput="false" value="ROOT" text="无" id="parentId" name="parentId" textName="parentName"/>
+                </td>
+            </tr>
+            <tr>
+
+                <td title>部门名称:</td>
+                <td content>
+                    <input class="mini-textbox" required name="deptName"/>
+                </td>
+                <td title>部门主管:</td>
+                <td content>
+                    <input id="deptAdmin" name="deptAdmin" allowInput="false" class="mini-buttonedit" onbuttonclick="onWorkerClick"/>
+                </td>
+
+            </tr>
+
+            <tr>
+                <td title>备注</td>
+                <td content colspan="3">
+                    <input class="mini-textbox" name="remark"/>
+                </td>
+            </tr>
+            <tr>
+
+                <td title>启用状态:</td>
+                <td content>
+                    <input class="mini-combobox" required name="state" value="true" url="/dict/boolean"/>
+                </td>
+            </tr>
+
+
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+
+    function SetData(options) {
+        var row = options.data;
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            if (!$.isEmptyObject(row.deptId)) {
+                form.getField('parentId').setValue(row.deptId);
+                form.getField('parentId').setText(row.deptName);
+            }
+            if (!$.isEmptyObject(row)) {
+                form.getField('orgId').setValue(row.orgId);
+                form.getField('orgId').setText(row.orgName);
+            }
+        } else if (!!~['view', 'edit'].indexOf(options.action)) {
+            mini.get("deptId").setEnabled(false);
+            mini.get("parentId").setEnabled(false);
+            form.getField('orgId').setEnabled(false);
+            $.get("dept.html/{0}".format(row.deptId), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    form.getField("deptAdmin").setText(res.data.deptAdminName);
+                    form.getField("orgId").setText(res.data.orgName);
+                    form.getField("parentId").setText(res.data.parentName);
+                }
+            });
+            if ('view' == options.action) {
+                form.setEnabled(false);
+                mini.get("saveBtn").setVisible(false);
+            }
+        }
+    }
+
+    /**
+     *
+     **/
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /**
+     *  公司选择
+     * */
+    function onOrgClickHander(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/system/org/hierarchyOrgTree.html",
+            title: "【公司】选择",
+            width: 500,
+            height: 620,
+            data: {
+                state: true
+            },
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.orgId);
+                    btnEdit.setText(data.corpExp);
+                }
+            }
+        });
+    }
+
+    /**
+     *  部门选择
+     * */
+    function onDeptClickHander(e) {
+        if (form.getField("orgId").getValue() != "") {
+            var btnEdit = e.sender;
+            return miniopen({
+                targetWindow: window.top,
+                url: "/system/dept/hierarchyDeptTree.html",
+                title: "【部门】选择",
+                data: {
+                    orgId: form.getField('orgId').getValue(),
+                    showNullNode: true,
+                },
+                width: 500,
+                height: 620,
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        btnEdit.setValue(data.deptId);
+                        btnEdit.setText(data.deptName);
+                    }
+                }
+            });
+        } else {
+            hmq.tipDanger('请先选择所属公司');
+        }
+    }
+
+    /*  员工选择 */
+    function onWorkerClick(e) {
+        var btnEdit = e.sender;
+        if (form.getField("orgId").getValue() != "") {
+            return miniopen({
+                targetWindow: window.top,
+                url: "./dept/deptWork.html",
+                title: "【员工】选择页面",
+                width: 750,
+                height: 620,
+                data: {
+                    workCorpid: form.getField('orgId').getValue(),
+                },
+                ondestroy: function (action) {
+                    if (action == "ok") {
+                        var iframe = this.getIFrameEl();
+                        var data = iframe.contentWindow.GetData();
+                        btnEdit.setValue(data.workerId);
+                        btnEdit.setText(data.workerName);
+                    }
+                }
+            });
+        } else {
+            hmq.tipDanger('请先选择所属公司');
+        }
+    }
+
+
+</script>
+</html>

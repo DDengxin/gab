@@ -1,0 +1,27 @@
+package com.tengzhi.business.mesGz.gzda1.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.mesGz.gzda1.dao.MGzMjdaDao;
+import com.tengzhi.business.mesGz.gzda1.service.MGzMjdaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+
+@Service
+@Transactional
+public class MGzMjdaServiceImpl implements MGzMjdaService {
+	@Autowired
+	private MGzMjdaDao mGzMjdaDao;
+
+	@Override
+	public Result findAll(BaseDto baseDto) throws IOException {
+
+		String sql="select a.mj_code,a.mj_cpcode,f_getparamname('GETBCPCODENAME',cpcode_name,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')cpcode_name,cpcode_size,cpcode_size_en,f_getparamname('GETBYCPCODEFL',cpcode_fl,'','技术',cpcode_type,'"+   SessionUser.getCurrentCorpId()   +"')cpcode_fl,f_get_param_name('计量单位',cpcode_bz,'"+   SessionUser.getCurrentCorpId()   +"','')cpcode_bz,a.mj_sl,mj_sc,mj_cl,a.mj_flag,cpcode02,cpcode_sm from m_gz_mjda a,e_js_cpcode b  where a.mj_cpcode=b.cpcode_id   ";
+		return Result.formPage(mGzMjdaDao.QueryhumpMap(sql),mGzMjdaDao.QueryhumpMap(sql).size());
+	}
+
+}

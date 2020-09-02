@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" >
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>科目</title>
+	</th:block>
+</head>
+<body onload="init('date','srch_rq1','srch_rq2','')">
+	<form id="srch_from" method="post">
+		<div class="mini-toolbar" style="padding:1px;border-bottom:0;">
+			<table style="width:100%;">
+				<tr>
+					<td style="white-space:nowrap;">
+						<label>日期: </label>
+						<input id="srch_rq1" name="srch_rq1" class="mini-datepicker" style="width:110px;" showClearButton="false" />
+						<label>至: </label>
+						<input id="srch_rq2" name="srch_rq2" class="mini-datepicker" style="width:110px;" showClearButton="false" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div id="srch_grid" class="mini-datagrid" style="width:100%;height:100%;" pager="#pager1" showPager="false" pageSize="100" multiSelect="true" showSummaryRow="true"
+			ondrawsummarycell="onDrawSummaryCell">
+			<div property="columns">
+				<div type="indexcolumn">序号</div>
+				<div field="fdate" width="90" align="center" allowSort="true" dateFormat="yyyy-MM-dd" renderer="onActionRenderer" headerAlign="center">日期</div>
+				<div field="fvoucherid" width="100" align="center" allowSort="true" headerAlign="center" visible="false"></div>
+				<div field="fvoucherno" width="100" align="center" allowSort="true" headerAlign="center">凭证字号</div>
+				<div field="fexplanation" width="120" align="left" allowSort="true" headerAlign="center">摘要</div>
+				<div field="faccountid" displayField="fnumbername" width="150" align="left" allowSort="true" headerAlign="center">科目</div>
+				<div field="debit" width="100" align="right" allowSort="true" summaryType="sum" numberFormat="#,0.00" headerAlign="center">借方金额</div>
+				<div field="credit" width="100" align="right" allowSort="true" summaryType="sum" numberFormat="#,0.00" headerAlign="center">贷方金额</div>
+				<div field="fusername" width="100" align="center" allowSort="true" headerAlign="center">制单人</div>
+				<div></div>
+			</div>
+		</div>
+	</div>
+	<div class="mini-toolbar" style="padding:0px;border-bottom:1;">
+		<table style="width:100%;">
+			<tr>
+				<td style="white-space:nowrap;">
+					<div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width:380px;" sizeList="[50,100,200]"></div>
+				</td>
+				<td style="white-space:nowrap;" align="right" id="btnbar"></td>
+			</tr>
+		</table>
+	</div>
+
+	<script type="text/javascript">
+		mini.parse();
+		var grid = mini.get("srch_grid");
+		var form = new mini.Form("srch_from");
+		var surl = "/finance/voucher/vouch/";
+		grid.setUrl(surl + "/getSrchGridList");
+		function srch_option() {
+			var parms = form.getData(true);//设置true，获取的日期格式是"2010-11-12"字符串。
+			grid.load({
+				parms : mini.encode(parms)
+			});
+		}
+
+		function import_option() {
+			var vurl = surl + "-import.html";
+			var vtitle = "【凭证】导入新增";
+			miniopen(vurl, vtitle, "", "add", 1000, 502);
+		}
+
+
+		function onDrawSummaryCell(e) {
+			var result = e.result;
+			var sumdata = mini.decode(result.sumdata);
+			//服务端汇总计算
+			if (sumdata && e.field == "fvoucherno") {
+				var s = "<span style='color:Brown;'>";
+				s += "合计:</span>";
+				e.cellHtml = s;
+			}
+			if (sumdata && e.field == "debit") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.sl).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+			if (sumdata && e.field == "credit") {
+				var s = "<span style='color:Brown;float:right;'>";
+				s += "" + parseFloat(sumdata.je).toFixed(2) + "</span>";
+				e.cellHtml = s;
+			}
+		}
+
+		//绘制行
+		function onActionRenderer(e) {
+			if (e.field == "fdate") {
+				return mini.formatDate(new Date(e.record.fdate), "yyyy-MM-dd");
+			}
+		}
+
+	</script>
+
+</body>
+</html>

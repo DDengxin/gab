@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>咨询发布</title>
+    </th:block>
+</head>
+<body>
+<form id="form">
+    <label class="hmq-label" text="活动标题">
+        <input class="mini-textbox" name="title"/>
+    </label>
+    <label class="hmq-label" text="参与方式">
+        <select name="srchClassify" class="mini-combobox" emptyText="全部">
+            <option value="">全部</option>
+            <option value="在线报名">在线报名</option>
+            <option value="线下组织">线下组织</option>
+        </select>
+    </label>
+
+    <label class="hmq-label" text="活动状态">
+        <select name="srchFlag" class="mini-combobox" emptyText="全部">
+            <option value="">全部</option>
+            <option value="未启动">未启动</option>
+            <option value="未开始">未开始</option>
+            <option value="进行中">进行中</option>
+            <option value="已结束">已结束</option>
+        </select>
+    </label>
+
+    <label class="hmq-label" text="审批状态">
+        <select name="srchStatus" class="mini-combobox" emptyText="全部">
+            <option value="">全部</option>
+            <option value="登记">登记</option>
+            <option value="确认">确认</option>
+            <option value="核准">核准</option>
+        </select>
+    </label>
+
+
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+
+    <div id="splitter" class="mini-splitter" style="width:100%;height:100%;">
+
+        <div size="70%" showCollapseButton="true" style="padding:5px;">
+            <div tz:datagrid="datagrid" id="finalGrid" idField="activitiesId" url="inquiry" onselect="selectionchanged">
+                <div property="columns">
+                    <div tz:datagrid="indexcolumn" width="48">序号</div>
+                    <div tz:datagrid="column" field="title" width="200" align="center">活动主题</div>
+                    <div tz:datagrid="column" field="classify" width="100" align="center">参与方式</div>
+                    <div tz:datagrid="column" field="briefIntroduction" width="200" align="center">内容简介</div>
+                    <div tz:datagrid="column" field="status" width="100" align="center">审批状态</div>
+                    <div tz:datagrid="column" field="flag" width="100" align="center">活动状态</div>
+                    <div tz:datagrid="column" field="eventDateStart" width="100" align="center">活动开始时间</div>
+                    <div tz:datagrid="column" field="eventDateEnd" width="100" align="center">活动结束时间</div>
+
+                </div>
+            </div>
+        </div>
+        <div id="show_content" showCollapseButton="false" style=" overflow:scroll; width:100%; height:100%;padding: 0px;">
+
+            <div tz:datagrid="datagrid" showPager="false" id="mxgrid" idField="chamberNote" url="srchchamber">
+                <div property="columns">
+                    <div tz:datagrid="indexcolumn" width="28">序号</div>
+                    <div tz:datagrid="column" field="chamberName" width="70" align="left">用户名</div>
+                    <div tz:datagrid="column" field="chamberMobile" width="100" align="center">手机号</div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form");
+    var grid = mini.get("finalGrid");
+    var mxgrid = mini.get("mxgrid");
+
+    function search_option() {
+        grid.load({params: JSON.stringify(form.getData(true))});
+    }
+
+    function add_option(e) {
+        var row = grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row, width: 900, height: 600});
+    }
+
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.status == "登记") {
+                e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: 900, height: 600});
+            } else {
+                hmq.tipDanger("改记录非登记状态");
+            }
+
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.status != "登记") {
+                return hmq.tipDanger("该记录非登记状态，无法删除");
+            }
+
+
+            mini.confirm("注意:确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $.delete("deleteArticle/{0}".format(row.activitiesId), function (res) {
+                        if (200 === res.code) {
+                            grid.reload();
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            hmq.business.approvalCancel({
+                businessId: row.activitiesId
+            })
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function show_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.status != "核准") {
+                hmq.tipDanger('该条不是“核准”状态,不能操作！');
+                return
+            }
+            $.put('show/{0}'.format(row.activitiesId), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess('展示成功!');
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.status != "登记") {
+                hmq.tipDanger('改单不是“登记”状态,不能操作！');
+                return
+            }
+            //菜单ID
+            var menuId = hmq.getQueryString('menu_id');
+            //标题
+            var title = row.title;
+            //业务单号
+            var businessId = row.activitiesId;
+            $['put']("/system/workflow/process/startFinishFirstStep", JSON.stringify({
+                menuId: menuId,
+                title: title,
+                url: "/platform/specialist/chamberactivities/reviewPage.html",
+                businessId: businessId
+            }), function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '提交成功', {
+                        exec: function () {
+                            search_option();
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '提交失败');
+                }
+            }, null, {
+                loading: true,
+                contentType: 'application/json',
+                error: function () {
+                    mini.unmask();
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+    }
+
+    //行选中事件
+    function selectionchanged(e) {
+        var obj = {chamberNote: e.record.activitiesId};
+        mxgrid.load({params: JSON.stringify(obj)});
+
+    }
+
+</script>
+
+</body>
+</html>

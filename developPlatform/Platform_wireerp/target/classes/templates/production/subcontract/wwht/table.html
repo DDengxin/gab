@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>加工合同打印模板</title>
+</th:block>
+<head>
+<meta charset="UTF-8">
+<style>
+        html,
+        body,
+        ul,
+        li,
+        ol,
+        dl,
+        dd,
+        dt,
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        form,
+        fieldset,
+        legend,
+        img,
+        input,
+        figure,
+        figcaption {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul,
+        ol,
+        li {
+            list-style: none;
+        }
+
+        b,
+        strong {
+            font-weight: normal;
+        }
+
+        em,
+        i {
+            font-style: normal;
+        }
+
+        a,
+        u {
+            text-decoration: none;
+        }
+
+        img {
+            border: 0;
+            display: block;
+        }
+
+        input {
+            outline: none;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .company,
+        .category {
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 15px;
+            color: #000;
+            text-align: center;
+        }
+
+		.font-light{
+			font-size: 12px;
+		}
+		
+		.space{
+			padding-left: 2em;
+		}
+
+        .n {
+            font-weight: normal;
+        }
+
+        .l {
+            text-align: left;
+        }
+        .c {
+            text-align: center;
+        }
+        .r{
+            text-align: right;
+        }
+
+        table {
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+        }
+
+        tbody td {
+            border: 1px solid #000;
+            border-top: none;
+        }
+
+		tfoot{
+			font-weight: 200;
+			font-size: 13px;
+            line-height: 12px;
+		}
+
+        .header td {
+            border: 1px solid #000;
+        }
+
+        table tr {
+            width: 100%;
+        }
+
+        table tr td {
+            padding: 4px;
+            font-size: 13px;
+        }
+
+         table tr .xh {
+            width: 5%;
+        }
+
+        table tr .name {
+           	width: 27%;
+        }
+
+        table tr .num {
+            width: 7%;
+        }
+
+        table tr .dw {
+            width: 6%;
+        }
+
+        table tr .pc {
+            width: 7%;
+        }
+
+        table tr .fl {
+            width: 9%;
+        }
+        
+        table tr .jq {
+          	width: 12%;
+        }
+
+        table tr .sm {
+            width: auto;
+        }
+        .line_top{
+        	line-height: 14px;
+        }
+        .jc{
+        	font-size:11px;
+			font-weight: bold;
+		}
+		.bottom_left{
+			padding-left: 30px;
+		}
+		pre{
+			line-height: 1.6;
+			padding-top:0px;
+			padding-bottom:0px;
+			white-space: pre-wrap;
+		}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <table cellpadding="0" cellspacing="0">
+            <thead>
+                <tr>
+                    <td colspan="10">
+                        <p class="company" th:text="${corpname}"></p>
+                    </td>
+                </tr>
+                <tr class="line_top">
+                    <td colspan="10">
+                        <p class="category"><span th:text="${stype}"></span>产品购销合同(<span th:text="${httype}"></span>)</p>
+                    </td>
+                </tr>
+                <tr>
+                	<td colspan="8"></td>
+                </tr>
+                <tr class="line_top">
+                    <td class="l" colspan="9">
+                    	<b class="l" style="margin-left: 2em;">签订日期:<span th:text="${htdate}"></span></b>
+                    	<b class="l" style="margin-left: 6em;">供货单位:<span th:text="${htsuppliername}"></span></b>
+                    </td>
+                    <td class="l" colspan="1">
+                    	<b class="l">合同编号:<span th:text="${htno}"></span></b>
+                    </td>
+                </tr>
+                <tr class="line_top">
+                    <td colspan="10">
+                        <p class="l">　　现买卖双方就产品购销事宜经充分协商，一致同意按下列条款进行买卖商品交易：</p>
+                    </td>
+                </tr>
+                <tr class="line_top">
+                    <td colspan="10">
+                        <p class="l">一、产品规范：</p>
+                    </td>
+                </tr>
+                <tr class="header">
+                    <td class="xh">序号</td>
+                    <td class="name" colspan="3">名称及规格</td>
+                    <td class="num">数量</td>
+                    <td class="dw">单位</td>
+                    <td class="pc">单价</td>
+                    <td class="fl">金额</td>
+                    <td class="jq">交期</td>
+                    <td class="sm" colspan="2">备注</td>
+                </tr>
+            </thead>
+            
+            <tbody th:each="mx,index:${mx}">
+                <tr>
+                    <td class="xh" th:text="${index.count}"></td>
+                    <td class="name l" colspan="3" th:text="${mx.NameAndSize}"></td>
+                    <td class="num l" th:text="${mx.htsl}"></td>
+                    <td class="dw" th:text="${mx.cpcodebz}"></td>
+                    <td class="pc r" th:text="${mx.htprice}"></td>
+                    <td class="fl r" th:text="${mx.htje}"></td>
+                    <td class="jq" th:text="${mx.htjq}"></td>
+                    <td class="sm" colspan="2" th:text="${mx.htrequirements}"></td>
+                </tr>
+            </tbody>
+            
+            <tbody th:if="${mxCount<8}" th:each="i:${#numbers.sequence(1,8-mxCount)}">
+				<tr>
+					<td class="xh" th:text="${i+mxCount}"></td>
+					 <td class="name" colspan="3"></td>
+                    <td class="num l"></td>
+                    <td class="dw"></td>
+                    <td class="pc r"></td>
+                    <td class="fl r"></td>
+                    <td class="jq"></td>
+                    <td class="sm" colspan="2"></td>
+				</tr>
+			</tbody>
+			
+            <tbody>
+           		<tr style="line-height: 25px;">
+                    <td class="jc l" colspan="4">合计（<span th:text="${zwJe}"></span>）</td>
+                    <td class="num l" th:text="${sumsl}"></td>
+                	<td class="dw"></td>   
+                    <td class="pc"></td>
+                    <td class="fl r" th:text="${sumje}"></td>
+                    <td class="sm" colspan="2"></td>
+             	</tr>
+            </tbody>
+                
+            <tfoot>
+            	<tr><td></td></tr>
+                <tr>
+                    <td class="l" colspan="10">二、技术规范：</td>
+                </tr>
+                 <tr>
+                    <td colspan="10" class="l space font-light"><pre id="jsgf" th:text="${htrequirements}"></pre></td>
+                </tr>
+                <tr>
+                    <td class="l" colspan="10">三、收货地点及运输费用：</td>
+                </tr>
+                <tr>
+                    <td colspan="10" class="l space font-light">1、交货地点:<span id="shdd" th:text="${htaddress}"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="10" class="l space font-light">2、运输费用:<span id="shdd" th:text="${httransportcosts}"></span></td>
+                </tr>
+                <tr>
+                    <td colspan="10" class="l space font-light">3、运输方式:<span id="shdd" th:text="${httransportmode}"></span></td>
+                </tr>
+                <tr>
+                    <td class="l" colspan="10">四、结算及违约：</td>
+                </tr>
+                <tr>
+                    <td colspan="10" class="l space font-light"><pre id="jswy" th:text="${htquality}"></pre></td>
+                </tr>
+                 <tr>
+                    <td class="l" colspan="10">五、其他事项：</td>
+                </tr>
+                <tr>
+                    <td class="l space font-light" colspan="10"><pre id="qtsx" th:text="${htsupplementname}" styl="text-"></pre></td>
+                </tr>
+                <tr>
+                    <td class="l" colspan="10">六、纠纷处理方式：</td>
+                </tr>
+                <tr>
+                    <td colspan="10" class="l space font-light">发生纠纷双方协商解决，协商不成功，向供方所在地址法院处理。</td>
+                </tr>
+                <tr>
+                    <td style="line-height: 16px;" class="l" colspan="10">
+                        七、合同有效期满前，需方最后几次下单所购产品,供方只须在合理期限内交货,如交货时已经超出合同有效期限该几笔交易仍为有效,需方仍按合同原约定方式收货及履行付款义务。</td>
+                </tr>
+                <tr>
+                    <td class="l" colspan="10">八、本合同经签字盖章之传真件和合同的正本一样同具法律效力。</td>
+                </tr>
+                <tr>
+                	<td colspan="8"></td>
+                </tr>
+               	<tr>
+                    <td class="l bottom_left font-light" colspan="6">买方：</td>
+                    <td class="space l font-light" colspan="3">卖方：</td>
+                </tr>
+                <tr>
+                    <td class="bottom_left font-light" colspan="6"><pre id="gF" class="l" th:text="${gF}"></pre></td>
+                    <td class="space font-light" colspan="6"><pre id="xF" class="l" th:text="${xF}"></pre></td>
+                </tr>
+                <tr>
+                    <td class="l bottom_left font-light" colspan="6">法定代表：</td>
+                    <td class="space l font-light" colspan="6">法定代表：</td>
+                </tr>
+                <tr><td></td></tr>
+                 <tr>
+                    <td class="l bottom_left font-light" colspan="6">委托代表：</td>
+                    <td class="space l font-light" colspan="6">委托代表：</td>
+                </tr>
+            </tfoot>
+		</table>
+    </div>
+</body>
+<script type="text/javascript">
+	var content = $('#jsgf').html();
+	content = content.replace(/\n/g, "\n")
+	$('#jsgf').html(content);
+	var content = $('#shdd').html();
+	content = content.replace(/\n/g, "\n")
+	$('#shdd').html(content);
+	var content = $('#jswy').html();
+	content = content.replace(/\n/g, "\n")
+	$('#jswy').html(content);
+	var content = $('#qtsx').html();
+	content = content.replace(/\n/g, "\n")
+	$('#qtsx').html(content);
+
+    var content = $('#gF').html();
+    content = content.replace(/\n/g, "\n")
+    $('#gF').html(content);
+    var content = $('#xF').html();
+    content = content.replace(/\n/g, "\n")
+    $('#xF').html(content);
+</script>
+</html>

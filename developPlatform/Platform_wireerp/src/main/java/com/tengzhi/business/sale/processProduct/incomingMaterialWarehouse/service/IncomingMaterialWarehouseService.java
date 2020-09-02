@@ -1,0 +1,48 @@
+package com.tengzhi.business.sale.processProduct.incomingMaterialWarehouse.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn;
+import com.tengzhi.business.mesGz.gzck.vo.ECkInVo;
+import com.tengzhi.business.sc.task.sctack.model.MScScrwWl;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Map;
+
+public interface IncomingMaterialWarehouseService extends BaseService<ECkIn, String> {
+
+    BasePage<Map<String ,Object>> getSrchTopList(BaseDto baseDto) throws Exception;
+
+    BasePage<Map<String,Object>> getSrchBottomList(BaseDto baseDto) throws IOException;
+
+    Result save(ECkInVo eCkInVo) throws Exception;
+
+    Result update(ECkInVo eCkInVo)throws Exception;
+
+    ECkIn findById(String inNote,String inPack);
+
+    ECkIn findByInNote(String inNote);
+
+    void deleteById(String inNote);
+
+    Result getFlag(String inNote,String flag);
+
+    Result setFlag(String inNote,String flag);
+
+    /**
+     * 更新原包装号的数量
+     */
+    Result updateSplitData(BigDecimal sl, String pack, String contract);
+
+    BasePage<Map<String, Object>> getjjhtList(BaseDto baseDto) throws IOException;
+
+    BasePage<Map<String, Object>> getCgWwhtSelectList(BaseDto baseDto) throws IOException;
+
+    ModelAndView table(ModelAndView mv, String inNote);
+
+    BasePage<Map<String,Object>> getProductList(BaseDto baseDto);
+}

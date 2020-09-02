@@ -1,0 +1,181 @@
+package com.tengzhi.business.project.projectProcess.projectTask.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.project.projectArchives.xmda.model.EXmXmda;
+import com.tengzhi.business.project.projectProcess.projectTask.dao.ProjectTaskDao;
+import com.tengzhi.business.project.projectProcess.projectTask.model.EXmXmrw;
+import com.tengzhi.business.project.projectProcess.projectTask.service.ProjectTaskService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+
+@Service
+@Transactional
+public class ProjectTaskServiceImpl implements ProjectTaskService {
+
+
+    @Autowired
+    private ProjectTaskDao dao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+
+    @Override
+    public EXmXmrw save(EXmXmrw model) throws Exception {
+        SessionUser su = SessionUser.SessionUser();
+        model.setCreatetime(new Date());
+        model.setMan(su.getUsername());
+        model.setDataCorp(su.getCorpId());
+        model.setRwNote(sysGenNoteService.getyyMMNote4(EXmXmrw.class, "XMRW"));
+        model.setRwFlag("登记");
+        return dao.save(model);
+    }
+
+
+    @Override
+    public BasePage<EXmXmrw> getList(BaseDto baseDto) throws IOException {
+        Map<String, String> map = baseDto.getParamsMap();
+        String sqlshere = " where a.rw_project=b.xm_id and a.data_corp in ('"+ SessionUser.SessionUser().getSysUser().getOrgIds().replaceAll(",", "','")+"') ";
+
+        StringBuffer sqlwhere = SqlJoint.where(c->{
+            c.contains("xm_id",map.get("xmId"));
+            c.contains("xm_man",map.get("xmMan"));
+        });
+        String sql = " select a.rw_rq,a.rw_note,a.rw_type,a.rw_resource,a.rw_title,a.rw_project,a.rw_stage,a.rw_flag,a.rw_node,a.rw_jh_man,a.rw_jh_gs,a.rw_jh_start,a.rw_jh_end,a.rw_jjcd,a.rw_file,a.rw_remarks, " +
+                " f_get_param_name('任务类型',a.rw_type,a.data_corp) rw_type_name,f_get_param_name('任务来源',a.rw_resource,a.data_corp) rw_resource_name,b.xm_name rw_project_name,f_get_param_name('项目阶段',a.rw_stage,a.data_corp) rw_stage_name, " +
+                " f_get_param_name('项目节点',a.rw_node,a.data_corp) rw_node_name,f_getname('GETUSERNAME',a.rw_jh_man,'',a.data_corp) rw_jh_man_name,f_get_param_name('紧急程度',a.rw_jjcd,a.data_corp) rw_jjcd_name " +
+                " ,a.rw_js_date,a.rw_ks_date,a.rw_wc_date " +
+                " from e_xm_xmrw a,e_xm_xmda b "+sqlshere + sqlwhere;
+        return dao.QueryPageLists(baseDto , sql );
+    }
+
+    @Override
+    public EXmXmrw findById(String rwNote) {
+        String sql = " select a.*,f_getname('GETUSERNAME',a.rw_jh_man,'',a.data_corp) rw_jh_man_name,b.xm_name rw_project_name " +
+                " from e_xm_xmrw a,e_xm_xmda b where a.rw_project=b.xm_id and a.rw_note='"+rwNote+"' ";
+        return dao.QueryToFirstBean(sql);
+    }
+
+    @Override
+    public void update(EXmXmrw model) {
+        EXmXmrw dbModel = dao.findById(model.getRwNote()).orElse(null);
+        if("登记".equals(dbModel.getRwFlag())){
+            dao.dynamicSave(model, dbModel);
+        }
+    }
+
+    @Override
+    public void wcOption(EXmXmrw model) {
+        SessionUser su = SessionUser.SessionUser();
+        EXmXmrw dbModel = dao.findById(model.getRwNote()).orElse(null);
+        model.setRwWcDate(new Date());
+        model.setWcMan(su.getUserId());
+        model.setRwFlag("完成");
+        if("开始".equals(dbModel.getRwFlag())){
+            dao.dynamicSave(model, dbModel);
+        }
+    }
+
+    @Override
+    public void kpOption(EXmXmrw model) {
+        SessionUser su = SessionUser.SessionUser();
+        model.setRwFlag("考评");
+        model.setRwKhMan(su.getUserId());
+        model.setRwKhDate(new Date());
+        EXmXmrw dbModel = dao.findById(model.getRwNote()).orElse(null);
+        if("完成".equals(dbModel.getRwFlag())){
+            dao.dynamicSave(model, dbModel);
+        }
+    }
+
+    @Override
+    public void deleteByNote(String rwNote) {
+        dao.deleteById(rwNote);
+    }
+
+
+    public Result getFlag(String rwNote, String flag) {
+        String flagString=dao.getFlag(rwNote);
+        if(flag.equals(flagString)) {
+            return  Result.resultOk("操作成功！");
+        }else{
+            return Result.error("该单不是“"+flag+"”状态,不能操作！");
+        }
+    }
+
+    public Result updateFlag(String rwNote, String currentFlag,String nextFlag){
+        String flagString=dao.getFlag(rwNote);
+        if(currentFlag.equals(flagString)) {
+            dao.update(rwNote , nextFlag);
+            return  Result.resultOk("操作成功！");
+        }else{
+            return Result.error("该单不是“"+currentFlag+"”状态,不能操作！");
+        }
+    }
+
+    public Result receipt(String rwNote, String currentFlag,String nextFlag){
+        String flagString=dao.getFlag(rwNote);
+        if(currentFlag.equals(flagString)) {
+            SessionUser su = SessionUser.SessionUser();
+            dao.receipt(rwNote , nextFlag,su.getUserId());
+            return  Result.resultOk("操作成功！");
+        }else{
+            return Result.error("该单不是“"+currentFlag+"”状态,不能操作！");
+        }
+    }
+
+    public Result qxjs(String rwNote, String currentFlag,String nextFlag){
+        String flagString=dao.getFlag(rwNote);
+        if(currentFlag.equals(flagString)) {
+            dao.qxjs(rwNote , nextFlag,null,null);
+            return  Result.resultOk("操作成功！");
+        }else{
+            return Result.error("该单不是“"+currentFlag+"”状态,不能操作！");
+        }
+    }
+
+    public Result qxwc(String rwNote, String currentFlag,String nextFlag){
+        String flagString=dao.getFlag(rwNote);
+        if(currentFlag.equals(flagString)) {
+            dao.qxwc(rwNote , nextFlag,null,null,null,null,null);
+            return  Result.resultOk("操作成功！");
+        }else{
+            return Result.error("该单不是“"+currentFlag+"”状态,不能操作！");
+        }
+    }
+
+
+    public Result ksOption(String rwNote, String currentFlag,String nextFlag){
+        String flagString=dao.getFlag(rwNote);
+        if(currentFlag.equals(flagString)) {
+            dao.ksOption(rwNote , nextFlag,SessionUser.SessionUser().getUserId());
+            return  Result.resultOk("操作成功！");
+        }else{
+            return Result.error("该单不是“"+currentFlag+"”状态,不能操作！");
+        }
+    }
+
+
+    public Result qxks(String rwNote, String currentFlag,String nextFlag){
+        String flagString=dao.getFlag(rwNote);
+        if(currentFlag.equals(flagString)) {
+            dao.qxks(rwNote , nextFlag,null,null);
+            return  Result.resultOk("操作成功！");
+        }else{
+            return Result.error("该单不是“"+currentFlag+"”状态,不能操作！");
+        }
+    }
+
+
+
+}

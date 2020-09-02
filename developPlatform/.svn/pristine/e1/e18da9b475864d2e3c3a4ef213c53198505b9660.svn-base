@@ -1,0 +1,121 @@
+package com.tengzhi.business.production.subcontract.wwfl.controller;
+
+import java.io.IOException;
+
+import com.tengzhi.business.mesGz.gzck.vo.ECKOutVo;
+import com.tengzhi.business.production.subcontract.wwfl.service.WwflService;
+import com.tengzhi.business.system.params.service.SysParamService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
+import javax.servlet.http.HttpServletRequest;
+
+@RestController
+@RequestMapping("/production/subcontract/wwfl")
+public class WwflController {
+	
+	@Autowired
+	private WwflService wwflService;
+	
+	@Autowired
+	private SysParamService sysParamService;
+	
+	
+	@GetMapping(value="/*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+
+
+	/**
+	 *
+	 * @param codeType 产品类型(YL,WL,CP)
+	 * @param request
+	 * @param rt
+	 * @param mv
+	 * @return
+	 */
+	@GetMapping(value = { "/{codeType}/list.html" })
+	public ModelAndView toPage(@PathVariable String codeType, HttpServletRequest request, RedirectAttributes rt, ModelAndView mv) {
+		String servletPath = request.getServletPath();
+		servletPath = servletPath.substring(servletPath.lastIndexOf("/") + 1);
+		mv.setView(new RedirectView(String.format("/production/subcontract/wwfl/%s", servletPath)));
+		request.getParameterMap().forEach((key, value) -> {
+			mv.addObject(key, value);
+		});
+		mv.addObject("codeType", codeType);
+		return mv;
+	}
+
+	/**
+	 * 查询列表
+	 *
+	 * @return
+	 */
+	@PostMapping("/getTopList.html")
+	public Result getTopList(BaseDto baseDto) throws IOException {
+		return wwflService.getTopList(baseDto).getResult();
+	}
+	
+	/**
+	 * 查询明细列表
+	 *
+	 * @return
+	 */
+	@PostMapping("/getBottomLeftList.html")
+	public Result getBottomLeftList(BaseDto baseDto) throws IOException {
+		return wwflService.getBottomLeftList(baseDto).getResult();
+	}
+	
+	/**
+	 * 新增保存
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping(value = "add.html")
+    public Result add(@RequestBody ECKOutVo vo) throws Exception {
+        return wwflService.save(ECKOutVo.initECgContractVo(vo));
+    }
+	
+	/**
+	 * 修改保存
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
+	@PutMapping(value = "add.html")
+    public Result modify(@RequestBody ECKOutVo vo) throws Exception {
+        return wwflService.update(ECKOutVo.initECgContractVo(vo));
+    }	
+	
+	
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping("/demandNotice/getById")
+	public Result getDemandNotifyListById(@RequestParam String fhNote,@RequestParam String fhCode) throws IOException {
+		return wwflService.getDemandNotifyListById(fhNote,fhCode).getResult();
+	}
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping("/manualNotice/getById")
+	public Result getManualNoticeListById(@RequestParam String fhNote,@RequestParam String fhCode) throws IOException {
+		return wwflService.getManualNoticeListById(fhNote,fhCode).getResult();
+	}
+	
+	
+	@DeleteMapping(value = "/delete/{fhNote}")
+	public Result delete(@PathVariable(value = "fhNote") String fhNote) throws Exception {
+		return wwflService.delete(fhNote);
+	}
+}

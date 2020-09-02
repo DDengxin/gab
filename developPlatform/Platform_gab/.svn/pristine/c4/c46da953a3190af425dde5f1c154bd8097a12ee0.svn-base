@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>购物车</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/shoppingCart.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/shoppingCart.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/script/laytpl/laytpl.js}"></script>
+</head>
+
+<body>
+
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+    </th:block>
+
+    <div class="main w">
+        <div class="main-title">我的购物车</div>
+        <div class="main-x">
+            <img class="ban" src="/static/gab/images/g1.png">
+            <div class="sp-tab">
+                <div></div>
+                <table class="js-tab" cellspacing="0" cellpadding="0" id="tab" border="0">
+                    <thead>
+                        <tr>
+                            <td width="147"><span class="thead-span">
+                                    <input type="checkbox" onclick="selectAll(this.checked)">全部商品</span>
+                            </td>
+                            <td width="484" align="middle">商品名称</td>
+                            <td width="125" align="middle">单价(元)</td>
+                            <td width="144" align="middle">数量</td>
+                            <td width="125" align="middle">小计(元)</td>
+                            <td width="128" align="middle">操作</td>
+                            <td style="display:none;" id="hidetd">公司ＩＤ</td>
+                        </tr>
+                    </thead>
+
+                </table>
+
+
+                <div class="cartNull">
+                    <img src="/static/gab/images/shop_cart.jpg">
+                </div>
+                <div class="cart-jiesuan">
+                    <div class="all-cart">
+                        <input type="checkbox" onclick="selectAll(this.checked)">
+                        <a href="javascript:void(0);">全部商品</a>
+                        <a href="javascript:void(0);" onclick="removeSelect(this)">删除选中商品</a>
+                    </div>
+                    <div class="cart-div">
+                        <a class="cart-btn" href="javascript:void(0);" onclick="saveCart()">结算</a>
+                        <span class="fr">商品总价(不含税)：<em>¥</em><em>0.00</em></span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+    </th:block>
+</body>
+</html>

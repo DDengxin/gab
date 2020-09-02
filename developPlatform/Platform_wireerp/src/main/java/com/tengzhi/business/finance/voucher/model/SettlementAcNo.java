@@ -1,0 +1,73 @@
+package com.tengzhi.business.finance.voucher.model;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.UUID;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+@Entity(name = "e_f_vocher_settlement")
+public class SettlementAcNo {
+      @Id
+	private String ksid =UUID.randomUUID().toString();;
+	private String accountid, accountname, remarks, mend, man, dataCorp;
+	private Date oprq;
+	private BigDecimal qcje;
+
+	public String getKsid() {
+		return ksid;
+	}
+	public void setKsid(String ksid) {
+		this.ksid = ksid;
+	}
+	public String getAccountid() {
+		return accountid;
+	}
+	public void setAccountid(String accountid) {
+		this.accountid = accountid;
+	}
+	public String getAccountname() {
+		return accountname;
+	}
+	public void setAccountname(String accountname) {
+		this.accountname = accountname;
+	}
+	public String getRemarks() {
+		return remarks;
+	}
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+	public String getMend() {
+		return mend;
+	}
+	public void setMend(String mend) {
+		this.mend = mend;
+	}
+	public String getMan() {
+		return man;
+	}
+	public void setMan(String man) {
+		this.man = man;
+	}
+	public String getDataCorp() {
+		return dataCorp;
+	}
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+	public Date getOprq() {
+		return oprq;
+	}
+	public void setOprq(Date oprq) {
+		this.oprq = oprq;
+	}
+	public BigDecimal getQcje() {
+		return qcje;
+	}
+	public void setQcje(BigDecimal qcje) {
+		this.qcje = qcje;
+	}
+	
+	
+}

@@ -1,0 +1,22 @@
+$(function () {
+    new PCAS("province", "city", "area");
+
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#operationPeriod' //指定元素
+        });
+
+        //监听提交
+        form.on('submit()', function (data) {
+            console.log(JSON.stringify(data.field));
+            return false;
+        });
+    });
+
+    
+    _init_upload(['#License', '#BusinessLicense']);
+})

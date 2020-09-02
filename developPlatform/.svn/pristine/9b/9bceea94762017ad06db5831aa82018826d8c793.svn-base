@@ -1,0 +1,97 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.voucher.dao.AuxiliaryItemsDao;
+import com.tengzhi.business.finance.voucher.model.EFVoucherAuxiliaryitems;
+import com.tengzhi.business.finance.voucher.service.AuxiliaryItemsService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class AuxiliaryItemsServiceImpl implements AuxiliaryItemsService {
+	@Autowired
+	private AuxiliaryItemsDao auxiliaryitemsDao;
+
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+
+	@Override
+	public BasePage<EFVoucherAuxiliaryitems> findAll(BaseDto baseDto,String fusebstable){
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+
+		return auxiliaryitemsDao.QueryPageList(baseDto, Specifications.where((c) -> {
+			c.eq("fitemclassid", map.get("srchfitemclassid"));
+			c.eq("fusebstable", fusebstable);
+			c.eq("dataCorp",securityUser.getCorpId());
+		}));
+	}
+
+	@Override
+	public EFVoucherAuxiliaryitems findById(String Id) {
+		return auxiliaryitemsDao.findById(Id).orElse(null);
+	}
+
+	@Override
+	public EFVoucherAuxiliaryitems save(EFVoucherAuxiliaryitems eFVoucherAuxiliaryitems)throws Exception   {
+		SessionUser securityUser=SessionUser.SessionUser();
+		eFVoucherAuxiliaryitems.setDataCorp(securityUser.getCorpId());
+		boolean x=eFVoucherAuxiliaryitems.getFusebstable().equals("Y")?judgeUniqueset(eFVoucherAuxiliaryitems):judgeUniqueother(eFVoucherAuxiliaryitems);
+		if(x){
+			eFVoucherAuxiliaryitems.setFitemid(sysGenNoteService.getNote("auxiliaryitems","1","",4));
+			return auxiliaryitemsDao.save(eFVoucherAuxiliaryitems);
+		} else {
+			throw new Exception("项目名称已存在");
+		}
+
+	}
+
+	@Override
+	public void update(EFVoucherAuxiliaryitems EFVoucherAuxiliaryitems) {
+		auxiliaryitemsDao.dynamicSave(EFVoucherAuxiliaryitems, auxiliaryitemsDao.findById(EFVoucherAuxiliaryitems.getFitemid()).orElse(null));
+	}
+
+	@Override
+	public boolean judgeUniqueset(EFVoucherAuxiliaryitems efva) {
+		return auxiliaryitemsDao.findAll(Specifications.where((c) -> {
+			SessionUser securityUser=SessionUser.SessionUser();
+			c.eq("dataCorp",securityUser.getCorpId());
+			c.eq("fitemclassid", efva.getFitemclassid());
+		})).size() <= 0;
+	}
+
+	@Override
+	public boolean judgeUniqueother(EFVoucherAuxiliaryitems efva) {
+		return auxiliaryitemsDao.findAll(Specifications.where((c) -> {
+			SessionUser securityUser=SessionUser.SessionUser();
+			c.eq("dataCorp",securityUser.getCorpId());
+			c.eq("fitemclassid", efva.getFitemclassid());
+			c.eq("fnumber", efva.getFnumber());
+			c.eq("fname", efva.getFname());
+		})).size() <= 0;
+	}
+
+	@Override
+	public Result deleteById(String Id) {
+
+			auxiliaryitemsDao.deleteById(Id);
+			return Result.resultOkMsg("删除成功");
+
+	}
+
+	@Override
+	public List<EFVoucherAuxiliaryitems> findAll() {
+		return auxiliaryitemsDao.findAll();
+	}
+}

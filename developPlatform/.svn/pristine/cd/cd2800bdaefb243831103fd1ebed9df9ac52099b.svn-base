@@ -1,0 +1,267 @@
+package com.tengzhi.app.jy.service.impl;
+
+import cn.hutool.json.JSONArray;
+import com.tengzhi.app.jy.dao.JYJianCeDao;
+import com.tengzhi.app.jy.dao.JYJianYanDao;
+import com.tengzhi.app.jy.dao.JYLuHaoDao;
+import com.tengzhi.app.jy.dao.JYMainDao;
+import com.tengzhi.app.jy.service.JYService;
+import com.tengzhi.business.cg.yw.purchaseReceipt.dao.ECkInDao;
+import com.tengzhi.business.ck.yw.ckck.dao.ECkOutDao;
+import com.tengzhi.business.finance.checkout.model.CheckOut;
+import com.tengzhi.business.finance.constituent.model.EPzJyList;
+import com.tengzhi.business.finance.constituent.model.EPzJylistLh;
+import com.tengzhi.business.quality.qualityDetection.productDetection.model.EPzJylistJc;
+import com.tengzhi.tools.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class JYServiceImpl implements JYService {
+
+    @Autowired
+    ECkOutDao eCkOutDao;
+
+    @Autowired
+    ECkInDao eCkInDao;
+
+    @Autowired
+    JYMainDao jyMainDao;
+
+    @Autowired
+    JYLuHaoDao jyLuHaoDao;
+
+    @Autowired
+    JYJianYanDao jyJianYanDao;
+
+    @Autowired
+    JYJianCeDao jyJianCeDao;
+
+    /**
+     * 查询检验类型
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectTestType(String paramType,String parentId) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.param_id,s.parent_id,s.param_name,s.param_type,s.param_value1 from sys_param s " +
+                " WHERE s.param_type='"+paramType+"' and s.parent_id='"+parentId+"' ORDER BY param_ord ASC";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 查询检验档案大类
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectTestBigClass(String paramType,String parentId1,String parentId2,String parentId3,String parentId4) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.param_id,s.parent_id,s.param_name,s.param_type from sys_param s " +
+                " WHERE s.param_type='"+paramType+"' and s.parent_id='"+parentId1+"' or s.parent_id='"+parentId2
+                +"' or s.parent_id='"+parentId3+"' or s.parent_id='"+parentId4+"' ORDER BY s.parent_id='"+parentId4
+                +"', s.parent_id='"+parentId3+"', s.parent_id='"+parentId2+"',s.parent_id='"+parentId1+"' DESC,s.param_id ASC";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 查询检测档案大类
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectDetectBigClass(String parentId1,String parentId2) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.param_id,s.parent_id,s.param_name,s.param_type from sys_param s " +
+                " WHERE s.parent_id='"+parentId1+"' or s.parent_id='"+parentId2 +"'";
+        rmap.put("data", eCkOutDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+
+
+    /**
+     * 从工程表里里查询该包装号的详细信息
+     */
+    @Override
+    public Map<String, Object> selectTestPackInfo(String pack){
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.in_rq,s.in_note,s.in_customer,s.in_act,s.in_code,s.in_js AS js,s.in_sl AS sl," +
+                "s.in_zl AS zl,s.in_pack,s.in_bpack,s.in_price,s.in_contract,s.in_kfcontract,s.in_kfcode," +
+                "s.in_lib,s.in_checkflag,s.in_month,s.in_type AS dtype,s.in_luono,s.in_vnote,s.in_flag," +
+                "s.data_man,s.data_date,s.data_corp,s.in_bz,s.in_tax,s.in_rate,s.in_hs," +
+                "s.in_cklib,s.in_lyr,s.brand,s.in_man,s.in_date," +
+                "a.cpcode_id,a.cpcode_name,a.cpcode_name_en,a.cpcode_size,a.cpcode_size_en " +
+                "FROM e_ck_in s LEFT JOIN e_js_cpcode a ON s.in_code=a.cpcode_id WHERE s.in_pack='"+pack+"'";
+        rmap.put("data", eCkInDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return rmap;
+    }
+
+    /**
+     * 根据大类查询小类信息
+     * @param bigClass  大类
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectSmallClass(String bigClass) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.param_id,s.parent_id,s.param_name,s.param_type from sys_param s " +
+                " WHERE s.parent_id='"+bigClass+"'";
+        rmap.put("data", eCkInDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return  rmap;
+    }
+    /**
+     * 插入炉号检验信息和主表检验信息
+     */
+    @Override
+    public void insertLuHao(String jyInfo,String listJy,String type) {
+        JSONArray array = new JSONArray(jyInfo);
+        List<EPzJylistLh> jyLuHaoList = array.toList(EPzJylistLh.class);
+        jyLuHaoList.forEach(item ->{
+            item.setDataDate(new Date());
+            item.setDataMan("实测值");
+            item.setDataCorp("");
+            jyLuHaoDao.store(item);
+        });
+
+        if (listJy != null) {
+            EPzJyList jyMain = new EPzJyList();
+            JSONObject jsonObject = new JSONObject(listJy);
+            jyMain.setRq(new Date());
+            jyMain.setPch(jsonObject.optString("in_pack"));
+            jyMain.setCode(jsonObject.optString("in_code"));
+            jyMain.setScNo("");
+            jyMain.setTph(jsonObject.optString("in_pack"));
+            jyMain.setPchType("包装号");
+            jyMain.setCodeType(type);
+            jyMain.setStype("实测");
+            jyMain.setTjs(BigDecimal.valueOf(jsonObject.optDouble("js")));
+            jyMain.setTsl(BigDecimal.valueOf(jsonObject.optDouble("sl")));
+            jyMain.setTzl(BigDecimal.valueOf(jsonObject.optDouble("zl")));
+            jyMain.setNote(jsonObject.optString("in_note"));
+            jyMainDao.store(jyMain);
+        }
+    }
+
+    /**
+     * 插入检验信息和主表检验信息
+     */
+    @Override
+    public void insertJy(String jyInfo, String listJy,String type) {
+        JSONArray array = new JSONArray(jyInfo);
+        List<CheckOut> jyLuHaoList = array.toList(CheckOut.class);
+        jyLuHaoList.forEach(item ->{
+            item.setDataDate(new Date());
+            item.setRq(new Date());
+            item.setDataMan("实测值");
+            item.setDataCorp("");
+            jyJianCeDao.store(item);
+        });
+
+        if (listJy != null) {
+            EPzJyList jyMain = new EPzJyList();
+            JSONObject jsonObject = new JSONObject(listJy);
+            jyMain.setRq(new Date());
+            jyMain.setPch(jsonObject.optString("in_pack"));
+            jyMain.setCode(jsonObject.optString("in_code"));
+            jyMain.setScNo("");
+            jyMain.setTph(jsonObject.optString("in_pack"));
+            jyMain.setPchType("包装号");
+            jyMain.setCodeType(type);
+            jyMain.setStype("实测");
+            jyMain.setTjs(BigDecimal.valueOf(jsonObject.optDouble("js")));
+            jyMain.setTsl(BigDecimal.valueOf(jsonObject.optDouble("sl")));
+            jyMain.setTzl(BigDecimal.valueOf(jsonObject.optDouble("zl")));
+            jyMain.setNote(jsonObject.optString("in_note"));
+            jyMainDao.store(jyMain);
+        }
+    }
+
+    /**
+     * 插入检测信息和主表检验信息
+     */
+    @Override
+    public void insertJC(String jyInfo, String listJy,String type) {
+        JSONArray array = new JSONArray(jyInfo);
+        List<EPzJylistJc> jyJianCeList = array.toList(EPzJylistJc.class);
+        jyJianCeList.forEach(item ->{
+            item.setDataDate(new Date());
+            item.setDataMan("实测值");
+            item.setDataCorp("");
+            jyJianCeDao.store(item);
+        });
+
+        if (listJy != null) {
+            EPzJyList jyMain = new EPzJyList();
+            JSONObject jsonObject = new JSONObject(listJy);
+            jyMain.setRq(new Date());
+            jyMain.setPch(jsonObject.optString("in_pack"));
+            jyMain.setCode(jsonObject.optString("in_code"));
+            jyMain.setScNo("");
+            jyMain.setTph(jsonObject.optString("in_pack"));
+            jyMain.setPchType("包装号");
+            jyMain.setCodeType(type);
+            jyMain.setStype("实测");
+            jyMain.setTjs(BigDecimal.valueOf(jsonObject.optDouble("js")));
+            jyMain.setTsl(BigDecimal.valueOf(jsonObject.optDouble("sl")));
+            jyMain.setTzl(BigDecimal.valueOf(jsonObject.optDouble("zl")));
+            jyMain.setNote(jsonObject.optString("in_note"));
+            jyMainDao.store(jyMain);
+        }
+    }
+
+    /**
+     * 根据材质编码和检测项查询标准值  炉号检测
+     */
+    @Override
+    public Map<String, Object> selectLHItem(String code, String item) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.pch,s.xm_code,s.xm_tvalue from e_pz_jylist_lh s " +
+                " WHERE s.pch='"+code+"' and s.xm_code='"+item+"'";
+        rmap.put("data", eCkInDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return  rmap;
+    }
+
+    /**
+     * 根据材质编码和检测项查询标准值  检验
+     */
+    @Override
+    public Map<String, Object> selectJYItem(String code, String item) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.pch,s.xm_code,s.xm_tvalue from e_pz_jylist_jy s " +
+                " WHERE s.pch='"+code+"' and s.xm_code='"+item+"'";
+        rmap.put("data", eCkInDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return  rmap;
+    }
+
+    /**
+     * 根据材质编码和检测项查询标准值  检测
+     */
+    @Override
+    public Map<String, Object> selectJCItem(String code, String item) {
+        Map<String, Object> rmap = new HashMap<String, Object>();
+        String sql="select s.pch,s.xm_code,s.xm_tvalue from e_pz_jylist_jc s " +
+                " WHERE s.pch='"+code+"' and s.xm_code='"+item+"'";
+        rmap.put("data", eCkInDao.QueryListMap(sql, null));
+        rmap.put("code", 200);
+        return  rmap;
+    }
+
+
+}

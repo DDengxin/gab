@@ -1,0 +1,51 @@
+package com.tengzhi.business.finance.voucher.service.impl;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.finance.voucher.dao.VchTemplateDao;
+import com.tengzhi.business.finance.voucher.model.VchTemplate;
+import com.tengzhi.business.finance.voucher.service.VchTemplateService;
+
+import cn.hutool.core.util.ObjectUtil;
+@Service
+@Transactional
+public class VchTemplateServiceImpl implements VchTemplateService {
+	@Autowired
+	VchTemplateDao vchTemplateDao;
+	@Override
+	public BasePage<Map<String,Object>> findAll(BaseDto baseDto) {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+        StringBuffer sqlWhere = SqlJoint.where(e -> {
+        	e.eq("ftype",map.get("ftype").toString());
+        	e.eq("dataCorp",securityUser.getCorpId());
+      });
+		String sql="select ftype,ftempassistid,ftempname,fexplanation,fusername,fischecked,fcheckname,fownerid from e_f_voucher_vchtemplate where 1=1 "
+		+" and ftempname like '%"+map.get("ftempname").toString()+"%' and"
+		+sqlWhere;
+		return vchTemplateDao.QueryToMapPage(baseDto,sql);
+	}
+    @Override
+	public BasePage<Map<String, Object>> getMxList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		SessionUser securityUser=SessionUser.SessionUser();
+		String sqlWhere = "  and ftempassistid='"+map.get("cpcodeId").toString()+"' ";
+		String sql ="select b.corp_id,b.ftempassistid,b.fentryid,(select cast(fnumber as nvarchar(100))+ffullname from ba_cw_pz_account where faccountid=b.faccountid )fnumberfullname,b.fexplanation,b.faccountid,b.fcur,b.frate,case b.fdc when 1 then '借' when -1 then '贷' else '平' end fdc,b.fcustomid,b.fdeptid,b.faccountid2,b.fsupplierid,b.funit,b.fprojectid,b.fempid,b.finventoryid,b.fvalue,b.fqty,b.fprice,b.fvctemplateid from ba_cw_pz_vchtemplate a,Ba_cw_pz_vchtemplateentry b where a.ftempassistid=b.ftempassistid and a.data_corp=b.data_corp "
+					+sqlWhere
+		+ "  and b.corp_id='" +securityUser.getCorpId() + "'";
+		String countsql="select count(*) from ("+sql+")t";
+		return vchTemplateDao.QueryToMapPage(baseDto, sql);
+	}
+
+}

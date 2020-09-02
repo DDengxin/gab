@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>委外加工合同单选页面(采购)</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="加工类型">
+            <input class="mini-combobox" id="htType" name="htType" url="/system/parameter/getParamsSelectList/技术/产品大类" onvaluechanged="onStypeChanged" style="width:90px;"/>
+        </label>
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110px"/>
+        </label>
+        <label class="hmq-label" text="编码">
+            <input class="mini-textbox" name="srchCode" width="100px"/>
+        </label>
+        <label class="hmq-label" text="销售客户">
+            <input id="srchSupplier" class="mini-buttonedit" name="srchSupplier" width="150px" onbuttonclick="onSupplierClick"/>
+        </label>
+        <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+        <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="closeWindow('cancel')">取消</a>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" onrowdblclick="onRowDblClick" style="width:100%;height:100%;"
+         idField="id" selectOnLoad="true"
+         sizeList="[50,100,200]" pageSize="100" multiSelect="true" showColumnsMenu="true"
+         url="/sale/processProduct/processContract/list.html" sortMode="client">
+        <div property="columns">
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div tz:datagrid="column" field="htDate" width="100" align="center">日期</div>
+            <div tz:datagrid="column" field="htNo" width="120" align="center">合同编号</div>
+            <div tz:datagrid="column" field="htType" width="80" align="center">业务方式</div>
+            <div tz:datagrid="column" field="htItemType" width="80" align="center">合同类别</div>
+            <div tz:datagrid="column" field="htCustomer" displayField="htCustomerName" width="120" align="left">客户</div>
+            <div tz:datagrid="column" field="htSl" width="100" align="right" numberFormat="#,0.0000">数量</div>
+            <div tz:datagrid="column" field="htJe" width="100" align="right" numberFormat="#,0.00">金额</div>
+            <div tz:datagrid="column" field="dataMan" width="100" align="center">业务员</div>
+            <div tz:datagrid="column" field="htFlag" width="100" align="center">状态</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("srch_grid");
+    var form = new mini.Form("form1");
+    grid.bindSearchForm(form);
+    //隐藏件数重量列
+    grid.hideColumn("htjs");
+    grid.hideColumn("htzl");
+
+
+    function onStypeChanged(e) {
+        var htType = mini.get("htType").getValue();
+        if (htType) {
+            hmq.business.dynamicProductParams(htType, {
+                miniDataGrid: grid,
+                success: function (map, res) {
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+            search_option();
+        }
+    }
+
+    /**
+     * 本地筛选
+     **/
+    function search_option() {
+        grid.load();
+    }
+
+    /**
+     渲染方法
+     */
+    function onActionRenderers(e) {
+        var record = e.record;
+        if (e.field == "httax") {
+            if (e.value != null) {
+                return e.value * 100 + "%";
+            }
+        }
+    }
+
+
+    function SetData(data) {
+        data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+        mini.get("htType").setValue(data.sid);
+        //动态列转换
+        hmq.business.dynamicProductParams(data.sid, {
+            miniDataGrid: grid,
+            success: function (map, res) {
+            },
+            error: function (res) {
+                hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+            }
+        });
+        mini
+        search_option();
+    }
+
+    function confirm() {
+        CloseWindow("ok");
+    }
+
+    function GetData() {
+        var row = grid.getSelected();
+        return row;
+    }
+
+    function GetMutiData() {
+    }
+
+    function onRowDblClick(e) {
+        confirm();
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+
+    /**
+     * 供货单位选择页面
+     */
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            title: "【供货单位】选择页面",
+            width: 750,
+            data: "S",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+package com.tengzhi.business.platform.specialist.product.service.impl;
+
+import cn.hutool.core.util.ObjectUtil;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.Specifications;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.base.publicinterfac.ProductType;
+import com.tengzhi.business.js.product.model.Jscpcode;
+import com.tengzhi.business.platform.form.dao.DynamicFormDetailSqlDao;
+import com.tengzhi.business.platform.form.dao.DynamicFormSqlDao;
+import com.tengzhi.business.platform.specialist.product.dao.MyJscpcodeDao;
+import com.tengzhi.business.platform.specialist.product.service.MyJscpcodeService;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional
+public class MyJscpcodeServiceImpl implements MyJscpcodeService {
+    @Autowired
+    private MyJscpcodeDao myJscpcodeDao;
+
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+
+    @Override
+    public Result findAll(BaseDto baseDto) throws IOException {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        Map<String, String> map = baseDto.getParamsMap();
+        String cpcodeType = map.get("cpcodeType");
+        String where = " where cpcode_type = '" + map.get("cpcodeType") + "' ";
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeId"))) {
+            where += " and a.cpcode_id ='" + map.get("cpcodeId") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeName"))) {
+            where += " and a.cpcode_name  = '" + map.get("cpcodeName") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeSize"))) {
+            where += " and a.cpcode_size  = '" + map.get("cpcodeSize") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeNameEn"))) {
+            where += " and a.cpcode_name_en like '%" + map.get("cpcodeNameEn") + "%'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeFl"))) {
+            where += " and a.cpcode_fl = '" + map.get("cpcodeFl") + "'";
+        }
+        if (ObjectUtil.isNotEmpty(map.get("cpcodeCheck"))) {
+            where += " and a.cpcode_check = '" + map.get("cpcodeCheck") + "'";
+        }
+        String func = "";
+        /*if (ProductType.WL.equals(cpcodeType)) {
+            func = " cpcode_size_en";
+        } else if (ProductType.CP.equals(cpcodeType)) {
+                func = " cpcode_size_en";
+        } else {
+            func = " f_get_param_name('原料产地',cpcode_size_en,'cn') cpcode_size_en";
+        }*/
+        String sqlString = "select cpcode_fl, "
+                +" cpcode_name,"
+                +" f_get_param_name('检验档案',cpcode_check,'cn') cpcode_check , "
+                +" cpcode_id,cpcode_name_en,cpcode_size, f_get_param_name('计量单位',cpcode_bz,'cn') cpcode_bz,(select param_name from sys_param where param_mod='平台参数' and param_type='表单配置' and  param_id = cpcode_xp) as cpcode_xp_name,cpcode_xp, "
+                +" f_get_param_name('大包单位',cpcode_dunit,'cn') cpcode_dunit, cpcode01,cpcode02,cpcode03,cpcode_flag,cpcode_pb,cpcode_sm,cpcode_type,"
+                +" cpcode_lower,cpcode_upper,cpcode_stock_warn,cpcode_size_en,product_description" +
+                " ,status,service_description,cover_picture,room_picture,product_project,product_piece,"
+                //+ func
+                + "(select param_name from sys_param where param_mod='平台参数' and param_type='表单配置' and  param_id = cpcode_fl) as cpcode_fname" +
+                " from "
+                + "e_js_cpcode a " + where;
+        return Result.formPage(myJscpcodeDao.QueryhumpMap(sqlString),myJscpcodeDao.QueryhumpMap(sqlString).size());
+    }
+    @Autowired
+    private DynamicFormSqlDao dynamicFormSqlDao;
+    @Override
+    public Result findById(String cpcodeId,String cpcodeXp) {
+        String sql = "select dyn.*,code.* from e_js_cpcode code";
+        sql += " left join (" + dynamicFormSqlDao.getSql(cpcodeXp)+") dyn on dyn.associated_form_key = code.cpcode_id ";
+        sql += SqlJoint.where(e -> {
+            e.eq("cpcode_id", cpcodeId);
+        }, true);
+        Map<String,Object> map=myJscpcodeDao.QueryhumpMap(sql).get(0);
+        return Result.resultOk(map);
+    }
+
+    @Override
+    public Result findByCpcodeId(String cpcodeId) {
+        return Result.resultOk(myJscpcodeDao.findById(cpcodeId).orElse(null));
+    }
+
+    @Autowired
+    private DynamicFormDetailSqlDao dynamicFormDetailSqlDao;
+    @Override
+    public Jscpcode save(Jscpcode jscpcode,Map<String,Object> configForm) throws Exception {
+        SessionUser sessionUser = SessionUser.SessionUser();
+        //自动/手动编码规则判断
+        ProductType productType = ProductType.valueOfParamId(jscpcode.getCpcodeType());
+        if(productType.isAutomaticCoding()){
+            jscpcode.setCpcodeId(sysGenNoteService.getNote(Jscpcode.class, jscpcode.getCpcodeType(), "", 6));
+        }else if(StringUtils.isEmpty(jscpcode.getCpcodeId())){
+            throw new Exception("编码不得为空");
+        }else{
+            jscpcode.setCpcodeId(jscpcode.getCpcodeId().trim());
+        }
+        if (judgeUnique(jscpcode)) {
+            jscpcode.setProductSales(0);
+            jscpcode.setStatus("登记");
+            jscpcode.setDataRq(new Date());
+            jscpcode.setDataMan(sessionUser.getUserId());
+            jscpcode.setDataCorp(sessionUser.getCorpId());
+            dynamicFormDetailSqlDao.saveDynamicFormDetail(jscpcode.getCpcodeFl(),jscpcode.getCpcodeId(), "e_js_cpcode",configForm);
+            return myJscpcodeDao.save(jscpcode);
+        } else {
+            throw new Exception("编码已存在");
+        }
+    }
+
+    @Override
+    public void update(Jscpcode jscpcode,Map<String,Object> configForm) {
+        dynamicFormDetailSqlDao.updataDynamicFormDetail(jscpcode.getCpcodeFl(),jscpcode.getCpcodeId(), "e_js_cpcode",configForm);
+        myJscpcodeDao.dynamicSave(jscpcode, myJscpcodeDao.findById(jscpcode.getCpcodeId()).orElse(null));
+    }
+
+    @Override
+    public boolean judgeUnique(Jscpcode jscpcode) {
+        return myJscpcodeDao.findAll(Specifications.where((c) -> {
+            c.eq("cpcodeId", jscpcode.getCpcodeId());
+        })).size() <= 0;
+    }
+
+    @Override
+    public void deleteById(String Id) {
+        myJscpcodeDao.deleteById(Id);
+    }
+
+    @Override
+    public List<Map<Object, String>> parameType() {
+
+        return myJscpcodeDao.parameType();
+    }
+
+}

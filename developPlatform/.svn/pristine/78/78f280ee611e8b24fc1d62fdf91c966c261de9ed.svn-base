@@ -1,0 +1,234 @@
+package com.tengzhi.business.cg.yw.purchaseReceiptNotice.service.impl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import com.tengzhi.base.security.common.model.SessionUser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SecurityUser;
+import com.tengzhi.business.base.publicinterfac.IUserConstants;
+import com.tengzhi.business.cg.yw.purchaseReceipt.model.ECkIn.ECkIn_PK;
+import com.tengzhi.business.cg.yw.purchaseReceiptNotice.dao.ECkReceivingNoticeDao;
+import com.tengzhi.business.cg.yw.purchaseReceiptNotice.model.ECkReceivingNotice;
+import com.tengzhi.business.cg.yw.purchaseReceiptNotice.model.ECkReceivingNotice.ECkReceivingNotice_PK;
+import com.tengzhi.business.cg.yw.purchaseReceiptNotice.service.PurchaseReceiptNoticeService;
+import com.tengzhi.business.cg.yw.purchaseReceiptNotice.vo.ECkReceivingNoticeVo;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.service.SysParamService;
+
+import cn.hutool.core.util.ObjectUtil;
+
+@Service
+@Transactional
+public class PurchaseReceiptNoticeServiceImpl implements PurchaseReceiptNoticeService {
+
+	@Autowired
+	private ECkReceivingNoticeDao eCkReceivingNoticeDao;
+	
+	@Autowired
+	private SysGenNoteService sysGenNoteService;
+	
+	@Autowired
+	private SysParamService sysParamService;
+	
+	@Override
+	public BasePage<ECkReceivingNotice> getSrchTopList(BaseDto baseDto) throws Exception {
+		Map<String, String> map = baseDto.getParamsMap();
+		
+		String sqlWhere = " where sh_act in (select param_id from sys_param where param_name ='"+IUserConstants.cgrk+"' )    ";
+		if(ObjectUtil.isNotEmpty(map.get("srchRq1"))) {
+            sqlWhere+=" and a.sh_rq >='"+map.get("srchRq1")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchRq2"))) {
+            sqlWhere+=" and a.sh_rq <='"+map.get("srchRq2")+"' ";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchNote"))) {
+            sqlWhere+=" and a.sh_note like '%"+map.get("srchNote")+"%'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchSupplier"))) {
+            sqlWhere+=" and a.sh_customer = '"+map.get("srchSupplier")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("srchFlag"))) {
+            sqlWhere+=" and a.sh_flag = '"+map.get("srchFlag")+"'";
+        }
+		if(ObjectUtil.isNotEmpty(map.get("shType"))) {
+            sqlWhere+=" and a.sh_type = '"+map.get("shType")+"'";
+        }
+		String sql = "select sh_rq,sh_note,f_getname('GETDWEXP',sh_customer,'',data_corp)customername,sh_customer,f_get_param_name('仓库收发',sh_act) actname,f_get_param_name('库房档案',sh_lib) libname,sh_lib,sum(sh_sl)sh_sl,sh_act,sh_type,sh_flag,f_getname('GETUSERNAME',data_man,'',data_corp)data_man "
+				+ " from e_ck_receiving_notice a "+sqlWhere+" group by sh_rq,sh_note,sh_customer,sh_lib,sh_act,sh_type,data_corp,sh_flag,data_man  ";
+		return eCkReceivingNoticeDao.QueryPageLists(baseDto,sql +"  order by sh_rq desc,sh_note desc ");
+	}
+
+	@Override
+	public BasePage<Map<String, Object>> getSrchBottomList(BaseDto baseDto) throws IOException {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object shNote = map.get("shNote");
+		String sql = "  select f_getparamname('GETCPCODEXP',cp.cpcode_xp,'','技术',cpcode_type,'')  as  cpcode_xp_name,\r\n" + 
+				" f_getparamname('GETCPCODESIZE',cp.cpcode_size,'','技术',cpcode_type,'') as  cpcode_size_name , "
+				+ "f_getparamname('GETCPCODESIZEEN',cp.cpcode_size_en,'','技术',cpcode_type,'') as  cpcode_size_en_name,"
+				+ " ck.sh_contract,ck.sh_code,ck.sh_sl,ck.sh_ceiling,ck.sh_lower,  cpcode_size,cpcode_size_en,"
+				+ "cpcode_xp,f_getparamname('GETBYCPCODEFL', cp.cpcode_fl, '', '技术', cpcode_type, '') cpcode_fl,"
+				+ " f_getparamname('GETBYPARENTID',cp.cpcode_bz,'计量单位','技术','','')   cpcode_bz,"
+				+ "f_getparamname('GETBCPCODENAME',cp.cpcode_name,'','技术',cpcode_type,'')   cpcode_name,  "
+				+ "sh_price,sh_hs,sh_price*sh_sl sh_je from e_ck_receiving_notice ck,e_js_cpcode cp where ck.sh_code=cp.cpcode_id and sh_note='" + shNote + "' ";
+	//	return eCkReceivingNoticeDao.QueryNoPageLists(sql);
+		return  eCkReceivingNoticeDao.QueryMapPageList(baseDto, sql, true);
+	}
+
+	@Override
+	public Result save(ECkReceivingNoticeVo eCkReceivingNoticeVo) throws Exception {
+		List<ECkReceivingNotice> addECkReNos = new ArrayList<ECkReceivingNotice>();
+		List<ECkReceivingNotice> modifyedECkReNos = new ArrayList<ECkReceivingNotice>();
+		String parameterId=sysParamService.getParamId(eCkReceivingNoticeVo.geteCkRe().getShType(),IUserConstants.cgrk);
+		String note = sysGenNoteService.getyyMMNote4(ECkReceivingNotice.class, parameterId);
+		SessionUser securityUser=SessionUser.SessionUser();
+		//新增
+		for(int i=0;i<eCkReceivingNoticeVo.getAddedList().size();i++) {
+			ECkReceivingNotice model = eCkReceivingNoticeVo.getAddedList().get(i);
+			model.setShNote(note);
+			model.setShAct(parameterId);
+			model.setShFlag("登记");
+			model.setDataMan(securityUser.getUserId());  
+			model.setDataRq(new Date());               
+			model.setDataCorp(securityUser.getCorpId()); 
+			model.setShCeiling(model.getShSl().multiply(new BigDecimal("0.05")));//误差5%
+			model.setShLower(model.getShSl().multiply(new BigDecimal("-0.05")));
+			addECkReNos.add(model);
+		}
+		
+		for(int i=0;i<eCkReceivingNoticeVo.getModifyedList().size();i++) {
+			ECkReceivingNotice model = eCkReceivingNoticeVo.getModifyedList().get(i);
+			model.setShNote(note);
+			model.setShAct(parameterId);
+			model.setShFlag("登记");
+			model.setDataMan(securityUser.getUserId());  
+			model.setDataRq(new Date());               
+			model.setDataCorp(securityUser.getCorpId()); 
+			model.setShCeiling(model.getShSl().multiply(new BigDecimal("0.05")));//误差5%
+			model.setShLower(model.getShSl().multiply(new BigDecimal("-0.05")));
+			modifyedECkReNos.add(model);
+		}
+		
+		//开始保存到数据库
+		if (!addECkReNos.isEmpty()) {
+			addECkReNos.forEach(item -> {
+				eCkReceivingNoticeDao.save(item);
+			});
+		}
+		if (!modifyedECkReNos.isEmpty()) {
+			modifyedECkReNos.forEach(item -> {
+				eCkReceivingNoticeDao.dynamicSave(item, eCkReceivingNoticeDao.findById(new ECkReceivingNotice_PK(note, item.getShCode())).orElse(null));
+			});
+		}
+		if (!eCkReceivingNoticeVo.getDeletedList().isEmpty()) {
+			eCkReceivingNoticeVo.getDeletedList().forEach( item ->{
+				ECkReceivingNotice_PK pk = new ECkReceivingNotice_PK(eCkReceivingNoticeVo.geteCkRe().getShNote(),item.getShCode() );
+				eCkReceivingNoticeDao.deleteById(pk);
+			});
+		}
+		//end
+		return Result.resultOk(eCkReceivingNoticeVo.geteCkRe());
+	}
+
+	@Override
+	public Result update(ECkReceivingNoticeVo eCkReceivingNoticeVo) throws Exception {
+		List<ECkReceivingNotice> addECkReNos = new ArrayList<ECkReceivingNotice>();
+		List<ECkReceivingNotice> modifyedECkReNos = new ArrayList<ECkReceivingNotice>();
+		String parameterId=sysParamService.getParamId(eCkReceivingNoticeVo.geteCkRe().getShType(),IUserConstants.cgrk);
+		SessionUser sessionUser=SessionUser.SessionUser();
+		//新增
+		for(int i=0;i<eCkReceivingNoticeVo.getAddedList().size();i++) {
+			ECkReceivingNotice model = eCkReceivingNoticeVo.getAddedList().get(i);
+			model.setShNote(eCkReceivingNoticeVo.geteCkRe().getShNote());
+			model.setShAct(parameterId);
+			model.setShFlag("登记");
+			model.setDataMan(sessionUser.getUserId());
+			model.setDataRq(new Date());               
+			model.setDataCorp(sessionUser.getCorpId());
+			model.setShCeiling(model.getShSl().multiply(new BigDecimal("0.05")));//误差5%
+			model.setShLower(model.getShSl().multiply(new BigDecimal("-0.05")));
+			addECkReNos.add(model);
+		}
+		
+		for(int i=0;i<eCkReceivingNoticeVo.getModifyedList().size();i++) {
+			ECkReceivingNotice model = eCkReceivingNoticeVo.getModifyedList().get(i);
+			model.setShNote(eCkReceivingNoticeVo.geteCkRe().getShNote());
+			model.setShAct(parameterId);
+			model.setShFlag("登记");
+			model.setDataMan(sessionUser.getUserId());
+			model.setDataRq(new Date());               
+			model.setDataCorp(sessionUser.getCorpId());
+			model.setShCeiling(model.getShSl().multiply(new BigDecimal("0.05")));//误差5%
+			model.setShLower(model.getShSl().multiply(new BigDecimal("-0.05")));
+			modifyedECkReNos.add(model);
+		}
+		
+		//开始保存到数据库
+		if (!addECkReNos.isEmpty()) {
+			addECkReNos.forEach(item -> {
+				eCkReceivingNoticeDao.save(item);
+			});
+		}
+		if (!modifyedECkReNos.isEmpty()) {
+			modifyedECkReNos.forEach(item -> {
+				eCkReceivingNoticeDao.dynamicSave(item, eCkReceivingNoticeDao.findById(new ECkReceivingNotice_PK(eCkReceivingNoticeVo.geteCkRe().getShNote(), item.getShCode())).orElse(null));
+			});
+		}
+		if (!eCkReceivingNoticeVo.getDeletedList().isEmpty()) {
+			eCkReceivingNoticeVo.getDeletedList().forEach( item ->{
+				ECkReceivingNotice_PK pk = new ECkReceivingNotice_PK(eCkReceivingNoticeVo.geteCkRe().getShNote(),item.getShCode() );
+				eCkReceivingNoticeDao.deleteById(pk);
+			});
+		}
+		//end
+		//修改表头 
+		//end
+		return Result.resultOk(eCkReceivingNoticeVo.geteCkRe());
+	}
+
+	@Override
+	public ECkReceivingNotice findByInNote(String shNote) {
+		ECkReceivingNotice in=new ECkReceivingNotice();
+		 String sqlString=" select *,(f_getname('GETDWEXP',sh_customer,'',data_corp)) customername from E_Ck_Receiving_Notice where sh_Note ='"+shNote+"' ";
+		 BasePage<ECkReceivingNotice> list=eCkReceivingNoticeDao.QueryNoPageLists(sqlString);
+		 if(list.getContent().size()>0) {
+			 in=list.getContent().get(0);
+		 }		 
+		 return  in;
+	}
+
+	@Override
+	public void deleteByNote(String shNote) {
+		eCkReceivingNoticeDao.deleteByNote(shNote);
+
+	}
+
+	@Override
+	public Result getFlag(String shNote, String flag) {
+		String flagString=eCkReceivingNoticeDao.getFlag(shNote);
+		if(flag.equals(flagString)) {
+			return  Result.resultOk("操作成功！");
+		}
+		return  Result.error("该单不是“"+flag+"”状态,不能操作！");
+	}
+
+	@Override
+	public Result setFlag(String shNote, String flag) {
+		eCkReceivingNoticeDao.setFlag(shNote,flag);
+		return  Result.resultOk("操作成功！");
+	}
+
+}

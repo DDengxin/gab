@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>档案授权</title>
+</th:block>
+</head>
+<body>
+    <form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<label class="hmq-label" text="单号">
+					<input class="mini-textbox" id="arNote" name="arNote" />
+				</label>
+				<label class="hmq-label" text="标题">
+					<input class="mini-textbox" id="arTitle" name="arTitle" />
+				</label>
+				<label class="hmq-label" text="关联用户">
+					<input class="mini-textbox" id="linkUserName" name="linkUserName" />
+				</label>
+				<label class="hmq-label" text="授权人">
+					<input class="mini-textbox" id="genUserName" name="genUserName" />
+				</label>
+			</th:block>
+		</th:block>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="arUuid" url="/system/fileauth/queryall">
+			<div property="columns">
+				<div tz:datagrid="indexcolumn"></div>
+				<div tz:datagrid="column" field="arNote" width="150">单号</div>
+				<div tz:datagrid="column" field="arType" displayField="arTypeName" width="120">类型</div>
+				<div tz:datagrid="column" field="arLocation" displayField="arLocationName" width="120">区位</div>
+				<div tz:datagrid="column" field="arSecrecy" displayField="arSecrecyName" width="120">密级</div>
+				<div tz:datagrid="column" field="arTitle" width="200">标题</div>
+				<div tz:datagrid="column" field="linkUserId" displayField="linkUserName" width="200">关联用户</div>
+				<div tz:datagrid="column" field="genUserId" displayField="genUserName" width="80">授权人</div>
+				<div tz:datagrid="column" field="genTime" width="120" renderer="onActionRenderer" align="center" >授权时间</div>
+				<div tz:datagrid="column" width="100%"></div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form_home");
+		var grid = mini.get("srch_grid");
+		grid.bindSearchForm(form);
+		function search_option() {
+			grid.load();
+		}
+
+		 function auth_option() {
+		        var row = grid.getSelected();
+		        if (row) {
+		            miniopen({url: 'findUserAuthTree.html', title: "【档案文库】授权", data: {arNote: row.arNote}, width: 500, height: 620});
+		        } else {
+		            hmq.tipDanger("请选中一条记录！");
+		        }
+		    }
+
+
+	    function delete_option(){
+	        var row = grid.getSelected();
+	        if (row) {
+	            mini.confirm("确定删除吗", "删除信息", function (action) {
+	                if (action == "ok") {
+	                    $['delete']("delete.html/{0}".format(row.arNote), function (res) {
+	                        if (200 === res.code) {
+	                            grid.reload();
+	                        } else {
+	                            hmq.tipDanger(res.msg);
+	                        }
+	                    });
+	                }
+	            });
+	        } else {
+	            hmq.tipDanger("请选择一条数据");
+	        }
+	    }
+
+		/**
+		 渲染方法
+		 */
+		function onActionRenderer(e) {
+			var record = e.record;
+			if (e.field == "genTime") {
+				if(record.genTime!=""&&record.genTime!=null){
+					return mini.formatDate(new Date(record.genTime), "yyyy-MM-dd HH:mm");
+				}else{
+					return "";
+				}
+			}
+		}
+	</script>
+</body>
+</html>

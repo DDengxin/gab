@@ -1,0 +1,94 @@
+package com.tengzhi.business.platform.shopping.controller;
+
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.platform.shopping.model.GShopAddr;
+import com.tengzhi.business.platform.shopping.service.AddrService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("platform/shop/address")
+public class AddrController {
+
+	@Autowired
+	private AddrService addrService;
+
+	/**
+	 * 查询购物地址信息
+	 *
+	 * @return
+	 */
+	@GetMapping("findAllAddress")
+	public Result getShoppingAll() {
+		List<Map<String, Object>> all = addrService.findAllByUserId();
+		return Result.resultOk(all);
+	}
+
+	/**
+	 * 查询购物地址默认地址信息
+	 *
+	 * @return
+	 */
+	@GetMapping("findDefaultAddress")
+	public Result findDefaultAddress() {
+		return addrService.findDefaultAddress();
+	}
+
+
+	/**
+	 * 获取单个商品信息
+	 *
+	 * @param addressNote
+	 * @return
+	 */
+	@PostMapping("getAddress")
+	public Result getSAddress(@RequestParam("addressNote") String addressNote) {
+		return addrService.findAddress(addressNote);
+	}
+
+
+    
+    /**
+     * 保存购物地址信息
+     * @param gShopAddr
+     * @return
+     */
+    @PostMapping("saveAddress")
+	public Result saveAddress(@RequestBody GShopAddr gShopAddr){
+		return addrService.saveAddress(gShopAddr);
+	}
+    
+    /**
+     * 修改默认购物地址
+     * @return
+     */
+    @PostMapping("updateDefault")
+	public Result updateDefault(String addressNote){
+		return addrService.updateDefault(addressNote);
+	}
+    
+    /**
+     * 编辑购物地址信息
+     * @param gShopAddr
+     * @return
+     */
+    @PostMapping("updateAddress")
+	public Result updateAddress(@RequestBody GShopAddr gShopAddr){
+		return addrService.updateAddress(gShopAddr);
+	}
+    
+	/**
+	 * 删除联系人地址
+	 * @param addressNote
+	 * @return
+	 */
+	@PostMapping("delAddress")
+	public Result delAddress(@RequestParam("addressNote") String addressNote){
+		return addrService.delAddress(addressNote);
+	}
+
+}

@@ -1,0 +1,28 @@
+package com.tengzhi.business.system.initdata.dao.impl;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.business.system.initdata.dao.SysInitDataDao;
+import com.tengzhi.business.system.initdata.dao.SysInitDataDaoBasic;
+import com.tengzhi.business.system.initdata.model.SysDbDo;
+import com.tengzhi.business.system.initdata.model.SysDbDo.SysDbDoPK;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.StoredProcedureQuery;
+import java.util.Map;
+
+@Repository
+public class SysInitDataDaoBasicImpl extends BasicsDaoImpl<SysDbDo, SysDbDoPK> implements SysInitDataDaoBasic {
+
+
+    @Override
+    public StoredProcedureQuery callSolveDataProduce(String themeCode,Map<String,Object> map) {
+        return super.callStore(themeCode,map);
+    }
+
+
+
+
+}
+
+

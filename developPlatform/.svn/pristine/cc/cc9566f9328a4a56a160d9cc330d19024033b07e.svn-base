@@ -1,0 +1,84 @@
+package com.tengzhi.business.project.projectArchives.projectTreams.model;
+
+import com.tengzhi.base.jpa.model.BaseModel;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "e_xm_xmxz")
+public class EXmXmxz extends BaseModel {
+    private String xmId;
+    private String workId;
+    private String workName;
+    private String xmRole;
+    private String workTel;
+    private String workMail;
+    private String workSm;
+    private String dataCorp;
+    @Id
+    public String getXmId() {
+        return xmId;
+    }
+
+    public void setXmId(String xmId) {
+        this.xmId = xmId;
+    }
+
+    public String getWorkId() {
+        return workId;
+    }
+
+    public void setWorkId(String workId) {
+        this.workId = workId;
+    }
+
+    public String getWorkName() {
+        return workName;
+    }
+
+    public void setWorkName(String workName) {
+        this.workName = workName;
+    }
+
+    public String getXmRole() {
+        return xmRole;
+    }
+
+    public void setXmRole(String xmRole) {
+        this.xmRole = xmRole;
+    }
+
+    public String getWorkTel() {
+        return workTel;
+    }
+
+    public void setWorkTel(String workTel) {
+        this.workTel = workTel;
+    }
+
+    public String getWorkMail() {
+        return workMail;
+    }
+
+    public void setWorkMail(String workMail) {
+        this.workMail = workMail;
+    }
+
+    public String getWorkSm() {
+        return workSm;
+    }
+
+    public void setWorkSm(String workSm) {
+        this.workSm = workSm;
+    }
+
+    public String getDataCorp() {
+        return dataCorp;
+    }
+
+    public void setDataCorp(String dataCorp) {
+        this.dataCorp = dataCorp;
+    }
+}

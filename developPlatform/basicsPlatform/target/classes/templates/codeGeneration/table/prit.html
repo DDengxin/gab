@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+	<title>角色管理【新增】</title>
+</th:block>
+</head>
+<body>
+	<div class="mini-fit">
+		<input name="action" class="mini-hidden" />
+		<form id="form1">
+			<input name="tablename" class="mini-hidden" id="tablename" />
+			<table class="hmq-modify-table">
+				<tr>
+					<td title>下载名称:</td>
+					<td content>
+						<input class="mini-textbox" required id="filename" name="filename" value="数据库文档" />
+					</td>
+				</tr>
+				<tr>
+					<td title>选择模板:</td>
+					<td content>
+						<input class="mini-combobox" required value="false" id="tempId" valueField="id" textField="name" name="isForbidden" url="" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div class="mini-toolbar hmq-toolbar">
+		<a class="mini-button" onclick="print" iconCls="icon-print" id="saveBtn">生成文档</a>
+	</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	var form = new mini.Form('form1');
+	function SetData(options) {
+		if ('prit' == options.action) {
+			$('[name=action]').val(options.action);
+			mini.get("tempId").setUrl('/codeGeneration/template/getList/' + options.data.type);
+			mini.get("#tablename").setValue(options.data.tabname);
+			if (mini.get("#tempId"))
+				mini.get("#tempId").select(0);
+		}
+	}
+
+	function print() {
+		if (form.validate() && form.isValid()) {
+			try {
+				form.loading();
+				var tablename = mini.get("#tablename").getValue();
+				var tempId = mini.get("#tempId").getValue();
+				var filename = mini.get("#filename").getValue();
+				window.location.href = "/codeGeneration/prit?tablename=" + tablename + "&tempId=" + tempId + "&filename=" + filename;
+			} finally {
+				form.unmask();
+			}
+		}
+	}
+</script>
+</html>

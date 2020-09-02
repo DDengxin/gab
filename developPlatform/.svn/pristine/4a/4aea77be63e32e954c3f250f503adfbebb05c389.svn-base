@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block
+            th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>资产异动</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="note"/>
+        </label>
+        <label class="hmq-label" text="资产编码">
+            <input class="mini-textbox" name="fnumber"/>
+        </label>
+        <label class="hmq-label" text="资产名称">
+            <input class="mini-textbox" name="fname"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div id="srch_grid" style="width: 100%; height: 100%;"
+         idField="ksid" url="/finance/capitalManager/capitalChange/list.html"
+         sortMode="client" showColumnsMenu="true" ajaxType="post" defaultColumnWidth="150" showPager="true" showPageInfo="false" sortField="ksid" allowSort="true"
+         align="center" class="mini-datagrid" data-pagebuttonbar="true">
+        <div property="columns">
+            <div width="35" type="indexcolumn" headerAlign="center">序号</div>
+            <div  tz:datagrid="column"  allowSort = "true"  allowResize = "true"  align = "center" width = "100"  field = "ksid"  visible="false" >主键ksid</div>
+            <div  tz:datagrid="column"  allowSort = "true"  renderer = "onActionRenderer"  allowResize = "true"  align = "center" width = "100"  field = "rq"  >日期</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "110"  field = "note"  >单号</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "fnumber">资产编码</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "fname" >资产名称</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "ftypeid" displayField="ftypeidName">资产类别</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "deviceType">类型</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "useDept" displayField="useDeptName">使用部门</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "useMan" displayField="useManName">责任人</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "managerDept" displayField="managerDeptName">管理部门</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "putArea">放置区域</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "newUseDept" displayField="newUseDeptName">新使用部门</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "newUseMan" displayField="newUseManName">新责任人</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "newPutArea">新放置区域</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "man" displayField="manName">操作人</div>
+            <div  tz:datagrid="column"  allowSort = "true"    allowResize = "true"  align = "center" width = "80"  field = "createtime">操作时间</div>
+            <div  tz:datagrid="column"  allowSort = "true"  renderer = "onActionRenderer"  allowResize = "true"  align = "center" width = "100%"    ></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_grid = mini.get("srch_grid");
+    srch_grid.bindSearchForm(form);
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        srch_grid.load();
+    }
+
+    /**
+     * 新增
+     **/
+    function add_option(e){
+        var row = srch_grid.getSelected();
+        e.sender.miniopen({url: "add.html", action: 'add', data: row,width:800});
+    }
+
+    /**查阅*/
+    function view_option(e){
+        var row = srch_grid.getSelected();
+        if(row){
+            e.sender.miniopen({url: "add.html", action: 'view', data: row,width:800});
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 修改
+     **/
+    function edit_option(e){
+        var row = srch_grid.getSelected();
+        if(row){
+            e.sender.miniopen({url: "add.html", action: 'edit', data: row,width:800});
+        }else{
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**删除*/
+    function delete_option() {
+        var row = srch_grid.getSelected();
+        if (row) {
+            mini.confirm("确定要删除吗？", "删除信息", function (action) {
+                if (action == "ok") {
+                    $['delete']("deleteById/{0}".format(row.ksid), function (res) {
+                        if (200 === res.code) {
+                            srch_grid.reload();
+                            hmq.tipSuccess("删除完成");
+                        } else {
+                            hmq.tipDanger(res.msg);
+                        }
+                    });
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+
+
+
+</script>
+
+
+</body>
+</html>

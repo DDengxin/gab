@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>订单回复</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form_home',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="类别">
+            <input class="mini-combobox" id="htStype" name="htStype" width="70px" url="/system/parameter/getCorpChainOrCorpProduction/SC" onvaluechanged="onValueChangeType" readonly="readonly" value="XC"/>
+        </label>
+
+        <label class="hmq-label" text="合同单号">
+            <input class="mini-textbox" name="htNo" width="110"/>
+        </label>
+        <label class="hmq-label" text="业务方式">
+            <input class="mini-combobox" name="htType" id="htType" url="/system/parameter/getParamsSelectListByParentId/销售/订单类型/DDLX" onvaluechanged="onHtTypeValueChanged" emptyText="全部" nullItemText="全部" showNullItem="true" width="80"/>
+        </label>
+        <label class="hmq-label" text="合同类别">
+            <input class="mini-combobox" name="htItemType" id="htItemType" emptyText="全部" nullItemText="全部" showNullItem="true" width="100"/>
+        </label>
+        <label class="hmq-label" text="客户">
+            <input name="htCustomer" emptyText="全部"
+                   allowInput="false" class="mini-buttonedit" onbuttonclick="onSupplierClick" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+
+        <label class="hmq-label" text="合同状态">
+            <input class="mini-combobox" name="htFlag" id="htFlag" textField="text" valueField="id" popupHeight="200" width="80"
+                   data="[{id:'登记',text:'登记'},{id:'确认',text:'确认'},{id:'审核中',text:'审核中'},{id:'核准',text:'核准'},{id:'核销',text:'核销'}]" emptyText="全部" nullItemText="全部" showNullItem="true"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit" >
+    <div class="mini-splitter" vertical="true" style="width: 100%; height: 100%;" borderStyle="border:0;">
+        <div size="60%" showCollapseButton="true">
+            <div class="mini-fit">
+                <div tz:datagrid="datagrid" id="srch_top_grid" idField="htNo" sortField="htDate,htNo" sortOrder="desc" sizeList="[50,100,200]" pageSize="100"
+                     onselectionchanged="onSelectionChanged" pager="#pager1"
+                     showPager="false">
+                    <div property="columns">
+                        <div tz:datagrid="indexcolumn" width="35">序号</div>
+                        <div tz:datagrid="column" field="htDate" width="100" align="center">日期</div>
+                        <div tz:datagrid="column" field="htNo" width="120" align="center">合同编号</div>
+                        <div tz:datagrid="column" field="htType" width="80" align="center">业务方式</div>
+                        <div tz:datagrid="column" field="htItemType" width="80" align="center">合同类别</div>
+                        <div tz:datagrid="column" field="htCustomer" width="140" align="left">客户</div>
+
+                        <div tz:datagrid="column" field="htSl" width="100" align="right" numberFormat="#,0.0000">数量</div>
+                        <div tz:datagrid="column" field="dataMan" width="100" align="center">业务员</div>
+                        <div tz:datagrid="column" field="htFlag" width="80" align="center">状态</div>
+                        <div tz:datagrid="column" width="100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-toolbar" style="padding: 0px; border-bottom: 1px; height: 40px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="white-space: nowrap;">
+                            <div id="pager1" class="mini-pager" showPageIndex="true" showReloadButton="false" showPageInfo="false" style="width: 380px;border: none;" sizeList="[50,100,200]"></div>
+                        </td>
+                        <td style="white-space: nowrap;" align="right" id="btnbar"/>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div showCollapseButton="true">
+            <div class="mini-fit">
+                <div class="mini-splitter" style="width:100%;height:100%;">
+                    <div size="75%" showCollapseButton="false">
+                        <div tz:datagrid="datagrid" id="srch_bottom_grid" style="width: 100%; height: 100%;" idField="htId" showPager="false" pageSize="100" multiSelect="true" showColumnsMenu="true"
+                             ondrawsummarycell="onDrawSummaryCellmx" showSummaryRow="true" sortField="htId" sortOrder="asc" onselectionchanged="onSelectionChangedHf"
+                             allowCellEdit="true" allowCellSelect="true" allowCellValid="true">
+                            <div property="columns">
+                                <div tz:datagrid="indexcolumn" width="35">序号</div>
+                                <div tz:datagrid="column" field="htId" width="60" align="center" visible="false">序号</div>
+                                <div tz:datagrid="column" field="htMo" width="120" align="left">合同明细</div>
+                                <div tz:datagrid="column" field="cpcodeXp" name="cpcodeXp" displayField="cpcodeXpName" align="left" width="100">标重</div>
+                                <div tz:datagrid="column" field="cpcodeName" name="cpcodeName" align="left" width="120">名称</div>
+                                <div tz:datagrid="column" field="cpcodeSize" name="cpcodeSize" displayField="cpcodeSizeName" align="left" width="100">规格</div>
+                                <div tz:datagrid="column" field="cpcodeSizeEn" name="cpcodeSizeEn" displayField="cpcodeSizeEnName" align="left" width="100">品牌</div>
+                                <div tz:datagrid="column" field="cpcodeFl" name="cpcodeFl" align="left" width="100">大类</div>
+
+                                <div tz:datagrid="column" field="htSl" width="80" align="right" numberFormat="#,0.0000" summaryType="sum" dataType="double">数量</div>
+                                <div tz:datagrid="column" field="htJq" width="110" align="center" dateFormat="yyyy-MM-dd">交期
+                                  <!--  <input property="editor" class="mini-datepicker"/>-->
+                                </div>
+                                <div tz:datagrid="column" field="htCode" width="100" align="center">编码</div>
+
+                                <!--  <div tz:datagrid="column" field="htFlag" width="80" align="center">状态</div>
+                                  <div tz:datagrid="column" field="htReplyMan" width="90" align="left">回复人</div>
+                                  <div tz:datagrid="column" field="htStandard" width="90" align="left">分类</div>
+                                  <div tz:datagrid="column" field="htRequirements" width="250" align="left">特殊要求</div>
+                                  <div tz:datagrid="column" field="htSm" width="250" align="left">说明</div>
+                                  <div tz:datagrid="column" field="htCustomerAssociated" width="100" align="left">客户关联合同</div>
+                                  <div tz:datagrid="column" field="htCustomerAssociatedRemarks" width="250" align="left">客户关联合同备注</div>-->
+                                <div tz:datagrid="column" width="100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div showCollapseButton="false">
+                        <div tz:datagrid="datagrid"  id ="srch_bottom_right_grid"    sortOrder="asc"
+                             allowCellEdit="true" allowCellSelect="true" multiSelect="true" editNextOnEnterKey="true" editNextRowCell="true" allowMoveColumn="true"
+                             showPager="false" allowCellValid="true" showColumnsMenu="true"
+                             showSummaryRow="true" OnCellBeginEdit="OnCellBeginEdit"  allowSortColumn="false">
+                            <div property="columns">
+                                <div tz:datagrid="indexcolumn" width="35">序号</div>
+                                <div tz:datagrid="column" field="htMo"   visible="false">mo</div>
+                                <div tz:datagrid="column" field="htCode"   visible="false">编码</div>
+                                <div tz:datagrid="column" field="htItemCode"  displayField="htItemCodeName" align="right" width="80">项目</div>
+                                <div tz:datagrid="column" field="htItemValue" align="left" width="80"  >项目值</div>
+                                <div tz:datagrid="column" field="htItemValueReply" align="left" width="80" headerStyle="color:red" >回复 </div>
+                                <div tz:datagrid="column" field="itemSid"   visible="false"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form_home");
+    var srch_topgrid = mini.get("srch_top_grid");
+    var srch_bottomgrid = mini.get("srch_bottom_grid");
+    var srch_bottom_right_grid = mini.get('srch_bottom_right_grid');
+    var surl = "/sc/pd/htps";
+    srch_bottomgrid.setUrl(surl + "/getSrchBottomList");
+    srch_topgrid.bindSearchForm(form);
+   // mini.get("htStype").select(0);
+    onValueChangeType();
+
+    function onValueChangeType() {
+        var htStype = mini.get("htStype").getValue();
+        //动态列转换
+        if (hmq.isNotEmpty(htStype)) {
+            hmq.business.dynamicProductParams(htStype, {
+                miniDataGrid: [srch_topgrid, srch_bottomgrid],
+                miniForm: form,
+                success: function (map, res) {
+                    srch_topgrid.load();
+                    srch_bottomgrid.load();
+                },
+                error: function (res) {
+                    hmq.tipDanger(res.msg || '动态数据列加载失败,请检查配置!');
+                }
+            });
+        }
+        //end
+    }
+
+    /**
+     行改变方法
+     */
+    function onSelectionChanged(e) {
+        var srch_topgrid = e.sender;
+        var record = srch_topgrid.getSelected();
+        if (record) {
+            srch_bottomgrid.load({
+                params: mini.encode({
+                    htNo: record.htNo
+                })
+            });
+        }
+    }
+    /**
+     行改变方法
+     */
+    function onSelectionChangedHf(e) {
+        var srch_bottom_left_grid = e.sender;
+        var record = srch_bottom_left_grid.getSelected();
+        if (record) {
+            srch_bottom_right_grid.setData(record.htItemData);
+        }
+    }
+    srch_topgrid.on("beforeload", function (e) {
+        var data = srch_topgrid.getSelected();
+        if (data) {
+            selectrow = srch_topgrid.getSelected().htNo;
+        }
+    });
+
+    // 页面初始化模块和类型 END
+    function onHtTypeValueChanged(e, callback) {
+        mini.get("htType").setEnabled(true);
+        if (hmq.isNotEmpty(e.sender.getValue())) {
+            mini.get("htItemType").load("/system/parameter/getParamsSelectListByParentId/销售/订单类型/{0}".format(e.sender.getValue()));
+        } else {
+            mini.get("htItemType").setData(null);
+        }
+        if ($.isFunction(callback)) {
+            callback();
+        }
+    }
+
+    function onSupplierClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            // url: "/cg/yw/purchaseFile/purchaseContract/supplierselectlist.html",
+            url: "/sale/saleArchives/customerArchives/treeCustomer.html",
+            title: "【销售客户】选择页面",
+            width: 750,
+            data: "C",
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.customerId);
+                    btnEdit.setText(data.customerExp);
+                }
+            }
+        });
+    }
+
+    function search_option() {
+        srch_topgrid.load();
+        srch_bottomgrid.setData([]);
+    }
+
+
+    function onDrawSummaryCellmx(e) {
+        if (e.field == "htCode") {
+            var s = "<span style='color:Brown;'>";
+            s += "合计:</span>";
+            e.cellHtml = s;
+        }
+        if (e.field == "htSl") {
+            var s = "<span style='color:Brown;float:right;'>";
+            s += "" + parseFloat(e.value).toFixed(4) + "</span>";
+            e.cellHtml = s;
+        }
+
+    }
+
+
+    /*function reply_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if (row.htFlag != "回复" && row.htFlag != "未回复") {
+                hmq.tipDanger('该状态不能操作！');
+                return
+            }
+            var entrydata = srch_bottomgrid.getChanges();
+            if (entrydata.length > 0) {
+                $['post']("reply", JSON.stringify({
+                    eXsContract: row,
+                    eXsContractDetailed: entrydata
+                }), function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                srch_topgrid.reload();
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+            } else {
+                hmq.tipDanger("没有修改的记录");
+            }
+
+        } else {
+            hmq.tipDanger("请选择一行记录");
+        }
+
+    }*/
+    function reply_option(e) {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if (row.htFlag != "回复" && row.htFlag != "未回复") {
+                hmq.tipDanger('该状态不能操作！');
+                return
+            }
+            e.sender.miniopen({url: 'add.html', action: 'edit', data: {row: row, formData: form.getData()}, width: 1200, height: 600});
+        } else {
+            hmq.tipDanger("请选择一行记录");
+        }
+
+    }
+
+    function confirm_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) { //row.htFlag!="回复"
+            if (row.htFlag != "回复") {
+                hmq.tipDanger('该单不是“回复”状态,不能操作！');
+            } else {
+                hmq.business.approvalConfirm({
+                    businessId: row.htNo,///Platform_wireerp/src/main/resources/templates/sc/task/ddhf/add.html
+                    url: "/sale/saleProduct/saleContract/add.html",
+                    error: function (res) {
+
+                    }
+                });
+
+            }
+
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+
+    }
+
+
+    function cancel_option() {
+        var row = srch_topgrid.getSelected();
+        if (row) {
+            if ('回复' != row.htFlag) {
+                hmq.tipDanger("当前状态不允许操作");
+            } else {
+
+                $['put']("getFlag/{0}/{1}".format(row.htNo, '回复'), function (res) {
+                    if (200 === res.code) {
+
+                        hmq.business.approvalCancel({
+                            businessId: row.htNo,
+                            error: function (res) {
+                                if (404 == res.code) {
+                                    $.put("/sc/task/ddhf/cancel/{0}".format(row.htNo), function (res) {
+                                        if (200 === res.code) {
+                                            srch_topgrid.reload();
+                                        } else {
+                                            hmq.tipDanger(res.msg);
+                                        }
+                                    });
+                                } else {
+                                    hmq.tipDanger(res.msg);
+                                }
+
+
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+
+            }
+
+        } else {
+            hmq.tipDanger("请选择一行");
+        }
+    }
+</script>
+
+</body>
+</html>
+
+

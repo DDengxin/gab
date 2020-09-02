@@ -1,0 +1,35 @@
+package com.tengzhi.business.project.projectStage.projectLine.service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.project.projectProcess.projectTask.model.EXmXmrw;
+import com.tengzhi.business.project.projectStage.projectLine.model.EXmXmlc;
+import com.tengzhi.business.project.projectStage.projectLine.vo.EXmXmlcVo;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+
+public interface ProjectLineService extends BaseService<EXmXmlc,String> {
+
+    EXmXmlc save(EXmXmlcVo vo) throws Exception;
+
+    BasePage<EXmXmlc> getList(BaseDto baseDto) throws IOException;
+
+    BasePage<Map<String, Object>> getSrchBottomList(BaseDto baseDto) throws IOException;
+
+    EXmXmlc findById(String lcNote);
+
+    EXmXmlc update(EXmXmlcVo vo);
+
+
+    void deleteByNote(String lcNote);
+
+    List<Map<String,Object>> getXmlcByXm(String xmId);
+
+    List<Map<String,Object>> getXmNodeByJd(String xmId,String xmStage);
+
+}

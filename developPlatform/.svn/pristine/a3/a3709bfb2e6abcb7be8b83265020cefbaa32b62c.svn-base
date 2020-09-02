@@ -1,0 +1,80 @@
+package com.tengzhi.business.sc.tj.scrw.service.impl;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.extension.SqlJoint;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.business.sc.tj.scrw.service.ScrwService;
+import com.tengzhi.business.sc.task.sctack.dao.ScTackDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.Map;
+
+@Service
+@Transactional
+public class ScrwServiceImpl  implements ScrwService {
+
+    @Autowired
+    private ScTackDao rwdao;
+
+    //任务单统计
+    @Override
+    public BasePage<Map<String, Object>> findAll(BaseDto basedto) throws IOException {
+        Map<String, String> map = basedto.getParamsMap();
+        SessionUser securityUser = SessionUser.SessionUser();
+        String cpid = securityUser.getCorpId();
+
+
+
+       String where = SqlJoint.whereSuffixWhere((c) -> {
+            c.eq("data_corp", cpid,true);
+            c.contains("parName", map.get("srchScmo"));
+           c.contains("code", map.get("srchCode"));
+           c.contains("cpcode_size", map.get("srchSize"));
+        });
+        String sqlString=" select *,f_getname('GETJTNAMES', gx_ct, '', '') ct_name from (" +
+                 " select 'ROOT' pid,a.sc_mo,a.sc_mo parName,a.sc_mo||'--工艺:'||f_getname('GETGYNAME',a.sc_gylx,'','') sc_mo_name,a.code,b.cpcode_name,b.cpcode_size,'' gx_ct,a.scsl jh_sl,0 wc_sl,0 ww_sl,0 bl_sl,0 gx_ord,a.data_corp,'' sc_man from m_sc_scrw a,e_js_cpcode b where a.code=b.cpcode_id "+
+                 " union all \n" +
+                 " select a.sc_mo pid,a.gx_id sc_mo,a.sc_mo parName,f_getname('GETGXNAME', a.gx_id, '', '')  sc_mo_name,a.tcode,a.tname,a.tsize,a.gx_ct,gx_sl jh_sl,'2' wc_sl,'3' ww_sl,'4' bl_sl,a.gx_ord,b.data_corp,(select f_getname('USERNAMERWTOCOL',gc.do_man, '', '') from m_sc_gclist gc where gc.sc_mo=a.sc_mo and gc.gx=a.gx_id group by gc.do_man) sc_man from m_sc_scrw_gx a,m_sc_scrw b where a.sc_mo=b.sc_mo ) t   "+where;
+        return rwdao.QueryToMapPage(basedto,sqlString);
+    }
+
+    //工序统计
+    @Override
+    public BasePage<Map<String, Object>> findGxAll(BaseDto basedto) throws IOException {
+        Map<String, String> map = basedto.getParamsMap();
+        SessionUser securityUser = SessionUser.SessionUser();
+        String cpid = securityUser.getCorpId();
+        String where = SqlJoint.whereSuffixWhere((c) -> {
+            c.eq("data_corp", cpid,true);
+            c.eq("parName", map.get("srchScgx"));
+        });
+        String sqlString=" select * ,'待完善' sc_man from (" +
+                " select 'ROOT' pid,gx_id,gx_id parName,gx_id||'T' gx_acm,'' tname,'' tsize,'' gx_ct,sum(gx_sl) jh_sl,0 wc_sl,0 ww_sl,0 bl_sl,b.data_corp from m_sc_scrw_gx a,m_sc_scrw b where a.sc_mo=b.sc_mo group by a.gx_id,b.data_corp\n" +
+                " union all \n" +
+                " select gx_id AS pid, tcode AS gx_id,gx_id parName,gx_id||tcode gx_acm, tname, tsize, gx_ct , sum(gx_sl) AS jh_sl, 0 AS wc_sl, 0 AS ww_sl, 0 AS bl_sl, b.data_corp FROM m_sc_scrw_gx a, m_sc_scrw b WHERE a.sc_mo = b.sc_mo GROUP BY gx_id,tcode,tname, tsize, gx_ct,b.data_corp "+
+                ") t  "+where;
+        return rwdao.QueryToMapPage(basedto,sqlString);
+    }
+
+    //机台统计
+    @Override
+    public BasePage<Map<String, Object>> findJtAll(BaseDto basedto) throws IOException {
+        Map<String, String> map = basedto.getParamsMap();
+        SessionUser securityUser = SessionUser.SessionUser();
+        String cpid = securityUser.getCorpId();
+
+        String where = SqlJoint.whereSuffixWhere((c) -> {
+            c.eq("data_corp", cpid,true);
+            c.eq("parName", map.get("srchScct"));
+        });
+        String sqlString=" select *,'待完善' sc_man from (" +
+                " select 'ROOT' pid,gx_ct,gx_ct parName,gx_ct||'C' gx_acm,'' tcode,'' tname,'' tsize,sum(gx_sl) jh_sl,0 wc_sl,0 ww_sl,0 bl_sl,b.data_corp from m_sc_scrw_gx a,m_sc_scrw b where a.sc_mo=b.sc_mo and a.gx_ct<>'' group by a.gx_ct,b.data_corp\n" +
+                " union all\n" +
+                " select gx_ct pid,tcode as gx_ct,gx_ct parName,gx_ct||tcode gx_acm,tcode, tname,tsize,sum(gx_sl) jh_sl,0 wc_sl,0 ww_sl,0 bl_sl,b.data_corp from m_sc_scrw_gx a,m_sc_scrw b where a.sc_mo=b.sc_mo and a.gx_ct<>''  group by a.gx_ct,a.tcode,a.tname,a.tsize,b.data_corp) t "+where;
+        return rwdao.QueryToMapPage(basedto,sqlString);
+    }
+}

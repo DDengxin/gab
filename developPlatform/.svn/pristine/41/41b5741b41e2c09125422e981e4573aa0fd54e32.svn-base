@@ -1,0 +1,16 @@
+package com.tengzhi.business.sc.da.staffOvertime.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.sc.da.staffOvertime.model.StaffOvertime;
+
+/**
+ * @Auther: huangbiao
+ * @Date: 2020/8/4 0004 18:40
+ * @Description:
+ */
+
+public interface StaffOvertimeDao extends BasedaoRepository<StaffOvertime,String> {
+
+
+
+}

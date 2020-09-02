@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>下单</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/orderSure.css}" />
+
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+    <script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+    <!-- <script type="text/javascript" th:src="@{/static/gab/js/PCASClass.js}"></script> -->
+    <script type="text/javascript" th:src="@{/static/gab/js/orderSure.js}"></script>
+</head>
+
+<body>
+    <th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+    </th:block>
+    <div class="order_content">
+        <div class="order_content_list">
+            <h2>确认订单信息</h2>
+            <div class="bar">
+                <img class="ban" src="/static/gab/images/g2.png">
+            </div>
+
+
+            <form action="" class="layui-form" id="saveAddress">
+                <div class="concat-msg">
+                    <p>联系人信息</p>
+                    <ol>
+                        <li>
+                            <div>
+                                <span>郑大海</span>
+                                <strong>郑大海 湖南 长沙 岳麓区 麓枫路61号雅阁国际26层2625号 135****0222</strong>
+                            </div>
+                            <div>
+                                <b onclick="defaultAddress(this)">设为默认地址</b>
+                                <b onclick="edit(this)">编辑</b>
+                                <b onclick="deleteAddress(this)">删除</b>
+                            </div>
+                        </li>
+                    </ol>
+                    <div class="addAddress" onclick="addAddress();"><i class="layui-icon layui-icon-addition"></i>新增地址
+                    </div>
+
+                    <ul class="needsInp">
+                        <li><span>联系人员</span><input name="linkMan" type="text" required lay-verify="required"></li>
+                        <li><span>联系方式</span><input type="text" name="phone" required lay-verify="phone"></li>
+                        <li><span>地址排序</span><input type="text" name="addressSort" required lay-verify="number"></li>
+                        <li>
+                            <span>送货地址</span>
+                            <textarea name="address" id="" cols="120" rows="10"></textarea>
+                            <!-- <div class="com-sel">
+                                <select class="com-opt"  name="district" required lay-verify="required"></select>
+                            </div>
+                            <div class="com-sel">
+                                <select class="com-opt"  name="city" required lay-verify="required"></select>
+                            </div> -->
+                        </li>
+                        <li>
+                            <div class="addressBtn"><button>保存联系人</button></div>
+                        </li>
+                    </ul>
+
+                </div>
+            </form>
+
+            <form action="/platform/paysdk/buyproduct/buySava" class="layui-form" id="saveGoods">
+                <div class="product-msg">
+                    <p>产品清单</p>
+                    <div class="company">
+                        <div class="companyName">浙江高吴五金材料有限公司</div>
+                    </div>
+                    <!--/*产品ID*/-->
+                    <!-- <input th:type="hidden" th:name="productId" th:value="${product.cpcodeId}"> -->
+                    <!--/*供应商ID*/-->
+                    <!-- <input th:type="hidden" th:name="providerId" th:value="${provider.supplyNote}"> -->
+                    <table>
+                        <tr id="ProductHead">
+                            <td></td>
+                            <td class="proName">产品名称</td>
+                            <td>单价</td>
+                            <td>数量</td>
+                            <td>小计</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="" default-img="../../static/gab/images/sy_50.jpg" alt="">
+                            </td>
+                            <td class="proNameAlign">夹具名称夹具名称夹具名称夹具名称</td>
+                            <td class="price">￥<em>10</em></td>
+                            <td class="number"><em>1</em></td>
+                            <td class="sum">￥<em>10</em></td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="other-msg">
+                    <p>其他信息</p>
+                    <ul>
+                        <li>
+                            <div>
+                                <span>币种</span>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="billType" required lay-verify="required"></select>
+                                </div>
+                            </div>
+                            <div>
+                                <span>结算方式</span>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="billType" required lay-verify="required"></select>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span>业务方式</span>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="businessMode" required lay-verify="required"></select>
+                                </div>
+                            </div>
+                            <div>
+                                <span>合同类别</span>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="agreementType" required
+                                        lay-verify="required"></select>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span>税率</span>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="taxRate" required lay-verify="required"></select>
+                                </div>
+                            </div>
+                            <div>
+                                <span>运输费用</span>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="transportationCost" required
+                                        lay-verify="required"></select>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span>运输方式</span>
+                                <input type="text" name="transportationType" required lay-verify="required">
+                            </div>
+                            <div>
+                                <span>技术质量</span>
+                                <input type="text" name="technicalQuality" required lay-verify="required">
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <span>财务结算</span>
+                                <input type="text" name="account" required lay-verify="required">
+                            </div>
+                            <div>
+                                <strong>是否需要发票</strong>
+                                <div class="com-sel">
+                                    <select class="com-opt" name="isAnnex" required lay-verify="required">
+                                        <option value="普通发票">普通发票</option>
+                                        <option value="增值税专用发票">增值税专用发票</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </li>
+                        <li><strong>备注信息</strong>
+                            <textarea name="remark" required lay-verify="required"></textarea>
+                        </li>
+                    </ul>
+                </div>
+                <div class="summary">
+                    <div>共<span></span>件商品，商品总金额：<strong>￥<em></em></strong></div>
+                    <div class="btn">
+                        <input type="submit" lay-submit lay-filter="productAction" class="submit" value="提交">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+    </th:block>
+</body>
+
+</html>

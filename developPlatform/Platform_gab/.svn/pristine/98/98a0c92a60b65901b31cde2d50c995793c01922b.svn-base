@@ -1,0 +1,8 @@
+package com.tengzhi.business.platform.enroll.dao;
+
+import com.tengzhi.base.jpa.dao.BasedaoRepository;
+import com.tengzhi.business.platform.enroll.model.G_personal;
+
+public interface PersonalDao  extends BasedaoRepository<G_personal,String> {
+
+}

@@ -1,0 +1,38 @@
+package com.tengzhi.business.js.cpgy.scgx.service;
+
+import java.io.IOException;
+import java.util.List;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.jpa.service.BaseService;
+import com.tengzhi.business.js.cpgy.scgx.model.MScScgx;
+import com.tengzhi.business.js.cpgy.scgx.model.MScScgxmx;
+import com.tengzhi.business.js.cpgy.scgx.vo.MScScgxVo;
+import com.tengzhi.business.resouces.vo.SelectVo;
+
+
+
+public interface MScScgxService extends BaseService {
+	BasePage<MScScgx> getSrchTopList(BaseDto baseDto) throws IOException;
+	
+	BasePage<MScScgxmx> getSrchBottomList(BaseDto baseDto) throws IOException;
+	
+	Result save(MScScgxVo mScScgxVo) throws Exception;
+	
+	Result update(MScScgxVo mScScgxVo)throws Exception;
+	
+	MScScgxmx findById(String gxId, Integer gxxmOrd,String gxxmId);
+	
+	MScScgx findById(String gxId);
+	
+	void deleteById(String gxId);
+
+	List<SelectVo> getGxAllSelectList();
+	
+	List<SelectVo> getCjList(String gx);
+	
+	List<SelectVo> getGxByScmoList(String scmo);
+	
+}

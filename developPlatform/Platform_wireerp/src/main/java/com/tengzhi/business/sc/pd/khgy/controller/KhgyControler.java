@@ -1,0 +1,72 @@
+package com.tengzhi.business.sc.pd.khgy.controller;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.business.sale.processProduct.processContract.model.EXsContract;
+import com.tengzhi.business.sale.processProduct.processContract.vo.ProcessContractVo;
+import com.tengzhi.business.sc.pd.khgy.service.KhgyService;
+import com.tengzhi.business.sc.pd.khgy.vo.MScKfgylistGcVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.io.IOException;
+
+/**
+ * @Auther: 龚行礼
+ * @Date: 2020/8/24 0013 21:45
+ * @Description:客户工艺
+ */
+
+@RestController
+@RequestMapping("/sc/pd/khgy")
+public class KhgyControler {
+
+	@Autowired
+	private KhgyService khgyService;
+	
+
+	
+
+	@GetMapping("/*")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+
+
+
+    
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "/getSrchTopList")
+	public Result getSrchTopList(BaseDto baseDto) throws IOException {
+		return khgyService.getSrchTopList(baseDto).getResult();
+	}
+
+	/**
+	 * 查询数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "/getSrchBottomList")
+	public Result getSrchBottomList(BaseDto baseDto) throws IOException {
+		return khgyService.getSrchBottomList(baseDto).getResult();
+	}
+
+	@PostMapping(value = "/getByscgy")
+	public Result getByscgy(BaseDto baseDto) throws IOException {
+		return khgyService.getByscgy(baseDto).getResult();
+	}
+
+
+	@PostMapping(value = "/saveData")
+	public Result add(@RequestBody MScKfgylistGcVo vo)  {
+
+		return khgyService.saveOrUpdate(MScKfgylistGcVo.initProcessContractVo(vo));
+	}
+
+
+}

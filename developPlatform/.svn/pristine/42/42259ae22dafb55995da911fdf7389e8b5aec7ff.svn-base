@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+        <title>档案文库新增</title>
+    </th:block>
+</head>
+<body style="overflow-x: hidden ">
+<div class="mini-fit">
+    <input name="action" class="mini-hidden" />
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <!--<input class="mini-hidden" id="userId" name="userId"/>-->
+                <input class="mini-hidden" id="arUuid" name="arUuid"/>
+                <input class="mini-hidden" id="genUserId" name="genUserId"/>
+                <input class="mini-hidden" id="genTime" name="genTime"/>
+                <input class="mini-hidden" id="arVersion" name="arVersion"/>
+                <input class="mini-hidden" id="dataCorp" name="dataCorp"/>
+                <td title>单号:</td>
+                <td content>
+                    <input class="mini-textbox" readonly  emptyText="自动生成" id="arNote" name="arNote" />
+                </td>
+                <td title>类型:</td>
+                <td content>
+                    <input class="mini-combobox" required id="arType" name="arType" url="/system/parameter/getParamsSelectListByParentId/协同/档案类型/DWLX" showNullItem="true"  nullItemText="全部" emptyText="全部" popupMaxHeight="240px"/>
+                </td>
+                <td title>区位:</td>
+                <td content>
+                    <input class="mini-combobox" required id="arLocation" name="arLocation" url="/system/parameter/getParamsSelectListByParentId/协同/档案区位/DWQW" showNullItem="true" nullItemText="全部" emptyText="全部" popupMaxHeight="240px"/>
+                </td>
+                <td title>密级:</td>
+                <td content>
+                    <input class="mini-combobox" required id="arSecrecy" name="arSecrecy" url="/system/parameter/getParamsSelectListByParentId/协同/档案密级/DWMJ" showNullItem="true" nullItemText="全部" emptyText="全部" popupMaxHeight="240px" />
+                </td>
+            </tr>
+            <tr>
+                <td title>标题:</td>
+                <td content colspan="7">
+                    <input class="mini-textbox" required id="arTitle" name="arTitle" />
+                </td>
+
+            </tr>
+            <tr>
+                <td title>描述:</td>
+                <td content colspan="7">
+                    <input class="mini-textarea" id="arContent" name="arContent" height="400"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>附件:</td>
+                <td content colspan="7">
+                    <div id="uploader"></div>
+                    <input id="arFileId" name="arFileId" class="mini-hidden"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save"
+       id="saveBtn">保存</a> <a class="mini-button" onclick="CloseWindow"
+                              iconCls="icon-cancel"> 关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+            data = mini.clone(options);
+            var fileId = getFileId();
+            mini.get("arFileId").setValue(fileId);
+            $("#uploader").filesUpload({
+                pickerid: fileId,
+                filecount: 50,
+            });
+           /* $.get("setArNote",function(res){
+                mini.get("arNote").setText(res.data);
+                mini.get("arNote").setReadOnly(true);
+            });*/
+            form.setChanged(false);
+        } else if ('edit' == options.action) {
+            $.get("libraryList.html/{0}".format(options.data.arUuid), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    $("#uploader").filesUpload({
+                        pickerid: mini.get("arFileId").getValue(),
+                        filecount: 50,
+                    });
+                    mini.get("arNote").setReadOnly(true);
+                    //mini.get("workId").setText(res.data.workId);
+                    //mini.get("workId").setReadOnly(true);
+                    //mini.get("workBb").setReadOnly(true);
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("add.html",JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh',false);
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+
+
+    /* 员工选择  */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url:"/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data:{},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    form.setData({
+                        dgWorkerDept: data.workerDept,
+                    });
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerId);
+                    mini.get("workName").setValue(data.workerName);
+                    mini.get("workName").setText(data.workerName);
+                    mini.get("workDept").setValue(data.workerDept)
+                    mini.get("workDept").setText(data.workerDeptName)
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+
+</script>
+</html>

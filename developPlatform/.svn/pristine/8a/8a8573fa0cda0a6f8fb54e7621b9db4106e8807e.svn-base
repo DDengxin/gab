@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+
+<head>
+	<th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+		<title>用户管理</title>
+	</th:block>
+</head>
+
+<body>
+	<form id="form_home">
+		<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+			<th:block th:fragment="content">
+				<label class="hmq-label" text="工号">
+					<input class="mini-textbox" name="jobNumber" />
+				</label>
+				<label class="hmq-label" text="姓名">
+					<input class="mini-textbox" name="nickName" />
+					<input class="mini-hidden" name="isForbidden" value="false" />
+				</label>
+				<a class="mini-button" style="position: absolute;right: 2px;top:7px;" onclick="search_option()" iconCls="icon-search" >查询</a>
+			</th:block>
+		</th:block>
+	</form>
+	<!--撑满页面-->
+	<div class="mini-fit">
+		<div tz:datagrid="datagrid" id="srch_grid" idField="jobNumber" sortField="userOrd" url="/system/user/user.html"
+			onrowdblclick="rowdblclick" multiSelect="false">
+			<div property="columns">
+				<div tz:datagrid="checkcolumn"></div>
+				<div tz:datagrid="column" field="jobNumber">工号</div>
+				<div tz:datagrid="column" field="nickName">昵称</div>
+				<div tz:datagrid="column" field="mobile">手机号码</div>
+				<div tz:datagrid="column" field="email">邮箱</div>
+				<div tz:datagrid="column" field="orgName">公司</div>
+				<div tz:datagrid="column" field="deptName">部门</div>
+				<div tz:datagrid="column" field="positionName">岗位</div>
+				<div tz:datagrid="column" field="gender">性别</div>
+				<div tz:datagrid="column" field="isForbidden">是否禁用</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		mini.parse();
+		var form = new mini.Form("form_home");
+		var grid = mini.get("srch_grid");
+		grid.bindSearchForm(form);
+
+		grid.on("DrawCell", function (e) {
+			if (e.field == "gender") {
+				e.cellHtml = e.value ? '男' : '女';
+			}
+			if (e.field == "isForbidden") {
+				e.cellHtml = e.value ? '是' : '否';
+			}
+		});
+
+		function search_option() {
+			grid.load();
+		}
+
+		init();
+		function init() {
+			search_option();
+			var Mdatagrid = grid;
+			if (Mdatagrid instanceof mini.DataGrid || Mdatagrid instanceof mini.TreeGrid) {
+				var pager = $(Mdatagrid.getBottomPager().getEl());
+				var pageLeft = pager.children("div.mini-pager-left");
+				pageLeft.css('width', '100%');
+				var pageTable = pageLeft.children("table");
+				pageTable.css('width', '100%').css('float', 'none');
+				var pageTableFirstRow = pageTable[0].rows[0];
+				//调整页码信息区块位置
+				var pageInfo = pager.children('div.mini-pager-right');
+				if (pageInfo.length > 0) {
+					pageTableFirstRow.insertCell();
+					pageInfo.appendTo($(pageTableFirstRow.cells[pageTableFirstRow.cells.length - 1]));
+				}
+				//增加按钮区块
+				pageTableFirstRow.insertCell();
+				$(pageTableFirstRow.cells[pageTableFirstRow.cells.length - 1]).append('<div id="btnbar" style="text-align: right" ></div>');
+				var $el = $('[id="btnbar"]');
+				$el.each(function (index, el) {
+					//指定渲染dom
+					$(window).ready(function () {
+						mini.parse(el);
+					});
+				});
+			}
+		}
+
+		var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
+		//双击事件 参数：表格对象,行对象
+		function rowdblclick(sender, record) {
+			var message = sender.record;
+			try{
+				if("function" === typeof(parent.GetPeoMessageData)){
+					parent.GetPeoMessageData(message);
+					parent.$('#peoName').val(sender.record.nickName);
+					parent.layer.close(index);
+				}
+			}catch(e){
+				console.error(e);
+			}
+		}
+
+		//获取选中数据
+		function getData() {
+			var row = grid.getSelected();
+			return row;
+		}
+
+	</script>
+</body>
+
+</html>

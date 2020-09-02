@@ -1,0 +1,378 @@
+package com.tengzhi.business.sale.processProduct.processContract.model;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tengzhi.base.jpa.model.BaseModel;
+
+@Entity
+@Table(name = "e_xs_contract_detailed")
+public class EXsContractDetailed extends BaseModel {
+
+	@Id
+	private String htMo;
+
+	private String htNo, htCode, htSm, htRequirements, htFlag, dataMan, dataCorp, htStandard,htCustomerAssociated,htCustomerAssociatedRemarks,scMo;
+
+	private Integer htId;
+
+	private BigDecimal htSl, htPrice, htJe;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date htJq;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	private Date dataRq;
+
+	@Transient
+	private String _state,id;
+
+	public String getHtMo() {
+		return htMo;
+	}
+
+	public void setHtMo(String htMo) {
+		this.htMo = htMo;
+	}
+
+	public String getHtNo() {
+		return htNo;
+	}
+
+	public void setHtNo(String htNo) {
+		this.htNo = htNo;
+	}
+
+	public String getHtCode() {
+		return htCode;
+	}
+
+	public void setHtCode(String htCode) {
+		this.htCode = htCode;
+	}
+
+	public String getHtSm() {
+		return htSm;
+	}
+
+	public void setHtSm(String htSm) {
+		this.htSm = htSm;
+	}
+
+	public String getHtRequirements() {
+		return htRequirements;
+	}
+
+	public void setHtRequirements(String htRequirements) {
+		this.htRequirements = htRequirements;
+	}
+
+	public String getHtFlag() {
+		return htFlag;
+	}
+
+	public void setHtFlag(String htFlag) {
+		this.htFlag = htFlag;
+	}
+
+	public String getDataMan() {
+		return dataMan;
+	}
+
+	public void setDataMan(String dataMan) {
+		this.dataMan = dataMan;
+	}
+
+	public String getDataCorp() {
+		return dataCorp;
+	}
+
+	public void setDataCorp(String dataCorp) {
+		this.dataCorp = dataCorp;
+	}
+
+	public Integer getHtId() {
+		return htId;
+	}
+
+	public void setHtId(Integer htId) {
+		this.htId = htId;
+	}
+
+	public BigDecimal getHtSl() {
+		return htSl;
+	}
+
+	public void setHtSl(BigDecimal htSl) {
+		this.htSl = htSl;
+	}
+
+	public BigDecimal getHtPrice() {
+		return htPrice;
+	}
+
+	public void setHtPrice(BigDecimal htPrice) {
+		this.htPrice = htPrice;
+	}
+
+	public BigDecimal getHtJe() {
+		return htJe;
+	}
+
+	public void setHtJe(BigDecimal htJe) {
+		this.htJe = htJe;
+	}
+
+	public Date getHtJq() {
+		return htJq;
+	}
+
+	public void setHtJq(Date htJq) {
+		this.htJq = htJq;
+	}
+
+	public Date getDataRq() {
+		return dataRq;
+	}
+
+	public void setDataRq(Date dataRq) {
+		this.dataRq = dataRq;
+	}
+
+	public String get_state() {
+		return _state;
+	}
+
+	public void set_state(String _state) {
+		this._state = _state;
+	}
+
+	
+	public String getScMo() {
+		return scMo;
+	}
+
+	public void setScMo(String scMo) {
+		this.scMo = scMo;
+	}
+
+
+	@Transient
+	private String cpcodeId, cpcodeName, cpcodeSize, cpcodeFl, cpcodeBz, cpcodeXp, cpcodeCheck, cpcode01, cpcode02,
+			cpcode03, cpcodeSizeEn, htStandardName, htCurrency, htStype;
+	@Transient
+	private BigDecimal htTax;
+
+	public String getCpcodeId() {
+		return cpcodeId;
+	}
+
+	public void setCpcodeId(String cpcodeId) {
+		this.cpcodeId = cpcodeId;
+	}
+
+	public String getCpcodeName() {
+		return cpcodeName;
+	}
+
+	public void setCpcodeName(String cpcodeName) {
+		this.cpcodeName = cpcodeName;
+	}
+
+	public String getCpcodeSize() {
+		return cpcodeSize;
+	}
+
+	public void setCpcodeSize(String cpcodeSize) {
+		this.cpcodeSize = cpcodeSize;
+	}
+
+	public String getCpcodeFl() {
+		return cpcodeFl;
+	}
+
+	public void setCpcodeFl(String cpcodeFl) {
+		this.cpcodeFl = cpcodeFl;
+	}
+
+	public String getCpcodeBz() {
+		return cpcodeBz;
+	}
+
+	public void setCpcodeBz(String cpcodeBz) {
+		this.cpcodeBz = cpcodeBz;
+	}
+
+	public String getCpcodeXp() {
+		return cpcodeXp;
+	}
+
+	public void setCpcodeXp(String cpcodeXp) {
+		this.cpcodeXp = cpcodeXp;
+	}
+
+	public String getCpcodeCheck() {
+		return cpcodeCheck;
+	}
+
+	public void setCpcodeCheck(String cpcodeCheck) {
+		this.cpcodeCheck = cpcodeCheck;
+	}
+
+	public String getCpcode01() {
+		return cpcode01;
+	}
+
+	public void setCpcode01(String cpcode01) {
+		this.cpcode01 = cpcode01;
+	}
+
+	public String getCpcode02() {
+		return cpcode02;
+	}
+
+	public void setCpcode02(String cpcode02) {
+		this.cpcode02 = cpcode02;
+	}
+
+	public String getCpcode03() {
+		return cpcode03;
+	}
+
+	public void setCpcode03(String cpcode03) {
+		this.cpcode03 = cpcode03;
+	}
+
+	public String getCpcodeSizeEn() {
+		return cpcodeSizeEn;
+	}
+
+	public void setCpcodeSizeEn(String cpcodeSizeEn) {
+		this.cpcodeSizeEn = cpcodeSizeEn;
+	}
+
+	public String getHtStandard() {
+		return htStandard;
+	}
+
+	public void setHtStandard(String htStandard) {
+		this.htStandard = htStandard;
+	}
+
+	public String getHtStandardName() {
+		return htStandardName;
+	}
+
+	public void setHtStandardName(String htStandardName) {
+		this.htStandardName = htStandardName;
+	}
+
+	public String getHtCurrency() {
+		return htCurrency;
+	}
+
+	public void setHtCurrency(String htCurrency) {
+		this.htCurrency = htCurrency;
+	}
+
+	public BigDecimal getHtTax() {
+		return htTax;
+	}
+
+	public void setHtTax(BigDecimal htTax) {
+		this.htTax = htTax;
+	}
+
+	public String getHtStype() {
+		return htStype;
+	}
+
+	public void setHtStype(String htStype) {
+		this.htStype = htStype;
+	}
+
+
+	@Transient
+	private String htType,htItemType,htCustomer;
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@Transient
+	private Date htDate;
+
+	public String getHtType() {
+		return htType;
+	}
+	public void setHtType(String htType) {
+		this.htType = htType;
+	}
+	public String getHtItemType() {
+		return htItemType;
+	}
+	public void setHtItemType(String htItemType) {
+		this.htItemType = htItemType;
+	}
+	public String getHtCustomer() {
+		return htCustomer;
+	}
+	public void setHtCustomer(String htCustomer) {
+		this.htCustomer = htCustomer;
+	}
+	public Date getHtDate() {
+		return htDate;
+	}
+	public void setHtDate(Date htDate) {
+		this.htDate = htDate;
+	}
+	
+	@Transient
+	private BigDecimal scsl,kcfs;
+
+	public BigDecimal getScsl() {
+		return scsl;
+	}
+
+	public void setScsl(BigDecimal scsl) {
+		this.scsl = scsl;
+	}
+
+	public BigDecimal getKcfs() {
+		return kcfs;
+	}
+
+	public void setKcfs(BigDecimal kcfs) {
+		this.kcfs = kcfs;
+	}
+
+	public String getHtCustomerAssociated() {
+		return htCustomerAssociated;
+	}
+
+	public void setHtCustomerAssociated(String htCustomerAssociated) {
+		this.htCustomerAssociated = htCustomerAssociated;
+	}
+
+	public String getHtCustomerAssociatedRemarks() {
+		return htCustomerAssociatedRemarks;
+	}
+
+	public void setHtCustomerAssociatedRemarks(String htCustomerAssociatedRemarks) {
+		this.htCustomerAssociatedRemarks = htCustomerAssociatedRemarks;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+}

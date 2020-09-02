@@ -1,0 +1,55 @@
+package com.tengzhi.business.system.right.dao.impl;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.stereotype.Repository;
+
+import com.tengzhi.base.jpa.dao.impl.BasicsDaoImpl;
+import com.tengzhi.base.property.Property;
+import com.tengzhi.base.security.common.tool.spring.SpringUtil;
+import com.tengzhi.base.tools.log.Log;
+import com.tengzhi.business.system.right.dao.SysRightBasicDao;
+import com.tengzhi.business.system.right.model.SysRight;
+
+@Repository
+public class SysRightBasicDaoImpl extends BasicsDaoImpl<SysRight, String> implements SysRightBasicDao {
+
+	private static String[] spuerUserName;
+
+	@Override
+	public List<SysRight> findByUserid(String userid, String model) {
+		init();
+		if (spuerUserName != null && Arrays.asList(spuerUserName).contains(userid)) {
+			String sql = "select * from sys_right where  is_forbidden = false and right_module=?1 ";
+			return super.queryBean(sql, model);
+		} else {
+			String sql = "select * from sys_right where  is_forbidden = false and right_id in (select distinct right_id from sys_role_r_right rig left join sys_user_r_role rol on rig.role_id=rol.role_id where user_id=?1) and right_module=?2";
+			return super.queryBean(sql, userid, model);
+		}
+	}
+
+	@Override
+	public List<SysRight> findParentIdAndRightType(String userid, String rightId, String typeButton) {
+		init();
+		if (spuerUserName != null && Arrays.asList(spuerUserName).contains(userid)) {
+			String sql = "select * from sys_right where  is_forbidden = false and parent_id=?1  and right_type=?2 order by right_ord";
+			return super.queryBean(sql, rightId,typeButton);
+		} else {
+			String sql = "select * from sys_right where  is_forbidden = false and right_id in (select distinct right_id from sys_role_r_right rig left join sys_user_r_role rol on rig.role_id=rol.role_id where user_id=?1) and parent_id=?2 and right_type=?3 order by right_ord";
+			return super.queryBean(sql, userid, rightId, typeButton);
+		}
+	}
+
+	private void init() {
+		Property pro = SpringUtil.getBean(Property.class);
+		if (pro.getBusiness() != null && pro.getBusiness().getUserName() != null) {
+			spuerUserName = pro.getBusiness().getUserName().split(",");
+		} else {
+			spuerUserName = null;
+		}
+	}
+
+}

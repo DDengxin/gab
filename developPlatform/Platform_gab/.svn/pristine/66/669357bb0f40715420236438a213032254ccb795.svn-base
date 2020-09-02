@@ -1,0 +1,220 @@
+package com.tengzhi.business.platform.shopping.service.impl;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.result.Result;
+import com.tengzhi.base.security.common.model.SessionUser;
+import com.tengzhi.base.tools.json.MapperFactory;
+import com.tengzhi.business.platform.paysdk.buyproduct.dao.BuyJPADao;
+import com.tengzhi.business.platform.shopping.dao.AddrDao;
+import com.tengzhi.business.platform.shopping.dao.ContractDao;
+import com.tengzhi.business.platform.shopping.dao.ContractDetailedDao;
+import com.tengzhi.business.platform.shopping.dao.ShoppingCartDao;
+import com.tengzhi.business.platform.shopping.dao.ShoppingCartSqlDao;
+import com.tengzhi.business.platform.shopping.model.G_EXsContract;
+import com.tengzhi.business.platform.shopping.model.G_EXsContractDetailed;
+import com.tengzhi.business.platform.shopping.model.ShoppingCart;
+import com.tengzhi.business.platform.shopping.model.ShoppingVo;
+import com.tengzhi.business.platform.shopping.service.ShoppingService;
+import com.tengzhi.business.sale.saleProduct.saleContract.model.EXsContract;
+import com.tengzhi.business.system.core.service.SysGenNoteService;
+import com.tengzhi.business.system.params.service.SysParamService;
+import com.tengzhi.business.system.workflow.service.ProcessService;
+import com.tengzhi.business.system.workflow.vo.Examine;
+
+
+@Service
+@Transactional
+public class ShoppingServiceImpl implements ShoppingService {
+    @Autowired
+    private SysGenNoteService sysGenNoteService;
+    
+    @Autowired
+    private ShoppingCartDao shoppingCartDao;
+
+    @Autowired
+    private ShoppingService shoppingService;
+    
+    @Autowired
+    private ShoppingCartSqlDao shoppingCartSqlDao;
+
+    @Autowired
+	private  SysParamService sysParamService;
+    
+    @Autowired
+    private AddrDao addrDao;
+    
+    @Autowired
+    private ContractDao contractDao;
+    
+    @Autowired
+    private ContractDetailedDao contractDetailedDao;
+    
+    @Autowired
+    private BuyJPADao buyJPADao;
+
+    @Autowired
+    private ProcessService processService;
+    
+    @Override
+    public Result addShoppingCart(String dataMan, String productNum) throws Exception {
+
+        SessionUser sessionUser = SessionUser.SessionUser();
+        ShoppingCart cart = shoppingCartDao.getproduct(productNum, sessionUser.getUserId());
+
+        if(dataMan.equals(sessionUser.getUserId())){
+            return Result.error("不能添加自己的产品");
+        }
+        //如果当前用户的购物车中没有存在的商品编号
+        else if (cart==null || cart.getStatus().toString().equals("确认")){
+            ShoppingCart shoppingCart = new ShoppingCart();
+            String supplyNote = shoppingCartDao.getSupplyNote(dataMan);
+            shoppingCart.setProductNum(productNum);
+            shoppingCart.setProductCompany(supplyNote);
+            shoppingCart.setOperator(sessionUser.getUserId());
+            shoppingCart.setOperatorCompany(sessionUser.getCorpId());
+            shoppingCart.setOwner(sessionUser.getUserId());
+            return shoppingService.save(shoppingCart);
+        } else {
+            return Result.error ("该商品已存在");
+        }
+    }
+
+    @Override
+    public Result save(ShoppingCart shoppingCart) throws Exception {
+        String productId = sysGenNoteService.getNote("g_shopping","SHOP","yyyyMM",4);
+        shoppingCart.setStatus("登记");
+        shoppingCart.setProductId(productId);
+        shoppingCart.setProductCount(1);
+        shoppingCart.setOperatorTime(new Date());
+        shoppingCartDao.save(shoppingCart);
+        return Result.resultOkMsg("加入购物车成功");
+    }
+
+    @Override
+    public List<Map<String, Object>> findAll(String owner) {
+        return shoppingCartSqlDao.getMyShoppingCart(owner);
+    }
+
+    @Override
+    public List<Map<String, Object>> findByPid(String owner, List<String> productIds) {
+        return shoppingCartSqlDao.getMyShoppingCart(owner,productIds);
+    }
+
+    @Override
+    public Result deleteByPId(String productId) {
+        String userId = SessionUser.SessionUser().getUserId();
+        shoppingCartDao.delete(productId,userId);
+        return Result.resultOkMsg("删除成功");
+    }
+
+    @Override
+    public Result deleteByAll(List<String> productIds) {
+        String userId = SessionUser.SessionUser().getUserId();
+        for (int i =0;i<productIds.size();i++){
+            shoppingCartDao.delete(productIds.get(i),userId);
+        }
+        return Result.resultOkMsg("删除成功");
+    }
+
+
+    @Override
+    public Result updateByPId(List<ShoppingVo> products) {
+        String userId = SessionUser.SessionUser().getUserId();
+        for (int i=0;i<products.size();i++){
+            shoppingCartDao.updateCount(products.get(i).getProductCount(),products.get(i).getProductId(),userId);
+        }
+        return Result.resultOk();
+    }
+
+    @Override
+    public Result update(ShoppingCart shoppingCart) {
+        shoppingCartDao.update(shoppingCart);
+        return Result.resultOk();
+    }
+
+	@Override
+	public Result sureShop(String goods) throws IOException {
+		Map<String, Object> map = (Map<String, Object>) MapperFactory.getInstance().Str2Map(goods);
+		return setG_EXsContract(map);
+	}
+	
+	private Result setG_EXsContract(Map<String, Object> map) {
+		SessionUser user = SessionUser.SessionUser();
+        //创建合同
+		G_EXsContract xsContract = new G_EXsContract();
+		String prefix=sysParamService.getParamValue1("订单类型", map.get("htItemType").toString());
+		String note  = sysGenNoteService.getNote(EXsContract.class, prefix, "yyMM", 4);//bug
+		xsContract.setHtNo(note);
+		xsContract.setDataMan(user.getUserId());
+		xsContract.setDataRq(new Date());
+		xsContract.setDataCorp(user.getCorpId());
+		xsContract.setHtFlag("登记");
+		xsContract.setHtCurrency(map.get("htCurrency").toString());
+		xsContract.setHtSettlement(map.get("htSettlement").toString());
+		xsContract.setHtType(map.get("htType").toString());
+		xsContract.setHtItemType(map.get("htItemType").toString());
+		xsContract.setHtTax(new BigDecimal(Double.parseDouble(map.get("htTax").toString().replace("%", ""))/100.0));
+		xsContract.setHtTransportCosts(map.get("htTransportCosts").toString());
+		xsContract.setHtTransportMode(map.get("htTransportMode").toString());
+		xsContract.setHtRequirements(map.get("htRequirements").toString());
+		xsContract.setHtValidity(map.get("htValidity").toString());
+		xsContract.setHtAddress(addrDao.findAddrById(map.get("addressNote").toString()));
+		xsContract.setHtSupplement(map.get("remark").toString());
+		xsContract.setHtStype("CP");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String s = sdf.format(new Date());
+        try {
+            Date date =  sdf.parse(s);
+            xsContract.setHtDate(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+		xsContract.setHtCustomer(user.getUserId());
+		//创建合同详情
+		String productIds = map.get("productId").toString();
+		productIds = productIds.replace("[","");
+		productIds = productIds.replace("]","");
+		productIds = productIds.replace(" ","");
+		productIds = productIds.replace(",","','");
+		List<Map<String,Object>> cpcodes = shoppingCartSqlDao.getCpcodeById(productIds);
+		for(int i = 0 ;i<cpcodes.size();i++) {
+			shoppingCartDao.comfirm(cpcodes.get(i).get("productId").toString());
+			G_EXsContractDetailed g_EXsContractDetailed = new G_EXsContractDetailed();
+			g_EXsContractDetailed.setHtNo(note);
+			g_EXsContractDetailed.setHtId(i+1);
+			g_EXsContractDetailed.setDataMan(user.getUserId());
+			g_EXsContractDetailed.setDataRq(new Date());
+			g_EXsContractDetailed.setDataCorp(user.getCorpId());
+			g_EXsContractDetailed.setHtMo(note+"-"+(i+1));
+			g_EXsContractDetailed.setHtFlag("登记");
+			g_EXsContractDetailed.setHtCode(cpcodes.get(i).get("cpcodeId").toString());
+			BigDecimal count = new BigDecimal(cpcodes.get(i).get("productCount").toString());
+			BigDecimal price = new BigDecimal(cpcodes.get(i).get("cpcodePrice").toString());
+			g_EXsContractDetailed.setHtSl(count);
+			g_EXsContractDetailed.setHtPrice(price);
+			g_EXsContractDetailed.setHtJe(price.multiply(count));
+			g_EXsContractDetailed.setHtJq(new Date());
+			contractDetailedDao.save(g_EXsContractDetailed);
+		}
+		contractDao.save(xsContract);
+		Examine examine = new Examine();
+		examine.setMenuId("R130401");
+		examine.setTitle("订单确认");
+		examine.setUrl("/sale/saleProduct/saleContract/add.html");
+		examine.setBusinessId(xsContract.getHtNo());
+		processService.startFinishFirstStep(examine);
+		return Result.resultOk();
+	}
+}

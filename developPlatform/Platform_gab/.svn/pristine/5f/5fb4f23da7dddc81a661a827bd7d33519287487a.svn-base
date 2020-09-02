@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>工艺专家详情</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/expertDetails.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/expertDetailsTechDetails.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+	<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+	<script type="text/javascript" th:src="@{/static/gab/js/expertDetailsTechDetails.js}"></script>
+	
+</head>
+
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}"></th:block>
+	<div class="expert_content">
+		<div class="expert_content_list">
+			<h2 class="title">技术案例</h2>
+			<div class="list_left">
+				<div class="aca-fl">
+					<div class="title">
+						<h4 id="title-h4">技术案例案例</h4>
+						<p id="start_time">发布时间：2020.07.06</p>
+					</div>
+					<div id="div-content" class="aca-fl_details">
+						测试标题测试标题测试标题测试标题测试标题
+					</div>
+					<div class="pay">
+						<p>本文档为付费文档，单击下载全部文档</p>
+						<button><i class="layui-icon layui-icon-download-circle"></i>付费下载</button>
+					</div>
+				</div>
+			</div>
+			<!--右侧区域 start   -->
+		<th:block th:replace="~{gab/common/CommonExpertDetailRight:: CommonExpertDetailRight}"></th:block>	
+		<!-- 右侧区域end -->
+		</div>
+		<div class="annex">
+			<span>附件</span>
+			<div id="fileName"></div>
+		</div>
+	</div>
+
+
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+
+</body>
+<script type="text/javascript">
+	//获取url地址栏中的参数
+
+</script>
+
+
+
+</html>

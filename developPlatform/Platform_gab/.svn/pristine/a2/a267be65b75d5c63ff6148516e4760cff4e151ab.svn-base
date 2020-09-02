@@ -1,0 +1,156 @@
+package com.tengzhi.business.platform.common.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.tengzhi.business.platform.common.dao.RegionSqlDao;
+import com.tengzhi.business.platform.common.model.RegionVo;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.business.platform.common.dao.OperatorDao;
+import com.tengzhi.business.platform.common.service.OperatorService;
+import com.tengzhi.business.platform.enroll.model.G_Expert;
+import com.tengzhi.business.platform.enroll.service.ExpertService;
+import com.tengzhi.business.platform.specialist.advisory.service.AdvisorysService;
+import com.tengzhi.business.platform.specialist.chamberactivities.service.chamberActivitiesService;
+
+
+@Service
+@Transactional
+public class OperatorServiceImpl implements  OperatorService {
+	@Autowired
+	private RegionSqlDao regionSqlDao;
+
+	@Autowired
+	private OperatorDao operatorDao;
+
+	@Autowired
+	private AdvisorysService advisorysService;
+
+	@Autowired
+	private ExpertService expertService;
+
+	@Autowired
+	private chamberActivitiesService chamberActivitiesService;
+
+	@Override
+	public BasePage<G_Expert> getAllExpert(BaseDto baseDto) throws Exception {
+		Map<String, String> map = baseDto.getParamsMap();
+		Object type = map.get("expertType");
+		String sqlWhere = " where 1=1 ";
+		if (!StringUtils.isBlank(type.toString())) {
+			sqlWhere += " and   expert_type '%" + type + "%'";
+		}
+		String sql = "SELECT job_age,level,main_job, strengths"
+				+ " ,(SELECT  nick_name  from  sys_user  where supply_id =g_expert.expert_note LIMIT 1   ) nick_name  from  g_expert   " + sqlWhere;
+		return operatorDao.QueryPageLists(baseDto, sql + " order by job_age  ");
+	}
+
+	/**
+	 * academic.html数据获取
+	 */
+	@Override
+	public Map<String, Object> getAcademic(String reqId, String type) {
+		// TODO
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		if (type.equals("学术论文")) {
+			rmap = getTemplate1(reqId);
+		} else if (type.equals("工艺知识")) {
+			rmap = getTemplate2(reqId);
+		} else if (type.equals("经验分享")) {
+			rmap = getTemplate1(reqId);
+		} else if (type.equals("行业动态")) {
+			rmap = getTemplate2(reqId);
+		} else if (type.equals("商会活动")) {
+			rmap = getTemplate3(reqId);
+		} else if (type.equals("技术案例")) {
+			rmap = getTemplate2(reqId);
+		}
+		Map academic = (Map) rmap.get("academic");
+		String annex = (String) academic.get("annex");
+		rmap.put("Annex", advisorysService.getAnnexName(annex));
+		return rmap;
+	}
+
+
+	/**
+	 * academic.html模板一
+	 */
+	private Map<String, Object> getTemplate1(String reqId) {
+		// TODO
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		Map<String, Object> academic = advisorysService.getOne(reqId);
+		rmap.put("academic", academic);
+		rmap.put("founder", expertService.getAcademic(academic.get("founderId").toString()));
+		rmap.put("recommend", advisorysService.getRecommend(academic.get("founderId").toString()));
+		return rmap;
+	}
+
+	/**
+	 * academic.html模板二
+	 */
+	private Map<String, Object> getTemplate2(String reqId) {
+		// TODO
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		Map<String, Object> academic = advisorysService.getOne(reqId);
+		rmap.put("academic", academic);
+		Map<String, Object> advisorys = advisorysService.getAdvisory("6");
+		rmap.put("experienceSharing", advisorys.get("experienceSharing"));//经验分享
+		rmap.put("industryDynamics", advisorys.get("industryDynamics"));//行业动态
+		rmap.put("knowledgeList", chamberActivitiesService.getLimit("6"));//商会活动
+		return rmap;
+	}
+
+	/**
+	 * academic.html模板三
+	 */
+	private Map<String, Object> getTemplate3(String reqId) {
+		// TODO
+		Map<String, Object> rmap = new HashMap<String, Object>();
+		Map<String, Object> knowledge = chamberActivitiesService.getOne(reqId);
+		rmap.put("academic", knowledge);
+		Map<String, Object> advisorys = advisorysService.getAdvisory("6");
+		rmap.put("experienceSharing", advisorys.get("experienceSharing"));//经验分享
+		rmap.put("industryDynamics", advisorys.get("industryDynamics"));//行业动态
+		rmap.put("knowledgeList", chamberActivitiesService.getLimit("6"));//商会活动
+		return rmap;
+	}
+
+
+	@Override
+	public List<RegionVo> getRegion() {
+		List<RegionVo> retList = new ArrayList<>();
+		List<RegionVo> province = regionSqlDao.getRegion();
+		for (RegionVo p : province) {
+			if (province.size() > 0) {
+				List<RegionVo> citys = regionSqlDao.findChildren(p.getId());
+				digui(citys);
+				p.setChildren(citys);
+			}
+			retList.add(p);
+		}
+		return retList;
+	}
+
+	@Override
+	public void digui(List<RegionVo> city) {
+			List<RegionVo> retList = new ArrayList<>();
+			for (RegionVo c : city) {
+				retList = regionSqlDao.findChildren(c.getId());
+				if (retList.size() > 0) {
+					c.setChildren(retList);
+					digui(retList);
+				}
+		}
+	}
+}

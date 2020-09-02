@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>所属菜单选择器</title>
+    </th:block>
+</head>
+<body>
+<form id="form1" method="post">
+    <input name="roleId" class="mini-hidden" type="hidden"/>
+    <div class="mini-toolbar">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>菜单模块:</td>
+                <td content><input class="mini-combobox" name="rightModule" url="/system/right/combobox/rightModule"/></td>
+                <td title>系统:</td>
+                <td content><input class="mini-textbox" name="rightName"/></td>
+                <td colspan="2" align="right">
+                    <a class="mini-button" iconCls="icon-search" onclick="search_option">查询</a>
+                    <a class="mini-button" iconCls="icon-ok" onclick="confirm">确认</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="treegrid" id="srch_grid"
+         idField="rightId" parentField="parentId" sortField="rightOrd"
+         treeColumn="rightName"
+         url="auth.html"
+         resultAsTree="true" iconField="rightIconCls" expandOnLoad="true" multiSelect="true" showTreeLines="true"
+         showPager="false" showExpandButtons="false">
+        <div property="columns">
+            <div tz:datagrid="checkcolumn"></div>
+            <div tz:datagrid="column" field="rightName" name="rightName" width="100%">授权名称</div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+    mini.getByName("rightModule").select(0);
+
+    function SetData(options) {
+        form.getField('roleId').setValue(options.data.roleId);
+        search_option();
+    }
+
+
+    mini.getByName("rightModule").on("valuechanged", function (e) {
+        search_option();
+    });
+
+    mini.getByName("rightName").on("valuechanged", function (e) {
+    });
+
+    //加载后绑定节点树
+    grid.on('load', function (e) {
+        grid.loadList(JSON.parse(e.text).data);
+    });
+
+
+    /**
+     * 查询
+     **/
+    function search_option() {
+        grid.loading('加载中...');
+        grid.load({
+            params: JSON.stringify({
+                roleId: form.getField('roleId').getValue(),
+                rightModule: form.getField('rightModule').getValue()
+            })
+        }, function (e) {
+            grid.unmask();
+        });
+    }
+
+    grid.on('update', function (e) {
+        //加载后选中默认节点
+        var needSelecteRows = [];
+        grid.cascadeChild(grid.getRootNode(), function (row) {
+            if (true === row.isChecked) {
+                needSelecteRows.push(row);
+            }
+        });
+        grid.selects(needSelecteRows, false);
+    });
+    /**
+     * 联动选择子节点
+     **/
+    grid.on("select", function (e) {
+        //子节点处理
+        grid.cascadeChild(e.record, function (row) {
+            grid.select(row, false);
+        });
+        //回溯父节点处理
+        grid.bubbleParent(e.record, function (row) {
+            grid.select(row, false);
+        });
+    });
+
+    /**
+     * 联动取消选择子节点
+     **/
+    grid.on("deselect", function (e) {
+        //子节点处理
+        grid.cascadeChild(e.record, function (row) {
+            grid.deselect(row, false);
+        });
+        //回溯父节点处理
+        grid.bubbleParent(e.record, function (row) {
+            //判断同级节点中是否存在选中节点
+            var hasCheckNode = false;
+            grid.eachChild(row, function (childRow) {
+                if (grid.isSelected(childRow)) {
+                    hasCheckNode = true;
+                    return false;
+                }
+            });
+            if (!hasCheckNode) {
+                grid.deselect(row, false);
+            }
+        });
+
+    });
+
+
+    //禁止收缩
+    grid.on('beforecollapse', function (e) {
+        e.cancel = true;
+    });
+
+    /**
+     * 保存数据
+     * @param e
+     */
+    function confirm(e) {
+        $.post("auth_add.html", JSON.stringify({
+                roleId: form.getField('roleId').getValue(),
+                rightModule: form.getField('rightModule').getValue(),
+                rightMap: grid.getSelecteds()
+            }),
+            function (res) {
+                if (200 === res.code) {
+                    hmq.tipSuccess(res.msg || '保存成功', {
+                        exec: function () {
+                            CloseWindow('refresh');
+                        }
+                    });
+                } else {
+                    hmq.tipDanger(res.msg || '保存失败');
+                }
+            },
+            null,
+            {loading: {message: '保存中...'}, contentType: 'application/json'}
+        );
+    }
+
+    //关闭
+    function closeWindow(action) {
+        if (window.CloseOwnerWindow) {
+            return window.CloseOwnerWindow(action);
+        } else {
+            window.close();
+        }
+    }
+</script>
+</body>
+</html>

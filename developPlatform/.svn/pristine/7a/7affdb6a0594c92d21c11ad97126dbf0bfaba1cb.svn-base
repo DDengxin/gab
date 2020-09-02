@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tz="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>协同-事务申请</title>
+    </th:block>
+</head>
+<body>
+<th:block th:replace="~{model/SearchBar :: SearchBar('form1',~{::content})}">
+    <th:block th:fragment="content">
+        <label class="hmq-label" text="日期">
+            <input class="mini-datepicker" name="srchRq1" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="至">
+            <input class="mini-datepicker" name="srchRq2" dateFormat="yyyy-MM-dd" width="110"/>
+        </label>
+        <label class="hmq-label" text="单号">
+            <input class="mini-textbox" name="srchNote" width="110"/>
+        </label>
+        <label class="hmq-label" text="大类">
+            <input class="mini-combobox" name="srchType" url="encodeURI('/system/parameter/getParamsSelectListByParentId/财务/SWDL')" popupMaxHeight="240px" showNullItem="true" nullItemText="全部" emptyText="全部"/>
+        </label>
+        <label class="hmq-label" text="部门">
+            <input id="srchDept" name="srchDept" class="mini-treeselect" multiSelect="false" valueFromSelect="false" url="/system/dept/combobox/getDeptTreeList" showClose="true" oncloseclick="onCloseClickClearValue"/>
+        </label>
+        <label class="hmq-label" text="人员">
+            <input class="mini-buttonedit" id="srchMan" name="srchMan" allowInput="false" onbuttonclick="onPersonClick"/>
+        </label>
+    </th:block>
+</th:block>
+<!--撑满页面-->
+<div class="mini-fit">
+    <div tz:datagrid="datagrid" id="srch_grid" idField="swNote" url="/xt/transaction/getList">
+        <div property="columns">
+            <div tz:datagrid="indexcolumn" width="48">序号</div>
+            <div tz:datagrid="column" field="swRq" width="100" align="center">申请日期</div>
+            <div tz:datagrid="column" field="swNote" width="150" align="center">申请单号</div>
+            <div tz:datagrid="column" field="swDept" displayField="swDeptName" width="100" align="center">申请部门</div>
+            <div tz:datagrid="column" field="swMan" displayField="swManName" width="100" align="center">申请人员</div>
+            <div tz:datagrid="column" field="swType" displayField="swTypeName" width="150" align="center">事务大类</div>
+            <div tz:datagrid="column" field="swStype" displayField="swStypeName" width="150" align="center">事务分类</div>
+            <div tz:datagrid="column" field="swText" width="500" align="left">申请事由</div>
+            <div tz:datagrid="column" field="swFile" width="100" align="center" renderer="onActionRenderer">附件</div>
+            <div tz:datagrid="column" field="swFlag" width="60" align="center">状态</div>
+            <div tz:datagrid="column" field="dataMan" displayField="dataManName" width="100" align="center">操作人</div>
+            <div tz:datagrid="column" field="dataDate" width="100" align="center">操作时间</div>
+            <div tz:datagrid="column" field="dataCorp" displayField="dataCorpName" width="100" align="center">所属公司</div>
+            <div tz:datagrid="column" width="100%"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form("form1");
+    var grid = mini.get("srch_grid");
+
+    /**
+     * 查询
+     */
+    function search_option() {
+        grid.load({params: JSON.stringify(form.getData(true))});
+    }
+
+    /**
+     * 新增
+     * @param e
+     */
+    function add_option(e) {
+        e.sender.miniopen({url: "add.html", action: 'add', width: 720, height: 500});
+    }
+
+    /**
+     * 编辑
+     * @param e
+     */
+    function edit_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.swFlag != "登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return;
+            } else {
+                e.sender.miniopen({url: 'add.html', action: 'edit', data: row, width: 720, height: 500});
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 删除
+     */
+    function delete_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.swFlag != "登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return;
+            } else {
+                mini.confirm("注意:确定要删除吗(包括已上传附件)？", "删除信息", function (action) {
+                    if (action == "ok") {
+                        $['delete']("delete.html/{0}".format(row.swNote), function (res) {
+                            if (200 === res.code) {
+                                grid.reload();
+                            } else {
+                                hmq.tipDanger(res.msg);
+                            }
+                        });
+                    }
+                });
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 确认
+     */
+    function confirm_option() {
+        var row = grid.getSelected();
+        if (row) {
+            if (row.swFlag != "登记") {
+                hmq.tipDanger('该单不是“登记”状态,不能操作！');
+                return;
+            } else {
+                hmq.business.approvalConfirm({
+                    businessId: row.swNote,
+                    url: '/xt/transaction/add.html',
+                    error: function (res) {
+                        hmq.tipDanger(res.msg);
+                    }
+                });
+
+            }
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 取消
+     */
+    function cancel_option() {
+        var row = grid.getSelected();
+        if (row) {
+            hmq.business.approvalCancel({
+                businessId: row.swNote,
+                error: function (res) {
+                    hmq.tipDanger(res.msg);
+                }
+            });
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 查阅
+     * @param e
+     */
+    function find_option(e) {
+        var row = grid.getSelected();
+        if (row) {
+            e.sender.miniopen({url: 'view.html', action: 'view', data: row.swNote, width: 940, height: 760});
+        } else {
+            hmq.tipDanger("请选择一条记录");
+        }
+    }
+
+    /**
+     * 表格渲染
+     * @param e
+     * @returns {string}
+     */
+    function onActionRenderer(e) {
+        var html = "";
+        if (e.value != null) {
+            html = '<a class="text-link" href="javascript:file_view(\'' + e.value + '\')">' + ' 附件  ' + '</a> ';
+        }
+        return html;
+    }
+
+    /**
+     * 附件查阅/下载
+     * @param swNote
+     */
+    function file_view(swNote) {
+        miniopen({url: 'file.html', action: 'file', data: swNote, width: 400, height: 390, title: '附件下载'});
+    }
+
+    /**
+     * 人员选择
+     * @param e
+     * @returns {mini.Window}
+     */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/personnel/checkWorkAttendance/leave/worker.html",
+            title: "人员选择",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    mini.get("srchMan").setValue(data.workerId);
+                    mini.get("srchMan").setText(data.workerName);
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

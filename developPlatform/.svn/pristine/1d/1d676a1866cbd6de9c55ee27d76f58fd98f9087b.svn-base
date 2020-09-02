@@ -1,0 +1,16 @@
+package com.tengzhi.business.personnel.personnelTraining.trainingPlan.model;
+
+import com.tengzhi.base.jpa.model.BaseModel;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "e_hr_training_plan")
+public class EHrTrainingPlan extends BaseModel {
+
+    @Id
+    private String jhNote;
+
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>需求市场</title>
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/basic.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/css/needs.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/font/iconfont.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/static/gab/layui/css/layui.css}" />
+
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/jquery.autocompleter.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/public.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/gab/js/needs.js}"></script>
+</head>
+<body>
+	<th:block th:replace="~{gab/common/CommonHead:: CommonHead}">
+	</th:block>
+
+	<div class="needs_content">
+		<div class="needs_content_list">
+			<h2>需求市场</h2>
+			<div class="list_left">
+				<div class="left_needs">
+					<p th:text="${Need.cpname}">
+						快速非标夹治具订制规格：
+						<i>152*100</i>
+					</p>
+
+
+					<i name="cpbz_Name" ></i><i th:text="'：'+${Need.typeName}"></i>
+					<p th:text="需求地区： + ${Need.needProvince} + ${Need.needCity}">需求地区：浙江宁波</p>
+
+					<p>
+						公司名称：
+<!--						<a href="http://www.tengzhicn.com" th:text="${Need.corpName}">腾111智信息技术有限公司</a>-->
+						<a th:text="${company.supply_name}"></a>
+					</p>
+					<p th:text="任务周期： + ${Need.dutyCycle} + 天">任务周期：30天</p>
+					<p th:text="发布时间： + ${Need.dataDate}">发布时间：2020-04-25</p>
+<!-- 					<p th:text="数量： + ${Need.needAmount}">数量：3000个</p> -->
+					<p th:text="截止时间： + ${Need.endTime}">截止时间：2020-05-15</p>
+
+					<div class="bottom">
+						<ul>
+							<li>
+								<a href="#">投标中</a>
+							</li>
+							<li>
+								<a class="offer" href="javascript:void(0);">立即报价</a>
+							</li>
+						</ul>
+					</div>
+					<div class="show">
+						<img th:src="${Need.imgSrc}" alt="" default-img="/static/gab/images/wt.png">
+					</div>
+				</div>
+				<div class="introduce">
+					<h3>需求介绍</h3>
+					<div th:text="${Need.introduce}"></div>
+				</div>
+
+				<div class="example">
+					<h3>该用户往期需求</h3>
+					<ul th:each="item,index:${manNeed}">
+						<li>
+							<i>></i>
+							<a th:href="@{'/gab/needs.html?needNote='+${item.needNote}}" th:text="${item.cpname}"></a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="list_right">
+				<div class="details_content">
+					<div class="needs_recommend">
+						<h4>相似需求推荐</h4>
+						<ul th:each="item,index:${TypeRecommend}">
+							<li>
+								<a th:href="@{'/gab/needs.html?needNote='+${item.needNote}}"><span th:text="${item.cpname}"></span></a>
+							</li>
+						</ul>
+						<ul th:if="${TypeRecommendSize} == 0">
+							<li style="color: gray;">
+								暂无推荐
+							</li>
+						</ul>
+					</div>
+					<div class="firm_recommend">
+						<h4>厂商推荐</h4>
+						<ul th:each="item,index:${FirmRecommend}">
+							<li>
+								<a href="#">
+									<img th:src="${item.supplyImg}" default-img="/static/gab/images/wt.png"
+									alt="">
+									<div>
+										<p th:text="${item.company}">深圳市冠泰精密科技有限公司</p>
+										<p class="firm_intro" th:text="${item.supplyInfo}">专注精密手板模型定制生产-CNC加工/3D打印专注精密手板模型定制生产-CNC定制生产</p>
+									</div>
+								</a>
+							</li>
+						</ul>
+						<ul th:if="${FirmRecommendSize} == 0">
+							<li style="color: gray;">
+								暂无推荐
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<th:block th:replace="~{gab/common/CommonFooter:: CommonFooter}">
+	</th:block>
+</body>
+</html>

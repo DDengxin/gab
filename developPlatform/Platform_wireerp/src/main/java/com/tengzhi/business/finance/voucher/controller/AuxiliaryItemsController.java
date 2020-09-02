@@ -1,0 +1,106 @@
+package com.tengzhi.business.finance.voucher.controller;
+
+import com.tengzhi.annotations.Log;
+import com.tengzhi.base.jpa.dto.BaseDto;
+import com.tengzhi.base.jpa.page.BasePage;
+import com.tengzhi.base.jpa.result.Result;
+
+import com.tengzhi.business.finance.voucher.model.EFVoucherAuxiliaryitems;
+import com.tengzhi.business.finance.voucher.service.AuxiliaryItemsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/finance/voucher/auxiliaryitems")
+public class AuxiliaryItemsController {
+	@Autowired
+	private AuxiliaryItemsService auxiliaryItemsService;
+
+	@GetMapping("*.html")
+	public ModelAndView pageForwart(ModelAndView mv) {
+		return mv;
+	}
+
+	/**
+	 * 查询配置数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "auxiliaryItems/{fusebstable}/list")
+	@Log("查询业务表单")
+	public Result getEFVoucherAuxiliaryitemsList(BaseDto baseDto,@PathVariable String fusebstable) {
+		return auxiliaryItemsService.findAll(baseDto,fusebstable).getResult();
+	}
+	/**
+	 * 查询配置数据列表
+	 *
+	 * @return
+	 */
+	@PostMapping(value = "/getAssistingGridlist")
+	@Log("查询业务表单")
+	public Result getAssistingGridlist(BaseDto baseDto) {
+		return auxiliaryItemsService.getAssistingGridlist(baseDto).getResult();
+	}
+
+
+	/**
+	 * 查询下拉框数据列表
+	 * 
+	 * @return
+	 */
+	@GetMapping("auxiliaryItems/findAll")
+	public List<EFVoucherAuxiliaryitems> findAll() {
+		return auxiliaryItemsService.findAll();
+	}
+
+	/**
+	 * 通过ID获取对象
+	 *
+	 * @param id
+	 * @return
+	 */
+	@GetMapping(value = "auxiliaryItems/{id}")
+	public Result getById(@PathVariable String id) {
+		return Result.resultOk(auxiliaryItemsService.findById(id));
+	}
+
+	/**
+	 * 新增
+	 *
+	 * @return
+	 */
+	@PostMapping("auxiliaryItems")
+	@Log("新增业务表单")
+	public Result add(@RequestBody EFVoucherAuxiliaryitems efva) throws Exception {
+
+		efva = auxiliaryItemsService.save(efva);
+		return Result.resultOk(efva.getFitemid());
+	}
+
+	/**
+	 * 修改
+	 *
+	 * @return
+	 */
+	@PutMapping("auxiliaryItems")
+	@Log("修改业务表单")
+	public Result modify(@RequestBody EFVoucherAuxiliaryitems efva) {
+		auxiliaryItemsService.update(efva);
+		return Result.resultOk(efva.getFitemid());
+	}
+
+	/**
+	 * 删除数据
+	 *
+	 *
+	 * @return
+	 */
+	@DeleteMapping(value = "auxiliaryItems/{id}")
+	@Log("删除业务表单")
+	public Result delete(@PathVariable(value = "id") String id) {
+		return auxiliaryItemsService.deleteById(id);
+	}
+}

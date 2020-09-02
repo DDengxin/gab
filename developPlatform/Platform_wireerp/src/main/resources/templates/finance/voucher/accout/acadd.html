@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>凭证科目【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <form id="form1">
+     
+			<table style="table-layout:fixed;margin: 0px auto;padding-top:5px;">
+			<input id="faccountid" name="faccountid" class="mini-hidden" readonly="readonly" />
+			<input id="flevel" name="flevel" class="mini-hidden" readonly="readonly" />
+			<input id="fparentid" name="fparentid" class="mini-hidden" readonly="readonly" />
+			<input id="frootid" name="frootid" class="mini-hidden" readonly="readonly" />
+			<input id="fcash" name="fcash" class="mini-hidden" readonly="readonly" />
+			<input id="ffullname" name="ffullname" class="mini-hidden" readonly="readonly" />
+			<input id="fdetail" name="fdetail" class="mini-hidden" readonly="readonly" value="0" />
+			<input id="action" name="action" class="mini-hidden" readonly="readonly" />
+			<table style="table-layout:fixed;margin: 0px auto;padding-top:5px;">
+				<tr>
+					<td align="center" height="25">科目编码：</td>
+					<td>
+						<input id="fnumber" name="fnumber" style="width: 200px;" class="mini-textbox" required="true" emptyText="请输入编码" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">科目名称：</td>
+					<td>
+						<input id="fname" name="fname" style="width: 200px;" class="mini-textbox" required="true" emptyText="请输入名称" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">上级科目：</td>
+					<td>
+						<input id="fparentidname" name="fparentidname" style="width: 200px;" class="mini-textbox" readOnly="true" />
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">科目种别：</td>
+					<td>
+						<select id="fclassid" name="fclassid" class="mini-combobox" style="width: 200px;" required="true" textField="combtext" valueField="combid" emptyText="全部">
+							<option value="1">资产</option>
+							<option value="2">负债</option>
+							<option value="3">权益</option>
+							<option value="4">成本</option>
+							<option value="5">损益</option>
+						</select>
+
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">科目类别：</td>
+					<td>
+						<select id="fgroupid" name="fgroupid" class="mini-combobox" style="width: 200px;" required="true" textField="combtext" valueField="combid"  emptyText="全部" />
+					<option value="0">全部</option>
+					</select>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">余额方向：</td>
+					<td>
+						<select id="fdc" name="fdc" class="mini-combobox" style="width: 200px;" required="true" textField="combtext" valueField="combid" emptyText="全部">
+							<option value="1">借</option>
+							<option value="-1">贷</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">
+						<input id="fisitem" name="fisitem" class="mini-checkbox" text="辅助核算：" value="0" truevalue="1" falsevalue="0"></input>
+					</td>
+					<td colspan="5">
+						<input id="fcustom" name="fcustom" class="mini-checkbox" text="客户" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fsupplier" name="fsupplier" class="mini-checkbox" text="供应商" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="femp" name="femp" class="mini-checkbox" text="职员" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fproject" name="fproject" class="mini-checkbox" text="项目" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fdept" name="fdept" class="mini-checkbox" text="部门" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="finventory" name="finventory" class="mini-checkbox" text="存货" value="0" truevalue="1" falsevalue="0"> </input>
+						<input id="fqt" name="fqt" class="mini-checkbox" text="其他" value="0" truevalue="1" falsevalue="0"> </input>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" height="25">
+						<input id="fisqtyaux" name="fisqtyaux" class="mini-checkbox" text="数量核算：" value="0" truevalue="1" falsevalue="0"></input>
+					</td>
+					<td>
+						<input id="funit" name="funit" style="width: 200px;" class="mini-textbox" />
+					</td>
+				</tr>
+				
+				<tr>
+					<td align="center" height="25">状&emsp;&emsp;态：</td>
+					<td>
+						<select id="fisdelete" name="fisdelete" class="mini-combobox" style="width: 200px;" textfield="combtext" valuefield="combid" emptytext="全部">
+							<option value="0">禁用</option>
+							<option value="1">启用</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+    var form = new mini.Form('form1');
+    /**
+    设置
+   */
+	function SetData(data) {
+		var ls_action=data.action;
+		if (data.action == "add") {
+			$("#action").val(data.action);
+	        form.setChanged(false);
+	        mini.get("fparentidname").setValue("无上级科目");
+			mini.get("fparentid").setValue("0");
+			mini.get("flevel").setValue("1");
+			
+		}
+		if (data.action == "edit" || data.action == "addsub") {
+			$("#action").val(data.action);
+	        data = mini.clone(data);//跨页面传递的数据对象，克隆后才可以安全使用
+	        $.ajax({
+	          url : "/finance/voucher/accout/getItems/get",
+	          type : 'post',
+	          data : {
+	            parms : data.sid,
+	            menu_id:"",
+	            stime : (new Date()).getTime()
+	          },
+	          cache : false,
+	          success : function(text) {
+	            if (text.status) {
+	              var o = mini.decode(text.user);
+	              form.setData(o);
+	              $("#action").val(ls_action);
+	              form.setChanged(false);
+	              var ls_fclassid=mini.get("fclassid").getValue();
+	      		  mini.get("fgroupid").setUrl(encodeURI(encodeURI("/engine/ba/cm/select/getComboList.do?select_id=select_cw_kmlb&code="+mini.get("fclassid").getValue())));
+	      		  mini.get("fnumber").setEnabled(false);
+	      		  mini.get("fclassid").setEnabled(false);
+	      		  mini.get("fgroupid").setEnabled(false);
+	      		  mini.get("fdc").setEnabled(false);
+	      		  
+	      		  if(ls_action=='addsub'){
+	      			var ls_flevel=mini.get("flevel").getValue();
+	      			ls_flevel=ls_flevel +1;
+	      			mini.get("flevel").setValue(ls_flevel);
+	      			
+	      			mini.get("faccountid").setValue(null);
+	      			mini.get("fparentidname").setValue(o.fnumber+' '+o.fname);
+	    			mini.get("fparentid").setValue(o.faccountid);
+	    			
+	    			mini.get("fnumber").setEnabled(true);
+	    			mini.get("fnumber").setValue('');
+	    			mini.get("fname").setValue('');
+	      		  }
+	            } else {
+	              mini.alert(text.message);
+	            }
+
+	          },
+	          error : function() {
+	            mini.alert("网络请求失败!");
+	          }
+	        });
+		}
+
+		
+	}
+
+
+
+
+
+</script>
+</html>

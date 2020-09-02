@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<th:block
+	th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common,upload'})}">
+	<title>图片上传</title>
+</th:block>
+<style>
+body {
+	font-size: 20px;
+}
+
+.img {
+	cursor: pointer;
+	width: 200px;
+	height: 100px;
+}
+</style>
+</head>
+<body>
+		<div>
+			<label for="id_myfile"> 
+				<img class="img" id="id_img" name="id_img" src="/static/img/common/null.jpg" alt="">
+			</label> 
+			<input type="file" style="display: none;" id="id_myfile" name="id_myfile"> 
+			<input type="text" style="display: none;" id="line_primary" name="line_primary">
+		</div>
+		<div class="mini-toolbar hmq-toolbar">
+			<a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+		</div>
+</body>
+<script type="text/javascript">
+	mini.parse();
+	
+	var fileId = getFileId();
+    $("#line_primary").val(fileId);
+	
+	$('#id_myfile').change(function() {
+		let fileObj = this.files[0];
+		let fileReader = new FileReader();
+		fileReader.readAsDataURL(fileObj);
+		fileReader.onload = function() {
+			$('#id_img').attr('src', fileReader.result)
+		}
+	});
+
+	function SaveData() {
+		var file = $('#id_myfile')[0].files[0];  
+		var line_primary = $('#line_primary').val(); 
+        var formData = new FormData();  
+        formData.append("file", file);  
+        formData.append("pid", line_primary);  
+        $.ajax({  
+            url: "saveImg", 
+            type: 'POST',  
+            cache: false,  
+            data: formData,  
+            processData: false,  
+            contentType: false,  
+            success: function (data) {  
+            	alert(data.message)
+            },  
+            error: function (err) {  
+            }  
+        }); 
+		}
+</script>
+</html>

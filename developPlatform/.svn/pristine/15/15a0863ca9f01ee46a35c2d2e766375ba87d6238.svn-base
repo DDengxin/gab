@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{model/Head :: head(~{::title},_,_,${'miniui,common'})}">
+        <title>培训计划【新增】</title>
+    </th:block>
+</head>
+<body>
+<div class="mini-fit">
+    <input name="action" class="mini-textbox"/>
+    <form id="form1">
+        <table class="hmq-modify-table">
+            <tr>
+                <td title>培训月度</td>
+                <td >
+                    <input class="mini-monthpicker" name="jhNy" required="true"/>
+                </td>
+                <td title>培训单号</td>
+                <td ><input class="mini-textBox" emptyText="单号自动生成"
+                                   allowInput="false" name="jhNote"/></td>
+            </tr>
+            <tr>
+                <td title>培训类型</td>
+                <td >
+                    <input class="mini-combobox" required="true" name="jhType" url="/system/parameter/getParamsSelectListByParentId/人事/培训类型/PXLX"/>
+                </td>
+                <td title>培训方式</td>
+                <td content>
+                    <input class="mini-combobox" required="true" name="jhFrom" url="/system/parameter/getParamsSelectListByParentId/人事/培训方式/PXFS">
+                </td>
+            </tr>
+            <tr>
+                <td title>培训主题</td>
+                <td colspan="3">
+                    <input name="jhTitle" id="jhTitle" class="mini-textBox"  />
+                </td>
+            </tr>
+            <tr>
+                <td title>培训对象</td>
+                <td colspan="3">
+                    <input id="jhObject" name="jhObject" class="mini-textBox"/>
+            </tr>
+            <tr>
+                <td title>培训地点</td>
+                <td content colspan="3" >
+                    <input class="mini-textBox" name="jhTrainingAddress"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>预计费用</td>
+                <td >
+                    <input class="mini-textBox"  name="jhEstimatedCost"/>
+                </td>
+                <td title>培训级别</td>
+                <td content>
+                    <input name="jhTrainingLevel" id="jhTrainingLevel" class="mini-combobox" url="/system/parameter/getParamsSelectListByParentId/人事/培训级别/PXJB">
+                </td>
+            </tr>
+            <tr>
+                </td>  <td title>培训时间</td>
+                <td >
+                    <input id="jhTime" name="jhTime"  class="mini-datepicker"/>
+                </td>
+                <td title>培训时长</td>
+                <td content><input name="jhCourseLength" id="jhCourseLength"   class="mini-textBox"/>
+                </td>
+            </tr>
+            <tr>
+                <td title>责任部门</td>
+                <td >
+                    <input class="mini-buttonedit" onbuttonclick="onPersonClick" name="jhDept" id="jhDept" allowInput="false"   showClose="true" oncloseclick="onCloseClickClearValue"/>
+                </td>
+                <td title>排序</td>
+                <td>
+                    <input class="mini-textBox" name="jhTrainingOrder">
+                </td>
+            </tr>
+            <tr>
+                <td title>培训内容</td>
+                <td content colspan="3" >
+                    <input class="mini-textarea" name="jhTrainingContent"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div class="mini-toolbar hmq-toolbar">
+    <a class="mini-button" onclick="SaveData" iconCls="icon-save" id="saveBtn">保存</a>
+    <a class="mini-button" onclick="CloseWindow" iconCls="icon-cancel">关闭</a>
+</div>
+</body>
+<script type="text/javascript">
+    mini.parse();
+/*    mini.get("xmDept").load("/system/dept/combobox/getDeptTreeList");*/
+    var form = new mini.Form('form1');
+    function SetData(options) {
+        if ('add' == options.action) {
+            $('[name=action]').val(options.action);
+        } else if ('edit' == options.action) {
+            $.get("pxjhAdd.html/{0}".format(options.data.jhNote), function (res) {
+                if (200 === res.code) {
+                    form.setData(res.data);
+                    var data =res.data;
+                  form.getField("jhDept").setText(data.jhDept);
+                }
+            });
+        }
+    }
+
+    function SaveData() {
+        if (form.validate() && form.isValid()) {
+            var method = 'add' == $('[name=action]').val() ? 'post' : 'put';
+            $[method]("pxjhAdd.html", JSON.stringify(form.getData()),
+                function (res) {
+                    if (200 === res.code) {
+                        hmq.tipSuccess(res.msg || '保存成功', {
+                            exec: function () {
+                                CloseWindow('refresh');
+                            }
+                        });
+                    } else {
+                        hmq.tipDanger(res.msg || '保存失败');
+                    }
+                }, null, {
+                    contentType: 'application/json'
+                });
+        }
+    }
+    /*  部门选择 */
+    function onPersonClick(e) {
+        var btnEdit = e.sender;
+        return miniopen({
+            targetWindow: window.top,
+            url: "/project/projectArchives/xmda/xmman.html",
+            title: "【负责人】选择页面",
+            width: 750,
+            data: {},
+            height: 620,
+            ondestroy: function (action) {
+                if (action == "ok") {
+                    var iframe = this.getIFrameEl();
+                    var data = iframe.contentWindow.GetData();
+                    btnEdit.setValue(data.workerId);
+                    btnEdit.setText(data.workerName);
+                    mini.get("jhDept").setValue(data.workerDept);
+                }
+            }
+        });
+    }
+</script>
+</html>
